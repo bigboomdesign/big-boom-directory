@@ -1,0 +1,7 @@
+/* Search Widget */
+#cptdir-search-form{ margin-top: 1em; }
+.cptdir-search-filter{ float: left; margin-right: 1em; }
+
+/* Search Results Page */
+.cptdir-search-result-item{ margin-top: 2em; }
+.cptdir-archive-thumb{ width: 80px; height: auto; }

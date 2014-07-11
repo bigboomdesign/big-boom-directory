@@ -1,0 +1,23 @@
+/* General */
+.bbd-red{ color: #B42D29; }
+.debug{ color: orange; background: beige; }
+
+.cptdir-success{ color: green; }
+.cptdir-fail{ color: red; }
+h3.cptdir-header{ font-size: 1.5em; }
+h4.cptdir-header{ font-size: 1.3em; }
+h5.cptdir-header{ font-size: 1.1em; font-weight: bold; }
+.form-table.indent th{ padding-left: 3em;  }
+.form-table.indent {margin-bottom: 3em;}
+
+/* Custom Fields */
+.cptdir-edit-field{ max-width: 450px; padding-bottom: 1.5em; border-bottom: solid black 1px; }
+.cptdir-header.field{ font-style: italic; }
+
+a.cptdir-remove-field{ cursor: pointer; }
+
+/* Import */
+div.cptdir-found-header{ padding-bottom: 1.5em; }
+div.cptdir-found-header .cptdir-header{ color: #1E8CBE; }
+div.cptdir-cf-or{ margin: 1.5em 0; }
+.cptdir-new-cf-input{ margin-top: 0.8em; }
