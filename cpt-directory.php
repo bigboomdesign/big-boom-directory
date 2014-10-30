@@ -82,13 +82,13 @@ function cptdir_create_post_type() {
 
 		# Create custom heirarchical taxonomy
 		global $cptdir_ctax;
-		$cptdir_ctax = cptdir_get_cat_tax(); 
-		$cptdir_ctax->register_tax();
+		if($cptdir_ctax = cptdir_get_cat_tax()) 
+			$cptdir_ctax->register_tax();
 			
 		# Create custom non-heirarchical taxonomy
 		global $cptdir_ttax;
-		$cptdir_ttax = cptdir_get_tag_tax();
-		$cptdir_ttax->register_tax();
+		if($cptdir_ttax = cptdir_get_tag_tax())
+			$cptdir_ttax->register_tax();
 	}
 }
 # Set page template for various pages
