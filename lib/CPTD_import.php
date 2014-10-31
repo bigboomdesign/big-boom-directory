@@ -63,7 +63,7 @@ class CPTD_import{
 		if($this->bFile && !$this->bForm)
 		do{
 			$this->parse_csv();
-			if(!$this->headers){ cptdir_fail("No rows found."); break; }
+			if(!$this->headers){ echo cptdir_fail("No rows found."); break; }
 			echo cptdir_success($this->num_rows." rows found", "h4", "cptdir-header");
 			echo "<hr class='cptdir-hr' />";
 			if(array() !== $this->headers){
@@ -97,7 +97,7 @@ class CPTD_import{
 		if(!$this->bFile) return false;
 		$file = $_FILES["cptdir-import-file"];
 		# open file
-		if(!($fh = fopen($file["tmp_name"], "r"))){ cptdir_fail("Couldn't read file."); return false;}
+		if(!($fh = fopen($file["tmp_name"], "r"))){ echo cptdir_fail("Couldn't read file."); return false;}
 		# Count rows		
 		$i = 0;
 		$headers = array();
@@ -185,7 +185,7 @@ class CPTD_import{
 	# Run the main import process, inputting whether or not we are in debug mode
 	private function run_import($bDebug = false){
 		if(!$this->bFile || !$this->bForm) return false;
-		# $bDebug = true;
+		$bDebug = true;
 		if($bDebug){ echo "<h3 class='debug'>POST: </h3>"; var_dump($_POST); echo "<h3 class='debug'>Files: </h3>"; var_dump($_FILES); }
 		$this->parse_csv();		
 		# if( $nImport_rows > 0 ) {
@@ -204,8 +204,8 @@ class CPTD_import{
 			if($bDebug){ echo "<h3 class='debug'>Existing Posts: </h3>"; var_dump($aPost_names); echo "<br />";}
 
 			// Collect Existing Taxonomy Terms
-			$aCtax_terms = get_terms($this->ctax->name);
-			$aTtax_terms = get_terms($this->ttax->name);
+			if($this->ctax) $aCtax_terms = get_terms($this->ctax->name);
+			if($this->ttax) $aTtax_terms = get_terms($this->ttax->name);
 			if($bDebug){
 				echo "<h3 class='debug'>Heirarchical Terms: </h3>";
 				var_dump($aCtax_terms);
@@ -221,7 +221,7 @@ class CPTD_import{
 			# Count total successes and fails for rows
 			$nPost_success = 0;
 			$nPost_fail = 0;
-			foreach( $this->rows as $csvRow ) {			
+			foreach( $this->rows as $csvRow ) {	
 				# Are we updating?
 				$bPost_exists = false;
 				# Existing post, if applicable
@@ -238,8 +238,10 @@ class CPTD_import{
 					if(!array_key_exists($v, $csvRow)) continue;
 					$aRow[$k] = $csvRow[$v]?$csvRow[$v]:"";
 				}
+				
 				# Skip if we have no title
-				if(!$aRow["post_title"]){ cptdir_fail("No title was found."); $nPost_fail++; continue; }
+				if(!$aRow["post_title"]){ echo cptdir_fail("No title was found."); $nPost_fail++; continue; }
+				echo "Howdy";
 								
 				# Set slug based on title if it doesn't already exist
 				if(!$aRow["post_name"]) $aRow["post_name"] = CPTDirectory::clean_str_for_url($aRow["post_title"]);
@@ -276,7 +278,7 @@ class CPTD_import{
 					'post_status'           => 'publish', 
 					'post_type'             => $this->post_type->name,
 					'post_content'   => $aRow["post_content"],
-					'post_name'      => $aRow["post_name"],					  
+					'post_name'      => $aRow["post_name"],  
 				);
 				# Add ID to the arguments if post exists, so that an update is done instead of an insert
 				if($bPost_exists && is_object($oPost)) $post_args["ID"] = $oPost->ID;
@@ -324,13 +326,13 @@ class CPTD_import{
 				***/
 
 				# Non-Heirarchical
-				$this->import_terms($new_id, "ttax", $aRow, $bDebug );
+				if($this->ttax) $this->import_terms($new_id, "ttax", $aRow, $bDebug );
 				# Heirarchical
-				$this->import_terms($new_id, "ctax", $aRow, $bDebug );
+				if($this->ctax) $this->import_terms($new_id, "ctax", $aRow, $bDebug );
 
 			} # end foreach: posts
 		} # endif: import rows exist
-		cptdir_fail("We couldn't find any rows to import.");
+		echo cptdir_fail("We couldn't find any rows to import.");
 	} # end: run_import()
 	
 	private function import_terms($post_id, $type, $aRow, $bDebug = false){

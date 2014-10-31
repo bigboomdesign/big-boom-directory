@@ -8,9 +8,8 @@
  */
  
 # PHP Classes
-if(file_exists(cptdir_folder("lib/CPTDirectory.php"))) require_once cptdir_folder("lib/CPTDirectory.php");
-if(file_exists(cptdir_folder("lib/CPTD_pt.php"))) require_once cptdir_folder("lib/CPTD_pt.php");
-if(file_exists(cptdir_folder("lib/CPTD_tax.php"))) require_once cptdir_folder("lib/CPTD_tax.php");
+$aCPTD_classes = array("CPTDirectory", "CPTD_pt", "CPTD_pt", "CPTD_tax", "CPTD_view");
+foreach($aCPTD_classes as $class) if(file_exists(cptdir_folder("lib/".$class.".php"))) require_once cptdir_folder("lib/".$class.".php");
 
 # Widget
 require_once cptdir_folder("lib/CPTD_search_widget.php");
@@ -82,15 +81,79 @@ function cptdir_create_post_type() {
 
 		# Create custom heirarchical taxonomy
 		global $cptdir_ctax;
-		$cptdir_ctax = cptdir_get_cat_tax(); 
-		$cptdir_ctax->register_tax();
+		if($cptdir_ctax = cptdir_get_cat_tax()) 
+			$cptdir_ctax->register_tax();
 			
 		# Create custom non-heirarchical taxonomy
 		global $cptdir_ttax;
-		$cptdir_ttax = cptdir_get_tag_tax();
-		$cptdir_ttax->register_tax();
+		if($cptdir_ttax = cptdir_get_tag_tax())
+			$cptdir_ttax->register_tax();
 	}
 }
+# Single template for CPT
+add_filter("single_template", "cptdir_single_template");
+function cptdir_single_template($single_template){
+	$pt = cptdir_get_pt();
+	# do nothing if we're not viewing a single listing of our PT
+	if(!is_singular($pt->name)) return $single_template;
+	
+	# add the_content filter for post content
+	add_filter("the_content", "cptdir_do_single");
+	return $single_template;
+}
+## the_content filter for single listing
+function cptdir_do_single($content){
+	# if theme has custom content function, do that and return
+	## note that custom function has option to return $content
+	if(function_exists("cptdir_custom_single")){ return cptdir_custom_single($content); }
+
+	# otherwise set up default view
+	global $post;
+	$view = new CPTD_view(array("ID" => $post->ID, "type"=>"single"));
+	$view->do_fields();
+	return $content;
+}
+
+# Set templates for taxonomy archives
+add_filter("taxonomy_template", "cptdir_taxonomy_template");
+function cptdir_taxonomy_template($page_template){
+	# do nothing if we're not viewing a taxonomy archive
+    if(!is_tax()) return $page_template;
+    
+    # get custom taxonomy objects and return if we're not viewing either of their archive pages
+    $ctax = cptdir_get_cat_tax();
+    $ttax = cptdir_get_tag_tax();
+    # get taxonomy name
+	if(
+		!(
+			($bCtax = ($ctax && is_tax($ctax->name)))
+				|| ($bTtax = ($ttax && is_tax($ttax->name)))
+		)
+	)
+	return $page_template;
+   	$taxname = $bCtax ? $ctax->name : ($bTtax ? $ttax->name : "");
+    if(!$taxname) return $page_template;
+
+	# the_content for taxonomy archive post content
+	add_filter("the_content", "cptdir_taxonomy_content");
+    return $page_template;
+}
+# This function fires on the_content() for each post in the loop on taxonomy pages, when no template is present in the theme
+function cptdir_taxonomy_content($content){
+	# if theme has custom content function, do that and return
+	## note that custom function has option to return $content
+	if(function_exists("cptdir_custom_taxonomy_content")){ return cptdir_custom_taxonomy_content($content); }
+	
+	# otherwise set up default view
+	global $post;
+	$tax = cptdir_get_cat_tax() ? cptdir_get_cat_tax() : (cptdir_get_tag_tax() ? cptdir_get_tag_tax() : "");
+	if(!is_object($tax)) return $content;
+	
+	$view = new CPTD_view(array("ID" => $post->ID, "type" => "multi"));
+	$view->do_fields();
+	return $content;
+}
+
 # Set page template for various pages
 add_filter( 'page_template', 'cptdir_page_templates' );
 function cptdir_page_templates( $page_template ){
@@ -103,40 +166,12 @@ function cptdir_page_templates( $page_template ){
     }   
     return $page_template;
 }
-# Search Results Page
+## Search Results Page
 function cptdir_do_search_results($content){ 
 	CPTDirectory::do_search_results();
 	return $content;
 }
-# Set templates for taxonomies
-add_filter("taxonomy_template", "cptdir_taxonomy_template");
-function cptdir_taxonomy_template($page_template){
-    $ctax = cptdir_get_cat_tax();
-    $ttax = cptdir_get_tag_tax();
-    if(is_tax($ctax->name) || is_tax($ttax->name)){
-    	# get the name for the taxonomy
-    	$taxname = "";
-    	if(is_tax($ctax->name)) $taxname = $ctax->name;
-    	elseif(is_tax($ttax->name)) $taxname = $ttax->name;
-    	if(!$taxname) return $page_template;
-    	# see if the default template file (taxonomy-name.php) exists in the theme folder
-    	if(file_exists(get_stylesheet_directory()."/taxonomy-".$taxname.".php")) 
-    		return get_stylesheet_directory()."/taxonomy-".$taxname.".php";
-    	# if not, create a default category layout
-    	else{
-    		# We'll need to do something here to define some default behavior (instead of relying on the theme)
-    		# For starters, this will fire on every post in the feed (might be used to add fields in place)
-    		add_filter("the_content", "cptdir_taxonomy_archive");
-    	}
-    }
-    return $page_template;
-}
-# This function fires on the_content() for each post in the loop on taxonomy pages, when no template is present in the theme
-function cptdir_taxonomy_archive($content){
-	# Uncomment below to see example
-	#echo "baz.";
-	return $content;
-}
+
 ###
 # Helper Functions
 ###

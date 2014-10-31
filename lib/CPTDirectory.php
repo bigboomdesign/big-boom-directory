@@ -109,7 +109,40 @@ public static function get_all_cpt_posts($bPub = true){
 	wp_reset_query();
 	return $aOut;
 }
-# Return list of all fields for custom post type
+# filter out WP extraneous post meta
+function filter_post_meta($a){
+	global $view;
+	$out = array();
+	foreach($a as $k => $v){
+		# if value is an array, take the first item
+		if(is_array($v)) $v = $v[0];
+		# do nothing if value is empty
+		if("" == $v) continue;
+		# check if this is an ACF field
+		$bACF = self::is_acf($v);
+		if($bACF){
+			$view->acf_fields[$k] = $v;
+		}
+		# Filter out any fields that start with an underscore or that are empty
+		## save any ACF fields
+		if(
+			!in_array($v, $out) 
+				&& ( (strpos($k, "_") !== 0 || strpos($k, "_") === false)
+					&& !$bACF
+				)
+		){
+			#echo "$k: $v"; echo "<br /><br />";
+			$out[$k] = $v;
+		}
+	}
+	return $out;
+}
+# Return list of all fields for single listing
+public static function get_fields_for_listing($id){
+	$fields = self::filter_post_meta(get_post_meta($id));
+	return $fields;
+}
+# Return list of all fields for custom post typeaCF
 public static function get_all_custom_fields($bActive = false){
 	$aCF = array();
 	# A work in progress is to have an option to filter out all fields that are not in use
@@ -132,6 +165,7 @@ public static function get_all_custom_fields($bActive = false){
 			# Grab all custom fields for post
 			$aPM = get_post_custom_keys($post->ID);
 			if(!$aPM) continue;
+
 			foreach($aPM as $field){
 				# Filter any fields that have already been found and ones that start with the underscore character
 				# If a field passes this filter, we'll add it to the $aCF array and show it in the table
@@ -148,6 +182,10 @@ public static function get_all_custom_fields($bActive = false){
 	$aACF_fields = self::get_acf_fields();
 	foreach($aACF_fields as $a){ if(!in_array($a['name'], $aCF)) $aCF[] = $a['name']; }
 	return $aCF;
+}
+# Check if a field is an ACF field
+public static function is_acf($field){
+	return preg_match("/field_[\dA-z]+/", $field);
 }
 # Get advanced custom fields
 public static function get_acf_fields(){
