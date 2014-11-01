@@ -1,3 +1,7 @@
+/* Fields */
+.cptdir-field label{ font-weight: bold; }
+.cptdir-field.textarea label{ display: block; }
+
 /* Search Widget */
 #cptdir-search-form{ margin-top: 1em; }
 .cptdir-search-filter{ float: left; margin-right: 1em; }

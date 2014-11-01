@@ -29,10 +29,18 @@ class CPTD_view{
 				if($aField['order_no'] >= 0) $ordered_fields[$aField['order_no']] = $aField;
 			}
 			ksort($ordered_fields);
-			foreach($ordered_fields as $field){
-				echo "<b>" . $field['label'] . ":</b> " . $field["value"];
-				echo "<br /><br />";
-			}
+			
+			# loop through fields and display label & value
+			if($ordered_fields){
+				?><div class="cptdir-fields-wrap"><?php
+					foreach($ordered_fields as $field){
+					?><div class="cptdir-field <?php echo $field['type'] . " " . $field['name']; ?>">
+						<label><?php echo $field['label'];?>: &nbsp; </label><?php echo $field["value"]; ?>
+					</div>
+					<?php
+					}
+				?></div><?php
+			} #end if: fields exist
 		}
 		# work in progress: plugin behavior without ACF
 		else $fields = CPTDirectory::get_fields_for_listing($this->ID);

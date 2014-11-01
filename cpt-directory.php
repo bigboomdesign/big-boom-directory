@@ -108,8 +108,12 @@ function cptdir_do_single($content){
 	if(function_exists("cptdir_custom_single")){ return cptdir_custom_single($content); }
 
 	# otherwise set up default view
+	return cptdir_default_field_view($content);
+}
+# default field view (can be called by theme if needed from inside cptdir_custom_single)
+function cptdir_default_field_view($content, $type = "single"){
 	global $post;
-	$view = new CPTD_view(array("ID" => $post->ID, "type"=>"single"));
+	$view = new CPTD_view(array("ID" => $post->ID, "type"=>$type));
 	$view->do_fields();
 	return $content;
 }
@@ -149,9 +153,7 @@ function cptdir_taxonomy_content($content){
 	$tax = cptdir_get_cat_tax() ? cptdir_get_cat_tax() : (cptdir_get_tag_tax() ? cptdir_get_tag_tax() : "");
 	if(!is_object($tax)) return $content;
 	
-	$view = new CPTD_view(array("ID" => $post->ID, "type" => "multi"));
-	$view->do_fields();
-	return $content;
+	return cptdir_default_field_view($content, "multi");
 }
 
 # Set page template for various pages

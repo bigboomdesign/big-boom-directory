@@ -142,7 +142,7 @@ public static function get_fields_for_listing($id){
 	$fields = self::filter_post_meta(get_post_meta($id));
 	return $fields;
 }
-# Return list of all fields for custom post typeaCF
+# Return list of all fields for custom post type
 public static function get_all_custom_fields($bActive = false){
 	$aCF = array();
 	# A work in progress is to have an option to filter out all fields that are not in use
