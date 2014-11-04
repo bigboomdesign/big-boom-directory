@@ -221,6 +221,14 @@ function cptdir_get_tag_tax(){
 	) return false;	
 	return new CPTD_tax($slug, $sing, $pl, $pt->name, false);
 }
+# display a field given an array from ACF
+function cptdir_field($field){
+	# if we're given a string, try to get the field array from ACF
+	if(is_string($field)){ if(!($field = function_exists("get_field_object") ? get_field_object($field) : "")) return; }
+	# if nothing was found do nothing
+	if(!$field) return;
+	CPTD_view::do_single_field($field);
+}
 
 ###
 # AJAX calls
