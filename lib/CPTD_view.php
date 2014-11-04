@@ -62,13 +62,14 @@ class CPTD_view{
 	<?php
 	}
 	# display fields for listing
-	function do_fields(){
+	function do_fields($callback = ""){
 		if(!$this-ID) return;
 		
 		# if ACF is activated
 		if(function_exists("get_fields")){
 			$fields = get_fields($this->ID);
 			$fields = CPTDirectory::filter_post_meta($fields);
+
 			$ordered_fields = array();
 			
 			# order the fields
@@ -77,12 +78,15 @@ class CPTD_view{
 				if($aField['order_no'] >= 0) $ordered_fields[$aField['order_no']] = $aField;
 			}
 			ksort($ordered_fields);
-			
+
+			# If callback is set, filter out fields using user-specified conditions
+			if(function_exists($callback)){$ordered_fields = array_filter($ordered_fields, $callback);}
+						
 			# loop through fields and display label & value
 			if($ordered_fields){
 				?><div class="cptdir-fields-wrap"><?php
 					foreach($ordered_fields as $field){
-						$this->do_single_field($field);
+						$this->do_single_field($field, $callback);
 					} # end foreach: fields
 				?></div><?php
 			} #end if: fields exist

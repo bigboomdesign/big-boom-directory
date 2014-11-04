@@ -17,15 +17,42 @@ A directory plugin for WordPress, driven by the WP Custom Post Type environment.
 ## Integration with theme
 
 ### Call these existing functions within your theme:
-* Get a list of all fields for a post, with ACF ordering (within loop)
- * ```cptdir_default_field_view()```
 
-* Display a single field (within loop, must pass a field name string or ACF array)
- * ```cptdir_field()```
+#### ```cptdir_default_field_view($content, $type, $callback)```
+* Display all fields for a post, with ACF ordering (within loop)
+  * *$content :* the post content
+  * *$type :* "single" or "multi"
+  * *$callback :* a function which can be used in the theme to filter out unwanted fields
+
+Example:
+
+	(inside of loop){
+    	cptdir_default_field_view($content, "single", "my_single_field_callback");
+    }
+    
+Now we have to define the callback function *my_single_field_callback*
+
+    # In this example, we're keeping the 'name' and 'email' fields from being displayed
+    function my_single_field_callback($field){
+        $reject = array("name", "email");
+        if(in_array($field['name'], $reject)) return false;
+        return true;
+    }
+
+
+#### ```cptdir_field($field)```
+* Display a single field label and value within loop
+ * *$field* : A string like 'field_name' or ACF array
+
+---
 
 ### Define these functions within your theme to customize listing display
+
+####```cptdir_custom_single($content)```
 * Hook into post content for single listing view, passing and returning post content if needed
- * ```cptdir_custom_single($content)```
+ * *$content* : The post content
+
+####```cptdir_custom_taxonomy_content($content)```
 * Hook into post content for custom taxonomy archive listing, passing and return the post content if needed
- * ```cptdir_custom_taxonomy_content($content)```
+ * *$content* : The post content
 

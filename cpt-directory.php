@@ -111,10 +111,10 @@ function cptdir_do_single($content){
 	return cptdir_default_field_view($content);
 }
 # default field view (can be called by theme if needed from inside cptdir_custom_single)
-function cptdir_default_field_view($content, $type = "single"){
+function cptdir_default_field_view($content = "", $type = "single", $callback = ""){
 	global $post;
 	$view = new CPTD_view(array("ID" => $post->ID, "type"=>$type));
-	$view->do_fields();
+	$view->do_fields($callback);
 	return $content;
 }
 
@@ -226,7 +226,7 @@ function cptdir_field($field){
 	# if we're given a string, try to get the field array from ACF
 	if(is_string($field)){ if(!($field = function_exists("get_field_object") ? get_field_object($field) : "")) return; }
 	# if nothing was found do nothing
-	if(!$field) return;
+	if(!$field || !$field['value']) return;
 	CPTD_view::do_single_field($field);
 }
 
