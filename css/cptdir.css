@@ -1,5 +1,10 @@
 /* Fields */
 .cptdir-field label{ font-weight: bold; }
+
+.cptdir-field.wysiwyg,
+.cptdir-field.textarea{ margin: 1em 0; }
+
+.cptdir-field.wysiwyg label,
 .cptdir-field.textarea label{ display: block; }
 
 /* Search Widget */

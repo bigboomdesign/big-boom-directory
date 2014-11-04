@@ -115,7 +115,9 @@ function filter_post_meta($a){
 	$out = array();
 	foreach($a as $k => $v){
 		# if value is an array, take the first item
-		if(is_array($v)) $v = $v[0];
+		if(is_array($v)){
+			if($v[0]) $v = $v[0];
+		}
 		# do nothing if value is empty
 		if("" == $v) continue;
 		# check if this is an ACF field
