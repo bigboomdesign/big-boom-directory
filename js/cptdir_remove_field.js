@@ -14,15 +14,6 @@ jQuery(document).ready(function($){
 				success: function(data){
 					$("#cptdir-remove-" + field + "-message").html(data);
 					anchor.hide();
-					anchor.parent().css("opacity", "0.4");
-					/*
-					if(data == "valid"){
-						$("#cptdir-remove-" + $(this).attr("data-field") + "-message").html("Email OK");				
-					}
-					else{
-						$("#emailInfo").html("Invalid email");				
-					}
-					*/
 				}
 			}); // ajax
 		} // endif: field is set

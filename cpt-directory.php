@@ -236,11 +236,18 @@ function cptdir_field($field){
 
 # Remove Field
 function cptdir_remove_field(){
+	# field name should be sent in POST from ajax call
 	$field = isset($_POST["cptdir_field"])?$_POST["cptdir_field"]:null;
-	$msg = "<p class='cptdir-fail'>Failed to remove field.</p>";
-	sleep(1);
-	if($field){
-		$msg = "<div class='cptdir-success'>Successfully removed field.</div>";
+
+	if("" != $field && is_string($field)){	
+		global $wpdb;
+		# delete where meta_key = "field_name"
+		if($nDel = $wpdb->delete($wpdb->prefix . "postmeta", array("meta_key" => $field)))
+			$msg = "<div class='cptdir-success'>Successfully removed $nDel empty row.<br />";
+		else{ $msg = "<div class='cptdir-fail'>We didn't find any fields to delete.<br /><br />"; }
+		if($result = $wpdb->query($wpdb->prepare("SELECT meta_key FROM " . $wpdb->prefix . "postmeta WHERE meta_key = " . "'_".$field."'")))
+			$msg .= "This field will show up until you remove it from Advanced Custom Fields.";
+		$msg .= "</div>";
 	}
 	echo $msg;
 	die();

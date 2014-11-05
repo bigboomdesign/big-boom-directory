@@ -146,9 +146,8 @@ public static function get_fields_for_listing($id){
 }
 # Return list of all fields for custom post type
 public static function get_all_custom_fields($bActive = false){
+	# array of custom fields we'll return
 	$aCF = array();
-	# A work in progress is to have an option to filter out all fields that are not in use
-	#$aActive = array(); 
 	
 	# Go through posts and scour field names
 	do{
@@ -160,7 +159,7 @@ public static function get_all_custom_fields($bActive = false){
 		if(!$slug) break;
 		# Get ID's of posts for our CPT
 		global $wpdb;
-		$aPosts = $wpdb->get_results( "SELECT ID FROM " . $wpdb->prefix . "posts WHERE post_type='$slug'" );
+		$aPosts = $wpdb->get_results( "SELECT DISTINCT ID FROM " . $wpdb->prefix . "posts WHERE post_type='$slug'" );
 		# Loop through posts ID's for CPT and get list of custom fields
 		if(!$aPosts) break;
 		foreach($aPosts as $post){
@@ -173,16 +172,22 @@ public static function get_all_custom_fields($bActive = false){
 				# If a field passes this filter, we'll add it to the $aCF array and show it in the table
 				if(!in_array($field, $aCF) && (strpos($field, "_") !== 0 || strpos($field, "_") === false)){
 					# This will check if the field has any posts that actually use it
-					#if((!in_array($field, $aActive)) && ("" != get_post_meta($post->ID, $field, true))) $aActive[] = $field;
-					$aCF[] = $field;
+					if($bActive){
+						if((!in_array($field, $aCF)) && ("" != get_post_meta($post->ID, $field, true))) $aCF[] = $field;
+					}
+					else{
+						if(!in_array($field, $aCF)) $aCF[] = $field; 
+					}
 				}
 			}
 		}
 	} while(0); #end: scour posts for field values
 	
-	# Get Advanced Custom Fields fields
-	$aACF_fields = self::get_acf_fields();
-	foreach($aACF_fields as $a){ if(!in_array($a['name'], $aCF)) $aCF[] = $a['name']; }
+	# Get Advanced Custom Fields fields if we're not filtering out inactive fields
+	if(!$bActive){
+		$aACF_fields = self::get_acf_fields();
+		foreach($aACF_fields as $a){ if(!in_array($a['name'], $aCF)) $aCF[] = $a['name']; }
+	}
 	return $aCF;
 }
 # Check if a field is an ACF field
@@ -325,6 +330,7 @@ public static function do_fields_page(){
     # Check if we have any custom fields to show 
     do{
 		$aCF = self::get_all_custom_fields();
+		$aActiveFields = self::get_all_custom_fields(true);
 		# Iterate through custom fields we found and display table
 		if(!$aCF) break;
 		$bCF = true;
@@ -339,13 +345,12 @@ public static function do_fields_page(){
 					<input type="checkbox" name="custom_field" value="<?php echo get_option('custom_field'); ?>" />&nbsp; Archives view<br />
 					<input type="checkbox" name="custom_field" value="<?php echo get_option('custom_field'); ?>" />&nbsp; Single view
 					<?php 
-					/* Work in progress: display warning if field is not being used
+					# display warning if field is not being used
 					if(!in_array($field, $aActiveFields)){ ?>
-						<p class="bbd-red">This field doesn't seem to have any values in use.</p>
+						<p class="cptdir-fail">This field doesn't seem to have any values in use.</p>
 						<a data-field="<?php echo $field; ?>" id="cptdir-remove-<?php echo $field; ?>" class="cptdir-remove-field">Remove Field</a>
 						<div id="cptdir-remove-<?php echo $field; ?>-message"></div>
-					<?php } 
-					*/
+					<?php }
 					?>
 				</div>
 				
@@ -356,7 +361,7 @@ public static function do_fields_page(){
 	<?php
 	}
 	while(0);
-	if(!$bCF){ ?><p class="bbd-red">There aren't any custom fields associated with your post type yet.</p><?php }
+	if(!$bCF){ ?><p class="cptdir-fail">There aren't any custom fields associated with your post type yet.</p><?php }
 	?>
 	</div><?php # wrap
 }

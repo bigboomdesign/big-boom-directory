@@ -1,9 +1,8 @@
 /* General */
-.bbd-red{ color: #B42D29; }
 .debug{ color: orange; background: beige; }
 
 .cptdir-success{ color: green; }
-.cptdir-fail{ color: red; }
+.cptdir-fail{ color: #B42D29; }
 h3.cptdir-header{ font-size: 1.5em; }
 h4.cptdir-header{ font-size: 1.3em; }
 h5.cptdir-header{ font-size: 1.1em; font-weight: bold; }
