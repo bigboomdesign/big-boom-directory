@@ -9,7 +9,8 @@
 
 /* Search Widget */
 #cptdir-search-form{ margin-top: 1em; }
-.cptdir-search-filter{ float: left; margin-right: 1em; }
++p.cptdir-search-filter{ float: left; margin-right: 1em; margin-bottom: 1.5em; padding-bottom: 0;}
++.cptdir-search-submit{ width: 100%; max-width: 250px; height: 3em; }
 
 /* Search Results Page */
 .cptdir-search-result-item{ margin-top: 2em; }

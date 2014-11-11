@@ -226,14 +226,16 @@ public static function get_meta_values( $key = '', $type = "", $status = 'publis
 		$type = $pt->name;
 	}
     global $wpdb;
-    $r = $wpdb->get_col( $wpdb->prepare( "
-        SELECT DISTINCT pm.meta_value FROM {$wpdb->postmeta} pm
-        LEFT JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-        WHERE pm.meta_key = '%s' 
-        AND p.post_status = '%s' 
-        AND p.post_type = '%s'
-    ", $key, $status, $type ) );
-
+    $r = $wpdb->get_col( 
+    	$wpdb->prepare(
+			"SELECT DISTINCT pm.meta_value FROM {$wpdb->postmeta} pm
+			LEFT JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+			WHERE pm.meta_key = '%s' 
+			AND p.post_status = '%s' 
+			AND p.post_type = '%s'", 
+			$key, $status, $type 
+    	)
+    );
     return $r;
 }
 # Display Public Settings Page

@@ -87,9 +87,11 @@ private function do_custom_fields_dropdown($fields){
 	if(!is_array($fields)) return;
 	# Loop through acf fields (stored in $this object) and grab the ACF field arrays that are selected
 	foreach($this->acf_fields as $field){
-		if(in_array($field['name'], $fields)){ 
-			# var_dump($field); echo "<br /><br />";
-			$aValues = CPTDirectory::get_meta_values($field['name']);
+		if(in_array($field['name'], $fields)){
+			# see if we have pre-defined choices and get array if we do
+			if(array_key_exists("choices", $field)) $aValues = $field["choices"];
+			# get values as strings if choices don't exist
+			else $aValues = CPTDirectory::get_meta_values($field['name']);
 			if(array() != $aValues){
 				$name = "cptdir-". $field['name'] . "-select";
 			?>
@@ -97,9 +99,9 @@ private function do_custom_fields_dropdown($fields){
 					<select name="<?php echo $name; ?>">
 						<option value=""><?php echo $field['label']; ?></option>
 						<?php
-						foreach($aValues as $value){
+						foreach($aValues as $key => $value){
 						?>
-							<option value="<?php echo $value; ?>"><?php echo $value; ?></option>
+							<option value="<?php echo is_string($key) ? $key : $value; ?>"><?php echo $value; ?></option>
 						<?php
 						}
 						?>
