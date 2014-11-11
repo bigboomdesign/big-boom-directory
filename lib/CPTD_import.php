@@ -1,5 +1,8 @@
 <?php
 class CPTD_import{
+	// turn on for debugging
+	var $bDebug = true;
+	
 	var $post_type;
 	var $ctax;
 	var $ttax;
@@ -29,6 +32,25 @@ class CPTD_import{
 		# Get options for csv columns
 		$custom_options = $this->get_custom_column_options();
 		$this->column_options = array_merge($this->post_fields, $custom_options);
+		
+		# Add new custom fields to be created to column options if the form is posted
+		if($this->bForm){
+			# match all array keys in post with string "new-cf"
+			$new_keys = preg_grep("/cptdir-import-new-cf-/", array_keys($_POST));
+			# take out extraneous stuff from all keys to get the field_name
+			if($new_keys){
+				$new_keys = preg_replace("/cptdir-import-new-cf-(.*)/", "$1", $new_keys);
+				# loop through found keys and add type/label for column_options array
+				$new_fields = array();
+				foreach($new_keys as $key){ 
+					# don't accept the new field if a custom field already exists
+					foreach($this->column_options as $aOption){ if($aOption['key'] == $key) continue 2; }
+					$new_fields[] = array("key" => $key, "label" => $key, "type" => "new_custom_field" ); 
+				}
+				# merge with existing column options
+				$this->column_options = array_merge($this->column_options, $new_fields);
+			}
+		}
 		
 		# If post is set, create the user-generated column map
 		if($this->bFile && $this->bForm) $this->create_column_map();
@@ -89,7 +111,7 @@ class CPTD_import{
 		} while(0); # endif: file is posted
 		# Check if file and form are both posted
 		elseif($this->bFile && $this->bForm){
-			$this->run_import($bDebug);
+			$this->run_import();
 		} # end: file and form are posted
 	}
 	# Load headers, rows, and row count into object	
@@ -130,9 +152,7 @@ class CPTD_import{
 	public function get_custom_column_options(){
 		$aFields = array();
 		$aCF = CPTDirectory::get_all_custom_fields();
-		$custom_fields = array();
 		foreach( $aCF as $field ){ $aFields[] = array( "key" => $field, "label" => "Custom Field: $field", "type"=>"custom_field"); }
-		#$aFields = array_merge(self::$post_fields, $custom_fields);
 		if($this->ttax) $aFields[] = array("key"=> $this->ttax->name, "label" => "Taxonomy: " . $this->ttax->name, "type"=>'ttax');
 		if($this->ctax) $aFields[] = array("key"=> $this->ctax->name, "label" => "Taxonomy: " . $this->ctax->name, "type"=>'ctax');	
 		return $aFields;
@@ -140,9 +160,12 @@ class CPTD_import{
 	# Create map from column_options field to csv_fields based on POST input
 	private function create_column_map(){
 		foreach( $_POST as $k => $v){
+			# sanitize POST content
 			$key = CPTDirectory::san($k);
 			$val = CPTDirectory::san($v);
+			# we're going to be matching only fields starting with cptdir-import-
 			$matches = array();
+			# these need to be cleared out each time
 			$csv_field = "";
 			$import_field = "";
 			$bValid = false;
@@ -152,14 +175,23 @@ class CPTD_import{
 				$import_field = $val;
 				# Check if this is a valid choice
 				foreach($this->column_options as $aOption){
+					# new custom fields can go in automatically and get mapped to themselves
+					## note bValid is not set to true here since we're forcing the value and not using the POST key and value
+					if($aOption['type'] == "new_custom_field")  $this->column_map[$aOption['key']] = $aOption['key'];
 					if($import_field == $aOption['key']){ $bValid = true; continue; }
 				}
 				if($bValid){ 
 					$this->column_map[$import_field] = $csv_field;
 				}
+				else $this->debug($csv_field, "Field not assigned: ", 4);
 			}
+		} # end foreach: $_POST
+		# for any column options that weren't used, map them to an empty string
+		foreach($this->column_options as $k => $aOption){
+			if(!array_key_exists($aOption["key"], $this->column_map)) $this->column_map[$aOption["key"]] = "";
 		}
-		foreach($this->column_options as $k => $aOption) if(!array_key_exists($aOption["key"], $this->column_map)) $this->column_map[$aOption["key"]] = "";
+		$this->debug($this->column_options, "Column Options: ");
+		$this->debug($this->column_options, "Column Map: ");
 	}
 	# Display dropdown, given fields and slug for the <select > name/ID
 	public function do_fields_dropdown($slug){
@@ -177,16 +209,16 @@ class CPTD_import{
 		</select>
 		<div class="cptdir-cf-or">OR</div>
 		<div class="cptdir-new-cf">
-			<input type="checkbox" name="cptdir-new-cf-<?php echo $field_name; ?>" id="cptdir-new-cf-<?php echo $field_name; ?>" data-field="<?php echo $field_name; ?>"/> Create new custom field: 
-			&nbsp;<b> <?php echo $field_name; ?></b>
+			<input type="checkbox" name="cptdir-import-new-cf-<?php echo $slug; ?>" id="cptdir-import-new-cf-<?php echo $field_name; ?>" /> Create new custom field: 
+			&nbsp;<b> <?php echo $slug; ?></b>
 		</div>
 		<?php
 	}
-	# Run the main import process, inputting whether or not we are in debug mode
-	private function run_import($bDebug = false){
+	# Run the main import process
+	private function run_import(){
 		if(!$this->bFile || !$this->bForm) return false;
-		$bDebug = true;
-		if($bDebug){ echo "<h3 class='debug'>POST: </h3>"; var_dump($_POST); echo "<h3 class='debug'>Files: </h3>"; var_dump($_FILES); }
+		$this->debug( $_POST, "POST:");
+		$this->debug($_FILES, "FILES:");
 		$this->parse_csv();		
 		# if( $nImport_rows > 0 ) {
 		if( $this->num_rows > 0) {
@@ -201,19 +233,14 @@ class CPTD_import{
 			$aPosts = CPTDirectory::get_all_cpt_posts();
 			$aPost_names = array();
 			foreach($aPosts as $post) $aPost_names[] = $post->post_name;
-			if($bDebug){ echo "<h3 class='debug'>Existing Posts: </h3>"; var_dump($aPost_names); echo "<br />";}
+			$this->debug($aPost_names, "Existing Posts: ");
 
 			// Collect Existing Taxonomy Terms
 			if($this->ctax) $aCtax_terms = get_terms($this->ctax->name);
 			if($this->ttax) $aTtax_terms = get_terms($this->ttax->name);
-			if($bDebug){
-				echo "<h3 class='debug'>Heirarchical Terms: </h3>";
-				var_dump($aCtax_terms);
-				echo "<br /><br />";
-				echo "<h3 class='debug'>Non-Heirarchical Terms: </h3>";
-				var_dump($aTtax_terms);
-				echo "<br /><br />";
-			}
+			$this->debug($aCtax_terms, "Heirarchical Terms: ");
+			$this->debug($aTtax_terms, "Non-Heirarchical Terms: ");
+
 			/***
 			* Loop through rows
 			***/
@@ -241,7 +268,6 @@ class CPTD_import{
 				
 				# Skip if we have no title
 				if(!$aRow["post_title"]){ echo cptdir_fail("No title was found."); $nPost_fail++; continue; }
-				echo "Howdy";
 								
 				# Set slug based on title if it doesn't already exist
 				if(!$aRow["post_name"]) $aRow["post_name"] = CPTDirectory::clean_str_for_url($aRow["post_title"]);
@@ -249,10 +275,8 @@ class CPTD_import{
 				echo '<hr />';
 				echo '<h4 class="cptdir-header">Importing Post: <span style="color: midnightblue;">' . $aRow['post_title'] . '</b></h4>';
 				
-				if($bDebug){ 
-					echo "<h4 class='debug'>CSV Row Data:</h4>"; var_dump($csvRow);
-					echo "<h4 class='debug'>Import Row Data:</h4>"; var_dump($aRow); echo "<br /><br />";
-				}
+				$this->debug($csvRow, "CSV Row Data: ");
+				$this->debug($aRow, "Import Row Data: " );
 				
 				# Check if permalink is free for the taking
 				echo "<p>Formatted Title: <b>'" . $aRow["post_name"] . "'</b></p>";				
@@ -262,16 +286,14 @@ class CPTD_import{
 					$bPost_exists = true;
 					echo "<p><span class='cptdir-fail'>Already Exists</span>: Attempting to update post data</p>"; 
 					foreach($aPosts as $post){ if($post->post_name == $aRow["post_name"]) $oPost = $post;  }
-					if($bDebug){ echo "<h4 class='debug'>Post to Update</h4>"; var_dump($oPost); echo "<br /><br />"; }
+					$this->debug($oPost, "Post to Update: ");
 				}
 								
 				
 				/***
 				* Post Object Data
 				***/
-				
-				# Right now, let's just focus on one or two posts!
-				#if(!($aRow["post_title"] == "Hawkins Oak" || $aRow["post_title"] == "Murdock Pecan")) continue;
+
 				$post_args = array();
 				$post_args = array(
 					'post_title'     => $aRow["post_title"], //$aRow['post_title'],
@@ -295,28 +317,26 @@ class CPTD_import{
 				
 				/***
 				* Custom Fields
-				***/	
+				***/
 
 				echo "<b>Attempting to Importing Custom Field Information...</b><br />";
-				if($bDebug) echo "<h4 class='debug'>Custom Field Data:</h4>";
 				# Loop through all column options
 				foreach( $this->column_options as $aField  ){
 					$value = "";
 					# take action only if we have a custom field that is a key to our spreadsheet
 					if(!array_key_exists($aField['key'], $aRow)) continue;
-					if($aField["type"] != "custom_field") continue;
+					if($aField["type"] != "custom_field" && $aField["type"] != "new_custom_field") continue;
 					# get the key for the field and pass it through the row to get our value
 					$value = $aRow[$aField['key']];
 					# skip to next option if value is empty
 					if(!$value){ $nCF_fail++; continue; }	
-					if($bDebug) {var_dump($aField); echo "<br />";
-						echo "<b>Found value: " . $value . "<br />";
-						echo "Current value: " . get_post_meta($new_id, $aField['key'], true)."<br />";
-					}
+						$this->debug($aField, "Field: ");
+						$this->debug($value, "Found Value: ");
+						$this->debug(get_post_meta($new_id, $aField['key'], true), "Current value: ");
 					# try and update the field value
 					if(update_post_meta($new_id, $aField['key'], $value)) $nCF_success++;
 					else $nCF_fail++;
-					if($bDebug) echo "New value: " . get_post_meta($new_id, $aField['key'], true) . "</b><br /><br />";							 
+					if($this->bDebug) echo "New value: " . get_post_meta($new_id, $aField['key'], true) . "</b><br /><br />";							 
 				} # end foreach: column options
 				if($nCF_success > 0) echo "<p class='cptdir-success'>Successfully updated {$nCF_success} custom fields.</p>";
 				if($nCF_fail > 0) echo "<p class='cptdir-fail'>No change was made for {$nCF_fail} custom fields.</p>";
@@ -326,16 +346,16 @@ class CPTD_import{
 				***/
 
 				# Non-Heirarchical
-				if($this->ttax) $this->import_terms($new_id, "ttax", $aRow, $bDebug );
+				if($this->ttax) $this->import_terms($new_id, "ttax", $aRow);
 				# Heirarchical
-				if($this->ctax) $this->import_terms($new_id, "ctax", $aRow, $bDebug );
+				if($this->ctax) $this->import_terms($new_id, "ctax", $aRow);
 
 			} # end foreach: posts
 		} # endif: import rows exist
-		echo cptdir_fail("We couldn't find any rows to import.");
+		else echo cptdir_fail("We couldn't find any rows to import.");
 	} # end: run_import()
 	
-	private function import_terms($post_id, $type, $aRow, $bDebug = false){
+	private function import_terms($post_id, $type, $aRow){
 		if($type == "ttax"){
 			$label = $this->ttax->labels["name"];
 			$tax = $this->ttax->name;
@@ -346,7 +366,7 @@ class CPTD_import{
 		}
 		else return;
 		echo "<b>Attempting to Import Custom Taxonomy Terms for <span style='color: midnightblue;'>'" . $label . "'</span>...</b><br />";
-		if($bDebug) echo "<h4 class='debug'>Taxonomy Data:</h4>";
+		if($this->bDebug) echo "<h4 class='debug'>Taxonomy Data:</h4>";
 		# Loop through all column options
 		foreach( $this->column_options as $aField ){
 			$value = "";
@@ -362,7 +382,7 @@ class CPTD_import{
 			$value = $aRow[$aField['key']];
 			# skip to next option if value is empty
 			if(!$value) continue;
-			if($bDebug){ 
+			if($this->bDebug){ 
 				var_dump($aField); echo "<br /><br />";
 				echo "<b>Found terms: " . $aRow[$aField['key']] . "</b><br /><br />";
 			}
@@ -370,23 +390,23 @@ class CPTD_import{
 			$aTerms = explode(",", $aRow[$aField['key']]);
 			# Clean up whitespace
 			foreach($aTerms as $k => $v){ $aTerms[$k] = preg_replace("/\s+/", " ", trim($v)); }
-			if($bDebug){ echo "Individual Term Array: <br />"; var_dump($aTerms); echo "<br /><br />";}
+			if($this->bDebug){ echo "Individual Term Array: <br />"; var_dump($aTerms); echo "<br /><br />";}
 			# Loop through terms and apply to post if not already in place
 			foreach($aTerms as $term){
 				if("" == $term) continue;
-				if($bDebug) echo "<b>Term: $term</b><br />";
+				if($this->bDebug) echo "<b>Term: $term</b><br />";
 				# get the term ID if it exists
 				if($term_id = term_exists($term, $tax)){
-					if($bDebug){ echo "Term Exists:<br />"; var_dump($term_id); echo "<br /><br />"; }
+					if($this->bDebug){ echo "Term Exists:<br />"; var_dump($term_id); echo "<br /><br />"; }
 					$aTermIds[] = intval($term_id['term_id']);
 				} # endif: term exists
 				# if term doesn't exist, insert it
 				else{
-					if( $bDebug) echo "Term doesn't exist.<br />";
+					if( $this->bDebug) echo "Term doesn't exist.<br />";
 					# create new term
 					$new_slug = CPTDirectory::clean_str_for_url($term);
 					$term_id = wp_insert_term( $term, $tax, array("slug" => $new_slug) );
-					if($bDebug){ echo "Created term:<br />"; var_dump($term_id); echo "<br /><br />"; }
+					if($this->bDebug){ echo "Created term:<br />"; var_dump($term_id); echo "<br /><br />"; }
 					$aTermIds[] = intval($term_id["term_id"]);
 				}
 			} # end foreach: found terms
@@ -396,5 +416,9 @@ class CPTD_import{
 			else{ echo "<p>There was a problem inserting these terms.</p>"; }					
 		} # end foreach: column options		
 	} # end: import_terms()
+	# dump a variable in debug mode, passing a message and header size
+	private function debug($var, $msg, $size = 3){
+		if($this->bDebug){ echo "<h{$size} class='debug'>$msg</h{$size}>"; var_dump($var); echo "<br /><br />"; }
+	}
 } # end class
 ?>
