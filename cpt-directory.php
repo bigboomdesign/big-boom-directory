@@ -253,12 +253,12 @@ function cptdir_remove_field(){
 		global $wpdb;
 		# delete where meta_key = "field_name" and post_id IN $aIDs
 		$query = "DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key='$field' AND post_id IN (" . implode(', ', $aIDs) . ")";
-		if($nDel = $wpdb->query($wpdb->prepare( $query )))
+		if($nDel = $wpdb->query($wpdb->prepare( $query, '' )))
 			$msg = "<div class='cptdir-success'>Successfully removed $nDel rows.<br />";
 		else{ $msg = "<div class='cptdir-fail'>We didn't find any fields to delete.<br /><br />"; }
 		
 		# Check if field is still set in Advanced Custom Fields
-		if($result = $wpdb->query($wpdb->prepare("SELECT meta_key FROM " . $wpdb->prefix . "postmeta WHERE meta_key = " . "'_".$field."'")))
+		if($result = $wpdb->query($wpdb->prepare("SELECT meta_key FROM " . $wpdb->prefix . "postmeta WHERE meta_key = " . "'_".$field."'", '')))
 			$msg .= "This field will show up until you remove it from Advanced Custom Fields.";
 		$msg .= "</div>";
 	}
@@ -272,9 +272,13 @@ function cptdir_remove_all_fields(){
 	# get post IDs for both published and unpublished
 	$bPub = false;
 	$aIDs = CPTDirectory::get_all_cpt_ids($bPub);
-	# Delete
-	$query = "DELETE FROM " . $wpdb->prefix . "postmeta WHERE post_id IN(" . implode(", ", $aIDs) . ")";
-	$nDel = $wpdb->query( $wpdb->prepare($query) );
+	# number of rows deleted
+	$nDel = 0;
+	if($aIDs){
+		# Delete
+		$query = "DELETE FROM " . $wpdb->prefix . "postmeta WHERE post_id IN(" . implode(", ", $aIDs) . ")";
+		$nDel = $wpdb->query( $wpdb->prepare($query, '') );
+	}
 	# Message to display
 	$msg = "";
 	if($nDel) $msg = "<div class='cptdir-success'>Successfully deleted " . $nDel . " rows.</div>";
@@ -286,36 +290,38 @@ function cptdir_remove_all_fields(){
 add_action('wp_ajax_cptdir_remove_unpublished', 'cptdir_remove_unpublished');
 function cptdir_remove_unpublished(){
 	global $wpdb;
-	$pt = cptdir_get_pt();
 	# get post IDs for both published and unpublished
 	$bPub = false;
 	$aIDs = CPTDirectory::get_all_cpt_ids($bPub);
-	# Get all IDs from posts whose parent has our post type (revisions, auto-drafts)
-	# as well as all unpublished posts from our post type
-	$query = "SELECT ID FROM " . $wpdb->prefix . "posts WHERE ";
-		$query .= "post_parent IN (" . implode(', ', $aIDs) . ") ";
-		$query .= "OR ( post_type='" . $pt->name . "' ";
-			$query .= "AND post_status != 'publish'";
-		$query .= ")";
-	$aPosts = $wpdb->get_results($wpdb->prepare($query, ''));
-	# loop through results and clear custom field data as well as posts
 	# count total fields and posts deleted
 	$nDelField = 0;
-	$nDelPost = 0;
-	if($aPosts) foreach($aPosts as $post){
-		# remove fields
-		$thisDelField = 0;
-		$query = "DELETE FROM ". $wpdb->postmeta . " WHERE post_id=" . $post->ID;
-		$thisDelField = $wpdb->query($wpdb->prepare($query, ''));
-		$nDelField += $thisDelField;
+	$nDelPost = 0;	
+	if($aIDs){
+		$pt = cptdir_get_pt();
+		# Get all IDs from posts whose parent has our post type (revisions, auto-drafts)
+		# as well as all unpublished posts from our post type
+		$query = "SELECT ID FROM " . $wpdb->prefix . "posts WHERE ";
+			$query .= "post_parent IN (" . implode(', ', $aIDs) . ") ";
+			$query .= "OR ( post_type='" . $pt->name . "' ";
+				$query .= "AND post_status != 'publish' ";
+			$query .= ")";
+		$aPosts = $wpdb->get_results($wpdb->prepare($query, ''));
+		# loop through results and clear custom field data as well as posts
+		if($aPosts) foreach($aPosts as $post){
+			# remove fields
+			$thisDelField = 0;
+			$query = "DELETE FROM ". $wpdb->postmeta . " WHERE post_id=" . $post->ID;
+			$thisDelField = $wpdb->query($wpdb->prepare($query, ''));
+			$nDelField += $thisDelField;
 		
-		# remove post
-		$thisDelPost = 0;
-		$query = "DELETE FROM " . $wpdb->posts . " WHERE ID=" . $post->ID;
-		$thisDelPost = $wpdb->query($wpdb->prepare($query, ''));
-		$nDelPost += $thisDelPost;
+			# remove post
+			$thisDelPost = 0;
+			$query = "DELETE FROM " . $wpdb->posts . " WHERE ID=" . $post->ID;
+			$thisDelPost = $wpdb->query($wpdb->prepare($query, ''));
+			$nDelPost += $thisDelPost;
 		
-	}
+		}
+	} #endif: IDs were found for post type
 	# Message to display
 	$msg = "";
 	if($nDelPost) $msg = "<div class='cptdir-success'>Successfully deleted " . $nDelPost . " posts and " . $nDelField . " fields.</div>";
@@ -327,7 +333,6 @@ function cptdir_remove_unpublished(){
 add_action('wp_ajax_cptdir_remove_published', 'cptdir_remove_published');
 function cptdir_remove_published(){
 	global $wpdb;
-	$pt = cptdir_get_pt();
 	# get published post IDs for our PT
 	$aIDs = CPTDirectory::get_all_cpt_ids();
 	# Clear custom fields data for published posts

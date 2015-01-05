@@ -429,7 +429,7 @@ public static function do_cleanup_page(){
 				<h3>Remove ALL Custom Field Data for <b><?php echo $pt->pl; ?></b></h3>
 				<p>This will clear all data from table <kbd>wp_postmeta</kbd> for your post type.</p>
 				<div id='cptdir-remove-all-fields-messsage'></div>
-				<p><button class='button button-primary' id='remove-all-postmeta'>Clear ALL</button></p>
+				<p><button class='button button-primary' id='remove-all-postmeta'>Clear ALL Field Data</button></p>
 			</div>
 		<?php
 		}
