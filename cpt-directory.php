@@ -28,8 +28,13 @@ function cptdir_enqueue_scripts(){
 	wp_enqueue_style("cptdir-css");
 }
 function cptdir_enqueue_admin_scripts(){
+	$screen = get_current_screen();
 	# CSS
 	wp_enqueue_style("cptdir-admin-css");
+	# JS
+	if($screen->id == 'cpt-directory_page_cptdir-cleanup'){
+		wp_enqueue_script('cptdir-cleanup-js', cptdir_url('js/cptdir-cleanup.js'), array('jquery'));
+	}
 }
 
 # Admin Menu Item
@@ -38,6 +43,7 @@ function cptdir_create_menu() {
 	add_menu_page('CPT Directory Settings', 'CPT Directory', 'administrator', 'cptdir-settings-page', 'cptdir_settings_page');
 	add_submenu_page( 'cptdir-settings-page', 'CPT Directory Settings', 'Settings', 'administrator', 'cptdir-settings-page', "cptdir_settings_page" );
 	add_submenu_page( 'cptdir-settings-page', 'Edit Fields | CPT Directory', 'Fields', 'administrator', 'cptdir-edit-fields', 'cptdir_fields_page' );	
+	add_submenu_page( 'cptdir-settings-page', 'Clean Up | CPT Directory', 'Clean Up', 'administrator', 'cptdir-cleanup', 'cptdir_cleanup_page' );	
 	add_submenu_page("cptdir-settings-page", "Import | CPT Directory", "Import", "administrator", "cptdir-import", "cptdir_import_page");
 	add_action( 'admin_init', 'cptdir_register_settings' );
 }
@@ -60,6 +66,7 @@ function cptdir_get_validation_callback($setting){
 function cptdir_validate_slug($input){ return CPTDirectory::clean_str_for_url($input); }
 function cptdir_settings_page() { CPTDirectory::do_settings_page(); }
 function cptdir_fields_page(){ CPTDirectory::do_fields_page(); }
+function cptdir_cleanup_page(){ CPTDirectory::do_cleanup_page(); }
 function cptdir_import_page(){ 
 	require_once cptdir_folder("lib/CPTD_import.php"); 
 	$importer = new CPTD_import( cptdir_get_pt(), cptdir_get_cat_tax(), cptdir_get_tag_tax() );
@@ -235,16 +242,22 @@ function cptdir_field($field){
 ###
 
 # Remove Field
+add_action("wp_ajax_cptdir_remove_field", "cptdir_remove_field");
 function cptdir_remove_field(){
 	# field name should be sent in POST from ajax call
 	$field = isset($_POST["cptdir_field"])?$_POST["cptdir_field"]:null;
-
+	# get an array of all post IDs in our post type so we don't delete data for other post types
+	$aIDs = CPTDirectory::get_all_cpt_ids();
+	# delete the field
 	if("" != $field && is_string($field)){	
 		global $wpdb;
-		# delete where meta_key = "field_name"
-		if($nDel = $wpdb->delete($wpdb->prefix . "postmeta", array("meta_key" => $field)))
-			$msg = "<div class='cptdir-success'>Successfully removed $nDel empty row.<br />";
+		# delete where meta_key = "field_name" and post_id IN $aIDs
+		$query = "DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key='$field' AND post_id IN (" . implode(', ', $aIDs) . ")";
+		if($nDel = $wpdb->query($wpdb->prepare( $query )))
+			$msg = "<div class='cptdir-success'>Successfully removed $nDel rows.<br />";
 		else{ $msg = "<div class='cptdir-fail'>We didn't find any fields to delete.<br /><br />"; }
+		
+		# Check if field is still set in Advanced Custom Fields
 		if($result = $wpdb->query($wpdb->prepare("SELECT meta_key FROM " . $wpdb->prefix . "postmeta WHERE meta_key = " . "'_".$field."'")))
 			$msg .= "This field will show up until you remove it from Advanced Custom Fields.";
 		$msg .= "</div>";
@@ -252,10 +265,93 @@ function cptdir_remove_field(){
 	echo $msg;
 	die();
 }
-add_action("wp_ajax_cptdir_remove_field", "cptdir_remove_field");
-add_action("admin_print_scripts-cpt-directory_page_cptdir-edit-fields", "cptdir_remove_field_script");
-function cptdir_remove_field_script(){
-	wp_enqueue_script("cptdir-remove-field", cptdir_url("js/cptdir_remove_field.js"), array("jquery"));
+# Remove All Fields
+add_action('wp_ajax_cptdir_remove_all_field_data', 'cptdir_remove_all_fields');
+function cptdir_remove_all_fields(){
+	global $wpdb;
+	# get post IDs for both published and unpublished
+	$bPub = false;
+	$aIDs = CPTDirectory::get_all_cpt_ids($bPub);
+	# Delete
+	$query = "DELETE FROM " . $wpdb->prefix . "postmeta WHERE post_id IN(" . implode(", ", $aIDs) . ")";
+	$nDel = $wpdb->query( $wpdb->prepare($query) );
+	# Message to display
+	$msg = "";
+	if($nDel) $msg = "<div class='cptdir-success'>Successfully deleted " . $nDel . " rows.</div>";
+	else $msg = "<div class='cptdir-fail'>We didn't find any fields to delete</div>";
+	echo $msg;
+	die();
+}
+# Remove unpublished
+add_action('wp_ajax_cptdir_remove_unpublished', 'cptdir_remove_unpublished');
+function cptdir_remove_unpublished(){
+	global $wpdb;
+	$pt = cptdir_get_pt();
+	# get post IDs for both published and unpublished
+	$bPub = false;
+	$aIDs = CPTDirectory::get_all_cpt_ids($bPub);
+	# Get all IDs from posts whose parent has our post type (revisions, auto-drafts)
+	# as well as all unpublished posts from our post type
+	$query = "SELECT ID FROM " . $wpdb->prefix . "posts WHERE ";
+		$query .= "post_parent IN (" . implode(', ', $aIDs) . ") ";
+		$query .= "OR ( post_type='" . $pt->name . "' ";
+			$query .= "AND post_status != 'publish'";
+		$query .= ")";
+	$aPosts = $wpdb->get_results($wpdb->prepare($query, ''));
+	# loop through results and clear custom field data as well as posts
+	# count total fields and posts deleted
+	$nDelField = 0;
+	$nDelPost = 0;
+	if($aPosts) foreach($aPosts as $post){
+		# remove fields
+		$thisDelField = 0;
+		$query = "DELETE FROM ". $wpdb->postmeta . " WHERE post_id=" . $post->ID;
+		$thisDelField = $wpdb->query($wpdb->prepare($query, ''));
+		$nDelField += $thisDelField;
+		
+		# remove post
+		$thisDelPost = 0;
+		$query = "DELETE FROM " . $wpdb->posts . " WHERE ID=" . $post->ID;
+		$thisDelPost = $wpdb->query($wpdb->prepare($query, ''));
+		$nDelPost += $thisDelPost;
+		
+	}
+	# Message to display
+	$msg = "";
+	if($nDelPost) $msg = "<div class='cptdir-success'>Successfully deleted " . $nDelPost . " posts and " . $nDelField . " fields.</div>";
+	else $msg = "<div class='cptdir-fail'>We didn't find any posts to delete</div>";
+	echo $msg;
+	die();
+}
+# Remove published
+add_action('wp_ajax_cptdir_remove_published', 'cptdir_remove_published');
+function cptdir_remove_published(){
+	global $wpdb;
+	$pt = cptdir_get_pt();
+	# get published post IDs for our PT
+	$aIDs = CPTDirectory::get_all_cpt_ids();
+	# Clear custom fields data for published posts
+	$nDelField = 0;
+	$nDelPost = 0;
+	if($aIDs) foreach($aIDs as $id){
+		# remove fields
+		$thisDelField = 0;
+		$query = "DELETE FROM ". $wpdb->postmeta . " WHERE post_id=" . $id;
+		$thisDelField = $wpdb->query($wpdb->prepare($query, ''));
+		$nDelField += $thisDelField;
+		
+		# remove post
+		$thisDelPost = 0;
+		$query = "DELETE FROM " . $wpdb->posts . " WHERE ID=" . $id;
+		$thisDelPost = $wpdb->query($wpdb->prepare($query, ''));
+		$nDelPost += $thisDelPost;
+	}
+	# Message to display
+	$msg = "";
+	if($nDelPost) $msg = "<div class='cptdir-success'>Successfully deleted " . $nDelPost . " posts and " . $nDelField . " fields.</div>";
+	else $msg = "<div class='cptdir-fail'>We didn't find any posts to delete</div>";
+	echo $msg;	
+	die();
 }
 # Import
 function cptdir_import_js(){
@@ -267,6 +363,6 @@ function cptdir_import_js(){
 add_action("wp_ajax_cptdir_import_js", "cptdir_import_js");
 add_action("admin_print_scripts-cpt-directory_page_cptdir-import", "cptdir_import_js_script");
 function cptdir_import_js_script(){
-	wp_enqueue_script("cptdir-import-js", cptdir_url("js/cptdir_import.js"), array("jquery"));
+	wp_enqueue_script("cptdir-import-js", cptdir_url("js/cptdir-import.js"), array("jquery"));
 }
 ?>

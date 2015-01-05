@@ -91,6 +91,17 @@ public static function str_to_field_name( $sIn  ){
 function convert_space_to_nbsp( $sIn ){
 	return preg_replace( '/\s/' , '&nbsp;' , $sIn );	
 }
+# get an array of IDs for all post type objects (default is published only, passing false returns all)
+public static function get_all_cpt_ids($bPub = true){
+	# get all post objects
+	$aPosts = self::get_all_cpt_posts($bPub);
+	$aIDs = array();
+	if($aPosts) foreach($aPosts as $post){
+		$aIDs[] = $post->ID;
+	}
+	return $aIDs;
+}
+# get an array of post objects for our PT (default is published only, passing false returns all)
 public static function get_all_cpt_posts($bPub = true){
 	$aOut = array();
 	$pt = cptdir_get_pt();
@@ -350,9 +361,8 @@ public static function do_fields_page(){
 					# display warning if field is not being used
 					if(!in_array($field, $aActiveFields)){ ?>
 						<p class="cptdir-fail">This field doesn't seem to have any values in use.</p>
-						<a data-field="<?php echo $field; ?>" id="cptdir-remove-<?php echo $field; ?>" class="cptdir-remove-field">Remove Field</a>
-						<div id="cptdir-remove-<?php echo $field; ?>-message"></div>
-					<?php }
+					<?php
+					}
 					?>
 				</div>
 				
@@ -366,6 +376,77 @@ public static function do_fields_page(){
 	if(!$bCF){ ?><p class="cptdir-fail">There aren't any custom fields associated with your post type yet.</p><?php }
 	?>
 	</div><?php # wrap
+}
+# Cleanup Page
+public static function do_cleanup_page(){
+	$pt = cptdir_get_pt();
+	# whether or not we have any custom field data
+	$bCF = false;
+?>
+	<div class="wrap">
+		<h2 class="cptdir-header">CPT Directory: Cleanup</h2>
+		<p>While importing, you may want to clean up the database from time to time.  This page is intended to give you a fresh start with your post data and custom fields.</p>
+		<p><b>Do not use these features if you have data for your Custom Post Type that you want to keep.</b></p>
+		<hr />
+		<h3>Remove Custom Field Data</h3>
+		<?php
+		# Check if we have any custom fields to show 
+		do{
+			$aCF = self::get_all_custom_fields();
+			$aActiveFields = self::get_all_custom_fields(true);
+			# Iterate through custom fields we found and display table
+			if(!$aCF) break;
+			$bCF = true;
+		?>    
+			<div id="cptdir-edit-custom-fields">
+		<?php
+				foreach($aCF as $field) {    
+		?>
+					<div class="cptdir-edit-field">
+						<h4 class="cptdir-header field"><?php echo $field; ?></h4>
+						<?php 
+						# display warning if field is not being used
+						if(!in_array($field, $aActiveFields)){ ?>
+							<p class="cptdir-fail">This field doesn't seem to have any values in use.</p>
+						<?php
+						}
+						?>
+						<p><a data-field="<?php echo $field; ?>" id="cptdir-remove-<?php echo $field; ?>" class="cptdir-remove-field">Remove Field</a></p>
+						<div id="cptdir-remove-<?php echo $field; ?>-message"></div>
+					</div>
+				
+			<?php
+				} # end foreach: fields
+			?>
+			</div>
+		<?php
+		}
+		while(0);
+		if(!$bCF){ ?><p class="cptdir-fail">There aren't any custom fields associated with your post type yet.</p><?php }
+		else{
+		?>		
+			<div id='remove-custom-fields'>
+				<h3>Remove ALL Custom Field Data for <b><?php echo $pt->pl; ?></b></h3>
+				<p>This will clear all data from table <kbd>wp_postmeta</kbd> for your post type.</p>
+				<div id='cptdir-remove-all-fields-messsage'></div>
+				<p><button class='button button-primary' id='remove-all-postmeta'>Clear ALL</button></p>
+			</div>
+		<?php
+		}
+		?>
+		<hr />
+		<div>
+			<h3>Remove Posts and Drafts</h3>
+			<p>Remove drafts, revisions, etc. from <kbd>wp_posts</kbd> for <b><?php echo $pt->pl; ?></b></p>
+			<div id='cptdir-remove-unpublished-messsage'></div>			
+			<p><button id="remove-unpublished" class='button button-primary'>Remove</button></p>			
+			<hr />
+			<p>Remove published <b><?php echo $pt->pl; ?></b> from <kbd>wp_posts</kbd></p>
+			<div id='cptdir-remove-published-messsage'></div>
+			<p><button id='remove-published' class='button button-primary'>Remove</button></p>			
+		</div>
+    </div>
+<?php
 }
 
 ###
