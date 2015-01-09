@@ -69,7 +69,7 @@ class CPTD_view{
 		if(function_exists("get_fields")){
 			$fields = get_fields($this->ID);
 			$fields = CPTDirectory::filter_post_meta($fields);
-
+			if(!$fields) return;
 			$ordered_fields = array();
 			
 			# order the fields

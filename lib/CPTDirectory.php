@@ -124,6 +124,7 @@ public static function get_all_cpt_posts($bPub = true){
 function filter_post_meta($a){
 	global $view;
 	$out = array();
+	if(!$a) return;
 	foreach($a as $k => $v){
 		# if value is an array, take the first item
 		if(is_array($v)){
@@ -447,7 +448,7 @@ public static function do_cleanup_page(){
 		</div>
     </div>
 <?php
-}
+} # end: do_cleanup_page()
 
 ###
 # Front end views

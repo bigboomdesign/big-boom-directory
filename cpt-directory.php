@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Creates a directory based on Custom Post Type, Taxonomy, and Fields
- * Version: 1.61803
+ * Version: 0.0.1
  * Author: Big Boom Design
  * Author URI: http://bigboomdesign.com
  */
