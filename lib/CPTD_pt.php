@@ -30,6 +30,8 @@ class CPTD_pt{
 				"has_archive" => true,
 				"rewrite" => array('slug' => $this->slug),
 				"supports" => array("title", "editor", "thumbnail", "custom-fields"),
+				'capability_type' => $this->name,
+				//'map_meta_cap' => true,				
 			)
 		);
 	}
