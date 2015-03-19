@@ -101,6 +101,21 @@ function cptdir_create_post_type() {
 			$cptdir_ttax->register_tax();
 	}
 }
+# CPT archive page
+# all views below this one should probably do something like this
+# and maybe be combined together into one hook
+add_action('wp', 'cptdir_archive');
+function cptdir_archive(){
+	$pt = cptdir_get_pt();
+	if(!$pt) return;
+	if(!is_post_type_archive($pt->name)) return;
+	if(function_exists('cptdir_custom_archive')){
+		add_filter('the_content', 'cptdir_custom_archive');
+		return;
+	}
+	add_filter('the_content', 'cptdir_do_single');
+}
+
 # Single template for CPT
 add_filter("single_template", "cptdir_single_template");
 function cptdir_single_template($single_template){
@@ -383,7 +398,7 @@ function map_fields_to_acf(){
 	$fields = CPTDirectory::get_acf_fields();
 	foreach($fields as $field){		
 		$sql = "SELECT post_id FROM ".$wpdb->postmeta." WHERE meta_key='" . $field['name'] . "'";
-		$r = $wpdb->get_results($wpdb->prepare( $sql ));
+		$r = $wpdb->get_results($wpdb->prepare( $sql, '' ));
 		foreach($r as $row){
 			# for `my_field`, we need to add something like 
 			#  ( _myfield => field_2387f8790sdf )
