@@ -52,7 +52,10 @@ Now we have to define the callback function *my_single_field_callback*
 * Hook into post content for single listing view, passing and returning post content if needed
  * *$content* : The post content
 
+####```cptdir_custom_archive($content)```
+* Hook into post content for archive list view, passing and returning post content if needed
+ * *$content* : The post content
+
 ####```cptdir_custom_taxonomy_content($content)```
 * Hook into post content for custom taxonomy archive listing, passing and return the post content if needed
  * *$content* : The post content
-
