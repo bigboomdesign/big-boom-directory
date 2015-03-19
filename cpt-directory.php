@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Creates a directory based on Custom Post Type, Taxonomy, and Fields
- * Version: 0.0.1
+ * Version: 0.1.0
  * Author: Big Boom Design
  * Author URI: http://bigboomdesign.com
  */
@@ -32,9 +32,13 @@ function cptdir_enqueue_admin_scripts(){
 	# CSS
 	wp_enqueue_style("cptdir-admin-css");
 	# JS
+	if($screen->id == 'cpt-directory_page_cptdir-fields'){
+		wp_enqueue_script('cptdir-fields-js', cptdir_url('js/cptdir-fields.js'), array('jquery'));
+	}	
 	if($screen->id == 'cpt-directory_page_cptdir-cleanup'){
 		wp_enqueue_script('cptdir-cleanup-js', cptdir_url('js/cptdir-cleanup.js'), array('jquery'));
 	}
+	
 }
 
 # Admin Menu Item
@@ -42,7 +46,7 @@ add_action('admin_menu', 'cptdir_create_menu');
 function cptdir_create_menu() {
 	add_menu_page('CPT Directory Settings', 'CPT Directory', 'administrator', 'cptdir-settings-page', 'cptdir_settings_page');
 	add_submenu_page( 'cptdir-settings-page', 'CPT Directory Settings', 'Settings', 'administrator', 'cptdir-settings-page', "cptdir_settings_page" );
-	add_submenu_page( 'cptdir-settings-page', 'Edit Fields | CPT Directory', 'Fields', 'administrator', 'cptdir-edit-fields', 'cptdir_fields_page' );	
+	add_submenu_page( 'cptdir-settings-page', 'Edit Fields | CPT Directory', 'Fields', 'administrator', 'cptdir-fields', 'cptdir_fields_page' );	
 	add_submenu_page( 'cptdir-settings-page', 'Clean Up | CPT Directory', 'Clean Up', 'administrator', 'cptdir-cleanup', 'cptdir_cleanup_page' );	
 	add_submenu_page("cptdir-settings-page", "Import | CPT Directory", "Import", "administrator", "cptdir-import", "cptdir_import_page");
 	add_action( 'admin_init', 'cptdir_register_settings' );
@@ -237,9 +241,9 @@ function cptdir_field($field){
 	CPTD_view::do_single_field($field);
 }
 
-###
-# AJAX calls
-###
+/**
+* Ajax
+**/
 
 # Remove Field
 add_action("wp_ajax_cptdir_remove_field", "cptdir_remove_field");
@@ -369,5 +373,24 @@ add_action("wp_ajax_cptdir_import_js", "cptdir_import_js");
 add_action("admin_print_scripts-cpt-directory_page_cptdir-import", "cptdir_import_js_script");
 function cptdir_import_js_script(){
 	wp_enqueue_script("cptdir-import-js", cptdir_url("js/cptdir-import.js"), array("jquery"));
+}
+
+# Map custom fields to ACF
+add_action('wp_ajax_map-custom-fields-to-acf', 'map_fields_to_acf');
+function map_fields_to_acf(){
+	global $wpdb;
+	$n = 0;
+	$fields = CPTDirectory::get_acf_fields();
+	foreach($fields as $field){		
+		$sql = "SELECT post_id FROM ".$wpdb->postmeta." WHERE meta_key='" . $field['name'] . "'";
+		$r = $wpdb->get_results($wpdb->prepare( $sql ));
+		foreach($r as $row){
+			# for `my_field`, we need to add something like 
+			#  ( _myfield => field_2387f8790sdf )
+			if(update_post_meta($row->post_id, '_'.$field['name'], $field['key'])) $n++;
+		}		
+	}
+	echo "Updated $n fields";
+	die();
 }
 ?>

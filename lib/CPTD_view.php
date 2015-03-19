@@ -64,12 +64,12 @@ class CPTD_view{
 	# display fields for listing
 	function do_fields($callback = ""){
 		if(!$this-ID) return;
-		
+		$fields = array();
 		# if ACF is activated
 		if(function_exists("get_fields")){
 			$fields = get_fields($this->ID);
-			$fields = CPTDirectory::filter_post_meta($fields);
 			if(!$fields) return;
+			$fields = CPTDirectory::filter_post_meta($fields);
 			$ordered_fields = array();
 			
 			# order the fields
@@ -92,6 +92,6 @@ class CPTD_view{
 			} #end if: fields exist
 		}
 		# work in progress: plugin behavior without ACF
-		else $fields = CPTDirectory::get_fields_for_listing($this->ID);
+		if(!$fields) $fields = CPTDirectory::get_fields_for_listing($this->ID);
 	}
 } # end class: CPTD_view

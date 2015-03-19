@@ -340,6 +340,9 @@ public static function do_fields_page(){
 ?>
 	<div class="wrap">
     <h2 class="cptdir-header">CPT Directory: Custom Fields</h2>
+    <p><button id="map-custom-fields-to-acf" class="button button-primary">Map Fields</button></p>
+    <p id="map-fields-message"></p>
+    <p class='description'>If you define ACF fields after importing, you need to map the fields to ACF for your fields to auto-display on directory pages.</p>
     <?php 
     # Check if we have any custom fields to show 
     do{
