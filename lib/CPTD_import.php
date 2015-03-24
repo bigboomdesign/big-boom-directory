@@ -43,8 +43,13 @@ class CPTD_import{
 				# loop through found keys and add type/label for column_options array
 				$new_fields = array();
 				foreach($new_keys as $key){ 
-					# don't accept the new field if a custom field already exists
-					foreach($this->column_options as $aOption){ if($aOption['key'] == $key) continue 2; }
+					# if custom field already exists, update the type so it can automap
+					foreach($this->column_options as $i => $aOption){ 
+						if($aOption['key'] == $key){
+							$this->column_options[$i]['type'] = 'new_custom_field';
+							continue 2; 
+						}
+					}
 					$new_fields[] = array("key" => $key, "label" => $key, "type" => "new_custom_field" ); 
 				}
 				# merge with existing column options
@@ -209,7 +214,7 @@ class CPTD_import{
 		</select>
 		<div class="cptdir-cf-or">OR</div>
 		<div class="cptdir-new-cf">
-			<input type="checkbox" name="cptdir-import-new-cf-<?php echo $slug; ?>" id="cptdir-import-new-cf-<?php echo $field_name; ?>" /> Create new custom field: 
+			<input type="checkbox" name="cptdir-import-new-cf-<?php echo $slug; ?>" id="cptdir-import-new-cf-<?php echo $slug; ?>" /> Create new custom field: 
 			&nbsp;<b> <?php echo $slug; ?></b>
 		</div>
 		<?php
