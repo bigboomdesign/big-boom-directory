@@ -103,7 +103,7 @@ class CPTD_import{
 					?>
 						<div class="cptdir-found-header">
 							<h5 class="cptdir-header"><?php echo $header; ?></h5>
-							<?php $this->do_fields_dropdown( CPTDirectory::str_to_field_name($header) ); ?>
+							<?php $this->do_fields_dropdown( CPTD::str_to_field_name($header) ); ?>
 						</div>
 						<hr class="cptdir-hr" />
 					<?php
@@ -142,7 +142,7 @@ class CPTD_import{
 				# Loop through headers and create associative array for row
 				foreach($headers as $n => $header){
 					if("" != $row[$n]) $bEmpty = false;
-					$my_row[ CPTDirectory::str_to_field_name($header) ] = $row[$n];
+					$my_row[ CPTD::str_to_field_name($header) ] = $row[$n];
 				}
 				# If row is not empty, pass it into the rows array
 				if(!$bEmpty) $rows[] = $my_row;
@@ -156,7 +156,7 @@ class CPTD_import{
 	# Get all options for csv columns
 	public function get_custom_column_options(){
 		$aFields = array();
-		$aCF = CPTDirectory::get_all_custom_fields();
+		$aCF = CPTD::get_all_custom_fields();
 		foreach( $aCF as $field ){ $aFields[] = array( "key" => $field, "label" => "Custom Field: $field", "type"=>"custom_field"); }
 		if($this->ttax) $aFields[] = array("key"=> $this->ttax->name, "label" => "Taxonomy: " . $this->ttax->name, "type"=>'ttax');
 		if($this->ctax) $aFields[] = array("key"=> $this->ctax->name, "label" => "Taxonomy: " . $this->ctax->name, "type"=>'ctax');	
@@ -166,8 +166,8 @@ class CPTD_import{
 	private function create_column_map(){
 		foreach( $_POST as $k => $v){
 			# sanitize POST content
-			$key = CPTDirectory::san($k);
-			$val = CPTDirectory::san($v);
+			$key = CPTD::san($k);
+			$val = CPTD::san($v);
 			# we're going to be matching only fields starting with cptdir-import-
 			$matches = array();
 			# these need to be cleared out each time
@@ -235,7 +235,7 @@ class CPTD_import{
 			**********/
 
 			// Collect Existing Permalinks
-			$aPosts = CPTDirectory::get_all_cpt_posts();
+			$aPosts = CPTD::get_all_cpt_posts();
 			$aPost_names = array();
 			foreach($aPosts as $post) $aPost_names[] = $post->post_name;
 			$this->debug($aPost_names, "Existing Posts: ");
@@ -275,7 +275,7 @@ class CPTD_import{
 				if(!$aRow["post_title"]){ echo cptdir_fail("No title was found."); $nPost_fail++; continue; }
 								
 				# Set slug based on title if it doesn't already exist
-				if(!$aRow["post_name"]) $aRow["post_name"] = CPTDirectory::clean_str_for_url($aRow["post_title"]);
+				if(!$aRow["post_name"]) $aRow["post_name"] = CPTD::clean_str_for_url($aRow["post_title"]);
 								
 				echo '<hr />';
 				echo '<h4 class="cptdir-header">Importing Post: <span style="color: midnightblue;">' . $aRow['post_title'] . '</b></h4>';
@@ -409,7 +409,7 @@ class CPTD_import{
 				else{
 					if( $this->bDebug) echo "Term doesn't exist.<br />";
 					# create new term
-					$new_slug = CPTDirectory::clean_str_for_url($term);
+					$new_slug = CPTD::clean_str_for_url($term);
 					$term_id = wp_insert_term( $term, $tax, array("slug" => $new_slug) );
 					if($this->bDebug){ echo "Created term:<br />"; var_dump($term_id); echo "<br /><br />"; }
 					$aTermIds[] = intval($term_id["term_id"]);

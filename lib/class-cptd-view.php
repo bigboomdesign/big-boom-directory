@@ -69,7 +69,7 @@ class CPTD_view{
 		if(function_exists("get_fields")){
 			$fields = get_fields($this->ID);
 			if(!$fields) return;
-			$fields = CPTDirectory::filter_post_meta($fields);
+			$fields = CPTD::filter_post_meta($fields);
 			$ordered_fields = array();
 			
 			# order the fields
@@ -92,6 +92,6 @@ class CPTD_view{
 			} #end if: fields exist
 		}
 		# work in progress: plugin behavior without ACF
-		if(!$fields) $fields = CPTDirectory::get_fields_for_listing($this->ID);
+		if(!$fields) $fields = CPTD::get_fields_for_listing($this->ID);
 	}
 } # end class: CPTD_view

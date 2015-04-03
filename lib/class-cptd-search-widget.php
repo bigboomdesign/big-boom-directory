@@ -8,7 +8,7 @@ function __construct(){
 		"description" => "Custom Post Type Directory search widget"
 	);
 	parent::__construct("cptdir_search_widget", "CPT Directory Search", $widget_options);
-	$acf_fields = CPTDirectory::get_acf_fields();
+	$acf_fields = CPTD::get_acf_fields();
 	$this->acf_fields = $acf_fields;
 
 }
@@ -91,7 +91,7 @@ private function do_custom_fields_dropdown($fields){
 			# see if we have pre-defined choices and get array if we do
 			if(array_key_exists("choices", $field)) $aValues = $field["choices"];
 			# get values as strings if choices don't exist
-			else $aValues = CPTDirectory::get_meta_values($field['name']);
+			else $aValues = CPTD::get_meta_values($field['name']);
 			if(array() != $aValues){
 				$name = "cptdir-". $field['name'] . "-select";
 			?>

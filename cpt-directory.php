@@ -2,80 +2,38 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Creates a directory based on Custom Post Type, Taxonomy, and Fields
- * Version: 0.2.1
+ * Version: 1.0.0
  * Author: Big Boom Design
  * Author URI: http://bigboomdesign.com
  */
  
-# PHP Classes
-$aCPTD_classes = array("CPTDirectory", "CPTD_pt", "CPTD_pt", "CPTD_tax", "CPTD_view");
-foreach($aCPTD_classes as $class) if(file_exists(cptdir_folder("lib/".$class.".php"))) require_once cptdir_folder("lib/".$class.".php");
+/*
+* Main Routine
+*/
+require_once cptdir_dir('/lib/class-cptd.php');
 
-# Widget
-require_once cptdir_folder("lib/CPTD_search_widget.php");
+/*
+* Admin Routines
+*/
+if(is_admin()){
+	# js/css
+	add_action("admin_enqueue_scripts", array('CPTD', 'admin_enqueue'));
+	# menu
+	add_action('admin_menu', array('CPTD', 'admin_menu'));
+	# settings
+	add_action( 'admin_init', array('CPTD_Options','register_settings'));
+} # endif: is_admin()
 
-###
-# Javascripts and Styles
-###
+/*
+* Front End Routines
+*/
+else{
+	add_action("wp_enqueue_scripts", array('CPTD', 'enqueue'));
+} # end else: front end
 
-# Admin
-wp_register_style("cptdir-admin-css", cptdir_url("css/cptdir-admin.css"));
-wp_register_style("cptdir-css", cptdir_url("css/cptdir.css"));
-add_action("wp_enqueue_scripts", "cptdir_enqueue_scripts");
-add_action("admin_enqueue_scripts", "cptdir_enqueue_admin_scripts");
-function cptdir_enqueue_scripts(){
-	# CSS
-	wp_enqueue_style("cptdir-css");
-}
-function cptdir_enqueue_admin_scripts(){
-	$screen = get_current_screen();
-	# CSS
-	wp_enqueue_style("cptdir-admin-css");
-	# JS
-	if($screen->id == 'cpt-directory_page_cptdir-fields'){
-		wp_enqueue_script('cptdir-fields-js', cptdir_url('js/cptdir-fields.js'), array('jquery'));
-	}	
-	if($screen->id == 'cpt-directory_page_cptdir-cleanup'){
-		wp_enqueue_script('cptdir-cleanup-js', cptdir_url('js/cptdir-cleanup.js'), array('jquery'));
-	}
-	
-}
-
-# Admin Menu Item
-add_action('admin_menu', 'cptdir_create_menu');
-function cptdir_create_menu() {
-	add_menu_page('CPT Directory Settings', 'CPT Directory', 'administrator', 'cptdir-settings-page', 'cptdir_settings_page');
-	add_submenu_page( 'cptdir-settings-page', 'CPT Directory Settings', 'Settings', 'administrator', 'cptdir-settings-page', "cptdir_settings_page" );
-	add_submenu_page( 'cptdir-settings-page', 'Edit Fields | CPT Directory', 'Fields', 'administrator', 'cptdir-fields', 'cptdir_fields_page' );	
-	add_submenu_page( 'cptdir-settings-page', 'Clean Up | CPT Directory', 'Clean Up', 'administrator', 'cptdir-cleanup', 'cptdir_cleanup_page' );	
-	add_submenu_page("cptdir-settings-page", "Import | CPT Directory", "Import", "administrator", "cptdir-import", "cptdir_import_page");
-	add_action( 'admin_init', 'cptdir_register_settings' );
-}
-
-# Register Plugin Settings
-function cptdir_register_settings() {
-	$cpt_settings = array(
-		"cpt_sing", "cpt_pl", "cpt_slug", 
-		"cpt_ctax_sing", "cpt_ctax_pl", "cpt_ctax_slug", "cpt_ttax_sing", "cpt_ttax_pl", "cpt_ttax_slug",
-		"cpt_search_page"
-	);
-	foreach($cpt_settings as $setting){
-		register_setting("cptdir-settings-group", $setting, cptdir_get_validation_callback($setting));
-	}
-}
-function cptdir_get_validation_callback($setting){
-	$aSlugValidate = array("cpt_slug", "cpt_ctax_slug", "cpt_ttax_slug");
-	if(in_array($setting, $aSlugValidate)){ return "cptdir_validate_slug"; }
-}
-function cptdir_validate_slug($input){ return CPTDirectory::clean_str_for_url($input); }
-function cptdir_settings_page() { CPTDirectory::do_settings_page(); }
-function cptdir_fields_page(){ CPTDirectory::do_fields_page(); }
-function cptdir_cleanup_page(){ CPTDirectory::do_cleanup_page(); }
-function cptdir_import_page(){ 
-	require_once cptdir_folder("lib/CPTD_import.php"); 
-	$importer = new CPTD_import( cptdir_get_pt(), cptdir_get_cat_tax(), cptdir_get_tag_tax() );
-	$importer->do_import_page();
-}
+/**
+* Old content to move above or into class objects
+**/
 
 # Create custom post type and taxonomies
 global $cptdir_pt;
@@ -196,7 +154,7 @@ function cptdir_page_templates( $page_template ){
 }
 ## Search Results Page
 function cptdir_do_search_results($content){ 
-	CPTDirectory::do_search_results();
+	CPTD::do_search_results();
 	return $content;
 }
 
@@ -206,7 +164,7 @@ function cptdir_do_search_results($content){
 
 # Input a plugin-relative URL or folder path (without slash) and return full plugin URL or folder path
 function cptdir_url($s){ return  plugins_url("/".$s, __FILE__); }
-function cptdir_folder($s){ return plugin_dir_path(__FILE__).$s; }
+function cptdir_dir($s){ return plugin_dir_path(__FILE__).$s; }
 function cptdir_success($msg, $tag = "p", $class=""){ return "<{$tag} class='cptdir-success" . ($class ? " ".$class:null) . "'>{$msg}</{$tag}>"; };
 function cptdir_fail($msg){ return "<p class='cptdir-fail'>{$msg}</p>"; };
 
@@ -266,7 +224,7 @@ function cptdir_remove_field(){
 	# field name should be sent in POST from ajax call
 	$field = isset($_POST["cptdir_field"])?$_POST["cptdir_field"]:null;
 	# get an array of all post IDs in our post type so we don't delete data for other post types
-	$aIDs = CPTDirectory::get_all_cpt_ids();
+	$aIDs = CPTD::get_all_cpt_ids();
 	# delete the field
 	if("" != $field && is_string($field)){	
 		global $wpdb;
@@ -290,7 +248,7 @@ function cptdir_remove_all_fields(){
 	global $wpdb;
 	# get post IDs for both published and unpublished
 	$bPub = false;
-	$aIDs = CPTDirectory::get_all_cpt_ids($bPub);
+	$aIDs = CPTD::get_all_cpt_ids($bPub);
 	# number of rows deleted
 	$nDel = 0;
 	if($aIDs){
@@ -311,7 +269,7 @@ function cptdir_remove_unpublished(){
 	global $wpdb;
 	# get post IDs for both published and unpublished
 	$bPub = false;
-	$aIDs = CPTDirectory::get_all_cpt_ids($bPub);
+	$aIDs = CPTD::get_all_cpt_ids($bPub);
 	# count total fields and posts deleted
 	$nDelField = 0;
 	$nDelPost = 0;	
@@ -353,7 +311,7 @@ add_action('wp_ajax_cptdir_remove_published', 'cptdir_remove_published');
 function cptdir_remove_published(){
 	global $wpdb;
 	# get published post IDs for our PT
-	$aIDs = CPTDirectory::get_all_cpt_ids();
+	$aIDs = CPTD::get_all_cpt_ids();
 	# Clear custom fields data for published posts
 	$nDelField = 0;
 	$nDelPost = 0;
@@ -379,7 +337,7 @@ function cptdir_remove_published(){
 }
 # Import
 function cptdir_import_js(){
-	require_once cptdir_folder("lib/CPTD_import.php");
+	require_once cptdir_dir("lib/CPTD_import.php");
 	$importer = new CPTD_import( cptdir_get_pt(), cptdir_get_cat_tax(), cptdir_get_tag_tax() );
 	$importer->do_import_content();
 	die();
@@ -395,7 +353,7 @@ add_action('wp_ajax_map-custom-fields-to-acf', 'map_fields_to_acf');
 function map_fields_to_acf(){
 	global $wpdb;
 	$n = 0;
-	$fields = CPTDirectory::get_acf_fields();
+	$fields = CPTD::get_acf_fields();
 	foreach($fields as $field){		
 		$sql = "SELECT post_id FROM ".$wpdb->postmeta." WHERE meta_key='" . $field['name'] . "'";
 		$r = $wpdb->get_results($wpdb->prepare( $sql, '' ));
