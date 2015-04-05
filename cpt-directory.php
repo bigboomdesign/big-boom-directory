@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Creates a directory based on Custom Post Type, Taxonomy, and Fields
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Big Boom Design
  * Author URI: http://bigboomdesign.com
  */
@@ -337,7 +337,7 @@ function cptdir_remove_published(){
 }
 # Import
 function cptdir_import_js(){
-	require_once cptdir_dir("lib/CPTD_import.php");
+	require_once cptdir_dir("lib/class-cptd-import.php");
 	$importer = new CPTD_import( cptdir_get_pt(), cptdir_get_cat_tax(), cptdir_get_tag_tax() );
 	$importer->do_import_content();
 	die();
