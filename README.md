@@ -18,7 +18,7 @@ A directory plugin for WordPress, driven by the WP Custom Post Type environment.
 
 ### Call these existing functions within your theme:
 
-#### ```cptdir_default_field_view($content, $type, $callback)```
+#### ```CPTD::default_fields($content, $type, $callback)```
 * Display all fields for a post, with ACF ordering (within loop)
   * *$content :* the post content
   * *$type :* "single" or "multi"

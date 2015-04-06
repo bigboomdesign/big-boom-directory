@@ -93,5 +93,5 @@ class CPTD_view{
 		}
 		# work in progress: plugin behavior without ACF
 		if(!$fields) $fields = CPTD::get_fields_for_listing($this->ID);
-	}
+	}	
 } # end class: CPTD_view

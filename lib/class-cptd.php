@@ -3,6 +3,28 @@ class CPTD{
 
 	static $classes = array('cptd-options', 'cptd-pt', 'cptd-tax', 'cptd-view', 'cptd-search-widget');
 
+	/*
+	* Main routine
+	*/
+	
+	function create_post_type(){
+		$cptdir_pt = cptdir_get_pt();
+		# If post type exists
+		if($cptdir_pt){
+			$cptdir_pt->register_pt();
+
+			# Create custom heirarchical taxonomy
+			global $cptdir_ctax;
+			if($cptdir_ctax = cptdir_get_cat_tax()) 
+				$cptdir_ctax->register_tax();
+			
+			# Create custom non-heirarchical taxonomy
+			global $cptdir_ttax;
+			if($cptdir_ttax = cptdir_get_tag_tax())
+				$cptdir_ttax->register_tax();
+		}
+	}
+	
 	/* 
 	* Admin Routines
 	*/
@@ -34,6 +56,201 @@ class CPTD{
 		# CSS
 		wp_enqueue_style("cptdir-css", cptdir_url("css/cptdir.css"));
 	}
+	# default field view (can be called by theme if needed from inside cptdir_custom_single)
+	function default_fields($content = "", $type = "single", $callback = ""){
+		global $post;
+		$view = new CPTD_view(array("ID" => $post->ID, "type"=>$type));
+		$view->do_fields($callback);
+		return $content;
+	}	
+	# post type archive page
+	function pt_archive(){
+		$pt = cptdir_get_pt();
+		if(!$pt) return;
+		if(!is_post_type_archive($pt->name)) return;
+		if(function_exists('cptdir_custom_archive')){
+			add_filter('the_content', 'cptdir_custom_archive');
+			return;
+		}
+		add_filter('the_content', array('CPTD', 'do_single'));
+	}
+	# single template
+	function single_template($single_template){
+		$pt = cptdir_get_pt();
+		# do nothing if we're not viewing a single listing of our PT
+		if(!is_singular($pt->name)) return $single_template;
+	
+		# add the_content filter for post content
+		add_filter("the_content", array('CPTD',"do_single"));
+		return $single_template;
+	}
+	# the_content filter for single listing
+	function do_single($content){
+		# if theme has custom content function, do that and return
+		## note that custom function has option to return $content
+		if(function_exists("cptdir_custom_single")){ return cptdir_custom_single($content); }
+
+		# otherwise set up default view
+		return self::default_fields($content);
+	}
+	
+	# Taxonomy term archives
+	## Set templates for taxonomy archives
+	function taxonomy_template($page_template){
+		# do nothing if we're not viewing a taxonomy archive
+		if(!is_tax()) return $page_template;
+	
+		# get custom taxonomy objects and return if we're not viewing either of their archive pages
+		$ctax = cptdir_get_cat_tax();
+		$ttax = cptdir_get_tag_tax();
+		# get taxonomy name
+		if(
+			!(
+				($bCtax = ($ctax && is_tax($ctax->name)))
+					|| ($bTtax = ($ttax && is_tax($ttax->name)))
+			)
+		)
+		return $page_template;
+		$taxname = $bCtax ? $ctax->name : ($bTtax ? $ttax->name : "");
+		if(!$taxname) return $page_template;
+
+		# the_content for taxonomy archive post content
+		add_filter("the_content", array('CPTD', "taxonomy_content"));
+		return $page_template;
+	}	
+	## this function fires on the_content() for each post in the loop on taxonomy pages, when no template is present in the theme
+	function taxonomy_content($content){
+		# if theme has custom content function, do that and return
+		## note that custom function has option to return $content
+		if(function_exists("cptdir_custom_taxonomy_content")){ return cptdir_custom_taxonomy_content($content); }
+	
+		# otherwise set up default view
+		global $post;
+		$tax = cptdir_get_cat_tax() ? cptdir_get_cat_tax() : (cptdir_get_tag_tax() ? cptdir_get_tag_tax() : "");
+		if(!is_object($tax)) return $content;
+	
+		return self::default_fields($content, "multi");
+	}
+	function page_templates( $page_template ){
+		# search results
+		$pg_id = get_option("cpt_search_page");
+		if ( $pg_id && is_page( $pg_id ) ) {
+			# Do search results when the_content() is called
+			add_filter("the_content", array('CPTD', 'search_results'));
+			return $page_template;
+		} 
+		return $page_template;
+	}
+	## Search Results Page
+	function search_results($content){ 
+		self::do_search_results();
+		return $content;
+	}
+	# Search results
+	public static function do_search_results(){
+		# Make an array of filters from post
+		$aFilters = array();
+		# Loop through post and sanitize data to store in array
+		foreach($_POST as $k => $v){
+			# don't include blank fields
+			if(!$v) continue;	
+			# make sure we only use our own search keys
+			$key = sanitize_key($k);
+			$matches = array();
+			# check first for dropdown options
+			if(!preg_match("/cptdir-(.*)?-select/", $key, $matches)) 
+				# then check if we're dealing with the widget ID we passed
+				if( $k != "cptdir-search-widget-id") continue;
+			# if we have matched a dropdown select, store the trimmed-down key and sanitized value
+			if(array() != $matches)
+				$aFilters[$matches[1]] = sanitize_text_field($v);
+			# otherwise see if we have a widget ID and store it for later
+			elseif(preg_match("/cptdir_search_widget-(\d)+?/", $v, $matches))
+				$widget_id = $matches[1];
+		}
+		# Make a WP_Query object from the search filters
+		$pt = cptdir_get_pt();
+		$args = array(
+			"post_type" => $pt->name,
+			"posts_per_page" => -1,
+		);
+		# Add taxonomy query if necessary
+		$args['tax_query'] = array();	
+		# Check if we have the category tax set
+		if(array_key_exists("ctax", $aFilters)){
+			$ctax = cptdir_get_cat_tax();
+			$ctax_args = array(
+				"taxonomy" => $ctax->name,
+				"terms" => intval($aFilters["ctax"]),
+			);
+			# push this array into main tax_query array
+			$args['tax_query'][] = $ctax_args;
+		}
+		# Check if we have the tag tax set
+		if(array_key_exists("ttax", $aFilters)){
+			$ttax = cptdir_get_tag_tax();
+			$ttax_args = array(
+				"taxonomy" => $ttax->name,
+				"terms" => intval($aFilters["ttax"]),
+			);
+			# push this array into main tax_query array
+			$args['tax_query'][] = $ttax_args;	
+		}
+		# Check for custom fields
+		$args["meta_query"] = array();
+		foreach($aFilters as $k => $v){
+			if($k == "ctax" || $k == "ttax") continue;
+			$meta_args = array(
+				"key" => $k,
+				"value" => $v,
+			);
+			$args["meta_query"][] = $meta_args;
+		}
+		# Make the QP_Query object and loop through results
+		$s_query = new WP_Query($args);
+		# If you wish to make your own search results layout, 
+		# create a function named cptdir_search_results()
+		# you will be passed the wp_query object and an array containing the post type and taxonomies
+		if(function_exists("cptdir_search_results")){ cptdir_search_results($s_query, $widget_id); return; }
+
+		# Copying the block of code below may be a good start.	
+		### BEGIN SEARCH RESULTS ###
+		if($s_query->have_posts()){
+		?>
+			<p class="cptdir-post-count">We found <?php echo $s_query->post_count . " " . $pt->labels['name'] ;?> that matched your query.</p>
+			<div id="cptdir-search-results">
+		<?php
+			# Search Results Loop
+			do{
+				$s_query->the_post();
+				$post = $s_query->post;
+		?>
+				<div class="cptdir-search-result-item">
+				<?php
+					if(has_post_thumbnail()) the_post_thumbnail("thumbnail", array("class" => "cptdir-archive-thumb alignleft"));
+				?>
+					<h3 class="cptdir-archive-header"><a href="<?php echo get_permalink($post->ID); ?>"><?php echo $post->post_title; ?></a></h3>			
+					<div style="clear: left;"></div>
+				</div><?php # .cptdir-search-result-item ?>
+			<?php
+			} while($s_query->have_posts());
+			# end: search results loop
+			?>
+			</div><?php # #cptdir-search-results ?>
+			<?php
+		}
+		# endif: have_posts
+		else{
+		?>
+			<p>Sorry, we didn't find any results. Please narrow your search parameters</p>
+		<?php
+			# Display the widget that originally sent us here.
+			$widget_options = get_option("widget_cptdir_search_widget");
+			if($widget_options){
+				if($widget_options[$widget_id]) the_widget("CPTD_search_widget", $widget_options[$widget_id]);
+			}
+		}
+	} #	end: do_search_results()
 
 	/*
 	* Helper Functions
@@ -291,117 +508,6 @@ class CPTD{
 			)
 		);
 		return $r;
-	}
-
-	###
-	# Front end views
-	###
-
-	# Search results
-	public static function do_search_results(){
-		# Make an array of filters from post
-		$aFilters = array();
-		# Loop through post and sanitize data to store in array
-		foreach($_POST as $k => $v){
-			# don't include blank fields
-			if(!$v) continue;	
-			# make sure we only use our own search keys
-			$key = sanitize_key($k);
-			$matches = array();
-			# check first for dropdown options
-			if(!preg_match("/cptdir-(.*)?-select/", $key, $matches)) 
-				# then check if we're dealing with the widget ID we passed
-				if( $k != "cptdir-search-widget-id") continue;
-			# if we have matched a dropdown select, store the trimmed-down key and sanitized value
-			if(array() != $matches)
-				$aFilters[$matches[1]] = sanitize_text_field($v);
-			# otherwise see if we have a widget ID and store it for later
-			elseif(preg_match("/cptdir_search_widget-(\d)+?/", $v, $matches))
-				$widget_id = $matches[1];
-		}
-		# Make a WP_Query object from the search filters
-		$pt = cptdir_get_pt();
-		$args = array(
-			"post_type" => $pt->name,
-			"posts_per_page" => -1,
-		);
-		# Add taxonomy query if necessary
-		$args['tax_query'] = array();	
-		# Check if we have the category tax set
-		if(array_key_exists("ctax", $aFilters)){
-			$ctax = cptdir_get_cat_tax();
-			$ctax_args = array(
-				"taxonomy" => $ctax->name,
-				"terms" => intval($aFilters["ctax"]),
-			);
-			# push this array into main tax_query array
-			$args['tax_query'][] = $ctax_args;
-		}
-		# Check if we have the tag tax set
-		if(array_key_exists("ttax", $aFilters)){
-			$ttax = cptdir_get_tag_tax();
-			$ttax_args = array(
-				"taxonomy" => $ttax->name,
-				"terms" => intval($aFilters["ttax"]),
-			);
-			# push this array into main tax_query array
-			$args['tax_query'][] = $ttax_args;	
-		}
-		# Check for custom fields
-		$args["meta_query"] = array();
-		foreach($aFilters as $k => $v){
-			if($k == "ctax" || $k == "ttax") continue;
-			$meta_args = array(
-				"key" => $k,
-				"value" => $v,
-			);
-			$args["meta_query"][] = $meta_args;
-		}
-		# Make the QP_Query object and loop through results
-		$s_query = new WP_Query($args);
-		# If you wish to make your own search results layout, 
-		# create a function named cptdir_search_results()
-		# you will be passed the wp_query object and an array containing the post type and taxonomies
-		if(function_exists("cptdir_search_results")){ cptdir_search_results($s_query, $widget_id); return; }
-
-		# Copying the block of code below may be a good start.	
-		### BEGIN SEARCH RESULTS ###
-		if($s_query->have_posts()){
-		?>
-			<p class="cptdir-post-count">We found <?php echo $s_query->post_count . " " . $pt->labels['name'] ;?> that matched your query.</p>
-			<div id="cptdir-search-results">
-		<?php
-			# Search Results Loop
-			do{
-				$s_query->the_post();
-				$post = $s_query->post;
-		?>
-				<div class="cptdir-search-result-item">
-				<?php
-					if(has_post_thumbnail()) the_post_thumbnail("thumbnail", array("class" => "cptdir-archive-thumb alignleft"));
-				?>
-					<h3 class="cptdir-archive-header"><a href="<?php echo get_permalink($post->ID); ?>"><?php echo $post->post_title; ?></a></h3>			
-					<div style="clear: left;"></div>
-				</div><?php # .cptdir-search-result-item ?>
-			<?php
-			} while($s_query->have_posts());
-			# end: search results loop
-			?>
-			</div><?php # #cptdir-search-results ?>
-			<?php
-		}
-		# endif: have_posts
-		else{
-		?>
-			<p>Sorry, we didn't find any results. Please narrow your search parameters</p>
-		<?php
-			# Display the widget that originally sent us here.
-			$widget_options = get_option("widget_cptdir_search_widget");
-			if($widget_options){
-				if($widget_options[$widget_id]) the_widget("CPTD_search_widget", $widget_options[$widget_id]);
-			}
-		}
-		### END SEARCH RESULTS ###
 	}
 } #end class
 # require dependencies
