@@ -12,7 +12,7 @@ class CPTD_pt{
 			|| !is_string($plural_label)
 			|| !is_string($rewrite_slug)
 		) return false;
-		$this->name = CPTD::str_to_field_name($singular_label);
+		$this->name = CPTD::clean_str_for_field($singular_label);
 		$this->slug = CPTD::clean_str_for_url($rewrite_slug);
 		$this->sing = $singular_label;
 		$this->pl = $plural_label;

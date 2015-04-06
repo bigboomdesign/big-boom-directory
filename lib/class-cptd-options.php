@@ -29,6 +29,11 @@ class CPTD_Options{
 			case "single-image":
 				self::image_field($setting);
 			break;
+			/* custom types for this plugin */
+			case 'dropdown_pages':
+				self::dropdown_pages($setting);
+			break;
+			/* end: custom types */
 			default: self::text_field($setting);
 		}
 		if(array_key_exists('description', $setting)) {
@@ -181,9 +186,18 @@ class CPTD_Options{
 		</div>
 		<?php
 	}
+	/* custom field types for this plugin */
+	function dropdown_pages($setting){
+		extract($setting);
+		$args = array(
+			"selected" => self::$options[$name],
+			"name" => "cptdir_options[$name]",
+			"show_option_none" => "Select page for search results"
+		);
+		wp_dropdown_pages($args);
+	}	
 	# Register settings
 	static function register_settings(){
-	/* THIS NEEDS TO REPLACE WHAT COMES AFTER
 		# main option for this plugin
 		register_setting( 'cptdir_options', 'cptdir_options', array('CPTD_Options', 'validate_options') );
 		# add sections
@@ -196,15 +210,6 @@ class CPTD_Options{
 		foreach(self::$settings as $setting){
 			add_settings_field($setting['name'], $setting['label'], array('CPTD_Options','do_settings_field'), 'cptdir_settings', ( array_key_exists('section', $setting) ? $setting['section'] : self::$default_section), $setting);
 		}
-	*/
-		$cpt_settings = array(
-			"cpt_sing", "cpt_pl", "cpt_slug", 
-			"cpt_ctax_sing", "cpt_ctax_pl", "cpt_ctax_slug", "cpt_ttax_sing", "cpt_ttax_pl", "cpt_ttax_slug",
-			"cpt_search_page"
-		);
-		foreach($cpt_settings as $setting){
-			register_setting("cptdir-settings-group", $setting, self::get_validation_callback($setting));
-		}
 	}
 	function get_validation_callback($setting){
 		$aSlugValidate = array("cpt_slug", "cpt_ctax_slug", "cpt_ttax_slug");
@@ -213,16 +218,23 @@ class CPTD_Options{
 	}
 	# validate fields when saved
 	function validate_options($input){
+		# need to validate slug fields to make sure we have a valid URL
+		$aSlugValidate = array("cpt_slug", "ctax_slug", "ttax_slug");
+		foreach($aSlugValidate as $key){
+			if(array_key_exists($key, $input)){
+				$input[$key] = CPTD::clean_str_for_url($input[$key]);
+			}
+		}
 		return $input; 
 	}
 	function validate_slug($input){
 		return CPTD::clean_str_for_url($input);		
 	}	
 	# Do settings page
-	/* THIS NEEDS TO REPLACE THE OLD FUNCTION BELOW
 	static function settings_page(){
 		?><div class='wrap'>
 			<h2>Custom Post Type Directory</h2>
+			<p class="cptdir-success">Setting all 3 fields for the <b>Custom Post Type</b> is required for any other features to become active.</p>			
 			<form action="options.php" method="post">
 			<?php settings_fields('cptdir_options'); ?>
 			<?php do_settings_sections('cptdir_settings'); ?>
@@ -230,93 +242,7 @@ class CPTD_Options{
 			</form>
 		</div><?php
 	}
-	*/
-	# Display Public Settings Page
-	function settings_page(){
-	?>
-	<div class="wrap">
-	<h2 class="cptdir-header">CPT Directory: Settings</h2>
-	<form method="post" action="options.php">
-		<?php settings_fields( 'cptdir-settings-group' ); ?>
-		<?php do_settings_sections( 'cptdir-settings-group' ); ?>
-		<p class="cptdir-success">Setting all 3 fields for the Custom Post Type is required for any other features to become active.</p>
-		<hr class="cptdir-hr" />
-		<h3 class="cptdir-header">Custom Post Type</h3>
-		<table class="form-table">
-			<tr valign="top">
-			<th scope="row">Singluar Label</th>
-			<td><input type="text" name="cpt_sing" value="<?php echo get_option('cpt_sing'); ?>" /></td>
-			</tr>
-		   <tr valign="top">
-			<th scope="row">Plural Label</th>
-			<td><input type="text" name="cpt_pl" value="<?php echo get_option('cpt_pl'); ?>" /></td>
-			</tr> 
-		   <tr valign="top">
-			<th scope="row">SEO Friendly Slug (e.g. /custom-post-type)</th>
-			<td>
-				<input type="text" name="cpt_slug" value="<?php echo get_option('cpt_slug'); ?>" />
-				<p class="description">Make sure to Save your Permalink Settings after changing this value</p>
-			</td>
-			</tr>              
-		</table>
-		<hr class="cptdir-hr"/>
-		<h3 class="cptdir-header">Custom Taxonomies</h3>
-		<h4 class="title cptdir-header">Heirarchical (similar to category)</h4>
-		<table class="form-table indent">
-			<tr valign="top">
-			<th scope="row">Singular Label</th>
-			<td><input type="text" name="cpt_ctax_sing" value="<?php echo get_option('cpt_ctax_sing'); ?>" /></td>
-			</tr>
-			<th scope="row">Plural Label</th>
-			<td><input type="text" name="cpt_ctax_pl" value="<?php echo get_option('cpt_ctax_pl'); ?>" /></td>
-			</tr> 
-			<th scope="row">SEO Friendly Slug (e.g. /custom-taxonomy)</th>
-			<td>
-				<input type="text" name="cpt_ctax_slug" value="<?php echo get_option('cpt_ctax_slug'); ?>" />
-				<p class="description">Make sure to Save your Permalink Settings after changing this value</p>
-			</td>
-			</tr>                
-		</table>
-		<h4 class="title cptdir-header">Non-Heirarchical (similar to tag)</h4>
-		<table class="form-table indent">
-			<tr valign="top">
-			<th scope="row">Singular Label</th>
-			<td><input type="text" name="cpt_ttax_sing" value="<?php echo get_option('cpt_ttax_sing'); ?>" /></td>
-			</tr>
-			<th scope="row">Plural Label</th>
-			<td><input type="text" name="cpt_ttax_pl" value="<?php echo get_option('cpt_ttax_pl'); ?>" /></td>
-			</tr> 
-			<th scope="row">SEO Friendly Slug (e.g. /custom-taxonomy)</th>
-			<td>
-				<input type="text" name="cpt_ttax_slug" value="<?php echo get_option('cpt_ttax_slug'); ?>" />
-				<p class="description">Make sure to Save your Permalink Settings after changing this value</p>
-			</td>
-			</tr> 
-		</table>
-		<hr class="cptdir-hr"/>
-		<h3 class="cptdir-header">Search Results</h3>
-		<table class="form-table">
-			<tr valign="top">
-			<th scope="row">Page</th>
-			<?php
-			# Dropdown page list
-			$args = array(
-				"selected" => get_option("cpt_search_page"), 
-				"name" => "cpt_search_page",
-				"show_option_none" => "Select page for search results"
-			);
-			?>
-			<td><?php wp_dropdown_pages($args); ?></td>
-			</tr>
-		</table>    
-	
-		<?php submit_button(); ?>
-
-	</form>
-	</div>
-	<?php
-	} # end: do_settings_page()
-	# Section description
+	# section description
 	static function section_description($section){
 		# get ID of section being displayed
 		$id = $section['id'];
@@ -453,12 +379,77 @@ class CPTD_Options{
 ## settings sections
 CPTD_Options::$sections = array(
 	array(
-		'name' => 'cptdir_main', 'title' => '',
-		'description' => '<p>It doesn\'t matter.</p>'
+		'name' => 'cptdir_main'
+	),
+	array(
+		'name' => 'cptdir_pt', 'title' => 'Custom Post Type',
+		'description' => ''
+	),
+	array(
+		'name' => 'cptdir_ctax', 'title' => 'Custom Taxonomy (Heirarchical)',
+		'description' => 'Behaves like <em>categories</em>'
+	),
+	array(
+		'name' => 'cptdir_ttax', 'title' => 'Custom Taxonomy (Non-Heirarchical)',
+		'description' => 'Behaves like <em>tags</em>'
+	),
+	array(
+		'name' => 'cptdir_search', 'title' => 'Search'
 	),
 );
 ## generate all settings for backend
-CPTD_Options::$settings = array();
+CPTD_Options::$settings = array(
+	# custom post type
+	array(
+		'name' => 'cpt_sing', 'label' => 'Singular Label',
+		'section' => 'cptdir_pt'
+	),
+	array(
+		'name' => 'cpt_pl', 'label' => 'Plural Label',
+		'section' => 'cptdir_pt'
+	),
+	array(
+		'name' => 'cpt_slug', 'label' => 'SEO Friendly Slug (e.g. /custom-post-type)',
+		'section' => 'cptdir_pt',
+		'description' => 'Make sure to Save your Permalink Settings after changing this value'
+	),
+	# custom taxonomies
+	## heirarchical
+	array(
+		'name' => 'ctax_sing', 'label' => 'Singular Label',
+		'section' => 'cptdir_ctax'
+	),
+	array(
+		'name' => 'ctax_pl', 'label' => 'Plural Label',
+		'section' => 'cptdir_ctax'
+	),
+	array(
+		'name' => 'ctax_slug', 'label' => 'SEO Friendly Slug (e.g. /custom-taxonomy)',
+		'section' => 'cptdir_ctax',
+		'description' => 'Make sure to Save your Permalink Settings after changing this value'		
+	),
+	## non-heirarchical
+	array(
+		'name' => 'ttax_sing', 'label' => 'Singular Label',
+		'section' => 'cptdir_ttax'
+	),
+	array(
+		'name' => 'ttax_pl', 'label' => 'Plural Label',
+		'section' => 'cptdir_ttax'
+	),
+	array(
+		'name' => 'ttax_slug', 'label' => 'SEO Friendly Slug (e.g. /custom-taxonomy)',
+		'section' => 'cptdir_ttax',
+		'description' => 'Make sure to Save your Permalink Settings after changing this value'
+		
+	),
+	# search
+	array(
+		'name' => 'search_page', 'type' => 'dropdown_pages',
+		'label' => 'Results page for widget search',
+		'section' => 'cptdir_search'
+	),
+);
 
 ## get saved options
 CPTD_Options::$options = get_option('cptdir_options');

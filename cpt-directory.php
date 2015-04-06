@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Creates a directory based on Custom Post Type, Taxonomy, and Fields
- * Version: 1.0.2
+ * Version: 1.1.0
  * Author: Big Boom Design
  * Author URI: http://bigboomdesign.com
  */
@@ -51,24 +51,25 @@ else{
 	add_filter( 'page_template', array('CPTD', 'page_templates'));
 } # end else: front end
 
-###
-# Helper Functions
-###
+/*
+* Helper Functions
+*/
 
 # Input a plugin-relative URL or folder path (without slash) and return full plugin URL or folder path
 function cptdir_url($s){ return  plugins_url("/".$s, __FILE__); }
 function cptdir_dir($s){ return plugin_dir_path(__FILE__).$s; }
-function cptdir_success($msg, $tag = "p", $class=""){ return "<{$tag} class='cptdir-success" . ($class ? " ".$class:null) . "'>{$msg}</{$tag}>"; };
-function cptdir_fail($msg){ return "<p class='cptdir-fail'>{$msg}</p>"; };
+
+function cptdir_success($msg, $tag = 'p', $class=''){ return "<{$tag} class='cptdir-success" . ($class ? " ".$class:null) . "'>{$msg}</{$tag}>"; }
+function cptdir_fail($msg, $tag = 'p', $class = ''){ return "<{$tag} class='cptdir-fail" . ($class ? " ".$class:null) . "'>{$msg}</{$tag}>"; }
 
 # Return the post type object if one has been created
 function cptdir_get_pt(){ 
 	global $cptdir_pt;
 	if($cptdir_pt) return $cptdir_pt;
 	if(
-		!($sing = get_option("cpt_sing"))
-		 || !($pl = get_option("cpt_pl"))
-		 || !($slug = get_option("cpt_slug"))
+		!($sing = CPTD_Options::$options["cpt_sing"])
+		 || !($pl = CPTD_Options::$options['cpt_pl'])
+		 || !($slug = CPTD_Options::$options['cpt_slug'])
 		 || !class_exists("CPTD_pt")
 	) return false;
 	$obj = new CPTD_pt($slug, $sing, $pl);
@@ -79,9 +80,9 @@ function cptdir_get_cat_tax(){
 	global $cptdir_ctax;
 	if($cptdir_ctax){ return $cptdir_ctax; }
 	if(
-		!($sing = get_option("cpt_ctax_sing"))
-		  || !($pl = get_option("cpt_ctax_pl"))
-		  || !($slug = get_option("cpt_ctax_slug"))
+		!($sing = CPTD_Options::$options['ctax_sing'])
+		  || !($pl = CPTD_Options::$options['ctax_pl'])
+		  || !($slug = CPTD_Options::$options['ctax_slug'])
 		  || !($pt = cptdir_get_pt())
 	) { return false;}
 	return new CPTD_tax($slug, $sing, $pl, $pt->name, true );
@@ -91,9 +92,9 @@ function cptdir_get_tag_tax(){
 	global $cptdir_ttax;
 	if($cptdir_ttax) return $cptdir_ttax;
 	if(
-		!($sing = get_option("cpt_ttax_sing"))
-		|| !($pl = get_option("cpt_ttax_pl"))
-		|| !($slug = get_option("cpt_ttax_slug"))
+		!($sing = CPTD_Options::$options['ttax_sing'])
+		|| !($pl = CPTD_Options::$options['ttax_pl'])
+		|| !($slug = CPTD_Options::$options['ttax_slug'])
 		|| !($pt = cptdir_get_pt())
 	) return false;	
 	return new CPTD_tax($slug, $sing, $pl, $pt->name, false);

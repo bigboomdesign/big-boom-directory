@@ -103,7 +103,7 @@ class CPTD_import{
 					?>
 						<div class="cptdir-found-header">
 							<h5 class="cptdir-header"><?php echo $header; ?></h5>
-							<?php $this->do_fields_dropdown( CPTD::str_to_field_name($header) ); ?>
+							<?php $this->do_fields_dropdown( CPTD::clean_str_for_field($header) ); ?>
 						</div>
 						<hr class="cptdir-hr" />
 					<?php
@@ -142,7 +142,7 @@ class CPTD_import{
 				# Loop through headers and create associative array for row
 				foreach($headers as $n => $header){
 					if("" != $row[$n]) $bEmpty = false;
-					$my_row[ CPTD::str_to_field_name($header) ] = $row[$n];
+					$my_row[ CPTD::clean_str_for_field($header) ] = $row[$n];
 				}
 				# If row is not empty, pass it into the rows array
 				if(!$bEmpty) $rows[] = $my_row;

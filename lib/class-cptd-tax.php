@@ -14,7 +14,7 @@ class CPTD_tax{
 			|| !is_string($post_type)
 			|| !is_bool($heirarchical)
 		) return false;
-		$this->name = CPTD::str_to_field_name($singular_label);
+		$this->name = CPTD::clean_str_for_field($singular_label);
 		$this->slug = CPTD::clean_str_for_url($rewrite_slug);
 		$this->sing = $singular_label;
 		$this->pl = $plural_label;

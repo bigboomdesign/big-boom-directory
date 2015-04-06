@@ -133,7 +133,7 @@ class CPTD{
 	}
 	function page_templates( $page_template ){
 		# search results
-		$pg_id = get_option("cpt_search_page");
+		$pg_id = CPTD_Options::$options["search_page"];
 		if ( $pg_id && is_page( $pg_id ) ) {
 			# Do search results when the_content() is called
 			add_filter("the_content", array('CPTD', 'search_results'));
@@ -263,93 +263,116 @@ class CPTD{
 	public static function san($in){
 		return trim(preg_replace("/\s+/", " ", strip_tags($in)));
 	}
-	# Return slug-formatted string for given input
-	public static function clean_str_for_url( $sIn ){
-		/*****
-		Uncomment Lines In Between Commands To Troubleshoot at each step.
-		*****/
-		if( $sIn != "" && is_string( $sIn ) ) { 
-			// Lowercase and Initial Whitespace Trim	
-			$sOut = trim( strtolower( $sIn ) );
-			$sOut = preg_replace( "/\s\s+/" , " " , $sOut );					
-			//echo "<u>Lowercase and Initial Whitespace Trim:</u><br />'". convert_space_to_nbsp( $sOut ) ."'<br /><br />";
-
-			// Alpha-Numeric, Spaces, and Dashes Only
-			$sOut = preg_replace( "/[^a-zA-Z0-9 -]/" , "",$sOut );
-			//echo "<u>Alpha-Numeric, Spaces, and Dashes Only:</u><br />'". convert_space_to_nbsp( $sOut ) ."'<br /><br />";
-
-			// No Multiple Dashes
-			$sOut = preg_replace( "/--+/" , "-",$sOut );
-			//echo "<u>No Multiple Dashes:</u><br />'". convert_space_to_nbsp( $sOut ) ."'<br /><br />";
-
-			// No Spaces Around Dashes
-			$sOut = preg_replace( "/ +- +/" , "-",$sOut );
-			//echo "<u>No Spaces Around Dashes:</u><br />'". convert_space_to_nbsp( $sOut ) ."'<br /><br />";	
-
-			//Remove any Double Spaces
-			$sOut = preg_replace( "/\s\s+/" , " " , $sOut );
-			//echo "<u>Remove Double Spaces:</u><br />'". convert_space_to_nbsp( $sOut ) ."'<br /><br />";
-
-			// 	Replace Remaining Spaces With Dash
-			$sOut = preg_replace( "/\s/" , "-" , $sOut );
-			//echo "<u>Replace Remaining Spaces With Dash:</u><br />'". convert_space_to_nbsp( $sOut ) ."'<br /><br />";
-
-			// 	One Last Remove Multiple Dashes
-			$sOut = preg_replace( "/--+/" , "-" , $sOut );
-			//echo "<u>One Last Remove Multiple Dashes:</u><br />" . "'{$sDirty}'<br /><br />";		
-
-			// Remove trailing dash
-			$nWord_length = strlen( $sOut );
-			if( $sOut[ $nWord_length - 1 ] == "-" ) { $sOut = substr( $sOut , 0 , $nWord_length - 1 ); } 
-			return $sOut;
-		}
-		else{ return false;}
-	}	
-	# Return field_formatted string for given input
-	public static function str_to_field_name( $sIn  ){
-		/*****
-		Uncomment echo statements to see results at each step.
-		*****/
-		if( $sIn != "" && is_string( $sIn ) ) { 
-			// Lowercase and Initial Whitespace Trim	
-			$sOut = trim( strtolower( $sIn ) );
-			$sOut = preg_replace( "/\s\s+/" , " " , $sOut );					
-			//echo "<u>Lowercase and Initial Whitespace Trim:</u><br />'". convert_space_to_nbsp( $sOut ) ."'<br /><br />";
-
-			// Alpha-Numeric, Spaces, and Underscores Only
-			$sOut = preg_replace( "/[^a-zA-Z0-9 _]/" , "_",$sOut );
-			//echo "<u>Alpha-Numeric, Spaces, and Underscores Only:</u><br />'". convert_space_to_nbsp( $sOut ) ."'<br /><br />";
-
-			// No Multiple Underscores
-			$sOut = preg_replace( "/__+/" , "_",$sOut );
-			//echo "<u>No Multiple Underscores:</u><br />'". convert_space_to_nbsp( $sOut ) ."'<br /><br />";
-
-			// No Spaces Around Underscores
-			$sOut = preg_replace( "/ +_ +/" , "_",$sOut );
-			//echo "<u>No Spaces Around Underscores:</u><br />'". convert_space_to_nbsp( $sOut ) ."'<br /><br />";	
-
-			// Remove any Double Spaces
-			$sOut = preg_replace( "/\s\s+/" , " " , $sOut );
-			//echo "<u>Remove Double Spaces:</u><br />'". convert_space_to_nbsp( $sOut ) ."'<br /><br />";
-
-			// Replace Remaining Spaces With Underscore
-			$sOut = preg_replace( "/\s/" , "_" , $sOut );
-			//echo "<u>Replace Remaining Spaces With Underscore:</u><br />'". convert_space_to_nbsp( $sOut ) ."'<br /><br />";
-
-			// One Last Remove Multiple Underscores
-			$sOut = preg_replace( "/__+/" , "_" , $sOut );
-			//echo "<u>One Last Remove Multiple Underscores:</u><br />'" . convert_space_to_nbsp( $sOut ) . "'<br /><br />";		
-
-			// Remove trailing Underscore
-			$nWord_length = strlen( $sOut );
-			if( $sOut[ $nWord_length - 1 ] == "_" ) { $sOut = substr( $sOut , 0 , $nWord_length - 1 ); } 
-			return $sOut;
-		}
-		else{ return false;}
+	# return a permalink-friendly version of a string
+	function clean_str_for_url( $sIn ){
+		if( $sIn == "" ) return "";
+		$sOut = trim( strtolower( $sIn ) );
+		$sOut = preg_replace( "/\s\s+/" , " " , $sOut );					
+		$sOut = preg_replace( "/[^a-zA-Z0-9 -]/" , "",$sOut );	
+		$sOut = preg_replace( "/--+/" , "-",$sOut );
+		$sOut = preg_replace( "/ +- +/" , "-",$sOut );
+		$sOut = preg_replace( "/\s\s+/" , " " , $sOut );	
+		$sOut = preg_replace( "/\s/" , "-" , $sOut );
+		$sOut = preg_replace( "/--+/" , "-" , $sOut );
+		$nWord_length = strlen( $sOut );
+		if( $sOut[ $nWord_length - 1 ] == "-" ) { $sOut = substr( $sOut , 0 , $nWord_length - 1 ); } 
+		return $sOut;
+	}
+	# same as above, but use underscore as default separator
+	function clean_str_for_field($sIn){
+		if( $sIn == "" ) return "";
+		$sOut = trim( strtolower( $sIn ) );
+		$sOut = preg_replace( "/\s\s+/" , " " , $sOut );					
+		$sOut = preg_replace( "/[^a-zA-Z0-9 -_]/" , "",$sOut );	
+		$sOut = preg_replace( "/--+/" , "-",$sOut );
+		$sOut = preg_replace( "/__+/" , "_",$sOut );
+		$sOut = preg_replace( "/ +- +/" , "-",$sOut );
+		$sOut = preg_replace( "/ +_ +/" , "_",$sOut );
+		$sOut = preg_replace( "/\s\s+/" , " " , $sOut );	
+		$sOut = preg_replace( "/\s/" , "-" , $sOut );
+		$sOut = preg_replace( "/--+/" , "-" , $sOut );
+		$sOut = preg_replace( "/__+/" , "_" , $sOut );
+		$nWord_length = strlen( $sOut );
+		if( $sOut[ $nWord_length - 1 ] == "-" || $sOut[ $nWord_length - 1 ] == "_" ) { $sOut = substr( $sOut , 0 , $nWord_length - 1 ); } 
+		return $sOut;		
 	}
 	function convert_space_to_nbsp( $sIn ){
 		return preg_replace( '/\s/' , '&nbsp;' , $sIn );	
 	}
+	# Generate a label, value, etc. for any given setting 
+	## input can be a string or array and a full, formatted array will be returned
+	## If $field is a string we assume the string is the label
+	## if $field is an array we assume that at least a label exists
+	## optionally, the parent field's name can be passed for better labelling
+	function get_field_array( $field, $parent_name = ''){
+		$id = $parent_name ? $parent_name.'_' : '';
+		if(!is_array($field)){
+			$id .= self::clean_str_for_field($field);
+			$out = array();
+			$out['type'] = 'text';
+			$out['label'] = $field;
+			$out['value'] = $id;
+			$out['id'] .= $id;
+			$out['name'] = $id;
+		}
+		else{
+			# do nothing if we don't have a label
+			if(!array_key_exists('label', $field)) return $field;
+			
+			$id .= array_key_exists('name', $field) ? $field['name'] : self::clean_str_for_field($field['label']);
+			$out = $field;
+			if(!array_key_exists('id', $out)) $out['id'] = $id;
+			if(!array_key_exists('name', $out)) $out['name'] = $id;
+			# make sure all choices are arrays
+			if(array_key_exists('choices', $field)){
+				$out['choices'] = self::get_choice_array($field);
+			}
+		}
+		return $out;
+	}
+	# Get array of choices for a setting field
+	## This allows choices to be set as strings or arrays with detailed properties, 
+	## so that either way our options display function will have the data it needs
+	function get_choice_array($setting){
+		extract($setting);
+		if(!isset($choices)) return;
+		$out = array();
+		if(!is_array($choices)){
+			$out[] = array(
+				'id' => $name.'_'.self::clean_str_for_field($choices),
+				'label' => $choices, 
+				'value' => self::clean_str_for_field($choices)
+			);
+		}
+		else{
+			foreach($choices as $choice){
+				if(!is_array($choice)){
+					$out[] = array(
+						'label' => $choice,
+						'id' => $name . '_' . self::clean_str_for_field($choice),
+						'value' => self::clean_str_for_field($choice)
+					);
+				}
+				else{
+					# if choice is already an array, we need to check for missing data
+					if(!array_key_exists('id', $choice)) $choice['id'] = $name.'_'.self::clean_str_for_field($choice['label']);
+					if(!array_key_exists('value', $choice)) $choice['value'] = $name.'_'.self::clean_str_for_field($choice['label']);
+					## if this choice has children, do a few extra things
+					if(array_key_exists('children', $choice)){
+						# add a class to indicate this class has children
+						$choice['class'] .= ' has-children';
+						# loop through child fields and make sure we have full arrays for them all
+						foreach($choice['children'] as $k => $child_choice){
+							$child_choice = self::get_field_array($child_choice);
+							$choice['children'][$k] = $child_choice;
+						}
+					}
+					$out[] = $choice;
+				}
+			}
+		}
+		return $out;
+	}	
 	# get an array of IDs for all post type objects (default is published only, passing false returns all)
 	public static function get_all_cpt_ids($bPub = true){
 		# get all post objects
