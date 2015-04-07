@@ -3,26 +3,62 @@ class CPTD{
 
 	static $classes = array('cptd-options', 'cptd-pt', 'cptd-tax', 'cptd-view', 'cptd-search-widget');
 
+	static $pt; # post type object
+	static $ctax; # category-like taxonomy object
+	static $ttax; # tag-like taxonomy object
+	
 	/*
 	* Main routine
 	*/
 	
-	function create_post_type(){
-		$cptdir_pt = cptdir_get_pt();
-		# If post type exists
-		if($cptdir_pt){
-			$cptdir_pt->register_pt();
+	function setup(){
+		if(!self::setup_pt()) return;
 
-			# Create custom heirarchical taxonomy
-			global $cptdir_ctax;
-			if($cptdir_ctax = cptdir_get_cat_tax()) 
-				$cptdir_ctax->register_tax();
-			
-			# Create custom non-heirarchical taxonomy
-			global $cptdir_ttax;
-			if($cptdir_ttax = cptdir_get_tag_tax())
-				$cptdir_ttax->register_tax();
-		}
+		self::$pt->register_pt();
+
+		# Create custom heirarchical taxonomy
+		if($ctax = self::setup_ctax())
+			$ctax->register_tax();
+		
+		# Create custom non-heirarchical taxonomy
+		if($ttax = self::setup_ttax())
+			$ttax->register_tax();
+	}
+	function setup_pt(){
+		if(self::$pt) return self::$pt;
+		if(
+			!($sing = CPTD_Options::$options["cpt_sing"])
+			 || !($pl = CPTD_Options::$options['cpt_pl'])
+			 || !($slug = CPTD_Options::$options['cpt_slug'])
+			 || !class_exists("CPTD_pt")
+		) return false;
+		$obj = new CPTD_pt($slug, $sing, $pl);
+		self::$pt = $obj;
+		return $obj;
+	}
+	function setup_ctax(){
+		if(self::$ctax){ return self::$ctax; }
+		if(
+			!($sing = CPTD_Options::$options['ctax_sing'])
+			  || !($pl = CPTD_Options::$options['ctax_pl'])
+			  || !($slug = CPTD_Options::$options['ctax_slug'])
+			  || !($pt = cptdir_get_pt())
+		) { return false;}
+		$obj = new CPTD_tax($slug, $sing, $pl, $pt->name, true );
+		self::$ctax = $obj;
+		return $obj;		
+	}
+	function setup_ttax(){
+		if(self::$ttax) return self::$ttax;
+		if(
+			!($sing = CPTD_Options::$options['ttax_sing'])
+			|| !($pl = CPTD_Options::$options['ttax_pl'])
+			|| !($slug = CPTD_Options::$options['ttax_slug'])
+			|| !($pt = cptdir_get_pt())
+		) return false;
+		$obj = new CPTD_tax($slug, $sing, $pl, $pt->name, false);
+		self::$ttax = $obj;
+		return $obj;
 	}
 	
 	/* 

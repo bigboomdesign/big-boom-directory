@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Creates a directory based on Custom Post Type, Taxonomy, and Fields
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Big Boom Design
  * Author URI: http://bigboomdesign.com
  */
@@ -15,10 +15,7 @@
 require_once cptdir_dir('/lib/class-cptd.php');
 
 # create custom post type and taxonomies
-global $cptdir_pt;
-global $cptdir_ctax;
-global $cptdir_ttax;
-add_action( 'init', array('CPTD', 'create_post_type'));
+add_action( 'init', array('CPTD', 'setup'));
 
 /*
 * Admin Routines
@@ -63,41 +60,16 @@ function cptdir_success($msg, $tag = 'p', $class=''){ return "<{$tag} class='cpt
 function cptdir_fail($msg, $tag = 'p', $class = ''){ return "<{$tag} class='cptdir-fail" . ($class ? " ".$class:null) . "'>{$msg}</{$tag}>"; }
 
 # Return the post type object if one has been created
-function cptdir_get_pt(){ 
-	global $cptdir_pt;
-	if($cptdir_pt) return $cptdir_pt;
-	if(
-		!($sing = CPTD_Options::$options["cpt_sing"])
-		 || !($pl = CPTD_Options::$options['cpt_pl'])
-		 || !($slug = CPTD_Options::$options['cpt_slug'])
-		 || !class_exists("CPTD_pt")
-	) return false;
-	$obj = new CPTD_pt($slug, $sing, $pl);
-	return $obj;
+function cptdir_get_pt(){
+	return CPTD::setup_pt();
 }
 # Return the heirarchical custom taxonomy object if one exists
 function cptdir_get_cat_tax(){ 
-	global $cptdir_ctax;
-	if($cptdir_ctax){ return $cptdir_ctax; }
-	if(
-		!($sing = CPTD_Options::$options['ctax_sing'])
-		  || !($pl = CPTD_Options::$options['ctax_pl'])
-		  || !($slug = CPTD_Options::$options['ctax_slug'])
-		  || !($pt = cptdir_get_pt())
-	) { return false;}
-	return new CPTD_tax($slug, $sing, $pl, $pt->name, true );
+	return CPTD::setup_ctax();
 }
 # Return the non-heirarchical taxonomy object if one exists
 function cptdir_get_tag_tax(){
-	global $cptdir_ttax;
-	if($cptdir_ttax) return $cptdir_ttax;
-	if(
-		!($sing = CPTD_Options::$options['ttax_sing'])
-		|| !($pl = CPTD_Options::$options['ttax_pl'])
-		|| !($slug = CPTD_Options::$options['ttax_slug'])
-		|| !($pt = cptdir_get_pt())
-	) return false;	
-	return new CPTD_tax($slug, $sing, $pl, $pt->name, false);
+	return CPTD::setup_ttax();
 }
 # display a field given an array from ACF
 function cptdir_field($field){
