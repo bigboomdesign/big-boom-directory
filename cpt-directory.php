@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Creates a directory based on Custom Post Type, Taxonomy, and Fields
- * Version: 1.1.1
+ * Version: 1.2.0
  * Author: Big Boom Design
  * Author URI: http://bigboomdesign.com
  */
@@ -43,7 +43,7 @@ else{
 	# Single template for CPT
 	add_filter("single_template", array('CPTD', "single_template"));
 	# taxonomy template for CPT
-	add_filter("taxonomy_template", "taxonomy_template");
+	add_filter("taxonomy_template", array('CPTD', 'taxonomy_template'));
 	# Set page template for various pages
 	add_filter( 'page_template', array('CPTD', 'page_templates'));
 } # end else: front end

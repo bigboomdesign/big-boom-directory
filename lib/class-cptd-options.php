@@ -41,6 +41,53 @@ class CPTD_Options{
 			<p class='description'><?php echo $setting['description']; ?></p>
 		<?php
 		}
+		/*
+		* Custom content for this plugin
+		*/
+		# check if directory home and archive pages conflict
+		if(
+			$setting['name'] == 'front_page' 
+				&& (
+						CPTD::$pt
+						|| CPTD::$ctax
+						|| CPTD::$ttax
+					)
+		){
+			# archives
+			$pt_slug = CPTD::$pt->slug ? CPTD::$pt->slug : '';
+			$ctax_slug = CPTD::$ctax->slug ? CPTD::$ctax->slug : '';
+			$ttax_slug = CPTD::$ttax->slug ? CPTD::$ttax->slug : '';
+			
+			# directory home
+			$front_page_id = CPTD_Options::$options['front_page'];
+			$front_page = get_post($front_page_id);
+			$page_slug = $front_page->post_name;
+			
+			#compare and give warning if necessary
+			if($page_slug ==  $pt_slug){
+			?>
+				<p class='cptdir-fail'>Warning:</p>
+				<p>Your directory home page has the same permalink as the post type URL slug.  Please change one of these values to avoid conflicts.</p>
+			<?php
+			}
+			elseif($page_slug == $ctax_slug){
+			?>
+				<p class='cptdir-fail'>Warning:</p>
+				<p>Your directory home page has the same permalink as the <?php echo CPTD::$ctax->sing; ?> taxonomy URL slug.  Please change one of these values to avoid conflicts.</p>
+			<?php
+			}
+			elseif($page_slug == $ttax_slug){
+			?>
+				<p class='cptdir-fail'>Warning:</p>
+				<p>Your directory home page has the same permalink as the taxonomy <?php echo CPTD::$ttax->sing; ?> URL slug.  Please change one of these values to avoid conflicts.</p>
+			<?php			
+			}
+		}
+		
+		/*
+		* end: custom content
+		*/
+		
 		# Child fields (for conditional logic)
 		if(array_key_exists('choices', $setting)){
 			$choices = CPTD::get_choice_array($setting);
@@ -192,8 +239,8 @@ class CPTD_Options{
 		$args = array(
 			"selected" => self::$options[$name],
 			"name" => "cptdir_options[$name]",
-			"show_option_none" => "Select page for search results"
 		);
+		if($show_option_none) $args['show_option_none'] = $show_option_none;
 		wp_dropdown_pages($args);
 	}	
 	# Register settings
@@ -397,8 +444,14 @@ CPTD_Options::$sections = array(
 		'name' => 'cptdir_search', 'title' => 'Search'
 	),
 );
-## generate all settings for backend
+## generate all settings
 CPTD_Options::$settings = array(
+	# main
+	## the following are added after post type setup
+		# `front_page`
+		# `front_page_shows`
+		# `front_page_show_empty`
+	
 	# custom post type
 	array(
 		'name' => 'cpt_sing', 'label' => 'Singular Label',
@@ -447,7 +500,8 @@ CPTD_Options::$settings = array(
 	array(
 		'name' => 'search_page', 'type' => 'dropdown_pages',
 		'label' => 'Results page for widget search',
-		'section' => 'cptdir_search'
+		'section' => 'cptdir_search',
+		'show_option_none' => 'Select page for widget search results'
 	),
 );
 

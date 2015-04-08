@@ -23,6 +23,45 @@ class CPTD{
 		# Create custom non-heirarchical taxonomy
 		if($ttax = self::setup_ttax())
 			$ttax->register_tax();
+			
+		# add options that depend on post type
+		## front_page
+		CPTD_Options::$settings['front_page'] = array(
+			'name' => 'front_page',
+			'type' => 'dropdown_pages',
+			'label' => 'Directory Front Page',
+			'show_option_none' => 'Select page for directory home'
+		);
+		## front_page_shows
+		CPTD_Options::$settings['front_page_shows'] = array(
+			'name' => 'front_page_shows', 'type' => 'select',
+			'label' => 'Front Page Shows',
+			'choices' => array(
+				array(
+					'value' => '',
+					'label' => 'None'
+				)
+			)
+		);
+		## front_page_show_empty
+		CPTD_Options::$settings[] = array(
+			'name' => 'front_page_show_empty',
+			'label' => 'Show empty terms',
+			'type' => 'checkbox',
+			'choices' => 'Yes'
+		);
+		if($ctax){
+			CPTD_Options::$settings['front_page_shows']['choices'][] = array(
+				'value' => 'ctax',
+				'label' => self::$ctax->pl			
+			);
+		}
+		if($ttax){
+			CPTD_Options::$settings['front_page_shows']['choices'][] = array(
+				'value' => 'ttax',
+				'label' => self::$ttax->pl			
+			);		
+		}
 	}
 	function setup_pt(){
 		if(self::$pt) return self::$pt;
@@ -65,16 +104,23 @@ class CPTD{
 	* Admin Routines
 	*/
 	function admin_enqueue(){
-		# CSS
-		wp_enqueue_style("cptdir-admin-css", cptdir_url("css/cptdir-admin.css"));
-	
 		$screen = get_current_screen();
-
-		# JS
-		if($screen->id == 'cpt-directory_page_cptdir-fields'){
+		
+		## all cptdir pages
+		$screens = array(
+			'settings' => 'toplevel_page_cptdir-settings-page',
+			'fields' => 'cpt-directory_page_cptdir-fields',
+			'cleanup' => 'cpt-directory_page_cptdir-cleanup',
+		);		
+		if(in_array($screen->id, $screens)){
+			wp_enqueue_style("cptdir-admin-css", cptdir_url("css/cptdir-admin.css"));		
+		}
+		## fields page
+		if($screen->id == $screens['fields']){
 			wp_enqueue_script('cptdir-fields-js', cptdir_url('js/cptdir-fields.js'), array('jquery'));
-		}	
-		elseif($screen->id == 'cpt-directory_page_cptdir-cleanup'){
+		}
+		## cleanup page
+		elseif($screen->id == $screens['cleanup']){
 			wp_enqueue_script('cptdir-cleanup-js', cptdir_url('js/cptdir-cleanup.js'), array('jquery'));
 		}
 	}
@@ -168,14 +214,56 @@ class CPTD{
 		return self::default_fields($content, "multi");
 	}
 	function page_templates( $page_template ){
+		# directory home
+		$home_id = CPTD_Options::$options['front_page'];
+		if($home_id && is_page($home_id)){
+			add_filter('the_content', array('CPTD', 'front_page'));
+			return $page_template;
+		}
 		# search results
-		$pg_id = CPTD_Options::$options["search_page"];
-		if ( $pg_id && is_page( $pg_id ) ) {
+		$search_id = CPTD_Options::$options["search_page"];
+		if ( $search_id && is_page( $search_id ) ) {
 			# Do search results when the_content() is called
 			add_filter("the_content", array('CPTD', 'search_results'));
 			return $page_template;
 		} 
 		return $page_template;
+	}
+	## Directory home
+	function front_page($content){
+		$html = self::front_page_html();
+		return $content.$html;
+	}
+	function front_page_html(){
+		# what should be shown here (ctax or ttax)?
+		$show = CPTD_Options::$options['front_page_shows'];
+		if(!$show) return;
+		
+		# get the taxonomy whose terms we'll show
+		if($show == 'ctax') $tax = CPTD::$ctax;
+		elseif($show == 'ttax') $tax = CPTD::$ttax;
+		if(!$tax) return;
+		
+		# grab the terms for the chosen taxonomy
+		$args = array();		
+		if(isset(CPTD_Options::$options['front_page_show_empty_yes']))
+			$args['hide_empty'] = false;
+		if(!($terms = get_terms($tax->name, $args))) return;
+		
+		# check if we're being replaced by custom content
+		if(function_exists('cptdir_custom_front_page')) return cptdir_custom_front_page($terms);
+
+		# if not, generate HTML
+		$html = '<div id="cptdir-front-page-content">';
+			$html .= '<h2>'. $tax->pl .'</h2>';
+			foreach($terms as $term){
+				$html .= '<a class="cptdir-term-link" href="'. get_term_link($term) .'">';
+					$html .= $term->name;
+				$html .= '</a><br />';
+			}
+		$html .= '</div>';
+		return $html;
+		
 	}
 	## Search Results Page
 	function search_results($content){ 

@@ -3,7 +3,7 @@
 
 A directory plugin for WordPress, driven by the WP Custom Post Type environment.
 
-##Features
+## Features
 
 * Creates custom post type and taxonomies from backend without coding
 * Provides search widget that filters custom post type items by taxonomy terms and custom field values
@@ -47,6 +47,10 @@ Now we have to define the callback function *my_single_field_callback*
 ---
 
 ### Define these functions within your theme to customize listing display
+
+####```cptdir_custom_front_page($terms)```
+* Replace default view that comes after front page content. You must return an HTML string
+ * *$terms* : You'll have access to the terms belonging to the taxonomy that you select in the plugin options
 
 ####```cptdir_custom_single($content)```
 * Hook into post content for single listing view, passing and returning post content if needed
