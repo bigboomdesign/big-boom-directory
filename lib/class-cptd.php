@@ -43,13 +43,6 @@ class CPTD{
 				)
 			)
 		);
-		## front_page_show_empty
-		CPTD_Options::$settings[] = array(
-			'name' => 'front_page_show_empty',
-			'label' => 'Show empty terms',
-			'type' => 'checkbox',
-			'choices' => 'Yes'
-		);
 		if($ctax){
 			CPTD_Options::$settings['front_page_shows']['choices'][] = array(
 				'value' => 'ctax',
@@ -62,6 +55,20 @@ class CPTD{
 				'label' => self::$ttax->pl			
 			);		
 		}
+		## tax_show_empty
+		CPTD_Options::$settings[] = array(
+			'name' => 'tax_show_empty',
+			'label' => 'Show empty terms',
+			'type' => 'checkbox',
+			'choices' => 'Yes'
+		);
+		## tax_show_count
+		CPTD_Options::$settings[] = array(
+			'name' => 'tax_show_count',
+			'label' => 'Show post count',
+			'type' => 'checkbox',
+			'choices' => 'Yes'
+		);
 	}
 	function setup_pt(){
 		if(self::$pt) return self::$pt;
@@ -231,10 +238,10 @@ class CPTD{
 	}
 	## Directory home
 	function front_page($content){
-		$html = self::front_page_html();
+		$html = self::terms_html();
 		return $content.$html;
 	}
-	function front_page_html(){
+	function terms_html(){
 		# what should be shown here (ctax or ttax)?
 		$show = CPTD_Options::$options['front_page_shows'];
 		if(!$show) return;
@@ -246,7 +253,7 @@ class CPTD{
 		
 		# grab the terms for the chosen taxonomy
 		$args = array();		
-		if(isset(CPTD_Options::$options['front_page_show_empty_yes']))
+		if(isset(CPTD_Options::$options['tax_show_empty_yes']))
 			$args['hide_empty'] = false;
 		if(!($terms = get_terms($tax->name, $args))) return;
 		
@@ -257,13 +264,17 @@ class CPTD{
 		$html = '<div id="cptdir-front-page-content">';
 			$html .= '<h2>'. $tax->pl .'</h2>';
 			foreach($terms as $term){
-				$html .= '<a class="cptdir-term-link" href="'. get_term_link($term) .'">';
-					$html .= $term->name;
-				$html .= '</a><br />';
+				$html .= '<li>';
+					$html .= '<a class="cptdir-term-link" href="'. get_term_link($term) .'">';
+						$html .= $term->name;
+					$html .= '</a>';
+					if(CPTD_Options::$options['tax_show_count_yes']){
+						$html .= ' ('.$term->count.')';
+					}
+				$html .= '</li>';
 			}
 		$html .= '</div>';
-		return $html;
-		
+		return $html;		
 	}
 	## Search Results Page
 	function search_results($content){ 

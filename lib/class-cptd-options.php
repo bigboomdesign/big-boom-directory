@@ -450,7 +450,8 @@ CPTD_Options::$settings = array(
 	## the following are added after post type setup
 		# `front_page`
 		# `front_page_shows`
-		# `front_page_show_empty`
+		# `tax_show_empty`
+		# `tax_show_count`
 	
 	# custom post type
 	array(
