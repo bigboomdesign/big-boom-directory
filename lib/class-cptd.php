@@ -69,6 +69,12 @@ class CPTD{
 			'type' => 'checkbox',
 			'choices' => 'Yes'
 		);
+		CPTD_Options::$settings[] = array(
+			'name' => 'tax_show_title',
+			'label' => 'Show title for terms list',
+			'type' => 'checkbox',
+			'choices' => 'Yes'
+		);
 	}
 	function setup_pt(){
 		if(self::$pt) return self::$pt;
@@ -116,6 +122,7 @@ class CPTD{
 		## all cptdir pages
 		$screens = array(
 			'settings' => 'toplevel_page_cptdir-settings-page',
+			'instructions' => 'cpt-directory_page_cptdir-instructions',
 			'fields' => 'cpt-directory_page_cptdir-fields',
 			'cleanup' => 'cpt-directory_page_cptdir-cleanup',
 		);		
@@ -134,6 +141,7 @@ class CPTD{
 	function admin_menu() {
 		add_menu_page('CPT Directory Settings', 'CPT Directory', 'administrator', 'cptdir-settings-page', array('CPTD_Options', 'settings_page'));
 		add_submenu_page( 'cptdir-settings-page', 'CPT Directory Settings', 'Settings', 'administrator', 'cptdir-settings-page', array('CPTD_Options', 'settings_page'));
+		add_submenu_page( 'cptdir-settings-page', 'CPT Directory Instructions', 'Instructions', 'administrator', 'cptdir-instructions', array('CPTD_Options', 'instructions_page'));
 		add_submenu_page( 'cptdir-settings-page', 'Edit Fields | CPT Directory', 'Fields', 'administrator', 'cptdir-fields', array('CPTD_Options','fields_page' ));
 		add_submenu_page( 'cptdir-settings-page', 'Clean Up | CPT Directory', 'Clean Up', 'administrator', 'cptdir-cleanup', array('CPTD_Options','cleanup_page'));	
 		add_submenu_page("cptdir-settings-page", "Import | CPT Directory", "Import", "administrator", "cptdir-import", array('CPTD_Options','import_page'));
@@ -233,7 +241,7 @@ class CPTD{
 			# Do search results when the_content() is called
 			add_filter("the_content", array('CPTD', 'search_results'));
 			return $page_template;
-		} 
+		}
 		return $page_template;
 	}
 	## Directory home
@@ -241,34 +249,65 @@ class CPTD{
 		$html = self::terms_html();
 		return $content.$html;
 	}
-	function terms_html(){
-		# what should be shown here (ctax or ttax)?
-		$show = CPTD_Options::$options['front_page_shows'];
-		if(!$show) return;
+	function terms_html($atts = array()){
+		# if no attributes are passed in, we'll do whatever is set for the directory home page
+		if(!$atts){
+			# what should be shown here (ctax or ttax)?
+			$show = CPTD_Options::$options['front_page_shows'];
+			if(!$show) return;
 		
-		# get the taxonomy whose terms we'll show
-		if($show == 'ctax') $tax = CPTD::$ctax;
-		elseif($show == 'ttax') $tax = CPTD::$ttax;
-		if(!$tax) return;
+			# get the taxonomy whose terms we'll show
+			if($show == 'ctax') $tax = CPTD::$ctax;
+			elseif($show == 'ttax') $tax = CPTD::$ttax;
+			if(!$tax) return;
 		
-		# grab the terms for the chosen taxonomy
-		$args = array();		
-		if(isset(CPTD_Options::$options['tax_show_empty_yes']))
-			$args['hide_empty'] = false;
-		if(!($terms = get_terms($tax->name, $args))) return;
+			# grab the terms for the chosen taxonomy
+			$args = array();
+			if(isset(CPTD_Options::$options['tax_show_empty_yes']))
+				$args['hide_empty'] = false;
+			if(!($terms = get_terms($tax->name, $args))) return;
 		
-		# check if we're being replaced by custom content
-		if(function_exists('cptdir_custom_front_page')) return cptdir_custom_front_page($terms);
-
-		# if not, generate HTML
-		$html = '<div id="cptdir-front-page-content">';
-			$html .= '<h2>'. $tax->pl .'</h2>';
+			# check if we're being replaced by custom content
+			if(function_exists('cptdir_custom_front_page')) return cptdir_custom_front_page($terms);
+		}
+		# if attributes are defined, grab terms based on user input
+		else{
+			$atts = shortcode_atts(
+				array(
+					'taxonomy' => '',
+					'show_count' => false,
+					'show_empty' => false,
+					'show_title' => false
+				), $atts, 'cptd-terms'
+			);
+			# try to get by label
+			if(!($tax = get_taxonomies(array('label' => $atts['taxonomy']), 'objects'))){			
+				# then by name
+				$tax = get_taxonomy($atts['taxonomy']);
+			}
+			if(!$tax) return;
+			if($atts['show_empty'] == 'true') $atts['hide_empty'] = false;
+			if(!($terms = get_terms($tax->name, $atts))) return;
+			
+			# get CPTD tax object
+			if($tax->name == CPTD::$ctax->name) $tax = CPTD::$ctax;
+			elseif($tax->name == CPTD::$ttax->name) $tax = CPTD::$ttax;
+		}
+		# generate HTML for list
+		$html = '<div id="cptdir-terms-list">';
+			if(
+				isset(CPTD_Options::$options['tax_show_title_yes'])
+					|| $atts['show_title'] == 'true'
+			) $html .= '<h2>'. $tax->pl .'</h2>';
 			foreach($terms as $term){
 				$html .= '<li>';
 					$html .= '<a class="cptdir-term-link" href="'. get_term_link($term) .'">';
 						$html .= $term->name;
 					$html .= '</a>';
-					if(CPTD_Options::$options['tax_show_count_yes']){
+					if(
+						CPTD_Options::$options['tax_show_count_yes']
+						|| $atts['show_count'] == 'true'
+					){
 						$html .= ' ('.$term->count.')';
 					}
 				$html .= '</li>';

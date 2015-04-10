@@ -12,7 +12,7 @@ A directory plugin for WordPress, driven by the WP Custom Post Type environment.
 
 ## Notes
 
-* Default behaviors are not well-defined without Advanced Custom Fields plugin.  Using ACF adds support for field ordering and field types, as well as imporving backend data entry experience
+* Default behaviors for fields are not well-defined without Advanced Custom Fields plugin.  Using ACF adds support for field ordering and field types, as well as improving backend data entry experience
 
 ## Integration with theme
 

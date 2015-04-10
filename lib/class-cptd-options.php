@@ -301,6 +301,26 @@ class CPTD_Options{
 			}
 		}
 	}
+	static function instructions_page(){
+		?><div class='wrap'>
+			<h2>CPT Directory: Instructions</h2>
+			<h3>Shortcodes</h3>
+			<p><code>[cptd-terms]</code></p>
+			<div class='cptdir-indent'>
+				<p>Used with no attributes as above, this shortcode will obey the settings for the directory front page.</p>
+				<h4>Attributes</h4>
+				<p>You can pass additional attributes into your shortcode to override the default settings.</p>
+				<p><code>taxonomy</code> &ndash; set the taxonomy whose terms should show.  You can use the <b>label</b> (e.g. <em>Categories</em>) or the taxonomy name (e.g. <em>category</em>)</p>
+				<p><code>show_title</code> &ndash; whether or not to show the taxonomy title above the list of terms (<em>true/false</em>)</p>
+				<p><code>show_empty</code> &ndash; whether or not to show terms with no posts (<em>true/false</em>)</p>
+				<p><code>show_count</code> &ndash; whether or not to show post count for terms (<em>true/false</em>)</p>
+				<h4>Example:</h4>
+				<p><code>[cptd-terms taxonomy='Genres' show_title='true' show_empty='true']</code></p>
+				<p>Adding the above shortcode to a page or post will show all terms for a taxonomy called <em>'Genres'</em>, with the title at the top of the list, and including terms for which no posts are assigned.</p>
+			</div>
+			<hr />
+		</div><?php
+	}	
 	function fields_page(){
 	?>
 		<div class="wrap">

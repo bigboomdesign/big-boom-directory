@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Creates a directory based on Custom Post Type, Taxonomy, and Fields
- * Version: 1.3.0
+ * Version: 1.4.0
  * Author: Big Boom Design
  * Author URI: http://bigboomdesign.com
  */
@@ -27,6 +27,16 @@ if(is_admin()){
 	add_action('admin_menu', array('CPTD', 'admin_menu'));
 	# settings
 	add_action( 'admin_init', array('CPTD_Options','register_settings'));
+	# Action links on main Plugins screen
+	$plugin = plugin_basename(__FILE__);
+	add_filter("plugin_action_links_$plugin", 'cptdir_plugin_actions' );
+	function cptdir_plugin_actions($links){
+		$settings_link = '<a href="admin.php?page=cptdir-settings-page">Settings</a>';
+		array_unshift($links, $settings_link);
+		$instructions_link = '<a href="admin.php?page=cptdir-instructions">Instructions</a>';
+		array_unshift($links, $instructions_link);
+		return $links;
+	}	
 } # endif: is_admin()
 
 /*
@@ -34,6 +44,8 @@ if(is_admin()){
 */
 else{
 	add_action("wp_enqueue_scripts", array('CPTD', 'enqueue'));
+	# shortcode for terms list
+	add_shortcode('cptd-terms', array('CPTD', 'terms_html'));
 
 	# CPT archive page
 	# all views below this one should probably do something like this

@@ -2,6 +2,7 @@
 .debug{ color: orange; background: beige; }
 .cptdir-success{ color: green; }
 .cptdir-fail{ color: #B42D29; }
+.cptdir-indent{ margin-left: 2em; }
 h3.cptdir-header{ font-size: 1.5em; }
 h4.cptdir-header{ font-size: 1.3em; }
 h5.cptdir-header{ font-size: 1.1em; font-weight: bold; }
