@@ -258,24 +258,16 @@ class CPTD_Options{
 			add_settings_field($setting['name'], $setting['label'], array('CPTD_Options','do_settings_field'), 'cptdir_settings', ( array_key_exists('section', $setting) ? $setting['section'] : self::$default_section), $setting);
 		}
 	}
-	function get_validation_callback($setting){
-		$aSlugValidate = array("cpt_slug", "cpt_ctax_slug", "cpt_ttax_slug");
-		if(in_array($setting, $aSlugValidate)) return array('CPTD_Options', 'validate_slug');
-		return array('CPTD_Options', 'validate_options');
-	}
 	# validate fields when saved
 	function validate_options($input){
 		# need to validate slug fields to make sure we have a valid URL
 		$aSlugValidate = array("cpt_slug", "ctax_slug", "ttax_slug");
 		foreach($aSlugValidate as $key){
 			if(array_key_exists($key, $input)){
-				$input[$key] = CPTD::clean_str_for_url($input[$key]);
+				$input[$key] = CPTD::clean_str_for_field($input[$key]);
 			}
 		}
 		return $input; 
-	}
-	function validate_slug($input){
-		return CPTD::clean_str_for_url($input);		
 	}	
 	# Do settings page
 	static function settings_page(){

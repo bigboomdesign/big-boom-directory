@@ -463,7 +463,7 @@ class CPTD{
 		$sOut = preg_replace( "/ +- +/" , "-",$sOut );
 		$sOut = preg_replace( "/ +_ +/" , "_",$sOut );
 		$sOut = preg_replace( "/\s\s+/" , " " , $sOut );	
-		$sOut = preg_replace( "/\s/" , "-" , $sOut );
+		$sOut = preg_replace( "/\s/" , "_" , $sOut );
 		$sOut = preg_replace( "/--+/" , "-" , $sOut );
 		$sOut = preg_replace( "/__+/" , "_" , $sOut );
 		$nWord_length = strlen( $sOut );
