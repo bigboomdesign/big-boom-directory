@@ -48,8 +48,8 @@ Now we have to define the callback function *my_single_field_callback*
 
 ### Define these functions within your theme to customize listing display
 
-####```cptdir_custom_front_page($terms)```
-* Replace default view that comes after front page content. You must return an HTML string
+####```cptdir_custom_terms_list($terms)```
+* Replace default terms list provided by directory front page and shortcode. You must return an HTML string
  * *$terms* : You'll have access to the terms belonging to the taxonomy that you select in the plugin options
 
 ####```cptdir_custom_single($content)```

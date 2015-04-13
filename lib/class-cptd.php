@@ -250,64 +250,64 @@ class CPTD{
 		return $content.$html;
 	}
 	function terms_html($atts = array()){
-		# if no attributes are passed in, we'll do whatever is set for the directory home page
-		if(!$atts){
-			# what should be shown here (ctax or ttax)?
-			$show = CPTD_Options::$options['front_page_shows'];
-			if(!$show) return;
-		
-			# get the taxonomy whose terms we'll show
-			if($show == 'ctax') $tax = CPTD::$ctax;
-			elseif($show == 'ttax') $tax = CPTD::$ttax;
+		# if we're not passed a taxonomy
+		if(!$atts['taxonomy']){
+			# get CPTD_tax object based on plugin settings
+			$front_page_shows = isset(CPTD_Options::$options['front_page_shows'])
+				? CPTD_Options::$options['front_page_shows'] 
+				: '';
+			$tax = ($front_page_shows == 'ctax') 
+				? (
+					CPTD::$ctax ? CPTD::$ctax : ''
+				)
+				: (
+					$front_page_shows == 'ttax'
+					? (
+						CPTD::$ttax ? CPTD::$ttax : ''
+					) : ''
+				);
 			if(!$tax) return;
-		
-			# grab the terms for the chosen taxonomy
-			$args = array();
-			if(isset(CPTD_Options::$options['tax_show_empty_yes']))
-				$args['hide_empty'] = false;
-			if(!($terms = get_terms($tax->name, $args))) return;
-		
-			# check if we're being replaced by custom content
-			if(function_exists('cptdir_custom_front_page')) return cptdir_custom_front_page($terms);
+			# get wp object
+			$tax = $tax->obj;
 		}
-		# if attributes are defined, grab terms based on user input
+		# if we are passed a taxonomy
 		else{
-			$atts = shortcode_atts(
-				array(
-					'taxonomy' => '',
-					'show_count' => false,
-					'show_empty' => false,
-					'show_title' => false
-				), $atts, 'cptd-terms'
-			);
 			# try to get by label
 			if(!($tax = get_taxonomies(array('label' => $atts['taxonomy']), 'objects'))){			
 				# then by name
 				$tax = get_taxonomy($atts['taxonomy']);
 			}
-			if(!$tax) return;
-			if($atts['show_empty'] == 'true') $atts['hide_empty'] = false;
-			if(!($terms = get_terms($tax->name, $atts))) return;
-			
-			# get CPTD tax object
-			if($tax->name == CPTD::$ctax->name) $tax = CPTD::$ctax;
-			elseif($tax->name == CPTD::$ttax->name) $tax = CPTD::$ttax;
+			if(is_array($tax)) $tax = array_pop($tax);
 		}
-		# generate HTML for list
+		if(!$tax) return;
+		# parse shortcode attributes
+		$atts = shortcode_atts(
+			array(
+				'taxonomy' => $tax->name,
+				'show_count' => isset(CPTD_Options::$options['tax_show_count_yes']) ? 'true' : 'false',
+				'show_empty' => isset(CPTD_Options::$options['tax_show_empty_yes']) ? 'true' : 'false',
+				'show_title' => isset(CPTD_Options::$options['tax_show_title_yes']) ? 'true' : 'false',
+			), $atts, 'cptd-terms'
+		);
+		
+		# arguments for get_terms
+		$q_args = array();
+		if($atts['show_empty'] == 'true') $q_args['hide_empty'] = false;
+		$terms = get_terms($tax->name, $q_args);
+		
+		# check if we're being overridden by theme
+		if(function_exists('cptdir_custom_terms_list')) return cptdir_custom_terms_list($terms);
+		if(!$terms) return;
+
+		# otherwise, generate HTML for list
 		$html = '<div id="cptdir-terms-list">';
-			if(
-				isset(CPTD_Options::$options['tax_show_title_yes'])
-					|| $atts['show_title'] == 'true'
-			) $html .= '<h2>'. $tax->pl .'</h2>';
+			if($atts['show_title'] == 'true') $html .= '<h2>'. $tax->labels->name .'</h2>';
 			foreach($terms as $term){
 				$html .= '<li>';
 					$html .= '<a class="cptdir-term-link" href="'. get_term_link($term) .'">';
 						$html .= $term->name;
 					$html .= '</a>';
-					if(
-						CPTD_Options::$options['tax_show_count_yes']
-						|| $atts['show_count'] == 'true'
-					){
+					if($atts['show_count'] == 'true'){
 						$html .= ' ('.$term->count.')';
 					}
 				$html .= '</li>';

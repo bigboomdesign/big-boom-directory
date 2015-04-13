@@ -5,6 +5,7 @@ class CPTD_pt{
 	public $sing = "";
 	public $pl = "";
 	public $labels = array();
+	public $obj = '';
 
 	function __construct($rewrite_slug, $singular_label, $plural_label){
 		if(
@@ -18,7 +19,6 @@ class CPTD_pt{
 		$this->pl = $plural_label;
 		
 		$this->load_labels();
-
 	}
 	public function register_pt(){
 		register_post_type(
@@ -31,6 +31,7 @@ class CPTD_pt{
 				"supports" => array("title", "editor", "thumbnail", "custom-fields"),			
 			)
 		);
+		$this->obj = get_post_type_object($this->name);
 	}
 	private function load_labels(){
 		$this->labels = array(

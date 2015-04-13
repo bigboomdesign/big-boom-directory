@@ -5,6 +5,7 @@ class CPTD_tax{
 	public $sing = "";
 	public $pl = "";
 	public $labels = array();
+	public $obj = '';
 	
 	function __construct($rewrite_slug, $singular_label, $plural_label, $post_type, $heirarchical = true){
 		if(
@@ -32,7 +33,8 @@ class CPTD_tax{
 					'rewrite' => array( 'slug' => $this->slug ),
 					"hierarchical" => $this->heir
 				)
-		);	
+		);
+		$this->obj = get_taxonomy($this->name);
 	}
 
 	# Label array for taxonomy
