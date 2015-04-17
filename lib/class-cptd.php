@@ -152,7 +152,7 @@ class CPTD{
 	function enqueue(){
 		# CSS
 		wp_enqueue_style("cptdir-css", cptdir_url("css/cptdir.css"));
-		if($pt = CPTD::$pt && is_singular($pt->name)){
+		if(self::is_cptdir()){
 			wp_enqueue_script('cptdir-lightbox-js', cptdir_url('/assets/lightbox/lightbox.min.js'), array('jquery'));
 			wp_enqueue_style('cptdir-lightbox-css', cptdir_url('/assets/lightbox/lightbox.css'));
 			wp_enqueue_script('cptdir-gallery-js', cptdir_url('/js/cptdir-lightbox.js'), array('jquery'));
@@ -441,6 +441,12 @@ class CPTD{
 	# Sanitize form input
 	public static function san($in){
 		return trim(preg_replace("/\s+/", " ", strip_tags($in)));
+	}
+	# check if we're viewing a CPTD-powered page (must be called after 'wp' hook)
+	function is_cptdir(){
+		return ($pt = CPTD::$pt && (is_singular($pt->name) || is_post_type_archive($pt->name)))
+			|| ($tax = CPTD::$ctax && is_archive($tax->name))
+			|| ($tax = CPTD::$ttax && is_archive($tax->name));		
 	}
 	# return a permalink-friendly version of a string
 	function clean_str_for_url( $sIn ){
