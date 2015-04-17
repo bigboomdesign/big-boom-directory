@@ -152,6 +152,11 @@ class CPTD{
 	function enqueue(){
 		# CSS
 		wp_enqueue_style("cptdir-css", cptdir_url("css/cptdir.css"));
+		if($pt = CPTD::$pt && is_singular($pt->name)){
+			wp_enqueue_script('cptdir-lightbox-js', cptdir_url('/assets/lightbox/lightbox.min.js'), array('jquery'));
+			wp_enqueue_style('cptdir-lightbox-css', cptdir_url('/assets/lightbox/lightbox.css'));
+			wp_enqueue_script('cptdir-gallery-js', cptdir_url('/js/cptdir-lightbox.js'), array('jquery'));
+		}
 	}
 	# default field view (can be called by theme if needed from inside cptdir_custom_single)
 	function default_fields($content = "", $type = "single", $callback = ""){

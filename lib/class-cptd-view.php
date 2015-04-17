@@ -40,16 +40,15 @@ class CPTD_view{
 		elseif($field["type"] == "gallery"){
 			if($field["value"]){
 			?><div class="cptdir-gallery <?php echo $field['name']; ?>"><?php
-					$i = 0;
-					foreach($field["value"] as $img){
-						$i++;
-					?>
-						<img class="cptdir-image <?php echo $field['name'] . " " . $i; ?>" src="<?php echo $img['url']; ?>" />
-					<?php
-					} #end foreach: gallery image
+				foreach($field["value"] as $i => $img){
+					$thumb = $img['sizes']['thumbnail'];
+				?>
+					<a class="cptdir-gallery-thumb <?php echo $i; ?>" href="<?php echo $img['url']; ?>" data-lightbox="gallery-<?php echo $field['name']; ?>"><img class="cptdir-image <?php echo $field['name'] . " " . $i; ?>" src="<?php echo $thumb; ?>" /></a>
+				<?php
+				} #end foreach: gallery image
 			?></div>
 			<?php
-			}#endif: value exists
+			} # endif: value exists
 
 			# go to next field after showing the gallery
 			return;
