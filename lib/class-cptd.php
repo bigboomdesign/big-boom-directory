@@ -665,7 +665,11 @@ class CPTD{
 	}
 	# Check if a field is an ACF field
 	public static function is_acf($field){
-		return preg_match("/field_[\dA-z]+/", $field);
+		if(is_string($field))
+			return preg_match("/field_[\dA-z]+/", $field);
+		elseif(is_array($field) && array_key_exists('name', $field))
+			return preg_match("/field_[\dA-z]+/", $field['name']);
+		return false;
 	}
 	# Get advanced custom fields
 	public static function get_acf_fields(){
