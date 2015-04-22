@@ -8,6 +8,9 @@
 .cptdir-field.textarea label{ display: block; }
 
 /** galleries */
+.cptdir-gallery{
+	margin: 2em 0;
+}
 a.cptdir-gallery-thumb{
 	display: inline-block;
 	margin-right: 0.5em;
