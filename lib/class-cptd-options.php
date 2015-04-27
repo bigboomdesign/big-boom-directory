@@ -10,8 +10,13 @@ class CPTD_Options{
 	static $default_section = 'cptdir_main';
 		
 	# Display field input
-	static function do_settings_field($setting){
-		$setting = CPTD::get_field_array($setting);
+	static function do_settings_field($setting, $option = 'cptdir_options'){
+		# the option `cptdir_options` can be replaced on the fly and will be passed to handler functions
+		$setting['option'] = $option;
+		# the arrayed name of this setting, such as `cptdir_options[my_setting]`
+		$setting['option_name'] = (
+			$option ? $option.'['.$setting['name'].']' : $setting['name']
+		);
 		# call one of several functions based on what type of field we have
 		switch($setting['type']){
 			case "textarea":
@@ -117,111 +122,118 @@ class CPTD_Options{
 		} # end: setting has choices
 	} # end function: do_settings_field
 	## Text field
-	static function text_field($setting){
+	function text_field($setting){
 		extract($setting);
+		$val = self::get_option_value($setting);
 		?><input 
-			id="<?php echo $name; ?>" name="cptdir_options[<?php echo $name; ?>]" 
-			class="regular-text<?php if(array_key_exists('class', $setting)) echo ' ' . $setting['class']; ?>" type='text' value="<?php echo self::$options[$name]; ?>" />
+			id="<?php echo $name; ?>" name="<?php echo $setting['option_name']; ?>" 
+			class="regular-text<?php if($class) echo ' ' . $class; ?>" type='text' value="<?php echo $val; ?>"
+			<?php echo self::data_atts($setting); ?>
+		/>
+
 		<?php	
 	}
 	## Textarea field
-	static function textarea_field($setting){
+	function textarea_field($setting){
 		extract($setting);
+		$val = self::get_option_value($setting);	
 		?><textarea 
-			id="<?php echo $name; ?>" name="cptdir_options[<?php echo $name; ?>]" 
-			class="<?php if(array_key_exists('class', $setting)) echo $setting['class']; ?>"			
-			cols='40' rows='7'><?php echo self::$options[$name]; ?></textarea>
+			id="<?php echo $name; ?>" name="<?php echo $setting['option_name']; ?>" 
+			class="<?php if($class) echo $class; ?>"			
+			cols='40' rows='7'
+			<?php echo self::data_atts($setting); ?>
+		><?php echo $val; ?></textarea>
 		<?php
 	}
 	## Checkbox field
-	static function checkbox_field($setting){
+	function checkbox_field($setting){
 		extract($setting);
 		foreach($choices as $choice){
-		?><label class='checkbox' for="<?php echo $choice['id']; ?>">
+		?><label 
+			class="checkbox <?php if($label_class) echo $label_class; ?>"
+			for="<?php echo $choice['id']; ?>"
+		>
 			<input 
 				type='checkbox'
 				id="<?php echo $choice['id']; ?>"
-				name="cptdir_options[<?php echo $choice['id']; ?>]"
+				name="<?php echo self::get_choice_name($setting, $choice); ?>"
 				value="<?php echo $choice['value']; ?>"
-				class="<?php if(array_key_exists('class', $setting)) echo $setting['class']; ?>"
-				<?php checked(true, array_key_exists($choice['id'], self::$options)); ?>						
+				class="<?php if($class) echo $class; if(array_key_exists('class', $choice)) echo ' ' . $choice['class']; ?>"
+				<?php echo self::data_atts($choice); ?>
+				<?php checked(true, '' != self::get_option_value($setting, $choice)); ?>						
 			/>&nbsp;<?php echo $choice['label']; ?> &nbsp; &nbsp;
 		</label>
 		<?php
 		}
 	}
-	## <select> dropdown field
-	static function select_field($setting){
+	# radio button field
+	function radio_field($setting){
 		extract($setting);
-	?><select 
-		id="<?php echo $name; ?>"
-		name="cptdir_options[<?php echo $name; ?>]"
-		<?php if($class) echo "class='".$class."'"; ?>
-	>
-		<?php 
-			# if we are given a string for $choices (i.e. single choice)
-			if(is_string($choices)) {
-				?><option 
-					value="<?php echo CPTD::clean_str_for_field($choices); ?>"
-					<?php selected(self::$options[$name], CPTD::clean_str_for_field($choice) ); ?>
-				><?php echo $choices; ?>
-				</option>
-			<?php
-			}
-			# if $choices is an array
-			elseif(is_array($choices)){
-				foreach($choices as $choice){
-					# if $choice is a string
-					if(is_string($choice)){
-						$label = $choice;
-						$value = CPTD::clean_str_for_field($choice);
-					}
-					# if $choice is an array
-					elseif(is_array($choice)){
-						$label = $choice['label'];
-						$value = isset($choice['value']) ? $choice['value'] : CPTD::clean_str_for_field($choice['label']);
-					}
-				?>
-					<option 
-						value="<?php echo $value; ?>"
-						<?php selected(self::$options[$name], $value ); ?>					
-					><?php echo $label; ?></option>
-				<?php
-				} # end foreach: $choices
-			} # endif: $choices is an array
-		?>
-		
-	</select><?php
-	}
-	## Radio Button field
-	static function radio_field($setting){
-		extract($setting);
-		$choices = CPTD::get_choice_array($setting);
+		$val = self::get_option_value($setting);
 		foreach($choices as $choice){
 				$label = $choice['label']; 
 				$value = $choice['value'];
-			?><label class='radio' for="<?php echo $choice['id']; ?>">
+			?><label 
+				class="radio <?php if($label_class) echo $label_class; ?>"
+				for="<?php echo $choice['id']; ?>"
+			>
 				<input type="radio" id="<?php echo $choice['id']; ?>" 
-				name="cptdir_options[<?php echo $name; ?>]" 
+				name="<?php echo $setting['option_name']; ?>" 
 				value="<?php echo $value; ?>"
-				class="<?php if(array_key_exists('class', $setting)) echo $setting['class']; ?>"			
-				<?php checked($value, self::$options[$name]); ?>
+				class="<?php if($class) echo $class; if(array_key_exists('class', $choice)) echo $choice['class']; ?>"
+				<?php echo self::data_atts($choice); ?>				
+				<?php checked($value, $val); ?>
 			/>&nbsp;<?php echo $label; ?></label>&nbsp;&nbsp;
 			<?php
 		}
 	}	
+	## <select> dropdown field
+	function select_field($setting){
+		extract($setting);
+		$val = self::get_option_value($setting);
+	?><select 
+		id="<?php echo $name; ?>"
+		name="<?php echo $setting['option_name']; ?>"
+		<?php echo self::data_atts($setting); ?>		
+		<?php if($class) echo "class='".$class."'"; ?>
+	>
+		<?php 
+		foreach($choices as $choice){
+			# if $choice is a string
+			if(is_string($choice)){
+				$label = $choice;
+				$value = CPTD::clean_str_for_field($choice);
+			}
+			# if $choice is an array
+			elseif(is_array($choice)){
+				$label = $choice['label'];
+				$value = isset($choice['value']) ? $choice['value'] : CPTD::clean_str_for_field($choice['label']);
+			}
+		?>
+			<option 
+				value="<?php echo $value; ?>"
+				<?php if(array_key_exists('class', $choice)) echo "class='".$choice['class']."' "; ?>
+				<?php echo self::data_atts($choice); ?>					
+				<?php selected($val, $value ); ?>					
+			><?php echo $label; ?></option>
+		<?php
+		} # end foreach: $choices
+		?>
+		
+	</select><?php
+	}	
 	## Image field
-	static function image_field($setting){
+	function image_field($setting){
 		# this will set $name for the field
 		extract($setting);
+		$val = self::get_option_value($setting);
 		# current value for the field
-		$value = self::$options[$name];		
 		?><input 
 			type='text'
 			id="<?php echo $name; ?>" 
-			class="regular-text text-upload <?php if(array_key_exists('class', $setting)) echo $setting['class']; ?>"
-			name="cptdir_options[<?php echo $name; ?>]"
-			value="<?php if($value) echo esc_url( $value ); ?>"
+			class="regular-text text-upload <?php if($class) echo $class; ?>"
+			name="<?php echo $setting['option_name']; ?>"
+			value="<?php if($val) echo esc_url( $val ); ?>"
 		/>		
 		<input 
 			id="media-button-<?php echo $name; ?>" type='button'
@@ -229,7 +241,7 @@ class CPTD_Options{
 			class=	'button button-primary open-media-button single'
 		/>
 		<div id="<?php echo $name; ?>-thumb-preview" class="cptdir-thumb-preview">
-			<?php if($value){ ?><img src="<?php echo $value; ?>" /><?php } ?>
+			<?php if($val){ ?><img src="<?php echo $val; ?>" /><?php } ?>
 		</div>
 		<?php
 	}
@@ -242,7 +254,7 @@ class CPTD_Options{
 		);
 		if($show_option_none) $args['show_option_none'] = $show_option_none;
 		wp_dropdown_pages($args);
-	}	
+	}
 	# Register settings
 	static function register_settings(){
 		# main option for this plugin
@@ -255,6 +267,7 @@ class CPTD_Options{
 		}
 		# add fields
 		foreach(self::$settings as $setting){
+			$setting = CPTD::get_field_array($setting);		
 			add_settings_field($setting['name'], $setting['label'], array('CPTD_Options','do_settings_field'), 'cptdir_settings', ( array_key_exists('section', $setting) ? $setting['section'] : self::$default_section), $setting);
 		}
 	}
@@ -432,6 +445,56 @@ class CPTD_Options{
 		require_once cptdir_dir("lib/class-cptd-import.php"); 
 		$importer = new CPTD_import( cptdir_get_pt(), cptdir_get_cat_tax(), cptdir_get_tag_tax() );
 		$importer->do_import_page();
+	}
+	
+	/*
+	* Helper Functions
+	*/
+	# get the saved value for a setting, based on the option name we're given
+	function get_option_value($setting, $choice = ''){
+		# see if an option has been passed in (e.g. `cptdir_options`)
+		if($setting['option']){
+			# if we're dealing with the default 
+			if('cptdir_options' == $setting['option']){
+				$option = self::$options;
+			}
+			# if we have a custom option name or no option name
+			else $option = get_option($setting['option']);
+			if(!$option) return;
+			# if the option value is an array, get the desired setting
+			if(is_array($option)){
+				return array_key_exists($setting['name'], $option) 
+					? $option[$setting['name']] 
+					: (
+						'' != $choice 
+							?
+							(
+								array_key_exists($choice['id'], $option)
+									? $option[$choice['id']]
+									: ''
+							)
+							: ''
+					);
+			}
+			# if option value is a string
+			return $option;
+		}
+		# if no option is passed in, check post
+		return CPTD::get_post_field($setting['name']);
+	}
+	# get the option name for a checkbox choice	
+	function get_choice_name($setting, $choice){
+		if(!$setting['option']) return $choice['id'];
+		return $setting['option'].'['.$choice['id'] . ']';
+	}
+	# Return a string of data attributes for fields or choices
+	function data_atts($setting){
+		if(!array_key_exists('data', $setting)) return;
+		$out = '';
+		foreach($setting['data'] as $k => $v){
+			$out .= "data-{$k}='{$v}' ";
+		}
+		return $out;
 	}	
 }
 # Initialize static variables
