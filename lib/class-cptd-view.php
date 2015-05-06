@@ -62,7 +62,7 @@ class CPTD_view{
 	}
 	# display fields for listing
 	function do_fields($callback = ""){
-		if(!$this-ID) return;
+		if(!$this->ID) return;
 		$fields = array();
 		# if ACF is activated
 		if(function_exists("get_fields")){

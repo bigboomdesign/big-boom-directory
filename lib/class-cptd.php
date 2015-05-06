@@ -187,6 +187,7 @@ class CPTD{
 	}
 	# the_content filter for single listing
 	function do_single($content){
+		if(!in_the_loop()) return;
 		# if theme has custom content function, do that and return
 		## note that custom function has option to return $content
 		if(function_exists("cptdir_custom_single")){ return cptdir_custom_single($content); }
