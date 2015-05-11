@@ -307,6 +307,7 @@ class CPTD{
 		# otherwise, generate HTML for list
 		$html = '<div id="cptdir-terms-list">';
 			if($atts['show_title'] == 'true') $html .= '<h2>'. $tax->labels->name .'</h2>';
+			$html .= '<ul>';
 			foreach($terms as $term){
 				$html .= '<li>';
 					$html .= '<a class="cptdir-term-link" href="'. get_term_link($term) .'">';
@@ -317,6 +318,7 @@ class CPTD{
 					}
 				$html .= '</li>';
 			}
+			$html .= '</ul>';
 		$html .= '</div>';
 		return $html;		
 	}
