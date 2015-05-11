@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Creates a directory based on Custom Post Type, Taxonomy, and Fields
- * Version: 1.5.7
+ * Version: 1.6.0
  * Author: Big Boom Design
  * Author URI: http://bigboomdesign.com
  */
@@ -46,6 +46,8 @@ else{
 	add_action("wp_enqueue_scripts", array('CPTD', 'enqueue'));
 	# shortcode for terms list
 	add_shortcode('cptd-terms', array('CPTD', 'terms_html'));
+	# shortcode for A-Z listing
+	add_shortcode('cptd-az-listing', array('CPTD', 'az_html'));
 
 	# CPT archive page
 	# all views below this one should probably do something like this

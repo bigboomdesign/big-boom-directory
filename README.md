@@ -10,6 +10,18 @@ A directory plugin for WordPress, driven by the WP Custom Post Type environment.
 * Provides default views but also allows you to create your own views inside theme's functions.php file for single listings, taxonomy archives, and search results
 * Import functionality from .csv file to custom post type entries
 
+## Shortcodes
+* [cptd-terms]
+  * Displays a list of taxonomy terms 
+  * **Attributes:** The default for each attribute will be taken from the plugin settings, but can be overridden within the shortcode 
+    * `taxonomy` The taxonomy whose terms we'll list
+    * `show_count` ('true' or 'false') Whether or not to show the number of posts for each term
+    * `show_empty` ('true' or 'false') Whether or not to show terms that don't have any posts
+    * `show_title` ('true' or 'false') Whether or not to show the title (taxonomy name) at the beginning of the terms list
+
+* [cptd-az-listing]
+ * Displays an A-Z listing of all posts for the custom post type
+
 ## Notes
 
 * Default behaviors for fields are not well-defined without Advanced Custom Fields plugin.  Using ACF adds support for field ordering and field types, as well as improving backend data entry experience

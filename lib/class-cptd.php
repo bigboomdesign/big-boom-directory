@@ -321,6 +321,34 @@ class CPTD{
 			$html .= '</ul>';
 		$html .= '</div>';
 		return $html;		
+	} # end: terms_html
+	
+	# shortcode for A-Z listing
+	function az_html(){
+		# make sure we have a post type defined
+		$pt = cptdir_get_pt();
+		if(!$pt) return;
+		
+		# get the posts
+		$posts = get_posts(array(
+			'posts_per_page' => -1,
+			'orderby' => 'post_title',
+			'order' => 'ASC',
+			'post_type' => $pt->name
+		));
+		if(!$posts) return;
+		
+		# generate the HTML string
+		$html .= '<div id="cptdir-az-listing">';
+			$html .= '<ul>';
+			foreach($posts as $post){
+				$html .= '<li><a href="'.get_permalink($post->ID).'">'.$post->post_title.'</a></li>';
+			} # end foreach: posts
+			$html .= '</ul>';
+		$html .= '</div>';
+		
+		# return the HTML string
+		return $html;
 	}
 	## Search Results Page
 	function search_results($content){ 
