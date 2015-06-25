@@ -75,7 +75,8 @@ class CPTD{
 			'type' => 'checkbox',
 			'choices' => 'Yes'
 		);
-	}
+	} # end: setup()
+	
 	function setup_pt(){
 		if(self::$pt) return self::$pt;
 		if(
@@ -87,7 +88,8 @@ class CPTD{
 		$obj = new CPTD_pt($slug, $sing, $pl);
 		self::$pt = $obj;
 		return $obj;
-	}
+	} # end: setup_pt()
+	
 	function setup_ctax(){
 		if(self::$ctax){ return self::$ctax; }
 		if(
@@ -99,7 +101,8 @@ class CPTD{
 		$obj = new CPTD_tax($slug, $sing, $pl, $pt->name, true );
 		self::$ctax = $obj;
 		return $obj;		
-	}
+	} # end: setup_ctax()
+	
 	function setup_ttax(){
 		if(self::$ttax) return self::$ttax;
 		if(
@@ -111,7 +114,7 @@ class CPTD{
 		$obj = new CPTD_tax($slug, $sing, $pl, $pt->name, false);
 		self::$ttax = $obj;
 		return $obj;
-	}
+	} # end: setup_ttax()
 	
 	/* 
 	* Admin Routines
@@ -254,6 +257,8 @@ class CPTD{
 		$html = self::terms_html();
 		return $content.$html;
 	}
+	
+	# shortcode for cptd-terms
 	function terms_html($atts = array()){
 		# if we're not passed a taxonomy
 		if(!$atts['taxonomy']){
@@ -321,7 +326,7 @@ class CPTD{
 			$html .= '</ul>';
 		$html .= '</div>';
 		return $html;		
-	} # end: terms_html
+	} # end: terms_html()
 	
 	# shortcode for A-Z listing
 	function az_html(){
@@ -349,7 +354,15 @@ class CPTD{
 		
 		# return the HTML string
 		return $html;
-	}
+	} # end: az_html();
+	# shortcode for search widget
+	function search_widget($atts = array()){
+		$widget = array(
+			'title' => 'My Title'
+		);
+		return 'short code';
+	} # end: search_widget()
+	
 	## Search Results Page
 	function search_results($content){ 
 		self::do_search_results();

@@ -52,9 +52,10 @@ Now we have to define the callback function *my_single_field_callback*
     }
 
 
-#### ```cptdir_field($field)```
-* Display a single field label and value within loop
+#### ```cptdir_field($field, $echo = true)```
+* Display or get a single field label and value within loop
  * *$field* : A string like 'field_name' or ACF array
+ * *$echo* : Whether or not to echo the resulting string.  If false, string will be returned.
 
 ---
 

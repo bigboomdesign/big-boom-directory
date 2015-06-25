@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Creates a directory based on Custom Post Type, Taxonomy, and Fields
- * Version: 1.6.0
+ * Version: 1.6.1
  * Author: Big Boom Design
  * Author URI: http://bigboomdesign.com
  */
@@ -48,6 +48,8 @@ else{
 	add_shortcode('cptd-terms', array('CPTD', 'terms_html'));
 	# shortcode for A-Z listing
 	add_shortcode('cptd-az-listing', array('CPTD', 'az_html'));
+	# shortcode for search widget
+	add_shortcode('cptd-search-widget', array('CPTD', 'search_widget'));
 
 	# CPT archive page
 	# all views below this one should probably do something like this
@@ -86,12 +88,13 @@ function cptdir_get_tag_tax(){
 	return CPTD::setup_ttax();
 }
 # display a field given an array from ACF
-function cptdir_field($field){
+function cptdir_field($field, $echo = true){
 	# if we're given a string, try to get the field array from ACF
 	if(is_string($field)){ if(!($field = function_exists("get_field_object") ? get_field_object($field) : "")) return; }
 	# if nothing was found do nothing
 	if(!$field || !$field['value']) return;
-	CPTD_view::do_single_field($field);
+	$html = CPTD_view::do_single_field($field, $echo);
+	return $echo ? null : $html;
 }
 
 /**

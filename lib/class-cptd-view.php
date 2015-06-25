@@ -13,7 +13,8 @@ class CPTD_view{
 		}
 	} # end: __construct()
 	# single field display
-	public static function do_single_field($field){
+	public static function do_single_field($field, $echo = true){
+		ob_start();
 		# for image fields
 		if($field["type"] == "image"){
 			$src = "";
@@ -59,7 +60,11 @@ class CPTD_view{
 			<label><?php echo $field['label'];?>: &nbsp; </label><?php echo $field["value"]; ?>
 		</div>
 	<?php
-	}
+		$html = ob_get_contents();
+		ob_end_clean();
+		if($echo) echo $html;
+		else return $html;
+	} # end: do_single_field()
 	# display fields for listing
 	function do_fields($callback = ""){
 		if(!$this->ID) return;
