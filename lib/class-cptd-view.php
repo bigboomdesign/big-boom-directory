@@ -90,7 +90,7 @@ class CPTD_view{
 			if($ordered_fields){
 				?><div class="cptdir-fields-wrap"><?php
 					foreach($ordered_fields as $field){
-						$this->do_single_field($field, $callback);
+						$this->do_single_field($field);
 					} # end foreach: fields
 				?></div><?php
 			} #end if: fields exist
