@@ -1,7 +1,7 @@
 <?php
 class CPTD_import{
 	// turn on for debugging
-	var $bDebug = true;
+	var $bDebug = false;
 	
 	var $post_type;
 	var $ctax;
