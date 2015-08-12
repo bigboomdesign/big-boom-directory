@@ -13,7 +13,7 @@ jQuery(document).ready(function($){
 			var msgDiv = $("#cptdir-file-message");
 			msgDiv.removeClass("cptdir-success");
 			msgDiv.addClass("cptdir-fail");
-			msgDiv.html("Sorry, you must select a CSV file.");
+			msgDiv.html("<p class='cptdir-fail'>Sorry, you must select a CSV file.</p>");
 		} // endif: not a csv file
 		else{ 
 			// CSV file successfully selected
@@ -23,7 +23,8 @@ jQuery(document).ready(function($){
 		}
 		msgDiv.css("display", "block");		
 	}); // end: change event for file upload field
-	// click event for file submit button
+
+	// Make sure .csv is valid when file submit button is clicked
 	$("input#cptdir-file-submit").click(function(e){	
 		// e.preventDefault();
 		// Double check that we've got a CSV file
@@ -37,48 +38,15 @@ jQuery(document).ready(function($){
 			msgDiv.html("Sorry, you must select a CSV file.");
 			return false;
 		}
-		// console.log(new FormData($("#cptdir-file-select")));
-		// return false;
-		// var file = $("input#cptdir-import-file").prop("files")[0];
-		// filesy = $("#cptdir-file-select").files;
-		/*
-		var form = $("#cptdir-file-select");
-		var inputs = form.find("input");
-		form.html("");
-		inputs.css("display", "none");
-		inputs.each(function(){ form.append($(this)) });
-		my_form = new FormData(form[0]);
-//		var data = {action: "cptdir_import_js", form: my_form };
-		$.ajax({
-			type: "POST",
-//			processData: false,
-//			contentType: false,
-			data: data,
-			url: ajaxurl,
-			beforeSend: function(){
-				$("#cptdir-import-content").html("Importing file...");
-			},
-			success: function(data){
-				$("#cptdir-import-content").html(data);
-			},
-			error: function (xhr, textStatus, errorThrown) {
-
-                console.log(textStatus);
-
-            }
-		}); // ajax
-		*/
-		//return false;
 		return;
-	}); // click(): file submit button
+	}); // end click(): file submit button
+	
+	// process the .csv file and post type option
 	$( '#cptdir-file-select' ).submit( function( e ) {
 		e.preventDefault();
-		//console.log("Hey");
 		var formData = new FormData(this);
-		//var file = $(this).find("input")[0].files[0];
-		//console.log(file);
-		//formData.append("my_file", file);
 		formData.append("action", "cptdir_import_js");
+		formData.append('post_type', $('select#cptdir-import-post-type').attr('value'));
 		$.ajax( {
 		  url: ajaxurl,
 		  type: 'POST',
@@ -102,6 +70,24 @@ jQuery(document).ready(function($){
 		return;
 	  } );	
 
+	// onclick for "title_use_merge_tag"
+	$(document).on('click', 'input[name=title_method]', function(){
+		// the <div> that opens/closes
+		var mergeTag = $('#title_define_merge_tag');
+		
+		// if we're selecting 'merge tag'
+		if($(this).val() == 'merge_tag'){
+			// open the merge tag input
+			mergeTag.css('display', 'block');
+			$('option[value=post_title]').prop('disabled', true);
+		}
+		else{
+			// close the merge tag input
+			mergeTag.css('display', 'none');
+			$('option[value=post_title]').prop('disabled', false);
+		}
+	}); // end click: use merge tag for title
+	
 	// change event for field select dropdowns
 	$(document).on("change", ".cptdir-import-select", function(){
 		// Are we resetting a select box?

@@ -71,7 +71,28 @@ class CPTD_import{
 					<td><input type="file" name="cptdir-import-file" id="cptdir-import-file">
 					<br/><p style="display: none;" id="cptdir-file-message" class="cptdir-fail"></p>
 					</td>
-				</tr>             
+				</tr> 
+				<tr>
+					<th scope="row">Post Type</th>
+					<td>
+						<?php
+						# select post type
+						$post_types = get_post_types();
+						if($post_types){ ?>
+							<select id="cptdir-import-post-type" name="cptdir-import-post-type">
+							<?php
+							foreach($post_types as $pt){
+							?>
+								<option value="<?php echo $pt; ?>" ><?php echo $pt; ?></option>
+							<?php
+							}
+							?>
+							</select>
+						<?php
+						} # end if: post types exist
+						?>
+					</td>
+				</tr>
 			</table>
 			<?php submit_button("Submit File", "primary", "cptdir-file-submit"); ?>
 		</form>
@@ -96,8 +117,19 @@ class CPTD_import{
 			if(array() !== $this->headers){
 			?>
 				<form id="cptdir-import-form" name="cptdir-import-form" method="post" enctype="multipart/form-data">				
-					<h4 class="cptdir-header">We found the following column headers</h4>
-					<p>Please select the target destination for the data in each column of your file.</p>						
+					<h3>How will you determine the title of your imported posts?</h3>
+					<label for="title_use_column" ><input type="radio" value="column" id="title_use_column" name='title_method' /> I'll use a column from my .csv file</label><br />
+					<label for="title_use_merge_tag"><input type="radio" value="merge_tag" id="title_use_merge_tag" name='title_method' /> I'll define a pattern involving multiple columns</label>
+					<div id="title_define_merge_tag" style="display: none;" >
+						<label for="title_pattern"><b>Pattern:</b><br />
+							<input type="text" name='title_pattern' id="title_pattern"/>
+						</label>
+						<p class='description'>Use the format <code>{column_name}</code> to specify a column value in the post title</p>
+						<p class='description'><b>Make sure that you assign each column below that you use in your pattern.</b></p>
+					</div>
+					<hr />
+					<h3>We found the following column headers in your spreadsheet</h3>
+					<p>Please indicate how the data should be stored for each column.</p>
 					<?php 
 					foreach($this->headers as $header){
 					?>
@@ -109,7 +141,10 @@ class CPTD_import{
 					<?php
 					} # end foreach: headers
 					submit_button("Import", "primary", "cptdir-import-submit");
+					
+					# hidden field to store the post type
 				?>
+					<input type="hidden" name="cptdir-import-post-type" value="<?php echo $this->post_type; ?>" />
 				</form>
 				<?php
 			}
@@ -272,7 +307,18 @@ class CPTD_import{
 				}
 				
 				# Skip if we have no title
-				if(!$aRow["post_title"]){ echo cptdir_fail("No title was found."); $nPost_fail++; continue; }
+				if(!$aRow["post_title"] && $_POST['title_method'] == 'column'){ echo cptdir_fail("No title was found."); $nPost_fail++; continue; }
+				# put together title if we're using merge tags
+				elseif($_POST['title_method'] == 'merge_tag'){
+					$post_title = sanitize_text_field($_POST['title_pattern']);
+					$post_title = self::replace_merge_tags($post_title, $aRow);
+					$aRow['post_title'] = $post_title;
+				}
+				if(!$aRow['post_title']){
+					echo cptdir_fail("Couldn't generate title from the specified pattern."); 
+					$nPost_fail++; 
+					continue;
+				}
 								
 				# Set slug based on title if it doesn't already exist
 				if(!$aRow["post_name"]) $aRow["post_name"] = CPTD::clean_str_for_url($aRow["post_title"]);
@@ -301,9 +347,9 @@ class CPTD_import{
 
 				$post_args = array();
 				$post_args = array(
-					'post_title'     => $aRow["post_title"], //$aRow['post_title'],
-					'post_status'           => 'publish', 
-					'post_type'             => $this->post_type->name,
+					'post_title'     => $aRow["post_title"],
+					'post_status'    => 'publish', 
+					'post_type'      => $_POST['cptdir-import-post-type'],
 					'post_content'   => $aRow["post_content"],
 					'post_name'      => $aRow["post_name"],  
 				);
@@ -421,6 +467,32 @@ class CPTD_import{
 			else{ echo "<p>There was a problem inserting these terms.</p>"; }					
 		} # end foreach: column options		
 	} # end: import_terms()
+	/*
+	* Helper Functions 
+	*/
+	
+	# replace merge tags with field values for a given string and post ID
+	public static function replace_merge_tags($s, $row){
+		# get any merge tags present
+		$matches = array();
+		if(preg_match_all("/{([^}]*)?}/", $s, $matches)){
+			# loop through matches if anything was found
+			foreach($matches[1] as $n => $match){
+				$field = trim($match);
+
+				# the string we'll use to replace the merge tag
+				$replacement = $row[$field] ? $row[$field] : '';
+				
+				# replace merge tag with the proper replacement
+				$s = str_replace($matches[0][$n], $replacement, $s);
+			} # end foreach: matches
+		} # endif: merge tags exist
+		
+		$s = trim($s);
+	
+		return $s;
+	} # end: replace_merge_tags()
+	
 	# dump a variable in debug mode, passing a message and header size
 	private function debug($var, $msg, $size = 3){
 		if($this->bDebug){ echo "<h{$size} class='debug'>$msg</h{$size}>"; var_dump($var); echo "<br /><br />"; }

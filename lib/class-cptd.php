@@ -128,6 +128,7 @@ class CPTD{
 			'instructions' => 'cpt-directory_page_cptdir-instructions',
 			'fields' => 'cpt-directory_page_cptdir-fields',
 			'cleanup' => 'cpt-directory_page_cptdir-cleanup',
+			'import' => 'cpt-directory_page_cptdir-import',
 		);		
 		if(in_array($screen->id, $screens)){
 			wp_enqueue_style("cptdir-admin-css", cptdir_url("css/cptdir-admin.css"));		

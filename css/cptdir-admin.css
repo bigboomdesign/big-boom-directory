@@ -25,6 +25,12 @@ form > h3{
 a.cptdir-remove-field{ cursor: pointer; }
 
 /* Import */
+#cptdir-import-form input[type=radio]{
+	margin: 0.5em 0;
+}
+#cptdir-import-form input#title_pattern{
+	margin: 0.5em 0;
+}
 div.cptdir-found-header{ padding-bottom: 1.5em; }
 div.cptdir-found-header .cptdir-header{ color: #1E8CBE; }
 div.cptdir-cf-or{ margin: 1.5em 0; }

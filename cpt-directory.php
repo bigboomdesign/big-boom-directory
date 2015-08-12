@@ -221,7 +221,8 @@ function cptdir_remove_published(){
 # Import
 function cptdir_import_js(){
 	require_once cptdir_dir("lib/class-cptd-import.php");
-	$importer = new CPTD_import( cptdir_get_pt(), cptdir_get_cat_tax(), cptdir_get_tag_tax() );
+	$post_type = sanitize_text_field($_POST['post_type']);
+	$importer = new CPTD_import( $post_type, cptdir_get_cat_tax(), cptdir_get_tag_tax() );
 	$importer->do_import_content();
 	die();
 }
