@@ -11,7 +11,7 @@ class CPTD{
 	* Main routine
 	*/
 	
-	function setup(){
+	public static function setup(){
 		if(!self::setup_pt()) return;
 
 		self::$pt->register_pt();
@@ -77,7 +77,7 @@ class CPTD{
 		);
 	} # end: setup()
 	
-	function setup_pt(){
+	public static function setup_pt(){
 		if(self::$pt) return self::$pt;
 		if(
 			!($sing = CPTD_Options::$options["cpt_sing"])
@@ -90,7 +90,7 @@ class CPTD{
 		return $obj;
 	} # end: setup_pt()
 	
-	function setup_ctax(){
+	public static function setup_ctax(){
 		if(self::$ctax){ return self::$ctax; }
 		if(
 			!($sing = CPTD_Options::$options['ctax_sing'])
@@ -103,7 +103,7 @@ class CPTD{
 		return $obj;		
 	} # end: setup_ctax()
 	
-	function setup_ttax(){
+	public static function setup_ttax(){
 		if(self::$ttax) return self::$ttax;
 		if(
 			!($sing = CPTD_Options::$options['ttax_sing'])
@@ -119,7 +119,7 @@ class CPTD{
 	/* 
 	* Admin Routines
 	*/
-	function admin_enqueue(){
+	public static function admin_enqueue(){
 		$screen = get_current_screen();
 		
 		## all cptdir pages
@@ -142,7 +142,7 @@ class CPTD{
 			wp_enqueue_script('cptdir-cleanup-js', cptdir_url('js/cptdir-cleanup.js'), array('jquery'));
 		}
 	}
-	function admin_menu() {
+	public static function admin_menu() {
 		add_menu_page('CPT Directory Settings', 'CPT Directory', 'administrator', 'cptdir-settings-page', array('CPTD_Options', 'settings_page'));
 		add_submenu_page( 'cptdir-settings-page', 'CPT Directory Settings', 'Settings', 'administrator', 'cptdir-settings-page', array('CPTD_Options', 'settings_page'));
 		add_submenu_page( 'cptdir-settings-page', 'CPT Directory Instructions', 'Instructions', 'administrator', 'cptdir-instructions', array('CPTD_Options', 'instructions_page'));
@@ -533,7 +533,7 @@ class CPTD{
 	## If $field is a string we assume the string is the label
 	## if $field is an array we assume that at least a label exists
 	## optionally, the parent field's name can be passed for better labelling
-	function get_field_array( $field, $parent_name = ''){
+	public static function get_field_array( $field, $parent_name = ''){
 		$id = $parent_name ? $parent_name.'_' : '';
 		if(!is_array($field)){
 			$id .= self::clean_str_for_field($field);

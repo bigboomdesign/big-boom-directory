@@ -18,6 +18,7 @@ class CPTD_Options{
 			$option ? $option.'['.$setting['name'].']' : $setting['name']
 		);
 		# call one of several functions based on what type of field we have
+		if(!isset($setting['type'])) $setting['type'] = '';
 		switch($setting['type']){
 			case "textarea":
 				self::textarea_field($setting);
@@ -122,12 +123,12 @@ class CPTD_Options{
 		} # end: setting has choices
 	} # end function: do_settings_field
 	## Text field
-	function text_field($setting){
+	public static function text_field($setting){
 		extract($setting);
 		$val = self::get_option_value($setting);
 		?><input 
 			id="<?php echo $name; ?>" name="<?php echo $setting['option_name']; ?>" 
-			class="regular-text<?php if($class) echo ' ' . $class; ?>" type='text' value="<?php echo $val; ?>"
+			class="regular-text<?php if(isset($class)) echo ' ' . $class; ?>" type='text' value="<?php echo $val; ?>"
 			<?php echo self::data_atts($setting); ?>
 		/>
 
@@ -246,7 +247,7 @@ class CPTD_Options{
 		<?php
 	}
 	/* custom field types for this plugin */
-	function dropdown_pages($setting){
+	public static function dropdown_pages($setting){
 		extract($setting);
 		$args = array(
 			"selected" => self::$options[$name],
@@ -261,6 +262,7 @@ class CPTD_Options{
 		register_setting( 'cptdir_options', 'cptdir_options', array('CPTD_Options', 'validate_options') );
 		# add sections
 		foreach(self::$sections as $section){
+			if(!$section['title']) var_dump($section);
 			add_settings_section(
 				$section['name'], $section['title'], array('CPTD_Options', 'section_description'), 'cptdir_settings'
 			);
@@ -326,7 +328,7 @@ class CPTD_Options{
 			<hr />
 		</div><?php
 	}	
-	function fields_page(){
+	public static function fields_page(){
 	?>
 		<div class="wrap">
 		<h2 class="cptdir-header">CPT Directory: Custom Fields</h2>
@@ -336,6 +338,7 @@ class CPTD_Options{
 		<?php 
 		# Check if we have any custom fields to show 
 		do{
+			$bCF = false;
 			$aCF = CPTD::get_all_custom_fields();
 			$aActiveFields = CPTD::get_all_custom_fields(true);
 			# Iterate through custom fields we found and display table
@@ -371,7 +374,7 @@ class CPTD_Options{
 		?>
 		</div><?php # wrap	
 	} # end: fields_page()
-	function cleanup_page(){
+	public static function cleanup_page(){
 		$pt = cptdir_get_pt();
 		# whether or not we have any custom field data
 		$bCF = false;
@@ -381,6 +384,12 @@ class CPTD_Options{
 			<p>While importing, you may want to clean up the database from time to time.  This page is intended to give you a fresh start with your post data and custom fields.</p>
 			<p><b>Do not use these features if you have data for your Custom Post Type that you want to keep.</b></p>
 			<hr />
+			<?php
+			if(!$pt){
+				echo 'You haven\'t created a post type yet.';
+				return;
+			}
+			?>
 			<h3>Remove Custom Field Data</h3>
 			<?php
 			# Check if we have any custom fields to show 
@@ -441,7 +450,7 @@ class CPTD_Options{
 		</div>
 	<?php	
 	} # end: cleanup_page()
-	function import_page(){ 
+	public static function import_page(){ 
 		require_once cptdir_dir("lib/class-cptd-import.php"); 
 		$importer = new CPTD_import( cptdir_get_pt(), cptdir_get_cat_tax(), cptdir_get_tag_tax() );
 		$importer->do_import_page();
@@ -451,7 +460,7 @@ class CPTD_Options{
 	* Helper Functions
 	*/
 	# get the saved value for a setting, based on the option name we're given
-	function get_option_value($setting, $choice = ''){
+	public static function get_option_value($setting, $choice = ''){
 		# see if an option has been passed in (e.g. `cptdir_options`)
 		if($setting['option']){
 			# if we're dealing with the default 
@@ -488,7 +497,7 @@ class CPTD_Options{
 		return $setting['option'].'['.$choice['id'] . ']';
 	}
 	# Return a string of data attributes for fields or choices
-	function data_atts($setting){
+	public static function data_atts($setting){
 		if(!array_key_exists('data', $setting)) return;
 		$out = '';
 		foreach($setting['data'] as $k => $v){
@@ -501,7 +510,8 @@ class CPTD_Options{
 ## settings sections
 CPTD_Options::$sections = array(
 	array(
-		'name' => 'cptdir_main'
+		'name' => 'cptdir_main',
+		'title' => 'Main Settings'
 	),
 	array(
 		'name' => 'cptdir_pt', 'title' => 'Custom Post Type',
