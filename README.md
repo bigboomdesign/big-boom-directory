@@ -1,7 +1,7 @@
 # Custom Post Type Directory
 ---
 
-A directory plugin for WordPress, driven by the WP Custom Post Type environment.
+Directory management system based on Custom Post Types, Taxonomies, and Fields
 
 ## Features
 
