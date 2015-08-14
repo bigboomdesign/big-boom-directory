@@ -14,7 +14,7 @@ class CPTD_view{
 	} # end: __construct()
 	# single field display
 	public static function do_single_field($field, $echo = true){
-		if(!isset($field['value'])) return;
+		if(empty($field['value'])) return;
 
 		ob_start();
 		# for image fields
@@ -60,10 +60,12 @@ class CPTD_view{
 		# field wrapper for text-based fields
 		# apply filter to value so users can edit it
 		$field['value'] = apply_filters('cptd_field_value_'.$field['name'], $field['value']);
+		if($field['value']){
 		?><div class="cptdir-field <?php echo $field['type'] . " " . $field['name']; ?>">
 			<label><?php echo $field['label'];?>: &nbsp; </label><?php echo $field["value"]; ?>
 		</div>
 	<?php
+		}
 		$html = ob_get_contents();
 		ob_end_clean();
 		if($echo) echo $html;
