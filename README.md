@@ -10,6 +10,14 @@ A directory plugin for WordPress, driven by the WP Custom Post Type environment.
 * Provides default views but also allows you to create your own views inside theme's functions.php file for single listings, taxonomy archives, and search results
 * Import functionality from .csv file to custom post type entries
 
+---
+
+## Notes
+
+* Default behaviors for fields are not well-defined without Advanced Custom Fields plugin.  Using ACF adds support for field ordering and field types, as well as improving backend data entry experience
+
+---
+
 ## Shortcodes
 * [cptd-terms]
   * Displays a list of taxonomy terms 
@@ -22,9 +30,24 @@ A directory plugin for WordPress, driven by the WP Custom Post Type environment.
 * [cptd-az-listing]
  * Displays an A-Z listing of all posts for the custom post type
 
-## Notes
+---
 
-* Default behaviors for fields are not well-defined without Advanced Custom Fields plugin.  Using ACF adds support for field ordering and field types, as well as improving backend data entry experience
+## Filters
+
+**````cptd_field_value_{$field_name}````**
+
+Give users access to filter values for text fields.
+
+### Example:
+
+Below is how you would filter the value of a text field called `email` and add an email hotlink.
+
+    add_filter('cptd_field_value_email', 'my_email_filter');
+    function my_email_filter($value){
+    	return "<a href='mailto:{$value}' >{$value}</a>";
+    }
+
+--- 
 
 ## Integration with theme
 
