@@ -38,13 +38,18 @@ A directory plugin for WordPress, driven by the WP Custom Post Type environment.
 
 Give users access to filter values for text fields.
 
+### Parameters
+
+````$field```` (array)
+
 ### Example:
 
 Below is how you would filter the value of a text field called `email` and add an email hotlink.
 
     add_filter('cptd_field_value_email', 'my_email_filter');
-    function my_email_filter($value){
-    	return "<a href='mailto:{$value}' >{$value}</a>";
+    function my_email_filter($field){
+    	$field['value'] = "<a href='mailto:{$field['value']}' >{$field['value']}</a>";
+    	return $field;
     }
 
 --- 

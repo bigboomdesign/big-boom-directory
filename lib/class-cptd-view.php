@@ -59,7 +59,7 @@ class CPTD_view{
 		
 		# field wrapper for text-based fields
 		# apply filter to value so users can edit it
-		$field['value'] = apply_filters('cptd_field_value_'.$field['name'], $field['value']);
+		$field = apply_filters('cptd_field_value_'.$field['name'], $field);
 		if($field['value']){
 		?><div class="cptdir-field <?php echo $field['type'] . " " . $field['name']; ?>">
 			<label><?php echo $field['label'];?>: &nbsp; </label><?php echo $field["value"]; ?>

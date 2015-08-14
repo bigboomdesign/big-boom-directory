@@ -651,7 +651,7 @@ class CPTD{
 			# Filter out any fields that start with an underscore or that are empty
 			## save any ACF fields
 			if(
-				!in_array($v, $out) 
+				!in_array($k, array_keys($out))
 					&& ( (strpos($k, "_") !== 0 || strpos($k, "_") === false)
 						&& !$bACF
 					)
