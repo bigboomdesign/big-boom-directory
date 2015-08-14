@@ -632,7 +632,7 @@ class CPTD{
 		return $aOut;
 	}
 	# filter out WP extraneous post meta
-	function filter_post_meta($a){
+	function filter_post_meta($a, $bAllowEmpty = false){
 		global $view;
 		$out = array();
 		if(!$a) return;
@@ -642,7 +642,7 @@ class CPTD{
 				if($v[0]) $v = $v[0];
 			}
 			# do nothing if value is empty
-			if("" == $v) continue;
+			if("" == $v && !$bAllowEmpty) continue;
 			# check if this is an ACF field
 			$bACF = self::is_acf($v);
 			if($bACF){

@@ -79,7 +79,7 @@ class CPTD_view{
 		if(function_exists("get_fields")){
 			$fields = get_fields($this->ID);
 			if(!$fields) return;
-			$fields = CPTD::filter_post_meta($fields);
+			$fields = CPTD::filter_post_meta($fields, true);
 			$ordered_fields = array();
 			
 			# order the fields
@@ -96,7 +96,9 @@ class CPTD_view{
 			if($ordered_fields){
 				?><div class="cptdir-fields-wrap"><?php
 					foreach($ordered_fields as $field){
+						do_action('cptd_pre_render_field_'.$field['name'], $field);
 						$this->do_single_field($field);
+						do_action('cptd_post_render_field_'.$field['name'], $field);
 					} # end foreach: fields
 				?></div><?php
 			} #end if: fields exist
