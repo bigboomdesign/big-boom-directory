@@ -12,12 +12,11 @@ class CPTD_Admin{
 		# Action links on main Plugins screen
 		$plugin = plugin_basename(__FILE__);
 		add_filter("plugin_action_links_$plugin", array('CPTD_Admin', 'plugin_actions'));
-	
-		# custom actions
-		self::add_filters();
 		
-		# Register post types
-		add_action('init', array('CPTD_Admin', 'register_post_types'));
+		# Meta boxes on Post edit screens for `cptd_pt` and `cptd_tax`
+		add_action( 'add_meta_boxes', array('CPTD_pt', 'add_meta_boxes'), 10, 2);
+		add_action( 'save_post', array('CPTD_pt', 'save_post_type_meta_box_data') );
+		add_action( 'admin_notices', array('CPTD_pt', 'post_type_admin_notices'), 100 );
 	}
 	
 	# Create the admin menu items for the plugin
@@ -37,8 +36,10 @@ class CPTD_Admin{
 		$screen = get_current_screen();
 
 		# Post type edit screen
-		if($screen->base == 'post' && $screen->post_type == 'cptd_pt')
-			wp_enqueue_style('cptd-admin-css', cptdir_url('/css/admin/cptd-pt-edit.css'));
+		if($screen->base == 'post' && $screen->post_type == 'cptd_pt'){
+			wp_enqueue_style('cptd-pt-edit-css', cptdir_url('/css/admin/cptd-pt-edit.css'));
+			wp_enqueue_script('cptd-pt-edit-js', cptdir_url('/js/admin/cptd-pt-edit.js'), array('jquery'));
+		}
 			
 		# Information screen
 		if($screen->base == 'cptd_pt_page_cptdir-information'){
@@ -58,69 +59,6 @@ class CPTD_Admin{
 		return $links;
 	} # end: cptdir_plugin_actions()
 	
-	public static function add_filters(){
-		add_filter('cptd_register_pt', array('CPTD_Admin', 'filter_pt'), 1, 1);
-	}
-	
-	# Register all post types
-	public static function register_post_types(){
-		# Main CPTD post type
-		register_extended_post_type('cptd_pt', 
-			array(
-				'public' => false,
-				'show_ui' => true,
-				'menu_icon' => 'dashicons-list-view',
-				'menu_position' => '30',
-				'labels' => array(
-					'menu_name' => 'CPT Directory'
-				),
-			), 
-			array(
-				'singular' => 'Post Type',
-				'plural' => 'Post Types',
-			)
-		);
-		
-		# User-defined post types
-		$pts = get_posts(
-			array(
-				'post_type' => 'cptd_pt',
-				'posts_per_page' => -1,
-				'post_status' => 'publish'
-			)
-		);
-		if($pts)
-		foreach($pts as $pt){
-			$pt = apply_filters('cptd_register_pt', 
-				array(
-					'post_type' => $pt->post_name,
-					'args' => array(),
-					'names' => array()
-				)
-			);
-			self::register_pt($pt);
-		}
-	} # end: register_post_types()
-	
-	# register post type
-	# input should be filtered `cptd_register_pt`
-	# array(
-	#   'post_type' => str
-	#   'args' => arr
-	#   'names' => arr
-	# )
-	private static function register_pt($pt){
-		register_extended_post_type($pt['post_type'], $pt['args'], $pt['names']);
-	}
-	
-	/*
-	* Filters
-	*/
-	
-	# post type pre-registration filter
-	public static function filter_pt($cpt){
-		return $cpt;
-	}
 	/*
 	* Helper Functions
 	*/

@@ -1,6 +1,9 @@
 /* cptd */
 .wrap .markdown-body h1{
-	font-size: 1.7em;
+	font-size: 1.5em;
+}
+.wrap .markdown-body h2{
+	font-size: 1.3em;
 }
 .wrap .markdown-body code{
 	font-size: 1.2em;

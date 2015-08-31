@@ -1,3 +1,32 @@
-a.add-new-h2{
+.required{
+	color: #D9534F;
+}
+h1 a.page-title-action{
 	display: none;
+}
+
+/* post meta box */
+#cptd_post_meta_box .field{
+	margin-bottom: 1.2em;
+}
+#cptd_post_meta_box .field label{
+	font-weight: bold;
+}
+#cptd_post_meta_box .field label input{
+	font-weight: normal;
+	margin-top: 0.3em;
+}
+
+/* post name box */
+#handle-container.highlight{
+	padding: 1em;
+}
+#handle-container p.description{
+	margin-top: 1em;
+}
+
+a#change-pt-name{ 
+	display: block;
+	margin-top: 0.2em; 
+	font-style: italic;
 }

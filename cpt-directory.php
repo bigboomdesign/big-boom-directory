@@ -11,7 +11,19 @@
 * Main Routine
 */
 if(!cptdir_should_load()) return;
+
+# dependencies
 require_once cptdir_dir('/lib/class-cptd.php');
+require_once cptdir_dir('lib/class-cptd-helper.php');
+require_once cptdir_dir('/lib/class-cptd-pt.php');
+require_once cptdir_dir('/lib/class-cptd-ajax.php');
+## Extended Post Types
+require_once cptdir_dir('/assets/extended-cpts.php');
+
+
+# Actions
+## Register user-defined post types
+add_action('init', array('CPTD', 'register_post_types'));
 
 /* 
 * Admin 
@@ -19,7 +31,9 @@ require_once cptdir_dir('/lib/class-cptd.php');
 if(is_admin()){
 	
 	require_once cptdir_dir('/lib/class-cptd-admin.php');
+	require_once cptdir_dir('/lib/class-cptd-options.php');
 	CPTD_Admin::init();
+	CPTD_Ajax::add_actions();
 }
 
 /*
