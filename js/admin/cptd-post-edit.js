@@ -14,7 +14,7 @@ jQuery(document).ready(function($){
 	$title = $('#title');
 	$handle = $('#handle');
 	$handleContainer = $('#handle-container');
-	$changeName = $('a#change-pt-name');
+	$changeName = $('a#change-name');
 	
 	// if we're starting with a blank post type name, fill it in when the title is edited for the first time
 	/*
@@ -36,7 +36,7 @@ jQuery(document).ready(function($){
 		});
 	}
 	*/
-	$('a#change-pt-name').on('click', function(){
+	$('a#change-name').on('click', function(){
 		var bOn = $(this).data('active') == 'true';
 		if(!bOn) $(this).data('active', 'true');
 		else $(this).data('active', 'false');

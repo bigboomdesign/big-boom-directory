@@ -6,13 +6,13 @@ h1 a.page-title-action{
 }
 
 /* post meta box */
-#cptd_post_meta_box .field{
+.cptd-post-meta-box .field{
 	margin-bottom: 1.2em;
 }
-#cptd_post_meta_box .field label{
+.cptd-post-meta-box .field label{
 	font-weight: bold;
 }
-#cptd_post_meta_box .field label input{
+.cptd-post-meta-box .field label input[type=text]{
 	font-weight: normal;
 	margin-top: 0.3em;
 }
@@ -25,8 +25,21 @@ h1 a.page-title-action{
 	margin-top: 1em;
 }
 
-a#change-pt-name{ 
+a#change-name{ 
 	display: block;
 	margin-top: 0.2em; 
 	font-style: italic;
+}
+
+/* taxonomy settings meta box */
+#tax-assign-pt h3{
+	padding-left: 0;
+}
+#tax-assign-pt.field label{
+	font-weight: normal;
+	display: block;
+	margin-top: 0.2em;
+}
+#tax-assign-tip{
+	margin-top: 0.5em;
 }

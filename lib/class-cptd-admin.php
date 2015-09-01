@@ -13,17 +13,17 @@ class CPTD_Admin{
 		$plugin = plugin_basename(__FILE__);
 		add_filter("plugin_action_links_$plugin", array('CPTD_Admin', 'plugin_actions'));
 		
-		# Meta boxes on Post edit screens for `cptd_pt` and `cptd_tax`
-		add_action( 'add_meta_boxes', array('CPTD_pt', 'add_meta_boxes'), 10, 2);
-		add_action( 'save_post', array('CPTD_pt', 'save_post_type_meta_box_data') );
-		add_action( 'admin_notices', array('CPTD_pt', 'post_type_admin_notices'), 100 );
+		# Add meta boxes on post edit screens for `cptd_pt` and `cptd_tax` posts
+		add_action( 'add_meta_boxes', array('CPTD_Helper', 'add_meta_boxes'), 10, 2);
+		add_action( 'save_post', array('CPTD_Helper', 'save_meta_box_data') );
+		add_action( 'admin_notices', array('CPTD_Helper', 'post_edit_admin_notices'), 100 );
 	}
 	
-	# Create the admin menu items for the plugin
+	/**
+	 * Create the admin menu items
+	 */
 	public static function admin_menu(){
-		# top level page
-#		add_menu_page('Custom Post Type Directory', 'CPT Directory', 'administrator', 'cptdir-main-page', array('CPTD_Admin', 'main_page'));
-		
+
 		# sub-pages
 		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Settings | CPT Directory', 'Settings', 'administrator', 'cptdir-settings', array('CPTD_Admin', 'settings_page'));
 		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Information | CPT Directory', 'Information', 'administrator', 'cptdir-information', array('CPTD_Admin', 'information_page'));
@@ -32,13 +32,19 @@ class CPTD_Admin{
         unset($submenu['edit.php?post_type=cptd_pt'][10]);
 	}
 	
+	/**
+	 * Enqueue admin scripts and styles
+	 */
 	public static function admin_enqueue(){
 		$screen = get_current_screen();
 
 		# Post type edit screen
-		if($screen->base == 'post' && $screen->post_type == 'cptd_pt'){
-			wp_enqueue_style('cptd-pt-edit-css', cptdir_url('/css/admin/cptd-pt-edit.css'));
-			wp_enqueue_script('cptd-pt-edit-js', cptdir_url('/js/admin/cptd-pt-edit.js'), array('jquery'));
+		if(
+			$screen->base == 'post' 
+			&& ( $screen->post_type == 'cptd_pt' || $screen->post_type == 'cptd_tax')
+		){
+			wp_enqueue_style('cptd-post-edit-css', cptdir_url('/css/admin/cptd-post-edit.css'));
+			wp_enqueue_script('cptd-post-edit-js', cptdir_url('/js/admin/cptd-post-edit.js'), array('jquery'));
 		}
 			
 		# Information screen
@@ -48,7 +54,9 @@ class CPTD_Admin{
 		}
 	}
 	
-	# Add action links on main Plugins screen
+	/**
+	 * Add action links for this plugin on main Plugins screen (under plugin name)
+	 */
 	public static function plugin_actions($links){
 		# remove the `Edit` link
 		array_pop($links);
@@ -59,18 +67,18 @@ class CPTD_Admin{
 		return $links;
 	} # end: cptdir_plugin_actions()
 	
-	/*
-	* Helper Functions
-	*/
+	/**
+	 * Helper Functions
+	 */
 	
 	# default wrapper for HTML
 	public static function page_wrap($s){
 		return "<div class='wrap cptdir-admin'>{$s}</div>";
 	}
 	
-	/*
-	* Admin Pages
-	*/
+	/**
+	 * Admin Pages
+	 */
 	
 	# Main page
 	public static function main_page(){
