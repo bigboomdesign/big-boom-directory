@@ -15,6 +15,7 @@ class CPTD_view{
 	# single field display
 	public static function do_single_field($field, $echo = true){
 		if(empty($field['value'])) return;
+		global $post;
 
 		ob_start();
 		# for image fields
@@ -32,11 +33,36 @@ class CPTD_view{
 				break;
 			}
 			# show image if we have a src
-			if($src){?>
-				<img class="cptdir-image <?php echo $field['name' ]; ?>" 
-						src="<?php echo $src; ?>" />	
+			if( $src ) {
+				# make the image link to the listing page if we are on an archive page or search results view
+				$link = '';
+				if( is_archive() || is_search() ) {
+					global $post;
+					$link = get_permalink($post->id);
+				}
+			?>
+				<div class='cptdir-image-container'>
+				<?php
+				if( $link ) {
+				?>
+					<a href="<?php echo $link; ?>">
+				<?php
+				}
+				?>
+						<img class="cptdir-image <?php echo $field['name' ]; ?>" 
+								src="<?php echo $src; ?>" 
+						/>
+				<?php
+				if( $link ) {
+				?>
+					</a>
+				<?php
+				}
+				?>
+				</div>
 			<?php 
-			}
+			} # end if: image source is set
+
 			# go to next field after showing the image
 			return;
 		} # endif: image field
@@ -85,7 +111,7 @@ class CPTD_view{
 			# order the fields
 			foreach($fields as $field => $value){
 				$aField = get_field_object($field);
-				if($aField['order_no'] >= 0) $ordered_fields[$aField['order_no']] = $aField;
+				if(isset($aField['order_no']) && $aField['order_no'] >= 0) $ordered_fields[$aField['order_no']] = $aField;
 			}
 			ksort($ordered_fields);
 

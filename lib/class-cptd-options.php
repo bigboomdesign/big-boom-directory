@@ -60,29 +60,29 @@ class CPTD_Options{
 					)
 		){
 			# archives
-			$pt_slug = CPTD::$pt->slug ? CPTD::$pt->slug : '';
-			$ctax_slug = CPTD::$ctax->slug ? CPTD::$ctax->slug : '';
-			$ttax_slug = CPTD::$ttax->slug ? CPTD::$ttax->slug : '';
+			if( CPTD::$pt ) $pt_slug = CPTD::$pt->slug ? CPTD::$pt->slug : '';
+			if( CPTD::$ctax ) $ctax_slug = CPTD::$ctax->slug ? CPTD::$ctax->slug : '';
+			if( CPTD::$ttax ) $ttax_slug = CPTD::$ttax->slug ? CPTD::$ttax->slug : '';
 			
 			# directory home
 			$front_page_id = CPTD_Options::$options['front_page'];
 			$front_page = get_post($front_page_id);
-			$page_slug = $front_page->post_name;
+			if( $front_page ) $page_slug = $front_page->post_name;
 			
 			#compare and give warning if necessary
-			if($page_slug ==  $pt_slug){
+			if(isset( $page_slug ) && $page_slug ==  $pt_slug){
 			?>
 				<p class='cptdir-fail'>Warning:</p>
 				<p>Your directory home page has the same permalink as the post type URL slug.  Please change one of these values to avoid conflicts.</p>
 			<?php
 			}
-			elseif($page_slug == $ctax_slug){
+			elseif( isset( $ctax_slug ) && isset( $page_slug ) && $page_slug == $ctax_slug){
 			?>
 				<p class='cptdir-fail'>Warning:</p>
 				<p>Your directory home page has the same permalink as the <?php echo CPTD::$ctax->sing; ?> taxonomy URL slug.  Please change one of these values to avoid conflicts.</p>
 			<?php
 			}
-			elseif($page_slug == $ttax_slug){
+			elseif( isset($ttax_slug) && isset($page_slug) && $page_slug == $ttax_slug){
 			?>
 				<p class='cptdir-fail'>Warning:</p>
 				<p>Your directory home page has the same permalink as the taxonomy <?php echo CPTD::$ttax->sing; ?> URL slug.  Please change one of these values to avoid conflicts.</p>
@@ -147,11 +147,11 @@ class CPTD_Options{
 		<?php
 	}
 	## Checkbox field
-	function checkbox_field($setting){
+	public static function checkbox_field($setting){
 		extract($setting);
 		foreach($choices as $choice){
 		?><label 
-			class="checkbox <?php if($label_class) echo $label_class; ?>"
+			class="checkbox <?php if(isset( $label_class ) && $label_class) echo $label_class; ?>"
 			for="<?php echo $choice['id']; ?>"
 		>
 			<input 
@@ -159,7 +159,7 @@ class CPTD_Options{
 				id="<?php echo $choice['id']; ?>"
 				name="<?php echo self::get_choice_name($setting, $choice); ?>"
 				value="<?php echo $choice['value']; ?>"
-				class="<?php if($class) echo $class; if(array_key_exists('class', $choice)) echo ' ' . $choice['class']; ?>"
+				class="<?php if(!empty($class)) echo $class; if(array_key_exists('class', $choice)) echo ' ' . $choice['class']; ?>"
 				<?php echo self::data_atts($choice); ?>
 				<?php checked(true, '' != self::get_option_value($setting, $choice)); ?>						
 			/>&nbsp;<?php echo $choice['label']; ?> &nbsp; &nbsp;
@@ -189,14 +189,14 @@ class CPTD_Options{
 		}
 	}	
 	## <select> dropdown field
-	function select_field($setting){
+	public static function select_field($setting){
 		extract($setting);
 		$val = self::get_option_value($setting);
 	?><select 
 		id="<?php echo $name; ?>"
 		name="<?php echo $setting['option_name']; ?>"
 		<?php echo self::data_atts($setting); ?>		
-		<?php if($class) echo "class='".$class."'"; ?>
+		<?php if(isset($class) && !empty($class)) echo "class='".$class."'"; ?>
 	>
 		<?php 
 		foreach($choices as $choice){
@@ -257,12 +257,11 @@ class CPTD_Options{
 		wp_dropdown_pages($args);
 	}
 	# Register settings
-	static function register_settings(){
+	public static function register_settings(){
 		# main option for this plugin
 		register_setting( 'cptdir_options', 'cptdir_options', array('CPTD_Options', 'validate_options') );
 		# add sections
 		foreach(self::$sections as $section){
-			if(!$section['title']) var_dump($section);
 			add_settings_section(
 				$section['name'], $section['title'], array('CPTD_Options', 'section_description'), 'cptdir_settings'
 			);
@@ -274,7 +273,7 @@ class CPTD_Options{
 		}
 	}
 	# validate fields when saved
-	function validate_options($input){
+	public static function validate_options($input){
 		# need to validate slug fields to make sure we have a valid URL
 		$aSlugValidate = array("cpt_slug", "ctax_slug", "ttax_slug");
 		foreach($aSlugValidate as $key){
@@ -285,7 +284,7 @@ class CPTD_Options{
 		return $input; 
 	}	
 	# Do settings page
-	static function settings_page(){
+	public static function settings_page(){
 		?><div class='wrap'>
 			<h2>Custom Post Type Directory</h2>
 			<p class="cptdir-success">Setting all 3 fields for the <b>Custom Post Type</b> is required for any other features to become active.</p>			
@@ -297,7 +296,7 @@ class CPTD_Options{
 		</div><?php
 	}
 	# section description
-	static function section_description($section){
+	public static function section_description($section){
 		# get ID of section being displayed
 		$id = $section['id'];
 		# loop through sections and display the correct description
@@ -308,7 +307,7 @@ class CPTD_Options{
 			}
 		}
 	}
-	static function instructions_page(){
+	public static function instructions_page(){
 		?><div class='wrap'>
 			<h2>CPT Directory: Instructions</h2>
 			<h3>Shortcodes</h3>
@@ -492,7 +491,7 @@ class CPTD_Options{
 		return CPTD::get_post_field($setting['name']);
 	}
 	# get the option name for a checkbox choice	
-	function get_choice_name($setting, $choice){
+	public static function get_choice_name($setting, $choice){
 		if(!$setting['option']) return $choice['id'];
 		return $setting['option'].'['.$choice['id'] . ']';
 	}

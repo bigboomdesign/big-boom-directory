@@ -75,6 +75,13 @@ class CPTD{
 			'type' => 'checkbox',
 			'choices' => 'Yes'
 		);
+		
+		## set empty options where necessary to avoid array key issues
+		foreach(CPTD_Options::$settings as $setting){
+			if(!isset(CPTD_Options::$options[$setting['name']])) {
+				CPTD_Options::$options[$setting['name']] = '';
+			}
+		}
 	} # end: setup()
 	
 	public static function setup_pt(){
@@ -153,7 +160,7 @@ class CPTD{
 	/*
 	* Front End Routines
 	*/
-	function enqueue(){
+	public static function enqueue(){
 		# CSS
 		wp_enqueue_style("cptdir-css", cptdir_url("css/cptdir.css"));
 		if(self::is_cptdir()){
@@ -162,14 +169,14 @@ class CPTD{
 		}
 	}
 	# default field view (can be called by theme if needed from inside cptdir_custom_single)
-	function default_fields($content = "", $type = "single", $callback = ""){
+	public static function default_fields($content = "", $type = "single", $callback = ""){
 		global $post;
 		$view = new CPTD_view(array("ID" => $post->ID, "type"=>$type));
 		$view->do_fields($callback);
 		return $content;
 	}	
 	# post type archive page
-	function pt_archive(){
+	public static function pt_archive(){
 		$pt = cptdir_get_pt();
 		if(!$pt) return;
 		if(!is_post_type_archive($pt->name)) return;
@@ -180,7 +187,7 @@ class CPTD{
 		add_filter('the_content', array('CPTD', 'do_single'));
 	}
 	# single template
-	function single_template($single_template){
+	public static function single_template($single_template){
 		$pt = cptdir_get_pt();
 		# do nothing if we're not viewing a single listing of our PT
 		if(!is_singular($pt->name)) return $single_template;
@@ -190,7 +197,7 @@ class CPTD{
 		return $single_template;
 	}
 	# the_content filter for single listing
-	function do_single($content){
+	public static function do_single($content){
 		if(!in_the_loop()) return;
 		# if theme has custom content function, do that and return
 		## note that custom function has option to return $content
@@ -202,7 +209,7 @@ class CPTD{
 	
 	# Taxonomy term archives
 	## Set templates for taxonomy archives
-	function taxonomy_template($page_template){
+	public static function taxonomy_template($page_template){
 		# do nothing if we're not viewing a taxonomy archive
 		if(!is_tax()) return $page_template;
 	
@@ -225,7 +232,7 @@ class CPTD{
 		return $page_template;
 	}	
 	## this function fires on the_content() for each post in the loop on taxonomy pages, when no template is present in the theme
-	function taxonomy_content($content){
+	public static function taxonomy_content($content){
 		# if theme has custom content function, do that and return
 		## note that custom function has option to return $content
 		if(function_exists("cptdir_custom_taxonomy_content")){ return cptdir_custom_taxonomy_content($content); }
@@ -237,7 +244,7 @@ class CPTD{
 	
 		return self::default_fields($content, "multi");
 	}
-	function page_templates( $page_template ){
+	public static function page_templates( $page_template ){
 		# directory home
 		$home_id = CPTD_Options::$options['front_page'];
 		if($home_id && is_page($home_id)){
@@ -254,13 +261,13 @@ class CPTD{
 		return $page_template;
 	}
 	## Directory home
-	function front_page($content){
+	public static function front_page($content){
 		$html = self::terms_html();
 		return $content.$html;
 	}
 	
 	# shortcode for cptd-terms
-	function terms_html($atts = array()){
+	public static function terms_html($atts = array()){
 		# if we're not passed a taxonomy
 		if(!$atts['taxonomy']){
 			# get CPTD_tax object based on plugin settings
@@ -330,7 +337,7 @@ class CPTD{
 	} # end: terms_html()
 	
 	# shortcode for A-Z listing
-	function az_html(){
+	public static function az_html(){
 		# make sure we have a post type defined
 		$pt = cptdir_get_pt();
 		if(!$pt) return;
@@ -357,7 +364,7 @@ class CPTD{
 		return $html;
 	} # end: az_html();
 	# shortcode for search widget
-	function search_widget($atts = array()){
+	public static function search_widget($atts = array()){
 		$widget = array(
 			'title' => 'My Title'
 		);
@@ -365,7 +372,7 @@ class CPTD{
 	} # end: search_widget()
 	
 	## Search Results Page
-	function search_results($content){ 
+	public static function search_results($content){ 
 		self::do_search_results();
 		return $content;
 	}
@@ -475,25 +482,29 @@ class CPTD{
 		}
 	} #	end: do_search_results()
 
-	/*
-	* Helper Functions
-	*/
+	/**
+	 * Helper Functions
+	 */
 	
 	# require a file, checking first if it exists
-	static function req_file($path){ if(file_exists($path)) require_once $path; }
+	public static function req_file($path){ if(file_exists($path)) require_once $path; }
 	
 	# Sanitize form input
 	public static function san($in){
 		return trim(preg_replace("/\s+/", " ", strip_tags($in)));
-	}
+	} # end: san()
+
 	# check if we're viewing a CPTD-powered page (must be called after 'wp' hook)
-	function is_cptdir(){
-		return ($pt = CPTD::$pt && (is_singular($pt->name) || is_post_type_archive($pt->name)))
+	public static function is_cptdir(){
+		$pt = CPTD::$pt;
+
+		return ((is_singular($pt->name) || is_post_type_archive($pt->name)))
 			|| ($tax = CPTD::$ctax && is_archive($tax->name))
 			|| ($tax = CPTD::$ttax && is_archive($tax->name));		
-	}
+	} # end: is_cptdir()
+
 	# return a permalink-friendly version of a string
-	function clean_str_for_url( $sIn ){
+	public static function clean_str_for_url( $sIn ){
 		if( $sIn == "" ) return "";
 		$sOut = trim( strtolower( $sIn ) );
 		$sOut = preg_replace( "/\s\s+/" , " " , $sOut );					
@@ -506,9 +517,10 @@ class CPTD{
 		$nWord_length = strlen( $sOut );
 		if( $sOut[ $nWord_length - 1 ] == "-" ) { $sOut = substr( $sOut , 0 , $nWord_length - 1 ); } 
 		return $sOut;
-	}
+	} # end: clean_str_for_url()
+
 	# same as above, but use underscore as default separator
-	function clean_str_for_field($sIn){
+	public static function clean_str_for_field($sIn){
 		if( $sIn == "" ) return "";
 		$sOut = trim( strtolower( $sIn ) );
 		$sOut = preg_replace( "/\s\s+/" , " " , $sOut );					
@@ -524,10 +536,12 @@ class CPTD{
 		$nWord_length = strlen( $sOut );
 		if( $sOut[ $nWord_length - 1 ] == "-" || $sOut[ $nWord_length - 1 ] == "_" ) { $sOut = substr( $sOut , 0 , $nWord_length - 1 ); } 
 		return $sOut;		
-	}
-	function convert_space_to_nbsp( $sIn ){
+	} # end: clean_str_for_field()
+
+	public static function convert_space_to_nbsp( $sIn ){
 		return preg_replace( '/\s/' , '&nbsp;' , $sIn );	
-	}
+	} # end: convert_space_to_nbsp()
+
 	# Generate a label, value, etc. for any given setting 
 	## input can be a string or array and a full, formatted array will be returned
 	## If $field is a string we assume the string is the label
@@ -558,11 +572,12 @@ class CPTD{
 			}
 		}
 		return $out;
-	}
+	} # end: get_field_array()
+
 	# Get array of choices for a setting field
 	## This allows choices to be set as strings or arrays with detailed properties, 
 	## so that either way our options display function will have the data it needs
-	function get_choice_array($setting){
+	public static function get_choice_array($setting){
 		extract($setting);
 		if(!isset($choices)) return;
 		$out = array();
@@ -601,7 +616,8 @@ class CPTD{
 			}
 		}
 		return $out;
-	}	
+	} # end: get_choice_array()
+
 	# get an array of IDs for all post type objects (default is published only, passing false returns all)
 	public static function get_all_cpt_ids($bPub = true){
 		# get all post objects
@@ -611,7 +627,8 @@ class CPTD{
 			$aIDs[] = $post->ID;
 		}
 		return $aIDs;
-	}
+	} # end: get_all_cpt_ids()
+
 	# get an array of post objects for our PT (default is published only, passing false returns all)
 	public static function get_all_cpt_posts($bPub = true){
 		$aOut = array();
@@ -630,16 +647,17 @@ class CPTD{
 		}
 		wp_reset_query();
 		return $aOut;
-	}
+	} # end: get_all_cpt_posts()
+
 	# filter out WP extraneous post meta
-	function filter_post_meta($a){
+	public static function filter_post_meta($a){
 		global $view;
 		$out = array();
 		if(!$a) return;
 		foreach($a as $k => $v){
 			# if value is an array, take the first item
 			if(is_array($v)){
-				if($v[0]) $v = $v[0];
+				if(isset($v[0])) $v = $v[0];
 			}
 			# do nothing if value is empty
 			if("" == $v) continue;
@@ -661,12 +679,14 @@ class CPTD{
 			}
 		}
 		return $out;
-	}
+	} # end: filter_post_meta()
+
 	# Return list of all fields for single listing
 	public static function get_fields_for_listing($id){
 		$fields = self::filter_post_meta(get_post_meta($id));
 		return $fields;
-	}
+	} # end: get_fields_for_listing()
+
 	# Return list of all fields for custom post type
 	public static function get_all_custom_fields($bActive = false){
 		# array of custom fields we'll return
@@ -712,7 +732,8 @@ class CPTD{
 			foreach($aACF_fields as $a){ if(!in_array($a['name'], $aCF)) $aCF[] = $a['name']; }
 		}
 		return $aCF;
-	}
+	} # end: get_all_custom_fields()
+
 	# Check if a field is an ACF field
 	public static function is_acf($field){
 		if(is_string($field))
@@ -720,7 +741,8 @@ class CPTD{
 		elseif(is_array($field) && array_key_exists('name', $field))
 			return preg_match("/field_[\dA-z]+/", $field['name']);
 		return false;
-	}
+	} # end: is_acf()
+
 	# Get advanced custom fields
 	public static function get_acf_fields(){
 		global $wpdb;
@@ -743,7 +765,8 @@ class CPTD{
 		}
 		wp_reset_query();
 		return $out;
-	}
+	} # end: get_acf_fields()
+
 	# Get all meta values for a certain key
 	public static function get_meta_values( $key = '', $type = "", $status = 'publish' ) {
 		if( empty( $key ) ) return;
@@ -764,7 +787,7 @@ class CPTD{
 			)
 		);
 		return $r;
-	}
+	} # end: get_meta_values()
 } #end class
 # require dependencies
 foreach(CPTD::$classes as $class){
