@@ -85,7 +85,7 @@ class CPTD_view{
 		
 		# field wrapper for text-based fields
 		# apply filter to value so users can edit it
-		$field['value'] = apply_filters('cptd_field_value_'.$field['name'], $field['value']);
+		$field = apply_filters('cptd_field_value_'.$field['name'], $field);
 		if($field['value']){
 		?><div class="cptdir-field <?php echo $field['type'] . " " . $field['name']; ?>">
 			<label><?php echo $field['label'];?>: &nbsp; </label><?php echo $field["value"]; ?>
@@ -105,7 +105,7 @@ class CPTD_view{
 		if(function_exists("get_fields")){
 			$fields = get_fields($this->ID);
 			if(!$fields) return;
-			$fields = CPTD::filter_post_meta($fields);
+			$fields = CPTD::filter_post_meta($fields, true);
 			$ordered_fields = array();
 			
 			# order the fields
@@ -122,7 +122,9 @@ class CPTD_view{
 			if($ordered_fields){
 				?><div class="cptdir-fields-wrap"><?php
 					foreach($ordered_fields as $field){
+						do_action('cptd_pre_render_field_'.$field['name'], $field);
 						$this->do_single_field($field);
+						do_action('cptd_post_render_field_'.$field['name'], $field);
 					} # end foreach: fields
 				?></div><?php
 			} #end if: fields exist

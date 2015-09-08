@@ -650,7 +650,7 @@ class CPTD{
 	} # end: get_all_cpt_posts()
 
 	# filter out WP extraneous post meta
-	public static function filter_post_meta($a){
+	public static function filter_post_meta($a, $bAllowEmpty = false){
 		global $view;
 		$out = array();
 		if(!$a) return;
@@ -660,7 +660,7 @@ class CPTD{
 				if(isset($v[0])) $v = $v[0];
 			}
 			# do nothing if value is empty
-			if("" == $v) continue;
+			if("" == $v && !$bAllowEmpty) continue;
 			# check if this is an ACF field
 			$bACF = self::is_acf($v);
 			if($bACF){
@@ -669,7 +669,7 @@ class CPTD{
 			# Filter out any fields that start with an underscore or that are empty
 			## save any ACF fields
 			if(
-				!in_array($v, $out) 
+				!in_array($k, array_keys($out))
 					&& ( (strpos($k, "_") !== 0 || strpos($k, "_") === false)
 						&& !$bACF
 					)

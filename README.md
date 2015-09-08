@@ -38,16 +38,51 @@ A directory plugin for WordPress, driven by the WP Custom Post Type environment.
 
 Give users access to filter values for text fields.
 
+### Parameters
+
+````$field```` (array)
+
 ### Example:
 
 Below is how you would filter the value of a text field called `email` and add an email hotlink.
 
     add_filter('cptd_field_value_email', 'my_email_filter');
-    function my_email_filter($value){
-    	return "<a href='mailto:{$value}' >{$value}</a>";
+    function my_email_filter($field){
+    	$field['value'] = "<a href='mailto:{$field['value']}' >{$field['value']}</a>";
+    	return $field;
     }
 
 --- 
+
+## Actions
+
+**````cptd_pre_render_field_{$field_name}````**
+**````cptd_post_render_field_{$field_name}````**
+
+Allows users to insert their own HTML before (*pre*) or after (*post*) a field is rendered.  Note that the action fires whether or not the field has a value.
+
+### Parameters
+
+````$field```` (array)
+
+### Example
+
+Below is an example to wrap a field called `email` in a div. Note the example doesn't use the `$field` array, although it is available inside the function.
+
+    add_action('cptd_pre_render_field_email', 'my_pre_email');
+    add_action('cptd_post_render_field_email', 'my_post_email');
+    function my_pre_email($field){
+    ?>
+    	<div id="my-email-field">
+    <?php
+    }
+    function my_post_email(){
+    ?>
+    	</div>
+    <?php
+    }
+
+---
 
 ## Integration with theme
 
