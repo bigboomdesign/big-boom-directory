@@ -266,7 +266,7 @@ class CPTD_Helper{
 	/**
 	 * Display the "Post Type Settings" meta box for `cptd_pt` posts
 	 * 
-	 * @param  WP_Post 	$post 		The post we're currently editing
+	 * @param  WP_Post 	$post 	The post we're currently editing
 	 * @return null
 	 */
 
@@ -324,7 +324,7 @@ class CPTD_Helper{
 	/**
 	 * Display the "Post Type Settings" meta box for `cptd_pt` posts
 	 * 
-	 * @param  WP_Post 	$post 		The post we're currently editing
+	 * @param  WP_Post 	$post 	The post we're currently editing
 	 * @return null
 	 */
 

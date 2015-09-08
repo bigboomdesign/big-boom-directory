@@ -31,12 +31,12 @@ class CPTD_tax extends CPTD_Post{
 	/**
 	 * Register the taxonomy associated with this post
 	 *
-	 * The input array is filtered by `cptd_register_tax` and then passed to register_extended_taxonomy()
+	 * The input array is filtered by `cptd_register_tax` and then passed to `register_extended_taxonomy()`
 	 *
 	 * variable of interest:
 	 *
 	 * @type  array 	$args{
-	 *		The arguments that will be filtered by `cptd_register_pt`.
+	 *		The arguments that will be filtered by `cptd_register_tax`
 	 *
 	 *   	@type string 		$taxonomy 	 	The taxonomy name to register
 	 * 		@type string|array 	$object_type	The post types to associate with this taxonomy

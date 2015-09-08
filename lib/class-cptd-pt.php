@@ -27,12 +27,12 @@ class CPTD_pt extends CPTD_Post{
 	/**
 	 * Register the post type associated with this post
 	 *
-	 * The input array is filtered by `cptd_register_pt` and then passed to register_extended_post_type()
+	 * The input array is filtered by `cptd_register_pt` and then passed to `register_extended_post_type()`
 	 *
 	 * variable of interest:
 	 *
 	 * @type  array 	$args{
-	 *		The arguments that will be filtered by `cptd_register_pt`.
+	 *		The arguments that will be filtered by `cptd_register_pt`
 	 *
 	 *   	@type string 	$post_type 	 	The post type name to register
 	 *   	@type array 	$args 			The WP $args array for register_post_type()
