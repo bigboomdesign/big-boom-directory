@@ -75,11 +75,31 @@ class CPTD{
 			'type' => 'checkbox',
 			'choices' => 'Yes'
 		);
+		CPTD_Options::$settings[] = array(
+			'name' => 'use_directory_fields',
+			'label' => 'Use Built-In Directory Fields',
+			'type' => 'checkbox',
+			'choices' => 'Yes'
+		);
 		
 		## set empty options where necessary to avoid array key issues
 		foreach(CPTD_Options::$settings as $setting){
-			if(!isset(CPTD_Options::$options[$setting['name']])) {
-				CPTD_Options::$options[$setting['name']] = '';
+
+			# check setting name
+			if(! isset( CPTD_Options::$options[ $setting['name'] ] ) ) {
+
+				$setting_is_set = false;
+
+				# also check `setting_name_choice_id`
+				if( isset( $setting['choices'] ) ) {
+
+					$choices = self::get_choice_array($setting);
+					foreach( $choices as $choice ){
+ 						if( isset( CPTD_Options::$options[ $choice['id'] ] ) )
+ 							$setting_is_set = true;
+					}
+				}
+				if( ! $setting_is_set ) CPTD_Options::$options[ $setting['name'] ] = '';
 			}
 		}
 	} # end: setup()

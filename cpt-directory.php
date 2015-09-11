@@ -19,6 +19,11 @@ add_action( 'init', array('CPTD', 'setup'));
 
 add_action( 'pre_get_posts', array( 'CPTD', 'pre_get_posts' ) );
 
+# if post type has been set, add meta boxes
+if( cptdir_get_pt() && isset( CPTD_Options::$options['use_directory_fields_yes'] ) ) {
+	require_once cptdir_dir('/assets/cmb2-functions.php');
+}
+
 /*
 * Admin Routines
 */
