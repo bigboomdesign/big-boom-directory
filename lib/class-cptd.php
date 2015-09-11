@@ -122,6 +122,30 @@ class CPTD{
 		self::$ttax = $obj;
 		return $obj;
 	} # end: setup_ttax()
+
+	/**
+	 * Filter for `pre_get_posts`
+	 */
+	public static function pre_get_posts( $query ) {
+
+		# do nothing if the query has no post type set
+		if( ! isset( $query->query_vars['post_type'] ) ) return;
+
+		# the post type for the directory
+		$pt = cptdir_get_pt();
+
+		if( ! $pt || ! $pt->name ) return;
+
+		# do nothing if the query is not for our post stype
+		if( $pt->name != $query->query_vars['post_type'] ) return;
+
+		# set the ordering parameters, applying filters user can hook into
+
+		$query->set( 'orderby', 'post_title' );
+		$query->set( 'order',  'ASC' );
+
+		$query = apply_filters( 'cptdir_pre_get_posts', $query );
+	}
 	
 	/* 
 	* Admin Routines

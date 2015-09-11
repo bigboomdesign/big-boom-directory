@@ -34,9 +34,9 @@ A directory plugin for WordPress, driven by the WP Custom Post Type environment.
 
 ## Filters
 
-**````cptd_field_value_{$field_name}````**
+* **````cptd_field_value_{$field_name}````**
 
-Give users access to filter values for text fields.
+Access values for directory text fields
 
 ### Parameters
 
@@ -48,9 +48,18 @@ Below is how you would filter the value of a text field called `email` and add a
 
     add_filter('cptd_field_value_email', 'my_email_filter');
     function my_email_filter($field){
-    	$field['value'] = "<a href='mailto:{$field['value']}' >{$field['value']}</a>";
-    	return $field;
+        $field['value'] = "<a href='mailto:{$field['value']}' >{$field['value']}</a>";
+        return $field;
     }
+
+---
+
+* **````cptdir_pre_get_posts( $query )````**
+
+Access the WP_Query var when directory post type is being queried 
+
+@param      WP_Query    $query      The query, where $query->vars['post_type'] has 
+                                    already been confirmed for the directory post type
 
 --- 
 

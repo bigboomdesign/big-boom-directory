@@ -17,6 +17,8 @@ require_once cptdir_dir('/lib/class-cptd.php');
 # create custom post type and taxonomies
 add_action( 'init', array('CPTD', 'setup'));
 
+add_action( 'pre_get_posts', array( 'CPTD', 'pre_get_posts' ) );
+
 /*
 * Admin Routines
 */
