@@ -32,32 +32,43 @@ class CPTD_view{
 	 * When all social fields are done, we need to close the container div
 	 */
 	var $social_fields_completed = array();
-	
+
+
+	/**
+	 * Create a new instance
+	 */
 	function __construct($args = array()){
 		# Loop through arguments and set object variables
 		foreach($args as $arg => $val){
 			if(property_exists($this, $arg)) $this->$arg = $val;
 		}
 	} # end: __construct()
-	# single field display
+
+	/**
+	 * Display a single field display
+	 */
 	public function do_single_field($field, $echo = true){
 
 		ob_start();
 
 		/**
 		 * Special cases
+		 * 
+		 * - social icons
+		 * - `web` or `website` or `url` field
 		 */
 
 		# social fields: show an icon instead of text
-		$bSocial = false;
-
-		#var_dump($field); echo '<hr />';
-
 		if( in_array( $field['name'], $this->social_fields ) ) {
 			$bSocial = true;
 			$this->social_fields_completed[] = $field['name'];
 
 			if( '' == $field['value'] ) return;
+
+			$value = $field['value'];
+
+			# do our best to make sure we have a valid URL
+			if( 'http' != substr( $value, 0, 4 ) ) $value = 'http://' . $value;
 
 			# open the wrapping div if this is the first social icon
 			if( ! $this->done_social ) {
@@ -67,7 +78,7 @@ class CPTD_view{
 			<?php
 			} # end if: first social icon
 			?>
-					<a target="_blank" href="<?php echo $field['value']; ?>"><i class="fa fa-<?php echo str_replace('_','-',$field['name']); ?>" ></i></a>
+					<a target="_blank" href="<?php echo $value; ?>"><i class="fa fa-<?php echo str_replace('_','-',$field['name']); ?>" ></i></a>
 			<?php
 
 			# check if we're done with all social icons
@@ -80,7 +91,24 @@ class CPTD_view{
 			return;
 		} # end if: social field
 
+		# other than social icons, we don't want to do anything with empty field values
 		if(empty($field['value'])) return;
+
+		# website field: show "View Website" link
+		if( 'web' == $field['name'] || 'website' == $field['name'] || 'url' == $field['name'] ) {
+			$value = $field['value'];
+
+			# do our best to make sure we have a valid URL
+			if( 'http' != substr( $value, 0, 4 ) ) $value = 'http://' . $value;
+		?>
+			<div class="cptdir-field text <?php echo $field['name']; ?>">
+					<a target="_blank" class='cptdir-website-link' href="<?php echo $value; ?>" >
+						View Website
+					</a>
+			</div>
+		<?php
+			return;
+		} # end if: website field
 
 		global $post;
 
