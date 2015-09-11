@@ -121,16 +121,21 @@ class CPTD_view{
 
 			$src = "";
 
+			$size = ( is_post_type_archive() || is_search() ) ? 
+				( ( $archive_size = CPTD_Options::$options['image_size_archive'] ) ? $archive_size : 'thumbnail' ) : 
+				( ( $single_size = CPTD_Options::$options['image_size_single'] ) ? $single_size : 'medium' );
+
 			# ACF gives the option of multiple save formats for images (object/url/id)
 			switch($field['save_format']){
 				case "object":
 				case "url":
 					# if set to return an object, we'll have an array as the value
 					# otherwise we'll have the URL string
-					$src = is_array($field['value']) ? $field['value']['url'] : $field['value'];
+					$src = is_array($field['value']) ? $field['value']['sizes'][$size] : $field['value'];
 				break;
 				case "id";
-					$src = wp_get_attachment_url($field['value']);
+					$src = wp_get_attachment_image_src($field['value'], $size);
+					if($src) $src = $src[0];
 				break;
 			}
 

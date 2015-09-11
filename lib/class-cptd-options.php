@@ -168,20 +168,20 @@ class CPTD_Options{
 		}
 	}
 	# radio button field
-	function radio_field($setting){
+	public static function radio_field($setting){
 		extract($setting);
 		$val = self::get_option_value($setting);
 		foreach($choices as $choice){
 				$label = $choice['label']; 
 				$value = $choice['value'];
 			?><label 
-				class="radio <?php if($label_class) echo $label_class; ?>"
+				class="radio <?php if(isset( $label_class ) ) echo $label_class; ?>"
 				for="<?php echo $choice['id']; ?>"
 			>
 				<input type="radio" id="<?php echo $choice['id']; ?>" 
 				name="<?php echo $setting['option_name']; ?>" 
 				value="<?php echo $value; ?>"
-				class="<?php if($class) echo $class; if(array_key_exists('class', $choice)) echo $choice['class']; ?>"
+				class="<?php if(isset( $class )) echo $class; if(array_key_exists('class', $choice)) echo $choice['class']; ?>"
 				<?php echo self::data_atts($choice); ?>				
 				<?php checked($value, $val); ?>
 			/>&nbsp;<?php echo $label; ?></label>&nbsp;&nbsp;

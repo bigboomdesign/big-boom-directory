@@ -97,6 +97,31 @@ class CPTD{
 			'choices' => 'Yes',
 			'description' => 'Displays "View Website" link text for `web`, `website`, and `url` fields'
 		);
+
+		# image sizes
+		$image_sizes = array(
+			'thumbnail', 'medium', 'large', 'full'
+		);
+		global $_wp_additional_image_sizes;
+		foreach( $_wp_additional_image_sizes as $size => $info ) {
+			$image_sizes[] = $size;
+		}
+
+		CPTD_Options::$settings[] = array(
+			'name' => 'image_size_archive',
+			'label' => 'Image size for directory archive',
+			'type' => 'radio',
+			'choices' => $image_sizes,
+			'description' => 'Applies to ACF fields with type `image` and either `object` or `ID` as the return type<br />Default: thumbnail'
+		);
+
+		CPTD_Options::$settings[] = array(
+			'name' => 'image_size_single',
+			'label' => 'Image size for single listing',
+			'type' => 'radio',
+			'choices' => $image_sizes,
+			'description' => 'Applies to ACF fields with type `image` and either `object` or `ID` as the return type<br />Default: medium'
+		);
 		
 		## set empty options where necessary to avoid array key issues
 		foreach(CPTD_Options::$settings as $setting){
