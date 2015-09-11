@@ -59,8 +59,10 @@ Below is how you would filter the value of a text field called `email` and add a
 Access the WP_Query var when directory post type is being queried 
 
 @param      WP_Query    $query      The query, where $query->vars['post_type'] has 
-                                    already been confirmed for the directory post type
-
+                                    already been confirmed for the directory post type.
+                                    Default: Orderby post type, in ascending order and 
+                                    show all posts 
+                                    
 --- 
 
 ## Actions

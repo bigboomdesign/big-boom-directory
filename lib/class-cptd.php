@@ -143,6 +143,7 @@ class CPTD{
 
 		$query->set( 'orderby', 'post_title' );
 		$query->set( 'order',  'ASC' );
+		$query->set( 'posts_per_page', '-1' );
 
 		$query = apply_filters( 'cptdir_pre_get_posts', $query );
 	}
