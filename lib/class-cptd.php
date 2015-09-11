@@ -81,6 +81,22 @@ class CPTD{
 			'type' => 'checkbox',
 			'choices' => 'Yes'
 		);
+
+		CPTD_Options::$settings[] = array(
+			'name' => 'auto_detect_social',
+			'label' => 'Auto Detect Social Fields',
+			'type' => 'checkbox',
+			'choices' => 'Yes',
+			'description' => 'Displays icons for `facebook`, `twitter`, `linkedin`, `instagram`, `pinterest`, `google_plus` fields'
+		);
+
+		CPTD_Options::$settings[] = array(
+			'name' => 'auto_detect_website',
+			'label' => 'Auto Detect Website Field',
+			'type' => 'checkbox',
+			'choices' => 'Yes',
+			'description' => 'Displays "View Website" link text for `web`, `website`, and `url` fields'
+		);
 		
 		## set empty options where necessary to avoid array key issues
 		foreach(CPTD_Options::$settings as $setting){

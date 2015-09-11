@@ -59,56 +59,60 @@ class CPTD_view{
 		 */
 
 		# social fields: show an icon instead of text
-		if( in_array( $field['name'], $this->social_fields ) ) {
-			$bSocial = true;
-			$this->social_fields_completed[] = $field['name'];
+		if( ! empty( CPTD_Options::$options['auto_detect_social_yes'] ) ){
+			if( in_array( $field['name'], $this->social_fields ) ) {
+				$bSocial = true;
+				$this->social_fields_completed[] = $field['name'];
 
-			if( '' == $field['value'] ) return;
+				if( '' == $field['value'] ) return;
 
-			$value = $field['value'];
+				$value = $field['value'];
 
-			# do our best to make sure we have a valid URL
-			if( 'http' != substr( $value, 0, 4 ) ) $value = 'http://' . $value;
+				# do our best to make sure we have a valid URL
+				if( 'http' != substr( $value, 0, 4 ) ) $value = 'http://' . $value;
 
-			# open the wrapping div if this is the first social icon
-			if( ! $this->done_social ) {
-				$this->done_social = true;
-			?>
-				<div class='cptdir-social-fields'>
-			<?php
-			} # end if: first social icon
-			?>
-					<a target="_blank" href="<?php echo $value; ?>"><i class="fa fa-<?php echo str_replace('_','-',$field['name']); ?>" ></i></a>
-			<?php
+				# open the wrapping div if this is the first social icon
+				if( ! $this->done_social ) {
+					$this->done_social = true;
+				?>
+					<div class='cptdir-social-fields'>
+				<?php
+				} # end if: first social icon
+				?>
+						<a target="_blank" href="<?php echo $value; ?>"><i class="fa fa-<?php echo str_replace('_','-',$field['name']); ?>" ></i></a>
+				<?php
 
-			# check if we're done with all social icons
-			if( count( $this->social_fields_completed ) == count( $this->active_social_fields ) ) {
-			?>
-				</div>
-			<?php
-			} # end if: last social icon
+				# check if we're done with all social icons
+				if( count( $this->social_fields_completed ) == count( $this->active_social_fields ) ) {
+				?>
+					</div>
+				<?php
+				} # end if: last social icon
 
-			return;
-		} # end if: social field
+				return;
+			} # end if: social field
+		}
 
 		# other than social icons, we don't want to do anything with empty field values
 		if(empty($field['value'])) return;
 
 		# website field: show "View Website" link
-		if( 'web' == $field['name'] || 'website' == $field['name'] || 'url' == $field['name'] ) {
-			$value = $field['value'];
+		if( ! empty( CPTD_Options::$options['auto_detect_website_yes'] ) ) {
+			if( 'web' == $field['name'] || 'website' == $field['name'] || 'url' == $field['name'] ) {
+				$value = $field['value'];
 
-			# do our best to make sure we have a valid URL
-			if( 'http' != substr( $value, 0, 4 ) ) $value = 'http://' . $value;
-		?>
-			<div class="cptdir-field text <?php echo $field['name']; ?>">
-					<a target="_blank" class='cptdir-website-link' href="<?php echo $value; ?>" >
-						View Website
-					</a>
-			</div>
-		<?php
-			return;
-		} # end if: website field
+				# do our best to make sure we have a valid URL
+				if( 'http' != substr( $value, 0, 4 ) ) $value = 'http://' . $value;
+			?>
+				<div class="cptdir-field text <?php echo $field['name']; ?>">
+						<a target="_blank" class='cptdir-website-link' href="<?php echo $value; ?>" >
+							View Website
+						</a>
+				</div>
+			<?php
+				return;
+			} # end if: website field
+		}
 
 		global $post;
 
