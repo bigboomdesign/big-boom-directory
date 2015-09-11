@@ -67,7 +67,7 @@ class CPTD_view{
 			<?php
 			} # end if: first social icon
 			?>
-					<a href="<?php echo $field['value']; ?>"><i class="fa fa-<?php echo str_replace('_','-',$field['name']); ?>" ></i></a>
+					<a target="_blank" href="<?php echo $field['value']; ?>"><i class="fa fa-<?php echo str_replace('_','-',$field['name']); ?>" ></i></a>
 			<?php
 
 			# check if we're done with all social icons
