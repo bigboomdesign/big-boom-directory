@@ -121,6 +121,7 @@ class CPTD_view{
 
 			$src = "";
 
+			# get the appropriate size
 			$size = ( is_post_type_archive() || is_search() ) ? 
 				( ( $archive_size = CPTD_Options::$options['image_size_archive'] ) ? $archive_size : 'thumbnail' ) : 
 				( ( $single_size = CPTD_Options::$options['image_size_single'] ) ? $single_size : 'medium' );
