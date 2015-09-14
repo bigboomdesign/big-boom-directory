@@ -26,9 +26,14 @@ h1 a.page-title-action{
 }
 
 a#change-name{ 
-	display: block;
+	display: inline-block;
 	margin-top: 0.2em; 
 	font-style: italic;
+}
+
+div#cancel-name-change a{
+	font-style: italic;
+	text-decoration: none;
 }
 
 /* taxonomy settings meta box */

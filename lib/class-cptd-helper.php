@@ -293,10 +293,16 @@ class CPTD_Helper{
 						value="<?php echo $pt->meta['handle']; ?>" 
 						readonly="readonly"
 					/>
-					<a id='change-name'>Change</a>
+					<div>
+						<a id='change-name'>Change</a>
+						<div style='display: none;' id='cancel-name-change'>
+							 | <a>Cancel</a>
+							 | <a target='_blank' href='https://codex.wordpress.org/Post_Types#Naming_Best_Practices'>More Info</a>
+						</div>
+					</div>
 				</label>
 				<div id='handle-info' style='display: none;'>
-					<p class="description">The Post Type Name is the most important part of your post type. Once it is set and you have created posts for your post type, this value should not be changed.</p>
+					<p class="description">The Post Type Name is the most important part of your post type. Once it is set and you have created posts for your post type, this value should not be changed. Don't change this unless you are confident that you know what you are doing.</p>
 					<p class="description">We guessed the ideal Post Type Name based on your title.  If you edit this field, please use only lowercase letters and underscores, and use a singular name like <code>book</code> instead of a plural name like <code>books</code>.</p>
 				</div>
 			</div>
@@ -351,7 +357,13 @@ class CPTD_Helper{
 						value="<?php echo $tax->meta['handle']; ?>" 
 						readonly="readonly"
 					/>
-					<a id='change-name'>Change</a>
+					<div>
+						<a id='change-name'>Change</a>
+						<div style='display: none;' id='cancel-name-change'>
+							 | <a>Cancel</a>
+							 | <a target='_blank' href='https://codex.wordpress.org/Taxonomies#Registering_a_taxonomy'>More Info</a>
+						</div>
+					</div>
 				</label>
 				<div id='handle-info' style='display: none;'>
 					<p class="description">The Taxonomy Name is the most important part of your taxonomy. Once it is set and you have assigned posts to your taxonomy, this value should not be changed.</p>
