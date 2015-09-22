@@ -189,25 +189,27 @@ class CPTD{
 	 */
 	public static function pre_get_posts( $query ) {
 
-		# do nothing if the query has no post type set
-		if( ! isset( $query->query_vars['post_type'] ) ) return;
-
-		# the post type for the directory
+		# make sure we are working with the main query
+		if( ! $query->is_main_query() ) return;
+	
+		# the post type & taxonomies for the directory
 		$pt = cptdir_get_pt();
+		$ctax = cptdir_get_cat_tax();
+		$ttax = cptdir_get_tag_tax();
 
-		if( ! $pt || ! $pt->name ) return;
+		# set the ordering parameters, applying a filter that the user can hook into		
+		if( 
+			( $pt && is_post_type_archive( $pt->name ) )
+			|| ( $ctax && is_tax( $ctax->name ) )
+			|| ( $ttax && is_tax( $ttax->name ) )
+		) {
+			$query->set( 'orderby', 'post_title' );
+			$query->set( 'order',  'ASC' );
+			$query->set( 'posts_per_page', '-1' );
 
-		# do nothing if the query is not for our post stype
-		if( $pt->name != $query->query_vars['post_type'] ) return;
-
-		# set the ordering parameters, applying filters user can hook into
-
-		$query->set( 'orderby', 'post_title' );
-		$query->set( 'order',  'ASC' );
-		$query->set( 'posts_per_page', '-1' );
-
-		$query = apply_filters( 'cptdir_pre_get_posts', $query );
-	}
+			$query = apply_filters( 'cptdir_pre_get_posts', $query );
+		}
+	} # end: pre_get_posts()
 	
 	/* 
 	* Admin Routines

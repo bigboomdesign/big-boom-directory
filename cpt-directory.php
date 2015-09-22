@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Creates a directory based on Custom Post Type, Taxonomy, and Fields
- * Version: 1.13.1
+ * Version: 1.13.2
  * Author: Big Boom Design
  * Author URI: http://bigboomdesign.com
  */
@@ -17,7 +17,7 @@ require_once cptdir_dir('/lib/class-cptd.php');
 # create custom post type and taxonomies
 add_action( 'init', array('CPTD', 'setup'));
 
-add_action( 'pre_get_posts', array( 'CPTD', 'pre_get_posts' ) );
+add_action( 'pre_get_posts', array( 'CPTD', 'pre_get_posts' ), 100 );
 
 # if post type has been set, add meta boxes
 if( cptdir_get_pt() && isset( CPTD_Options::$options['use_directory_fields_yes'] ) ) {
