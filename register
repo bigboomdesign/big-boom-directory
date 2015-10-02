@@ -1,0 +1,8 @@
+./assets/extended-cpts.php
+./assets/extended-taxos.php
+./css/admin/cptd-post-edit.css
+./lib/class-cptd-helper.php
+./v1/lib/class-cptd-import.php
+./v1/lib/class-cptd-options.php
+./v1/lib/class-cptd-search-widget.php
+./v1/lib/class-cptd.php

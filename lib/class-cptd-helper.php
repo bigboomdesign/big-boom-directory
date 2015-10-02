@@ -186,18 +186,18 @@ class CPTD_Helper{
 		# User-defined post types
 		foreach(CPTD::get_post_types() as $pt){
 			# make sure that the post for this post type is published
-			if('publish' != $pt->post_status) continue;
-			
-			$pt = new CPTD_pt($pt);
+			if('publish' != $pt->post->post_status) continue;
+
+			# register the post type
 			$pt->register();
 		}
 
 		# User-defined taxonomies
 		foreach(CPTD::get_taxonomies() as $tax){
 			# make sure that the post for this taxonomy is published
-			if('publish' != $tax->post_status) continue;
+			if('publish' != $tax->post->post_status) continue;
 
-			$tax = new CPTD_tax($tax);
+			# register the taxonomy
 			$tax->register();
 		}
 	} # end: register()
@@ -407,7 +407,7 @@ class CPTD_Helper{
 								value="<?php echo $pt->ID; ?>"
 								<?php checked(true, in_array($pt->ID, $tax->tax_meta['post_types']) ); ?>
 							/>
-								<?php echo $pt->post_title; ?>
+								<?php echo $pt->post->post_title; ?>
 						</label>
 					<?php
 					}

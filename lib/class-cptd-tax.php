@@ -4,7 +4,7 @@ class CPTD_tax extends CPTD_Post{
 	var $meta 		= array(); // the unserialized array from the `cptd_post_meta` custom field for $this->post that CPTD needs to operate
 	var $tax_meta 	= array(); // from the `cptd_tax_meta` custom field
 
-	var $taxonomy;
+	var $name;
 	var $singular;
 	var $plural;
 
@@ -12,7 +12,7 @@ class CPTD_tax extends CPTD_Post{
 	 * Create a new instance
 	 */
 
-	public function __construct($post){
+	public function __construct( $post ){
 		parent::__construct($post);
 
 		# Load the CPTD post meta
@@ -21,7 +21,7 @@ class CPTD_tax extends CPTD_Post{
 		$this->get_meta();
 
 		# Set object parameters
-		$this->taxonomy = $this->meta['handle'];
+		$this->name = $this->meta['handle'];
 		$this->singular = $this->meta['singular'];
 		$this->plural = $this->meta['plural'];
 
@@ -58,17 +58,17 @@ class CPTD_tax extends CPTD_Post{
 
 			# make sure we have an acceptable post type
 			$pt = new CPTD_pt($post_id);
-			if(!$pt->ID) continue;
+			if( ! $pt->ID ) continue;
 
 			# add the post type name to the list
-			$object_type[] = $pt->post_type;
+			$object_type[] = $pt->name;
 
 		} # end foreach: post types for this taxonomy
 
-		if(!$object_type) return;
+		if( ! $object_type ) return;
 
 		$args = array(
-			'taxonomy' => $this->taxonomy,
+			'taxonomy' => $this->name,
 			'object_type' => $object_type,
 			'args' => array(),
 			'names' => array(
@@ -76,7 +76,11 @@ class CPTD_tax extends CPTD_Post{
 				'plural' 	=> $this->plural
 			)
 		);
+
+		# apply filter that user can hook into
 		$args = apply_filters('cptd_register_tax', $args);
+
+		# register the taxonomy using Extended Taxonomies
 		register_extended_taxonomy($args['taxonomy'], $args['object_type'], $args['args'], $args['names']);
 	} # end: register()
 

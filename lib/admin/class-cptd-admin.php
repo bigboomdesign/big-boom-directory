@@ -43,14 +43,14 @@ class CPTD_Admin{
 			$screen->base == 'post' 
 			&& ( $screen->post_type == 'cptd_pt' || $screen->post_type == 'cptd_tax')
 		){
-			wp_enqueue_style('cptd-post-edit-css', cptdir_url('/css/admin/cptd-post-edit.css'));
-			wp_enqueue_script('cptd-post-edit-js', cptdir_url('/js/admin/cptd-post-edit.js'), array('jquery'));
+			wp_enqueue_style('cptd-post-edit-css', cptd_url('/css/admin/cptd-post-edit.css'));
+			wp_enqueue_script('cptd-post-edit-js', cptd_url('/js/admin/cptd-post-edit.js'), array('jquery'));
 		}
 			
 		# Information screen
 		if($screen->base == 'cptd_pt_page_cptdir-information'){
-			wp_enqueue_style('cptd-readme-css', cptdir_url('/css/admin/cptd-readme.css'));
-			wp_enqueue_script('cptd-readme-js', cptdir_url('/js/admin/cptd-readme.js'), array('jquery'));
+			wp_enqueue_style('cptd-readme-css', cptd_url('/css/admin/cptd-readme.css'));
+			wp_enqueue_script('cptd-readme-js', cptd_url('/js/admin/cptd-readme.js'), array('jquery'));
 		}
 	}
 	
@@ -65,7 +65,7 @@ class CPTD_Admin{
 		$instructions_link = '<a href="admin.php?page=cptdir-information">Instructions</a>';
 		array_unshift($links, $instructions_link);
 		return $links;
-	} # end: cptdir_plugin_actions()
+	} # end: cptd_plugin_actions()
 	
 	/**
 	 * Helper Functions
@@ -96,8 +96,8 @@ class CPTD_Admin{
 		?>
 		<h2>Custom Post Type Directory</h2>
 		<form action="options.php" method="post">
-			<?php settings_fields('cptdir_options'); ?>
-			<?php do_settings_sections('cptdir_settings'); ?>
+			<?php settings_fields('cptd_options'); ?>
+			<?php do_settings_sections('cptd_settings'); ?>
 			<?php submit_button(); ?>
 		</form>
 		<?php
@@ -112,7 +112,7 @@ class CPTD_Admin{
 		?>
 		<div class='markdown-body'>
 			<?php
-			require_once cptdir_dir('/README.html');
+			require_once cptd_dir('/README.html');
 			?>
 		</div>
 		<?php

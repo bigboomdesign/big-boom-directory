@@ -51,3 +51,11 @@ Define your function so that it accepts and returns the `$cpt` array below.
 ---
 
 ## Actions
+
+````cptd_pre_get_posts````
+
+Use this action to alter the query for CPTD views.  Does not fire on non-CPTD page views
+
+### Parameters
+
+    $query: The same $query passed via 'pre_get_posts'

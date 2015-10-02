@@ -3,7 +3,7 @@ class CPTD_pt extends CPTD_Post{
 	
 	var $meta = array(); // the unserialized array from the `cptd_post_meta` custom field for $this->post that CPTD needs to operate
 
-	var $post_type;
+	var $name;
 	var $singular;
 	var $plural;
 
@@ -18,7 +18,7 @@ class CPTD_pt extends CPTD_Post{
 		$this->get_cptd_meta();
 
 		# Set object parameters
-		$this->post_type = $this->meta['handle'];
+		$this->name = $this->meta['handle'];
 		$this->singular = $this->meta['singular'];
 		$this->plural = $this->meta['plural'];
 
@@ -43,7 +43,7 @@ class CPTD_pt extends CPTD_Post{
 
 	public function register(){
 		$args = array(
-			'post_type' => $this->post_type,
+			'post_type' => $this->name,
 			'args' 		=> array(),
 			'names' 	=> array(
 				'singular' => $this->singular,
