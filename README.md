@@ -28,7 +28,6 @@ Directory management system based on Custom Post Types, Taxonomies, and Fields
 Use this filter to access the post type data before CPTD post types are registered.  The filtered object is an array
 containing the arguments for [register\_extended\_post\_type](https://github.com/johnbillion/extended-cpts/wiki/Basic-usage), which is a wrapper for [register\_post\_type](https://codex.wordpress.org/Function_Reference/register_post_type).
 
-Define your function so that it accepts and returns the `$cpt` array below.
 
 ### Parameters
   

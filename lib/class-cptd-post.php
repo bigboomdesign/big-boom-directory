@@ -44,28 +44,44 @@ class CPTD_Post{
 	 * } 
 	 * @return null
 	 */
-	public function get_cptd_meta(){
+	public function load_cptd_meta(){
 
 		# Make sure we have the right post type
 		if(!in_array($this->post_type, array('cptd_pt', 'cptd_tax'))) return;
 
-		# get the array from the custom field `cptd_post_meta`
-		$meta = get_post_meta($this->ID, 'cptd_post_meta', true);
-		if(!$meta) $meta = array();
+		# get the post meta array
+		$meta = get_post_meta($this->ID);
 
-		# don't pass any empty values into our array merge if we're forcing the defaults
-		foreach($meta as $k => $v){
-			if(!$v) unset($meta[$k]);
-		}
+		# sanitize and load post meta
+		foreach( $meta as $k => $v ) {
 
-		$this->meta = shortcode_atts(
-			array(
-				'handle' => $this->post->post_type.'_'.$this->ID,
-				'singular' => $this->post->post_title,
-				'plural' => $this->post->post_title
-			),
-			$meta,
-			'cptd_post_meta'
-		);
-	} # end: get_cptd_meta()
+			# extract singleton arrays
+			if( is_array( $v ) && count( $v ) == 1 ) {
+				$v = $v[0];
+				$meta[ $k ] = $v;
+			}
+
+			# load object parameters for _cptd_meta fields
+			if( 0 === strpos( $k, '_cptd_meta_' ) ) {
+				$cptd_key = str_replace( '_cptd_meta_', '', $k );
+				$this->$cptd_key = $v;
+			}
+
+			# Set friendly defaults
+			if( ! empty( $this->post->post_title ) ) {
+				
+				if( ! isset( $this->singular ) ) {
+					$this->singular = $this->post->post_title;
+				}
+
+				if( ! isset( $this->plural ) ) {
+					$this->plural = $this->post->post_title;
+				}
+			}
+		} # end foreach: post meta items
+
+		# store the custom fields while we have them
+		$this->fields = $meta;
+
+	} # end: load_cptd_meta()
 }

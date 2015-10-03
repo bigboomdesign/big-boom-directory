@@ -1,11 +1,20 @@
 <?php
 class CPTD_pt extends CPTD_Post{
 	
-	var $meta = array(); // the unserialized array from the `cptd_post_meta` custom field for $this->post that CPTD needs to operate
-
-	var $name;
+	var $handle;
 	var $singular;
 	var $plural;
+
+	var $slug;
+	var $public;
+	var $has_archive;
+	var $menu_position;
+	var $menu_icon;
+
+	/**
+	 * Arguments for post registration
+	 */
+	var $args_settings = array( 'public', 'has_archive', 'menu_position', 'menu_icon' );
 
 	/**
 	 * Create a new instance
@@ -15,12 +24,7 @@ class CPTD_pt extends CPTD_Post{
 		parent::__construct($post);
 
 		# Load the CPTD post meta
-		$this->get_cptd_meta();
-
-		# Set object parameters
-		$this->name = $this->meta['handle'];
-		$this->singular = $this->meta['singular'];
-		$this->plural = $this->meta['plural'];
+		$this->load_cptd_meta();
 
 	} # end: __construct()
 
@@ -42,14 +46,41 @@ class CPTD_pt extends CPTD_Post{
 	 */
 
 	public function register(){
+
+		# make sure we have the handle set
+		if( empty( $this->handle ) ) return;
+		
 		$args = array(
-			'post_type' => $this->name,
-			'args' 		=> array(),
+			'post_type' => $this->handle,
+			'args' 		=> array(
+
+			),
 			'names' 	=> array(
 				'singular' => $this->singular,
-				'plural' => $this->plural
+				'plural' => $this->plural,
 			)
 		);
+
+		if( ! empty( $this->slug ) ) $args['names']['slug'] = $this->slug;
+
+		# load in any settings from the backend
+		foreach( $this->args_settings as $key ) {
+			if( ! empty( $this->$key ) ) {
+				$value = $this->$key;
+
+				# for checkboxes
+				if( 'on' == $value ) {
+					$value = true;
+				}
+
+				# for integers
+				if( 'menu_position' == $key ) $value = intval( $value );
+				$args['args'][ $key ] = $value;
+
+				$this->$key = $value;
+			}
+		}
+
 		$args = apply_filters('cptd_register_pt', $args );
 		register_extended_post_type($args['post_type'], $args['args'], $args['names']);
 	}

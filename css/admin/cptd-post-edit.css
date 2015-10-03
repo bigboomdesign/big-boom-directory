@@ -6,6 +6,8 @@ h1 a.page-title-action{
 }
 
 /* post meta box */
+
+/*
 .cptd-post-meta-box .field{
 	margin-bottom: 1.2em;
 }
@@ -16,24 +18,40 @@ h1 a.page-title-action{
 	font-weight: normal;
 	margin-top: 0.3em;
 }
+*/
 
 /* post name box */
-#handle-container.highlight{
+#handle-container.highlight,
+#slug-container.highlight{
 	padding: 1em;
 }
+
+/*
 #handle-container p.description{
 	margin-top: 1em;
 }
+*/
 
-a#change-name{ 
+#handle-container a,
+#slug-container a{
+	cursor: pointer;
+}
+a#change-name,
+a#change-slug{ 
 	display: inline-block;
 	margin-top: 0.2em; 
 	font-style: italic;
 }
 
-div#cancel-name-change a{
+div#cancel-name-change a,
+div#cancel-slug-change a{
 	font-style: italic;
 	text-decoration: none;
+}
+
+div#handle-info p,
+div#slug-info p{
+	padding-top: 1em;
 }
 
 /* taxonomy settings meta box */
@@ -47,4 +65,14 @@ div#cancel-name-change a{
 }
 #tax-assign-tip{
 	margin-top: 0.5em;
+}
+
+/**
+ * CMB2 
+ */
+
+/* descriptions */
+span.cmb2-metabox-description p{
+	margin: 0;
+	padding-top: 0.5em;
 }

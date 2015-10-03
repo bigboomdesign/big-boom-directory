@@ -1,7 +1,17 @@
 <?php
-# a class to handle plugin settings pages
+/**
+ * Inserts actions and filters for backend
+ * Handles callbacks for actions and filters on backend
+ * Handles meta boxes for backend using CMB2
+ * Produces HTML for backend content on various screens
+ */
 class CPTD_Admin{
 
+	/**
+	 * Insert actions and filters for the backend
+	 * 
+	 * @since 2.0.0
+	 */ 
 	public static function init(){
 		# Admin menu items
 		add_action('admin_menu', array('CPTD_Admin', 'admin_menu'));
@@ -10,17 +20,40 @@ class CPTD_Admin{
 		add_action('admin_enqueue_scripts', array('CPTD_Admin', 'admin_enqueue'));
 	
 		# Action links on main Plugins screen
-		$plugin = plugin_basename(__FILE__);
+		$plugin = plugin_basename( cptd_dir( '/cpt-directory.php' ) );
 		add_filter("plugin_action_links_$plugin", array('CPTD_Admin', 'plugin_actions'));
 		
 		# Add meta boxes on post edit screens for `cptd_pt` and `cptd_tax` posts
+		/*
 		add_action( 'add_meta_boxes', array('CPTD_Helper', 'add_meta_boxes'), 10, 2);
 		add_action( 'save_post', array('CPTD_Helper', 'save_meta_box_data') );
 		add_action( 'admin_notices', array('CPTD_Helper', 'post_edit_admin_notices'), 100 );
-	}
+		*/
+
+		# CMB2 meta boxes
+		add_action('cmb2_admin_init', array( 'CPTD_Admin', 'cmb2_meta_boxes' ), 10 );
+		
+		# fix for the URL that cmb2 defines
+		add_filter( 'cmb2_meta_box_url', 'update_cmb_meta_box_url' );
+		function update_cmb_meta_box_url( $url ) {
+		    // modify the url here
+		    return cptd_url('/assets/cmb2');
+		}
+	} # end: init()
 	
 	/**
-	 * Create the admin menu items
+	 * Callbacks for backend actions and filters
+	 * 
+	 * - admin_menu()
+	 * - admin_enqueue()
+	 * - plugin_actions()
+	 * - cmb2_meta_boxes()
+	 */
+
+	/**
+	 * Create all admin menu items for the plugin
+	 * 
+	 * @since 2.0.0
 	 */
 	public static function admin_menu(){
 
@@ -30,10 +63,12 @@ class CPTD_Admin{
 		
 		global $submenu;
         unset($submenu['edit.php?post_type=cptd_pt'][10]);
-	}
+	} # end: admin_menu()
 	
 	/**
 	 * Enqueue admin scripts and styles
+	 * 
+	 * @since 2.0.0
 	 */
 	public static function admin_enqueue(){
 		$screen = get_current_screen();
@@ -52,45 +87,212 @@ class CPTD_Admin{
 			wp_enqueue_style('cptd-readme-css', cptd_url('/css/admin/cptd-readme.css'));
 			wp_enqueue_script('cptd-readme-js', cptd_url('/js/admin/cptd-readme.js'), array('jquery'));
 		}
-	}
+	} # end: admin_enqueue()
 	
 	/**
 	 * Add action links for this plugin on main Plugins screen (under plugin name)
+	 *
+	 * @since	2.0.0
+	 * @param	array 	$links 	A list of anchor tags pre-pouplated with the WP default plugin links
+	 * @return 	array 	The altered $links array 
 	 */
 	public static function plugin_actions($links){
+
 		# remove the `Edit` link
 		array_pop($links);
+
+		# Add 'Settings' link to the front
 		$settings_link = '<a href="admin.php?page=cptdir-settings">Settings</a>';
 		array_unshift($links, $settings_link);
+
+		# Add 'Instructions' link to the front
 		$instructions_link = '<a href="admin.php?page=cptdir-information">Instructions</a>';
 		array_unshift($links, $instructions_link);
-		return $links;
-	} # end: cptd_plugin_actions()
-	
-	/**
-	 * Helper Functions
-	 */
-	
-	# default wrapper for HTML
-	public static function page_wrap($s){
-		return "<div class='wrap cptdir-admin'>{$s}</div>";
-	}
-	
-	/**
-	 * Admin Pages
-	 */
-	
-	# Main page
-	public static function main_page(){
-		ob_start();
-	?>
 
-	<?php
-		$html = ob_get_contents();
-		ob_end_clean();
-		echo self::page_wrap($html);
-	} # end: main_page()
+		return $links;
+	} # end: plugin_actions()
+
+	/**
+	 * Set up the meta boxes for the plugin using CMB2
+	 *
+	 * @since 2.0.0
+	 */
+	public static function cmb2_meta_boxes() {
+
+		$prefix = '_cptd_meta_';
+
+		/**
+		 * Basic post type settings
+		 */
+
+		# Meta box
+		$pt_settings = new_cmb2_box( array(
+			'id' 			=> 'cptd_post_type_settings',
+			'title'			=> __( 'Post Type Settings', 'cmb2' ),
+			'object_types' 	=> array( 'cptd_pt' ),
+			'context' 		=> 'normal',
+			'priority' 		=> 'high',
+		));
+
+		# Fields
+		
+		## Name/Handle
+		$pt_settings->add_field( array(
+			'name' 			=> 'Name <span class="required">*</span>',
+			'id'			=> $prefix.'handle',
+			'type' 			=> 'text',
+			'attributes' 	=> array(
+				'readonly' => 'readonly'
+			),
+			'before' => array( 'CPTD_Admin', 'before_pt_handle' ),
+			'sanitization_cb' => array( 'CPTD_Admin', 'sanitize_pt_handle' ),
+			'description' 	=> 
+				"<div id='handle-container'>
+					<a id='change-name'>Change</a>
+					<div style='display: none;' id='cancel-name-change'>
+						 | <a>Cancel</a>
+						 | <a target='_blank' href='https://codex.wordpress.org/Post_Types#Naming_Best_Practices'>More Info</a>
+					</div>
+					<div id='handle-info' style='display: none;'>
+						<p class='description'>The Post Type Name is the most important part of your post type. Once it is set and you have created posts for your post type, this value should not be changed. Don't change this unless you are confident that you know what you are doing.</p>
+						<p class='description'>We guessed the ideal Post Type Name based on your title.  If you edit this field, please use only lowercase letters and underscores, and use a singular name like <code>book_review</code> instead of a plural name like <code>book_reviews</code>.</p>
+					</div>
+				</div>"
+		));
+
+		## Singular label
+		$pt_settings->add_field( array(
+			'name'	=> 'Singular Label',
+			'id'	=> $prefix.'singular',
+			'type' 	=> 'text',
+			'before' => array( 'CPTD_Admin', 'before_pt_labels' ),
+		));
+
+		## Plural label
+		$pt_settings->add_field( array(
+			'name' 	=> 'Plural Label',
+			'id' 	=> $prefix.'plural',
+			'type'	=> 'text',
+			'before' => array( 'CPTD_Admin', 'before_pt_labels' ),
+		));
+
+		/**
+		 * Advanced post type settings
+		 */
+
+		# Meta box
+		$advanced_pt_settings = new_cmb2_box( array(
+			'id' 			=> 'cptd_advanced_post_type_settings',
+			'title'			=> __( 'Advanced Post Type Settings', 'cmb2' ),
+			'object_types' 	=> array( 'cptd_pt' ),
+			'context' 		=> 'normal',
+			'priority' 		=> 'high',
+			'closed'		=> true
+		));
+
+		# Fields
+
+		## Slug
+		$advanced_pt_settings->add_field( array(
+			'name' 			=> 'URL slug',
+			'id'			=> $prefix.'slug',
+			'type'			=> 'text',
+			'attributes'	=> array(
+				'readonly' 	=> 'readonly'
+			),
+			'before'		=> array( 'CPTD_Admin', 'before_slug' ),
+			'sanitize_cb' 	=> array( 'CPTD_Admin', 'sanitize_slug' ),
+			'description'	=> 
+				"<p></p>
+				<div id='slug-container'>
+					<a id='change-slug'>Change</a>
+					<div style='display: none;' id='cancel-slug-change'>
+						 | <a>Cancel</a>
+					</div>
+					<div id='slug-info' style='display: none;'>
+						<p class='description'>The slug determines the URL's for your post type's entries. If left empty, we will guess the ideal slug based on your title. For best results, use only lowercase letters and hyphens if you change the slug.</p>
+						<p class='description'>For example, <code>book-reviews</code> would produce <code>http://mysite.com/book-reviews</code></p>
+						<p class='description'>Once the slug is set and you have created posts for your post type, changing this value can negatively affect your search engine performance and user experience. Don't change this unless you are confident that you know what you are doing.</p>
+					</div>
+				</div>",
+		));
+
+		## Public
+		$advanced_pt_settings->add_field( array(
+			'name'	=> 'Public',
+			'id'	=> $prefix.'public',
+			'type' 	=> 'checkbox',
+			'default' => self::default_for_checkbox( 'true' )
+		));
+
+		## Has archive
+		$advanced_pt_settings->add_field( array(
+			'name'		=> 'Has Archive',
+			'id'		=> $prefix.'has_archive',
+			'type' 		=> 'checkbox',
+			'default' => self::default_for_checkbox( 'true' )
+		));
+
+		# Menu Position
+		$advanced_pt_settings->add_field( array(
+			'name' 	=> 'Admin Menu Position',
+			'id' 	=> $prefix.'menu_position',
+			'type' 	=> 'text_small',
+			'description' => '<p><a target="_blank" href="https://codex.wordpress.org/Function_Reference/register_post_type#menu_position">Learn More</a></p>',
+		));
+
+		# Menu icon
+		$advanced_pt_settings->add_field( array(
+			'name'	=> 'Admin Menu Icon',
+			'id'	=> $prefix.'menu_icon',
+			'type' 	=> 'text',
+			'default' 	=> 'dashicons-admin-post',
+			'description'	=> '<a target="_blank" href="https://developer.wordpress.org/resource/dashicons/#admin-post">Learn More</a>'
+		));
+
+	} # end: cmb2_meta_boxes()
+
+	public static function sanitize_pt_handle( $value ) {
+		return CPTD_Helper::clean_str_for_field( $value );
+	}
+	public static function before_pt_handle( $args, $field ) {
+		$field->args['default'] = 'cptd_pt_'.$field->object_id;
+	}
+	public static function before_pt_labels( $args, $field ) {
+
+		# do nothing if value is saved
+		if( ! empty( get_post_meta( $field->object_id, $args['id'], true ) ) ) return;
+
+		$field->args['description'] = 'ex: <code>Book Review' .  ( '_cptd_meta_plural' == $args['id'] ? 's' : '') . '</code>';
+	}
+
+	public static function before_slug( $args, $field ) {
+		global $post;
+		$field->args['default'] = CPTD_Helper::clean_str_for_url($post->post_title);
+	}
+	public static function sanitize_slug( $value ) {
+		return CPTD_Helper::clean_str_for_url( $value );
+	}
+
+	/**
+	 * Allows checkboxes to have a default value on new post screen
+	 */
+	public static function default_for_checkbox( $default ) {
+    	return isset( $_GET['post'] ) ? '' : ( $default ? (string) $default : '' );
+	}
+
+	/**
+	 * HTML for admin screens produced by this plugin
+	 *
+	 * - settings_page()
+	 * - information_page()
+	 */
 	
+	/**
+	 * Output HTML for the main settings page
+	 * 
+	 * @since 2.0.0
+	 */
 	public static function settings_page(){
 		ob_start();
 		?>
@@ -106,7 +308,11 @@ class CPTD_Admin{
 		echo self::page_wrap($html);
 	} # end: settings_page()
 	
-	# Information
+	/**
+	 * Output HTML for the Information (README.html) page
+	 *
+	 * @since 2.0.0
+	 */
 	public static function information_page(){
 		ob_start();
 		?>
@@ -120,5 +326,23 @@ class CPTD_Admin{
 		ob_end_clean();
 		echo self::page_wrap($html);
 	} # end: information_page()
+
+
+	/**
+	 * Helper Functions for admin area
+	 *
+	 * - page_wrap()
+	 */
+	
+	/**
+	 * Wrap HTML content for a backend screen in a standardized div
+	 *
+	 * @since 	2.0.0
+	 * @param	string 		$s 		The HTML string to wrap in a div
+	 * @return 	string		The HTML including the standard wrapper
+	 */
+	public static function page_wrap($s){
+		return "<div class='wrap cptdir-admin'>{$s}</div>";
+	}
 	
 } # end: CPTD_Admin

@@ -16,14 +16,16 @@ class CPTD_tax extends CPTD_Post{
 		parent::__construct($post);
 
 		# Load the CPTD post meta
-		$this->get_cptd_meta();
+		$this->load_cptd_meta();
 		# Load the CPTD tax meta
 		$this->get_meta();
 
+/*
 		# Set object parameters
 		$this->name = $this->meta['handle'];
 		$this->singular = $this->meta['singular'];
 		$this->plural = $this->meta['plural'];
+*/
 
 
 	} # end: __construct()
@@ -47,6 +49,9 @@ class CPTD_tax extends CPTD_Post{
 	 */
 
 	public function register(){
+
+		# make sure we have a handle set
+		if( empty( $this->handle ) ) return;
 
 		# produce an array for the $args['object_type']
 		if(!$this->tax_meta['post_types']) return;

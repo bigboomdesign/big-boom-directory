@@ -1,6 +1,6 @@
 <?php
 class CPTD_Ajax{
-	static $actions = array('cptd_post_type_meta_from_title');
+	static $actions = array('cptd_post_type_handle_from_title', 'cptd_post_type_slug_from_title');
 
 	# register actions with wp_ajax_
 	public static function add_actions(){
@@ -11,7 +11,7 @@ class CPTD_Ajax{
 	/*
 	* Ajax Actions
 	*/
-	public static function cptd_post_type_meta_from_title(){
+	public static function cptd_post_type_handle_from_title(){
 		$title = sanitize_text_field($_POST['title']);
 		if(!$title) die();
 		
@@ -19,7 +19,16 @@ class CPTD_Ajax{
 		if('s' === strtolower(substr($title, -1))){
 			$title = substr($title, 0, -1);
 		}
+
 		echo CPTD_Helper::clean_str_for_field($title);
+		die();
+	}
+
+	public static function cptd_post_type_slug_from_title() {
+		$title = sanitize_text_field($_POST['title']);
+		if(!$title) die();
+		
+		echo CPTD_Helper::clean_str_for_url($title);
 		die();
 	}
 	

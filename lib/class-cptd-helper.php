@@ -273,7 +273,7 @@ class CPTD_Helper{
 	public static function post_type_meta_box($post){
 		
 		$pt = new CPTD_pt($post);
-		$pt->get_cptd_meta();
+		$pt->load_cptd_meta();
 	
 		// Add a nonce field so we can check for it later.
 		wp_nonce_field( 'cptd_save_meta_box_data', 'cptd_meta_box_nonce' );
@@ -337,7 +337,7 @@ class CPTD_Helper{
 	public static function taxonomy_meta_box($post){
 
 		$tax = new CPTD_tax($post);
-		$tax->get_cptd_meta();
+		$tax->load_cptd_meta();
 	
 		// Add a nonce field so we can check for it later.
 		wp_nonce_field( 'cptd_save_meta_box_data', 'cptd_meta_box_nonce' );
