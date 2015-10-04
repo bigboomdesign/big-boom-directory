@@ -1,8 +1,13 @@
 <?php
+/**
+ * Performs helper functions for the plugin's various components
+ */
 class CPTD_Helper{
 	
 	/**
 	 * Check if a $_POST value is empty and return sanitized value
+	 * @param 	string 	$field 		The key to check within the $_POST array
+	 * @since 	2.0.0
 	 */
 	public static function get_post_field($field){
 		if(empty($_POST[$field]) || trim($_POST[$field]) == '') return '';
@@ -10,41 +15,48 @@ class CPTD_Helper{
 	}
 	
 	/**
-	 * Return a permalink-friendly version of a string, replacing unfriendly chunks with a single dash
+	 * Return a URL-friendly version of a string ( letters/numbers/hyphens only ), replacing unfriendly chunks with a single dash
+	 *
+	 * @param 	string 	$input 		The string to clean for URL usage
+	 * @since 	2.0.0
 	 */
-	public static function clean_str_for_url( $sIn ){
-		if( $sIn == "" ) return "";
-		$sOut = trim( strtolower( $sIn ) );
-		$sOut = preg_replace( "/\s\s+/" , " " , $sOut );					
-		$sOut = preg_replace( "/[^a-zA-Z0-9 \-]/" , "",$sOut );	
-		$sOut = preg_replace( "/--+/" , "-",$sOut );
-		$sOut = preg_replace( "/ +- +/" , "-",$sOut );
-		$sOut = preg_replace( "/\s\s+/" , " " , $sOut );	
-		$sOut = preg_replace( "/\s/" , "-" , $sOut );
-		$sOut = preg_replace( "/--+/" , "-" , $sOut );
-		$nWord_length = strlen( $sOut );
-		if( $sOut[ $nWord_length - 1 ] == "-" ) { $sOut = substr( $sOut , 0 , $nWord_length - 1 ); } 
-		return $sOut;
+	public static function clean_str_for_url( $input ){
+		if( $input == "" ) return "";
+		$output = trim( strtolower( $input ) );
+		$output = preg_replace( "/\s\s+/" , " " , $output );					
+		$output = preg_replace( "/[^a-zA-Z0-9 \-]/" , "",$output );	
+		$output = preg_replace( "/--+/" , "-",$output );
+		$output = preg_replace( "/ +- +/" , "-",$output );
+		$output = preg_replace( "/\s\s+/" , " " , $output );	
+		$output = preg_replace( "/\s/" , "-" , $output );
+		$output = preg_replace( "/--+/" , "-" , $output );
+		$nWord_length = strlen( $output );
+		if( $output[ $nWord_length - 1 ] == "-" ) { $output = substr( $output , 0 , $nWord_length - 1 ); } 
+		return $output;
 	}
+
 	/**
-	 * same as above, still allowing dashes, but using underscore as default replacement
+	 * Return a field-key-friendly version of a string ( letters/numbers/hyphens/underscores only ), replacing unfriendly chunks with a single underscore
+	 *
+	 * @param 	string 	$input 		The string to clean for field key usage
+	 * @since 	2.0.0
 	 */
-	public static function clean_str_for_field($sIn){
-		if( $sIn == "" ) return "";
-		$sOut = trim( strtolower( $sIn ) );
-		$sOut = preg_replace( "/\s\s+/" , " " , $sOut );					
-		$sOut = preg_replace( "/[^a-zA-Z0-9 \-_]/" , "",$sOut );
-		$sOut = preg_replace( "/--+/" , "-",$sOut );
-		$sOut = preg_replace( "/__+/" , "_",$sOut );
-		$sOut = preg_replace( "/ +- +/" , "-",$sOut );
-		$sOut = preg_replace( "/ +_ +/" , "_",$sOut );
-		$sOut = preg_replace( "/\s\s+/" , " " , $sOut );	
-		$sOut = preg_replace( "/\s/" , "_" , $sOut );
-		$sOut = preg_replace( "/--+/" , "-" , $sOut );
-		$sOut = preg_replace( "/__+/" , "_" , $sOut );
-		$nWord_length = strlen( $sOut );
-		if( $sOut[ $nWord_length - 1 ] == "-" || $sOut[ $nWord_length - 1 ] == "_" ) { $sOut = substr( $sOut , 0 , $nWord_length - 1 ); } 
-		return $sOut;		
+	public static function clean_str_for_field($input){
+		if( $input == "" ) return "";
+		$output = trim( strtolower( $input ) );
+		$output = preg_replace( "/\s\s+/" , " " , $output );					
+		$output = preg_replace( "/[^a-zA-Z0-9 \-_]/" , "",$output );
+		$output = preg_replace( "/--+/" , "-",$output );
+		$output = preg_replace( "/__+/" , "_",$output );
+		$output = preg_replace( "/ +- +/" , "-",$output );
+		$output = preg_replace( "/ +_ +/" , "_",$output );
+		$output = preg_replace( "/\s\s+/" , " " , $output );	
+		$output = preg_replace( "/\s/" , "_" , $output );
+		$output = preg_replace( "/--+/" , "-" , $output );
+		$output = preg_replace( "/__+/" , "_" , $output );
+		$nWord_length = strlen( $output );
+		if( $output[ $nWord_length - 1 ] == "-" || $output[ $nWord_length - 1 ] == "_" ) { $output = substr( $output , 0 , $nWord_length - 1 ); } 
+		return $output;		
 	}
 
 	/**
@@ -53,6 +65,20 @@ class CPTD_Helper{
 	 * If $field is a string we assume the string is the label
 	 * if $field is an array we assume that at least a label exists
 	 * optionally, the parent field's name can be passed for better labelling
+	 *
+	 * @param	(array|string)		$field {
+	 *		The key string or field array that we are completing
+	 *
+	 * 		@type 	string 		$type 		The field type (default: text)
+	 * 		@type 	string 		$id			The ID attribute 
+	 * 		@type	mixed 		$value		The field value
+	 * 		@type 	string 		$label		The label for the field
+	 * 		@type 	string 		$name		The input name (default: $id)
+	 * 		@type 	array 		$choices	Choices for the field value
+	 *
+	 * }
+	 * @param 	string 	$parent_name 	Added for child fields to identify their parent
+	 * @since 	2.0.0
 	 */
 	public static function get_field_array( $field, $parent_name = ''){
 		$id = $parent_name ? $parent_name.'_' : '';
@@ -96,6 +122,9 @@ class CPTD_Helper{
 	 * Get array of choices for a setting field
 	 * This allows choices to be set as strings or arrays with detailed properties, 
 	 * so that either way our options display function will have the data it needs
+	 *
+	 * @param 	array 	$setting 	The field array to get choices for (see get_field_array)
+	 * @since 	2.0.0
 	 */
 	public static function get_choice_array($setting){
 		extract($setting);
@@ -136,7 +165,7 @@ class CPTD_Helper{
 			}
 		}
 		return $out;
-	}
+	} # end: get_choice_array()
 
 	/**
 	 * Register all post types and taxonomies
@@ -146,7 +175,7 @@ class CPTD_Helper{
 	 * - user-defined post types (cptd_pt posts)
 	 * - user-defined taxonomies (cptd_tax posts)
 	 * 
-	 * @return null
+	 * @since 	2.0.0
 	 */
 
 	public static function register(){
@@ -185,7 +214,9 @@ class CPTD_Helper{
 		
 		# User-defined post types
 		foreach(CPTD::get_post_types() as $pt){
+
 			# make sure that the post for this post type is published
+			if( empty ( $pt->post ) ) continue;
 			if('publish' != $pt->post->post_status) continue;
 
 			# register the post type
@@ -194,7 +225,9 @@ class CPTD_Helper{
 
 		# User-defined taxonomies
 		foreach(CPTD::get_taxonomies() as $tax){
+
 			# make sure that the post for this taxonomy is published
+			if( empty( $tax->post ) ) continue;
 			if('publish' != $tax->post->post_status) continue;
 
 			# register the taxonomy
@@ -202,10 +235,11 @@ class CPTD_Helper{
 		}
 	} # end: register()
 
-	/*
+	/**
 	 * Admin helper functions
 	 * 
 	 * - Meta boxes for `cptd_pt` and `cptd_tax` posts
+	 * @deprecated
 	 */
 
 	/**
@@ -217,6 +251,8 @@ class CPTD_Helper{
 	 * post_content_box()
 	 * save_meta_box_data() 
 	 * post_edit_admin_notices()
+	 *
+	 * @deprecated
 	 */
 
 	/**
@@ -224,10 +260,10 @@ class CPTD_Helper{
 	 *
 	 * Only activated for posts of type `cptd_pt` and `cptd_tax`
 	 *
-	 * @param  string 	$post_type 		The post type of the post we're editing
-	 * @param  WP_Post 	$post 			The post we're editing
+	 * @param  	string 	$post_type 		The post type of the post we're editing
+	 * @param  	WP_Post 	$post 			The post we're editing
 	 *
-	 * @return null
+	 * @deprecated
 	 */
 
 	public static function add_meta_boxes($post_type, $post) {
@@ -266,8 +302,8 @@ class CPTD_Helper{
 	/**
 	 * Display the "Post Type Settings" meta box for `cptd_pt` posts
 	 * 
-	 * @param  WP_Post 	$post 	The post we're currently editing
-	 * @return null
+	 * @param  	WP_Post 	$post 	The post we're currently editing
+	 * @deprecated 
 	 */
 
 	public static function post_type_meta_box($post){
@@ -331,7 +367,7 @@ class CPTD_Helper{
 	 * Display the "Post Type Settings" meta box for `cptd_pt` posts
 	 * 
 	 * @param  WP_Post 	$post 	The post we're currently editing
-	 * @return null
+	 * @deprecated
 	 */
 
 	public static function taxonomy_meta_box($post){
@@ -429,7 +465,7 @@ class CPTD_Helper{
 	 * Produce the post type description meta box
 	 *
 	 * @param  WP_Post $post 	The post we're currently editing
-	 * @return null
+	 * @deprecated
 	 */
 	public static function post_content_box( $post ) {
 		do_action('edit_form_advanced', $post);
@@ -440,7 +476,7 @@ class CPTD_Helper{
 	 * Save the post meta in our custom meta boxes when post is saved
 	 *
 	 * @param  int 	$post_id 	The ID of the post we're editing
-	 * @return null
+	 * @deprecated
 	 */
 
 	public static function save_meta_box_data( $post_id ) {
@@ -515,6 +551,7 @@ class CPTD_Helper{
 
 	/**
 	 * Process any notices for the post edit screen
+	 * @deprecated
 	 */ 
 
 	public static function post_edit_admin_notices(){

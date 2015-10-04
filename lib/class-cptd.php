@@ -9,25 +9,65 @@
  */
 class CPTD{
 
-	# List of post types (WP_Post objects) created by CPTD
+	/**
+	 * Class parameters 
+	 */
+
+	/**
+	 * List of post types (WP_Post objects) created by CPTD
+	 * @param 	array 	
+	 * @since 	2.0.0
+	 */
 	public static $post_types = array();
 
-	# whether we've tried loading post types and found none (to prevent querying again)
+	/**
+	 * Whether we've tried loading post types and found none (to prevent querying again)
+	 * 
+	 * @param 	bool
+	 * @since 	2.0.0
+	 */
 	public static $no_post_types = false;
 
-	# List of taxonomies (WP_Post objects) created by CPTD
+	/**
+	 * List of taxonomies (WP_Post objects) created by CPTD
+	 * 
+	 * @param 	array
+	 * @since 	2.0.0
+	 */
 	public static $taxonomies = array();
 
-	# whether we've tried loading taxonomies and found none (to prevent querying again)
+	/**
+	 * Whether we've tried loading taxonomies and found none (to prevent querying again)
+	 * 
+	 * @param 	bool
+	 * @since 	2.0.0
+	 */
 	public static $no_taxonomies = false;
 
-	# whether we're viewing a CPTD object on the front end
+	/**
+	 * Whether we're viewing a CPTD object on the front end
+	 * 
+	 * @param 	bool
+	 * @since 	2.0.0
+	 */
 	public static $is_cptd = null;
 
-	# the post type for the current view
+	/**
+	 * The post type for the current view
+	 * 
+	 * @param 	string
+	 * @since 	2.0.0
+	 */
 	public static $current_post_type = '';
 
-	
+
+	/**
+	 * Class methods
+	 * 
+	 * - Basic WP callbacks for actions and filters
+	 * - Retrieve and store static information about post types and taxonomies
+	 */
+
 	/**
 	 * Basic WP callbacks for actions and filters
 	 *
@@ -52,6 +92,7 @@ class CPTD{
 		# action that users can hook into
 		do_action('cptd_pre_get_posts', $query);
 	} # end: pre_get_posts()
+
 
 	/**
 	 * Retrieve and store static information about post types and taxonomies
@@ -130,9 +171,8 @@ class CPTD{
 	/**
 	 * Return and/or populate the self::$post_types array
 	 *
-	 * @since 	2.0.0
 	 * @return 	array 	May be empty.
-	 * 
+	 * @since 	2.0.0
 	 */
 	public static function get_post_types() {
 
@@ -163,8 +203,9 @@ class CPTD{
 
 	/**
 	 * Return and/or populate self::$taxonomies array
-	 * @since 	2.0.0
+	 *
 	 * @return 	array 	May be empty.
+	 * @since 	2.0.0
 	 */
 	public static function get_taxonomies() {
 

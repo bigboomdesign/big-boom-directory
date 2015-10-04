@@ -1,15 +1,96 @@
 <?php
+/**
+ * Handles the display, saving, and init/retrieval of options for the plugin
+ *
+ * Static variables are set after class definition below
+ *
+ * @since 2.0.0
+ */
 class CPTD_Options{
-	# Static variables are set after class definition
-	## available settings
-	static $settings;
-	## saved options
+
+	/**
+	 * Class parameters
+	 */
+
+	/**
+	 * The available settings for the plugin.
+	 *
+	 * See `do_settings_field()` for a description of a typical element of the array
+	 * 
+	 * @param 	array 	$settings{
+	 *			@type array ...,
+	 * 			@type array ...,
+	 *			...
+	 * }
+	 * @since 	2.0.0
+ 	 */
+	static $settings = array();
+
+	/**
+	 * Options saved by the user.
+	 *
+	 * In addition to the defaults below, the array contains a key/value pair 
+	 * corresponding to each self::$settings element and the user-selected value
+	 *
+	 * Default values:
+	 *
+	 * @param 	array 	$options{
+	 *
+	 * }
+	 * @since 	2.0.0
+	 */
 	static $options = array();
 	
-	static $sections;
+	/**
+	 * The sections to display on the plugin settings page
+	 *
+	 * Used for WP's `add_settings_section()` and in the corresponding callback function
+	 *
+	 * @param	array	$sections{
+	 * 		@type 	string	$name 			Optional. The section named used in `add_settings_section()` (Default: self::$default_section )
+	 *		@type 	string 	$title 			Optional. The title displayed in the section's header
+	 * 		@type 	string 	$description 	Optional. A description for the section
+	 * }
+	 * @since 	2.0.0
+	 */
+	static $sections = array();
+
+	/**
+	 * The default section to use for a setting if none is specified
+	 * @param 	string
+	 * @since 	2.0.0
+	 */
 	static $default_section = 'cptd_main';
 		
-	# Display field input
+	/**
+	 * Class methods
+	 */
+
+	/**
+	 * Display a plugin settings form element
+	 *
+	 * @param 	string|array 	$setting{
+	 *
+	 *		Use a string for simple fields. Use an array to pass detailed information about the
+	 *		setting.  Optional types will be auto-completed via `HPhP::get_field_array()`
+	 *
+	 *		@type 	string 			$label 			Required. The label for the form element	 
+	 * 		@type 	string 			$name 			Optional. The HTML name attribute. Will be auto-generated from label if empty
+	 * 		@type 	string 			$id 			Optional. The HTML `id` attribute for the form element. Will be auto-generated from label if empty
+	 *		@type 	string 			$type 			Optional. The type of form element to display (text|textarea|checkbox|select|single-image|radio) (Default: 'text')
+	 *												Use a custom $type and define a method on `self` with the same name to automatically link the field display handler
+	 * 		@type 	string 			$value 			Optional. The value of the HTML `value` attribute
+	 * 		@type 	array|string 	$choices 		Optional. The choices for the form element (for select, radio, checkbox)
+	 * 		@type	string			$class 			Optional. The HTML `class` attribute for the form element
+	 * 		@type 	string			$label_class	Optional. For checkboxes and radio buttons, a class can be applied to each choice's label
+	 * 		@type 	array 			$data 			Optional. An array of data attributes to add to the form element (see `self::data_atts()`)
+	 * }
+	 *
+	 * @param	string	$option 	Optional (Default: 'hphp_options'). By default, an HTML input element whose name is `form_field`
+	 *								will actually have a name attribute of `hphp_options[form_field]`. Pass in a string to 
+	 *								change the default parent field name, or pass an empty string to use a regular input name without a parent
+	 * @since 	2.0.0
+	 */
 	public static function do_settings_field($setting, $option = 'cptd_options'){
 		# the option `cptd_options` can be replaced on the fly and will be passed to handler functions
 		$setting['option'] = $option;
@@ -81,7 +162,12 @@ class CPTD_Options{
 		} # end: setting has choices
 	} # end: do_settings_field()
 	
-	## Text field
+	/**
+	 * Display a text input element
+	 *
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `RO3::get_field_array()`
+	 * @since 	2.0.0
+	 */
 	public static function text_field($setting){
 		extract($setting);
 		$val = self::get_option_value($setting);
@@ -94,7 +180,11 @@ class CPTD_Options{
 		<?php	
 	} # end: text_field()
 	
-	## Textarea field
+	/**
+	 * Display a textarea element
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `RO3::get_field_array()`
+	 * @since 	2.0.0
+	 */
 	public static function textarea_field($setting){
 		extract($setting);
 		$val = self::get_option_value($setting);	
@@ -107,7 +197,11 @@ class CPTD_Options{
 		<?php
 	} # end: textarea_field()
 	
-	## Checkbox field
+	/**
+	 * Display one or more checkboxes
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `RO3::get_field_array()`
+	 * @since 	2.0.0
+	 */
 	public static function checkbox_field($setting){
 		extract($setting);
 		foreach($choices as $choice){
@@ -129,7 +223,11 @@ class CPTD_Options{
 		}
 	} # end: checkbox_field()
 	
-	## Radio Button field
+	/**
+	 * Display a group of radio buttons
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `RO3::get_field_array()`
+	 * @since 	2.0.0
+	 */
 	public static function radio_field($setting){
 		extract($setting);
 		$val = self::get_option_value($setting);
@@ -151,7 +249,11 @@ class CPTD_Options{
 		}
 	} # end: radio_field()
 	
-	## <select> dropdown field
+	/**
+	 * Display a <select> dropdown element
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `RO3::get_field_array()`
+	 * @since 	2.0.0
+	 */
 	public static function select_field($setting){		
 		extract($setting);
 		$val = self::get_option_value($setting);
@@ -187,7 +289,11 @@ class CPTD_Options{
 	</select><?php
 	} # end: select_field()
 	
-	## Image field
+	/**
+	 * Display an image upload element that uses the WP Media browser
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `RO3::get_field_array()`
+	 * @since 	2.0.0
+	 */
 	public static function image_field($setting){
 		# this will set $name for the field
 		extract($setting);
@@ -211,10 +317,17 @@ class CPTD_Options{
 		<?php
 	} # end: image_field()
 
-	# matching a function name with the respecting $setting['type'] (e.g. `on_the_fly` or `my_custom_option_type`) 
-	# allows for creation of "on the fly" option types	
-	# note that with "on the fly" types, no special case needs to be added in the main switch 
-	# statement in self::do_settings_field()
+	/**
+	 * Matching a function name with the respecting $setting['type'] allows for creation of "on the fly" options.
+	 * In this case, we have defined a setting with type `on_the_fly` which automatically triggers
+	 * the callback below.  Replace and duplicate as needed.
+	 * 
+	 * The main benefit is that no special case needs to be added in the main switch 
+	 * statement in `self::do_settings_field()`
+	 * 
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `RO3::get_field_array()`
+	 * @since 	2.0.0
+	 */
 	public static function on_the_fly($setting){
 		# e.g.
 		$setting['choices'] = array(
@@ -226,8 +339,22 @@ class CPTD_Options{
 		self::do_settings_field($setting);
 	}
 	
-	## Return a string of data attributes for fields or choices
-	public static function data_atts($setting){
+	/**
+	 * Return a string of HTML data attributes for a field or choice input element
+	 *
+	 * @param	array 	$setting{
+	 *		A $setting array (see `do_settings_field()`) or a $choice array, which ostensibly
+	 * 		has a `data` key with corresponding hash of data attributes
+	 *
+	 *		@type array  $data{
+	 *			Any key/value pair you like can be added to this array when defining settings
+	 *
+	 *			@type string $var 	A value to be added for the HTML data attribute `data-var`
+	 * 		}
+	 * @return 	string
+	 * @since 	2.0.0
+	 */
+	 public static function data_atts($setting){
 		if(!array_key_exists('data', $setting)) return;
 		$out = '';
 		foreach($setting['data'] as $k => $v){
@@ -236,7 +363,10 @@ class CPTD_Options{
 		return $out;
 	} # end: data_atts()
 	
-	# Register settings
+	/**
+	 * Register the main option to be stored in the database and add its sections and fields
+	 * @since 	2.0.0
+	 */
 	public static function register_settings(){
 		# main option for this plugin
 		register_setting( 'cptd_options', 'cptd_options', array('CPTD_Options', 'validate_options') );
@@ -252,7 +382,10 @@ class CPTD_Options{
 		}	
 	} # end: register_settings()
 	
-	# Section description
+	/**
+	 * Display the description for a setting (callback for WP's `add_settings_section`)
+	 * @since 	2.0.0
+ 	 */
 	public static function section_description($section){
 		# get ID of section being displayed
 		$id = $section['id'];
@@ -264,14 +397,28 @@ class CPTD_Options{
 			}
 		}
 	}
-	# validate fields when saved
+
+	/**
+	 * Validate fields when saved (callback for WP's `register_setting`)
+	 * @since 	2.0.0
+	 */
 	public static function validate_options($input) { return $input; }
 
-	/*
-	* Helper Functions
-	*/
+	/**
+	 * Helper Functions
+	 *
+	 * - get_option_value()
+	 * - get_choice_name()
+	 */
 	
-	# get the saved value for a setting, based on the option name we're given
+	/**
+	 * Get the saved value for a setting, based on the option name we're given
+	 * 
+	 * @param  	array 	$setting 	The setting to get the value for (see `do_settings_field`)
+	 * @param  	array 	$choice 	The particular choice to get the value for if necessary
+	 * @return 	string
+	 * @since 	2.0.0
+	 */	
 	public static function get_option_value($setting, $choice = ''){
 		# see if an option has been passed in (e.g. `cptd_options`)
 		if($setting['option']){
@@ -305,7 +452,15 @@ class CPTD_Options{
 		# if no option is passed in, check post
 		return CPTD_Helper::get_post_field($setting['name']);
 	}
-	# get the option name for a checkbox choice
+
+	/**
+	 * Get the name attribute for a checkbox choice based on its parent option
+	 *
+	 * @param 	array 	$setting 	The parent setting (see `do_settings_field()`)
+	 * @param 	array 	$choice 	The choice to get the name attribute for
+	 * @return 	string
+	 * @since 	2.0.0
+	 */
 	public static function get_choice_name($setting, $choice){
 		if(!$setting['option']) return $choice['id'];
 		return $setting['option'].'['.$choice['id'] . ']';
@@ -313,9 +468,9 @@ class CPTD_Options{
 }
 # end class: CPTD_Options
 
-/*
-* Initialize static variables
-*/
+/**
+ * Initialize static variables
+ */
 
 # settings sections
 CPTD_Options::$sections = array(
@@ -324,6 +479,7 @@ CPTD_Options::$sections = array(
 		'description' => '<p>Main Settings.</p>'
 	),
 );
+
 # generate all settings for backend
 CPTD_Options::$settings = array(
 	

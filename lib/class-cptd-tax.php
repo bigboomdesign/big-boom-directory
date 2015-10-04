@@ -1,15 +1,74 @@
 <?php
+/**
+ * An object for taxonomies created by the plugin
+ *
+ * Extension of CPTD_Post.  Contains data necessary for registering and handling custom taxonomies
+ *
+ * @since 2.0.0
+ */
+
 class CPTD_tax extends CPTD_Post{
 
-	var $meta 		= array(); // the unserialized array from the `cptd_post_meta` custom field for $this->post that CPTD needs to operate
-	var $tax_meta 	= array(); // from the `cptd_tax_meta` custom field
+	/**
+	 * Class parameters
+	 */
 
+	/**
+	 * @param 	array 	$meta 	Contains the `_cptd_meta_` fields and their values as $k => $v
+	 * @since 	2.0.0
+	 */
+	var $meta = array(); 
+
+	/**
+	 *
+	 * @param 	array 	$tax_meta 	To be deprecated
+	 * @since 	2.0.0
+	 */
+	var $tax_meta = array(); // from the `cptd_tax_meta` custom field
+
+	/**
+	 * @param 	string 	$name 		To be deprecated
+	 * @since 	2.0.0
+	 */
 	var $name;
+
+	/**
+	 * @param 	string	$handle 	The taxonomy name to be registered
+	 * @since 	2.0.0
+	 */
+	var $handle;
+
+	/**
+	 * @param 	string	$singular 	The singular label for this taxonomy
+	 * @since 	2.0.0
+	 */
 	var $singular;
+
+	/**
+	 * @param 	string	$plural	 	The plural label for this taxonomy
+	 * @since 	2.0.0
+	 */
 	var $plural;
 
 	/**
+	 * @param 	string 	$slug 		The URL slug for this post type
+	 * @since 	2.0.0
+	 */
+	var $slug;
+
+
+	/**
+	 * Class methods
+	 *
+	 * - __construct()
+	 * - register()
+	 */
+
+	/**
 	 * Create a new instance
+	 *
+	 * @param 	(WP_Post|string|int) 		The post or post_id this object extends
+	 * @since 	2.0.0
 	 */
 
 	public function __construct( $post ){
@@ -20,13 +79,12 @@ class CPTD_tax extends CPTD_Post{
 		# Load the CPTD tax meta
 		$this->get_meta();
 
-/*
 		# Set object parameters
+		/*
 		$this->name = $this->meta['handle'];
 		$this->singular = $this->meta['singular'];
 		$this->plural = $this->meta['plural'];
-*/
-
+		*/
 
 	} # end: __construct()
 
@@ -45,7 +103,7 @@ class CPTD_tax extends CPTD_Post{
 	 *   	@type array 		$args 			The WP $args array for register_taxonomy()
 	 * 	 	@type array 		$names 			The $names array for register_extended_taxonomy()
 	 * }
-	 * @return null
+	 * @since 2.0.0
 	 */
 
 	public function register(){
@@ -91,6 +149,8 @@ class CPTD_tax extends CPTD_Post{
 
 	/**
 	 * Load the CPTD taxonomy meta for this post
+	 *
+	 * To be deprecated in favor of load_cptd_meta
 	 */
 
 	public function get_meta(){
