@@ -1,5 +1,8 @@
 
-# Custom Post Type Directory
+# Custom Post Type Directory (Version 2)
+
+## `git checkout master` for Version 1
+---
 
 Directory management system based on Custom Post Types, Taxonomies, and Fields
 

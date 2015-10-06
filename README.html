@@ -1,4 +1,6 @@
-<h1>Custom Post Type Directory</h1>
+<h1>Custom Post Type Directory (Version 2)</h1>
+
+<h2><code>git checkout master</code> for Version 1</h2>
 
 <p>Directory management system based on Custom Post Types, Taxonomies, and Fields</p>
 
@@ -31,8 +33,6 @@
 <p>Use this filter to access the post type data before CPTD post types are registered.  The filtered object is an array
 containing the arguments for <a href="https://github.com/johnbillion/extended-cpts/wiki/Basic-usage">register_extended_post_type</a>, which is a wrapper for <a href="https://codex.wordpress.org/Function_Reference/register_post_type">register_post_type</a>.</p>
 
-<p>Define your function so that it accepts and returns the <code>$cpt</code> array below.</p>
-
 <h3>Parameters</h3>
 
 <pre><code>$cpt = array(
@@ -55,3 +55,12 @@ function my_register_pt($args){
 <hr />
 
 <h2>Actions</h2>
+
+<p><code>cptd_pre_get_posts</code></p>
+
+<p>Use this action to alter the query for CPTD views.  Does not fire on non-CPTD page views</p>
+
+<h3>Parameters</h3>
+
+<pre><code>$query: The same $query passed via 'pre_get_posts'
+</code></pre>
