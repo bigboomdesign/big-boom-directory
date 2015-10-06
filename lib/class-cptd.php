@@ -14,7 +14,14 @@ class CPTD{
 	 */
 
 	/**
-	 * List of post types (WP_Post objects) created by CPTD
+	 * List of post IDs for CPT post types
+	 * @param 	array 	
+	 * @since 	2.0.0
+	 */
+	public static $post_type_ids = array();
+
+	/**
+	 * List of post types created by CPTD user (stdClass objects retrieved from DB) 
 	 * @param 	array 	
 	 * @since 	2.0.0
 	 */
@@ -29,7 +36,14 @@ class CPTD{
 	public static $no_post_types = false;
 
 	/**
-	 * List of taxonomies (WP_Post objects) created by CPTD
+	 * List of post IDs for CPT taxonomies
+	 * @param 	array 	
+	 * @since 	2.0.0
+	 */
+	public static $taxonomy_ids = array();
+
+	/**
+	 * List of taxonomies created by CPTD (stdClass objects retrieved from DB)
 	 * 
 	 * @param 	array
 	 * @since 	2.0.0
@@ -43,6 +57,25 @@ class CPTD{
 	 * @since 	2.0.0
 	 */
 	public static $no_taxonomies = false;
+
+	/**
+	 * The meta data for all `cptd_pt` and `cptd_tax` post types, indexed by post ID
+	 *
+	 * This static variable holds data directly from the database and won't necessarily reflect the 
+	 * state of any objects that use the data for instantiation. For example, field values that are 
+	 * serialized arrays will not be unserialized here.
+	 *
+	 * @param 	array 	$meta {
+	 *
+	 *		@type 	(int) $post_id => (stdClass) $field {
+	 *	
+	 *			@type 	int 	$post_id
+	 * 			@type 	string	$meta_key		A `_cptd_meta_` field key, with the `_cptd_meta_` part removed
+	 *			@type 	string	$meta_value	
+	 * 		}
+	 * }
+	 */
+	public static $meta = array();
 
 	/**
 	 * Whether we're viewing a CPTD object on the front end
@@ -59,6 +92,14 @@ class CPTD{
 	 * @since 	2.0.0
 	 */
 	public static $current_post_type = '';
+
+	/**
+	 * The taxonomy for the current view
+	 * 
+	 * @param 	string
+	 * @since 	2.0.0
+	 */
+	public static $current_taxonomy = '';
 
 
 	/**
@@ -97,10 +138,120 @@ class CPTD{
 	/**
 	 * Retrieve and store static information about post types and taxonomies
 	 *
-	 * - load_view_info()
+	 * - load_cptd_post_data()
 	 * - get_post_types()
 	 * - get_taxonomies()
+	 * - load_view_info()
 	 */
+
+	/**
+	 * Load all data necessary to bootstrap the custom post types and taxonomies
+	 * 
+	 * @since 	2.0.0
+	 */ 
+	public static function load_cptd_post_data() {
+
+		# query the database for post type 'cptd_pt' and 'cptd_tax'
+		global $wpdb;
+
+		$posts_query = "SELECT ID, post_title, post_type, post_status FROM " . $wpdb->posts .
+			" WHERE post_type IN ( 'cptd_pt', 'cptd_tax' )" . 
+			" AND post_status IN ( 'publish', 'draft' )" . 
+			" ORDER BY post_title ASC";
+
+		$posts = $wpdb->get_results( $posts_query );
+		
+		# if we don't have any post types or taxonomies, set the object values to indicate so
+		if( ! $posts ) {
+			self::$no_post_types = true;
+			self::$no_taxonomies = true;
+			return;
+		}
+
+		# whether we have each type of post
+		$has_post_type = false;
+		$has_taxonomy = false;
+
+		# loop through posts and load the IDs
+		foreach( $posts as  $post ) {
+
+			# for post types
+			if( 'cptd_pt' == $post->post_type ) {
+				$has_post_type = true;
+				self::$post_type_ids[] = $post->ID;
+				self::$post_types[ $post->ID ] = $post;
+			}
+
+			# for taxonomies
+			elseif( 'cptd_tax' == $post->post_type ){
+				$has_taxonomy = true;
+				self::$taxonomy_ids[] = $post->ID;
+				 self::$taxonomies[ $post->ID ] = $post;
+			}			
+		} # end foreach: $posts for post types and taxonomies
+
+		# set the object state for post type and taxonomy existence
+		if( ! $has_post_type ) self::$no_post_types = true;
+		if( ! $has_taxonomy ) self::$no_taxonomies = true;
+
+		# get the post meta that makes the post types and taxonomies work
+		$post_meta_query = "SELECT post_id, meta_key, meta_value FROM " . $wpdb->postmeta . 
+			" WHERE meta_key LIKE '_cptd_meta_%'";
+		$post_meta = $wpdb->get_results( $post_meta_query );
+
+		# parse the post meta data rows
+		foreach( $post_meta as $field ) {
+
+			# get the simplified key (e.g. `handle` instead of `_cptd_meta_handle`)
+			$key = str_replace( '_cptd_meta_', '', $field->meta_key );
+
+			if( ! $key  ) continue;
+
+			# create the ($ID) => (stdClass) entry in self::$meta to hold the field keys and values if it doesn't exist
+			if( ! array_key_exists( $field->post_id, self::$meta ) ) self::$meta[ $field->post_id ] = new stdClass();
+
+			# store the field value in self::$meta
+			self::$meta[ $field->post_id ]->$key = $field->meta_value;
+
+		} # end foreach: $post_meta
+
+	} # end: load_cptd_post_data()
+
+
+	/**
+	 * Return the self::$post_types array. Executes self::load_cptd_post_data if necessary
+	 *
+	 * @return 	array 	May be empty.
+	 * @since 	2.0.0
+	 */
+	public static function get_post_types() {
+
+		# see if the post types are already loaded
+		if( self::$post_types ) return self::$post_types;
+		elseif( self::$no_post_types ) return array();
+
+		self::load_cptd_post_data();
+		return self::$post_types;
+		
+	} # end: get_post_types()
+
+	/**
+	 * Return and/or populate self::$taxonomies array
+	 *
+	 * @return 	array 	May be empty.
+	 * @since 	2.0.0
+	 */
+	public static function get_taxonomies() {
+
+		# see if the taxonomies are already loaded
+		if( self::$taxonomies ) return self::$taxonomies;
+		elseif( self::$no_taxonomies ) return array();
+
+		self::load_cptd_post_data();
+		return self::$taxonomies;
+
+	} # end: get_taxonomies()
+
 
 	/**
 	 * Load info about the current front end view
@@ -116,120 +267,57 @@ class CPTD{
 	 */
 	public static function load_view_info() {
 
-		# reduce weight for pages, posts, categories, and tags
-		if( is_page() || is_single() || is_category() || is_tag() ) {
+		global $wp_query;
+		if( empty( $wp_query ) ) return;
+
+		# reduce weight for pages, post archives, categories, tags, and author archives
+		if( is_page() || is_home() || is_category() || is_tag() || is_author() ) {
 			CPTD::$is_cptd = false;
 			return;
 		}
 
-		global $wp_query;
-		if( empty( $wp_query ) ) return;
+		# make sure the CPTD post data is loaded
+		if( empty( self::$post_type_ids ) || empty( self::$taxonomy_ids ) ) self::load_cptd_post_data();
 
-		# check the queried post type
-		if( ! empty( $wp_query->query_vars['post_type'] ) ) {
+		# see if there is a queried post type for this view
+		$queried_post_type = ( isset( $wp_query->query_vars['post_type'] ) ? $wp_query->query_vars['post_type'] : '' );
 
-			$queried_post_type = $wp_query->query_vars['post_type'];
-			
-			# set the current post type
-			CPTD::$current_post_type = $queried_post_type;
+		if( $queried_post_type ) {
 
-			# get CPTD post types
-			$post_types = CPTD::get_post_types();
+			# loop through CPTD post types and check against queried post type
+			foreach( CPTD::$post_type_ids as $pt) {
 
-			# loop through post types and check against queried post type
-			foreach( $post_types as $pt) {
-				if( $queried_post_type == $pt->name ) {
+				$pt = new CPTD_pt( $pt );
+				if( empty( $pt->handle ) ) continue;
+
+				if( $queried_post_type == $pt->handle ) {
+
 					CPTD::$is_cptd = true;
+					
+					# set the current post type
+					CPTD::$current_post_type = $pt->handle;
 				}
-			}
 
-		} # end if: $wp_query has post type set
+			} # end foreach: post type IDs
+		}
 
-		# check the queried taxonomy
-		if( ! empty( $wp_query->tax_query->taxonomy ) ) {
+		# see if there is a queried taxonomy for this view
+		$tax_query = ( ! empty( $wp_query->tax_query ) ? $wp_query->tax_query : '');
 
-			$queried_taxonomy = $wp_query->tax_query->taxonomy;
+		if( $tax_query ) {
+		
+			# loop through CPTD taxonomies and check against queried taxonomies
+			foreach( CPTD::$taxonomy_ids as $tax ) {
 
-			# set the current taxonomy
-			CPTD::$current_taxonomy = $queried_taxonomy;
-			
-			# get CPTD taxonomies
-			$taxonomies = CPTD::get_taxonomies();
-
-			# loop through taxonomies and check against queried taxonomy
-			foreach( $taxonomies as $tax ) {
-				if( $queried_taxonomy == $tax->name ) {
-					CPTD::$is_cptd = true;
+				$tax = new CPTD_tax( $tax );
+				foreach( $tax_query->queries as $query ) {
+					if( $query['taxonomy'] == $tax->handle ) {
+						CPTD::$is_cptd = true;
+						CPTD::$current_taxonomy = $tax->handle;
+					}
 				}
-			}
-
-			# loop through taxonomies and check against queried taxonomy
-		} # end if: $wp_query has taxonomy set
+			} # end foreach: taxonomy IDs
+		}
 
 	} # end: load_view_info()
-
-	/**
-	 * Return and/or populate the self::$post_types array
-	 *
-	 * @return 	array 	May be empty.
-	 * @since 	2.0.0
-	 */
-	public static function get_post_types() {
-
-		# see if the post types are already loaded
-		if( self::$post_types ) return self::$post_types;
-		elseif(self::$no_post_types) return array();
-		
-		# query for the cptd_pt post type
-		$post_types = get_posts(array(
-			'post_type' 		=> 'cptd_pt',
-			'posts_per_page'	=> -1,
-			'orderby' 			=> 'post_title',
-			'order' 			=> 'ASC'
-		));
-
-		# update the object and return if we didn't find any post types
-		if( ! $post_types ) {
-			self::$no_post_types = true;
-			return array();
-		}
-
-		# load the post types
-		foreach($post_types as $post){
-			self::$post_types[] = new CPTD_pt( $post );
-		}
-		return self::$post_types;
-	} # end: get_post_types()
-
-	/**
-	 * Return and/or populate self::$taxonomies array
-	 *
-	 * @return 	array 	May be empty.
-	 * @since 	2.0.0
-	 */
-	public static function get_taxonomies() {
-
-		# see if the taxonomies are already loaded
-		if(self::$taxonomies) return self::$taxonomies;
-		elseif(self::$no_taxonomies) return array();
-
-		# query for the cptd_tax post type
-		$taxonomies = get_posts( array(
-			'post_type' 		=> 'cptd_tax',
-			'posts_per_page' 	=> -1,
-			'orderby' 			=> 'post_title',
-			'order' 			=> 'ASC'
-		));
-
-		# update the object and return if we didn't find any taxonomies
-		if(!$taxonomies){
-			self::$no_taxonomies = true;
-			return array();
-		}
-
-		foreach($taxonomies as $tax){
-			self::$taxonomies[] = new CPTD_tax( $tax );
-		}
-		return self::$taxonomies;
-	} # end: get_taxonomies()
 } # end class: CPTD

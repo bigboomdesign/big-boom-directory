@@ -12,30 +12,43 @@ class CPTD_Post{
 	 */
 
 	/**
-	 * @param  	int 		$ID 			The post ID
-	 * @since 	2.0.0
-	 */
-	var $ID = 0;  # (int) shortcut for $this->post->ID
-
-	/**
-	 * @param 	WP_Post		$post 			The WP_Post object being 'extended'
+	 * @param 	WP_Post		The WP_Post object being 'extended'
 	 * @since 	2.0.0
 	 */
 	var $post = ''; # (WP_POST) since we can't extend WP_Post
 
 	/**
-	 * @param 	int			$post_type 		The post type for the post being extended
+	 * @param  	int 		The post ID
+	 * @since 	2.0.0
+	 */
+	var $ID = 0;  # (int) shortcut for $this->post->ID
+
+	/**
+	 * @param 	int			The post type for the post being extended
 	 * @since 	2.0.0
 	 */
 	var $post_type = '';
 
 	/**
-	 * @param 	string 		$post_title		The title of the post being extended
+	 * @param 	string 		The title of the post 
 	 * @since 	2.0.0
-	 */
+	 */	
+	var $post_title;
 
 	/**
-	 * @param 	array 		$fields 		Holds post meta for the post
+	 * @param 	string 		The post content
+	 * @since 	2.0.0
+	 */	
+	var $post_content;
+
+	/**
+	 * @param 	string 		The title of the post being extended
+	 * @since 	2.0.0
+	 */
+	var $post_status = '';
+
+	/**
+	 * @param 	array 		Holds post meta for the post
 	 */
 	var $fields = array();
 
@@ -50,20 +63,33 @@ class CPTD_Post{
 	/**
 	 * Construct a new instance
 	 * 
-	 * @param (WP_Post|int|string) $post If string or int, we assume it's the ID
-	 * @since 2.0.0
+	 * @param 	(WP_Post|stdObject|int|string) 	$post 		The object we are extending. If string or int, we assume it's the ID
+	 * @param	bool 							$autoload	If $post is an ID, $autoload determines whether to autoload $this->post using get_post()
+	 * @since 	2.0.0
 	 */
-	function __construct( $post = '', $autoload = true ){
+	function __construct( $post = '', $autoload = false ){
 
-		# make sure we have a WP_Post or an ID
+		# make sure we have a WP_Post, stdClass object, or an ID
 		if( ! $post ) return;
-		if( ! is_a( $post, 'WP_Post' ) && ! is_string( $post ) && ! is_int( $post ) ) return;
+		if( ! is_a( $post, 'WP_Post' ) && ! is_a( $post, 'stdClass' ) && ! is_string( $post ) && ! is_int( $post ) ) {
+			return;
+		}
 
 		# if we're being passed a WP_Post object
 		if(is_a($post, 'WP_Post')){
 			$this->ID = $post->ID;
 			$this->post = $post;
 			$this->post_type = $post->post_type;
+		}
+
+		# if we're being passed an stdClass object
+		elseif( is_a( $post, 'stdClass' ) ) {
+
+			if( empty( $post->ID ) ) return;
+
+			foreach( get_object_vars( $post ) as $k => $v ) {
+				$this->$k = $v;
+			}
 		}
 
 		# if we're being passed an ID as an int or string
@@ -80,61 +106,72 @@ class CPTD_Post{
 			}
 		} # end if: $post was passed as int or string
 
-		$this->post_type = $this->post->post_type;
+		# load the post type parameter if it's not set and we have a WP_Post
+		if( empty( $this->post_type ) && ! empty( $this->post ) ) $this->post_type = $this->post->post_type;
 
 	} # end: __construct()
 
 	/**
-	 * Load the core CPTD post meta for this post into $this->meta, adding default values
-	 * Does nothing except for for post types `cptd_pt` and `cptd_tax`
-	 *
-	 * variable of interest: default values core core CPTD meta
+	 * Methods specific to CPTD_pt and CPTD_tax and common to both
 	 * 
-	 * @type  array $meta {
-	 * 		@type string $handle 		The post type or taxonomy name (e.g. 'cptd_pt_101' or 'cptd_tax_102')
-	 *		@type string $singular		The post type or taxonomy singular label
-	 *		@type string $plural		The post type or taxonomy plural label
-	 * } 
-	 * @since 2.0.0
+	 * - load_post_data()
+	 * - load_post_meta()
 	 */
-	public function load_cptd_meta(){
 
-		# Make sure we have the right post type
-		if(!in_array($this->post_type, array('cptd_pt', 'cptd_tax'))) return;
+	/**
+	 * Use $this->ID to load post data for this instance from CPTD::$post_types and CPTD::$taxonomies
+	 * @since 	2.0.0
+	 */
+	public function load_post_data() {
 
-		# get the post meta array
-		$meta = get_post_meta($this->ID);
+		$post = '';
 
-		# sanitize and load post meta
-		foreach( $meta as $k => $v ) {
+		# get the post data 
 
-			# extract singleton arrays
-			if( is_array( $v ) && count( $v ) == 1 ) {
-				$v = $v[0];
-				$meta[ $k ] = $v;
+		## first check CPTD::$post_types
+		if( array_key_exists( $this->ID, CPTD::$post_types ) ) {
+
+			$post = CPTD::$post_types[ $this->ID ];
+		
+		} # end if: post is a post type
+
+		## then check CPTD::$taxonomies
+		elseif( array_key_exists( $this->ID, CPTD::$taxonomies ) ) {
+			$post = CPTD::$taxonomies[ $this->ID ];
+		}
+
+		else return;
+
+		# load post parameters
+		if( $post ) {
+			foreach( get_object_vars( $post ) as $key => $value ) {
+				$this->$key = maybe_unserialize( $value );
 			}
+		}
+	} # end: load_post_data()
 
-			# load object parameters for _cptd_meta fields
-			if( 0 === strpos( $k, '_cptd_meta_' ) ) {
-				$cptd_key = str_replace( '_cptd_meta_', '', $k );
-				$this->$cptd_key = $v;
+	/**
+	 * Use $this->ID to load CPTD meta values for this instance from CPTD::$meta
+	 * @since 	2.0.0
+	 */
+	public function load_post_meta() {
+
+		# get the field data from CPTD::$meta
+		if( array_key_exists( $this->ID, CPTD::$meta ) ) {
+
+			$meta = CPTD::$meta[ $this->ID ];
+
+			foreach( get_object_vars( $meta ) as $key => $value ) {
+				$this->$key = maybe_unserialize( $value );
 			}
+		
+		} # end if: post meta exists
 
-			# Set friendly defaults
-			if( ! empty( $this->post->post_title ) ) {
-				
-				if( ! isset( $this->singular ) ) {
-					$this->singular = $this->post->post_title;
-				}
+		# Use post title for default labels
+		if( ( empty( $post->singular ) || empty( $this->plural ) ) &&! empty( $this->post_title )  ) {
+			if( empty( $this->singular ) ) $this->singular = $this->post_title;
+			if( empty( $this->plural ) ) $this->plural = $this->post_title;
+		}
+	} # end: load_post_meta()
 
-				if( ! isset( $this->plural ) ) {
-					$this->plural = $this->post->post_title;
-				}
-			}
-		} # end foreach: post meta items
-
-		# store the custom fields while we have them
-		$this->fields = $meta;
-
-	} # end: load_cptd_meta()
-}
+} # end class: CPTD_Post

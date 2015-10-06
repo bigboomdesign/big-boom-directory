@@ -33,6 +33,7 @@ if( ! function_exists( 'register_extended_taxonomy' ) ) require_once cptd_dir('/
  */
 
 # Register user-defined post types
+add_action('init', array('CPTD', 'load_cptd_post_data'));
 add_action('init', array('CPTD_Helper', 'register'));
 
 

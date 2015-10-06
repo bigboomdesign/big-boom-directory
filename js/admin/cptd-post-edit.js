@@ -152,11 +152,11 @@ function triggerHandleInfo( $ ){
 		url: ajaxurl,
 		method: 'POST',
 		data: {
-			action: 'cptd_post_type_handle_from_title',
+			action: 'cptd_handle_from_title',
 			title: title
 		},
 		success: function(data){
-			if('' == $handle.val() || $handle.val().indexOf( 'cptd_pt_' ) > -1) $handle.val(data);
+			if('' == $handle.val() || $handle.val().indexOf( 'cptd_pt_' ) > -1 || $handle.val().indexOf( 'cptd_tax_' ) > -1) $handle.val(data);
 			$handle.focus();
 			$handleContainer.addClass('highlight');
 			$handleContainer.find('#handle-info').css('display', 'block');
@@ -193,7 +193,7 @@ function triggerSlugInfo( $ ){
 		url: ajaxurl,
 		method: 'POST',
 		data: {
-			action: 'cptd_post_type_slug_from_title',
+			action: 'cptd_slug_from_title',
 			title: title,
 		},
 		success: function(data){

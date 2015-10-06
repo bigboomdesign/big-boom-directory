@@ -80,11 +80,14 @@ class CPTD_pt extends CPTD_Post{
 	 * @since 	2.0.0
 	 */
 
-	public function __construct($post){
+	public function __construct( $post ){
+
 		parent::__construct($post);
 
-		# Load the CPTD post meta
-		$this->load_cptd_meta();
+		if( ! $this->ID ) return;
+
+		$this->load_post_data();
+		$this->load_post_meta();
 
 	} # end: __construct()
 
@@ -146,4 +149,4 @@ class CPTD_pt extends CPTD_Post{
 		register_extended_post_type($args['post_type'], $args['args'], $args['names']);
 	} # end: register()
 
-} # end: CPTD_pt
+} # end class: CPTD_pt

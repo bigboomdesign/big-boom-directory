@@ -122,6 +122,21 @@ class CPTD_Admin{
 		$prefix = '_cptd_meta_';
 
 		/**
+		 * Post type meta boxes
+		 * 
+		 * - Basic post type settings
+		 * 		- Name/Handle
+		 * 		- Singular
+		 * 		- Plural
+		 * - Advanced post type settings
+		 *		- Slug
+		 * 		- Public
+		 * 		- Has Archive
+		 * 		- Menu Position
+		 * 		- Menu Icon
+		 */
+
+		/**
 		 * Basic post type settings
 		 */
 
@@ -144,8 +159,8 @@ class CPTD_Admin{
 			'attributes' 	=> array(
 				'readonly' => 'readonly'
 			),
-			'before' => array( 'CPTD_Admin', 'before_pt_handle' ),
-			'sanitization_cb' => array( 'CPTD_Admin', 'sanitize_pt_handle' ),
+			'before' => array( 'CPTD_Admin', 'before_handle' ),
+			'sanitization_cb' => array( 'CPTD_Admin', 'sanitize_handle' ),
 			'description' 	=> 
 				"<div id='handle-container'>
 					<a id='change-name'>Change</a>
@@ -165,7 +180,7 @@ class CPTD_Admin{
 			'name'	=> 'Singular Label',
 			'id'	=> $prefix.'singular',
 			'type' 	=> 'text',
-			'before' => array( 'CPTD_Admin', 'before_pt_labels' ),
+			'before' => array( 'CPTD_Admin', 'before_label' ),
 		));
 
 		## Plural label
@@ -173,7 +188,7 @@ class CPTD_Admin{
 			'name' 	=> 'Plural Label',
 			'id' 	=> $prefix.'plural',
 			'type'	=> 'text',
-			'before' => array( 'CPTD_Admin', 'before_pt_labels' ),
+			'before' => array( 'CPTD_Admin', 'before_label' ),
 		));
 
 		/**
@@ -222,15 +237,15 @@ class CPTD_Admin{
 			'name'	=> 'Public',
 			'id'	=> $prefix.'public',
 			'type' 	=> 'checkbox',
-			'default' => self::default_for_checkbox( 'true' )
+			'default' => self::default_for_checkbox( 'on' )
 		));
 
-		## Has archive
+		## Has Archive
 		$advanced_pt_settings->add_field( array(
 			'name'		=> 'Has Archive',
 			'id'		=> $prefix.'has_archive',
 			'type' 		=> 'checkbox',
-			'default' => self::default_for_checkbox( 'true' )
+			'default' => self::default_for_checkbox( 'on' )
 		));
 
 		# Menu Position
@@ -241,7 +256,7 @@ class CPTD_Admin{
 			'description' => '<p><a target="_blank" href="https://codex.wordpress.org/Function_Reference/register_post_type#menu_position">Learn More</a></p>',
 		));
 
-		# Menu icon
+		# Menu Icon
 		$advanced_pt_settings->add_field( array(
 			'name'	=> 'Admin Menu Icon',
 			'id'	=> $prefix.'menu_icon',
@@ -250,35 +265,213 @@ class CPTD_Admin{
 			'description'	=> '<a target="_blank" href="https://developer.wordpress.org/resource/dashicons/#admin-post">Learn More</a>'
 		));
 
+
+		/**
+		 * Taxonomy meta boxes
+		 * 
+		 * - Basic taxonomy settings
+		 * 		- Name/Handle
+		 * 		- Singular
+		 * 		- Plural
+		 * 		- Hierarchical
+		 * 		- Post Types
+		 * - Advanced taxonomy settings
+		 *		- Slug
+		 * 		- Public
+		 */
+
+		/**
+		 * Basic taxonomy settings
+		 */
+
+		# Meta box
+		$tax_settings = new_cmb2_box( array(
+			'id' 			=> 'cptd_tax_settings',
+			'title'			=> __( 'Taxonomy Settings', 'cmb2' ),
+			'object_types' 	=> array( 'cptd_tax' ),
+			'context' 		=> 'normal',
+			'priority' 		=> 'high',
+		));
+
+		# Fields
+		
+		## Name/Handle
+		$tax_settings->add_field( array(
+			'name' 			=> 'Name <span class="required">*</span>',
+			'id'			=> $prefix.'handle',
+			'type' 			=> 'text',
+			'attributes' 	=> array(
+				'readonly' => 'readonly'
+			),
+			'before' => array( 'CPTD_Admin', 'before_handle' ),
+			'sanitization_cb' => array( 'CPTD_Admin', 'sanitize_handle' ),
+			'description' 	=> 
+				"<div id='handle-container'>
+					<a id='change-name'>Change</a>
+					<div style='display: none;' id='cancel-name-change'>
+						 | <a>Cancel</a>
+						 | <a target='_blank' href='https://codex.wordpress.org/Taxonomies#Registering_a_taxonomy'>More Info</a>
+					</div>
+					<div id='handle-info' style='display: none;'>
+						<p class='description'>The Taxonomy Name is the most important part of your taxonomy. Once it is set and you have created terms and assigned posts for your taxonomy terms, this value should not be changed.</p>
+						<p class='description'>We guessed the ideal Taxonomy Name based on your title.  If you edit this field, please use only lowercase letters and underscores, and use a singular name like <code>genre</code> instead of a plural name like <code>genres</code>.</p>
+					</div>
+				</div>"
+		));
+
+		## Singular label
+		$tax_settings->add_field( array(
+			'name'	=> 'Singular Label',
+			'id'	=> $prefix.'singular',
+			'type' 	=> 'text',
+			'before' => array( 'CPTD_Admin', 'before_label' ),
+		));
+
+		## Plural label
+		$tax_settings->add_field( array(
+			'name' 	=> 'Plural Label',
+			'id' 	=> $prefix.'plural',
+			'type'	=> 'text',
+			'before' => array( 'CPTD_Admin', 'before_label' ),
+		));
+
+		## Hierarchical
+		$tax_settings->add_field( array(
+			'name' 	=> 'Hierarchical',
+			'id' 	=> $prefix.'hierarchical',
+			'type'	=> 'checkbox',
+			'description' => '<p>Leave checked if you want your taxonomy to behave like categories, or uncheck if you want 
+				the taxonomy to behave like tags</p>',
+			'default' => self::default_for_checkbox( 'on' )
+		));
+
+		## Post Types
+		$tax_settings->add_field( array(
+			'name'	=> 'Post Types',
+			'id'	=> $prefix.'post_types',
+			'type' 	=> 'multicheck',
+			'select_all_button' => false,
+			'before'	=> array( 'CPTD_Admin', 'before_tax_post_types' ),
+			'description' => "<div id='tax-assign-tip'>
+					<p class='description'>It's usually best to assign only <b>one post type per taxonomy</b>. Otherwise, the terms you create will appear under all post types checked.</p>
+					<p class='description'>For example, if you have <code>Books</code> and <code>Movies</code> as post types and <code>Genres</code> as a single taxonomy for both post types, you may end up with the term 'Non-Fiction' as an option for both Books and Movies.  In this case, it would probably be best to create two taxonomies, one called <code>Book Genres</code> and another called <code>Movie Genres</code></p>
+				</div>"
+		));
+
+		/**
+		 * Advanced taxonomy settings
+		 */
+		$advanced_tax_settings = new_cmb2_box( array(
+			'id' 			=> 'cptd_advanced_tax_settings',
+			'title'			=> __( 'Advanced Taxonomy Settings', 'cmb2' ),
+			'object_types' 	=> array( 'cptd_tax' ),
+			'context' 		=> 'normal',
+			'priority' 		=> 'high',
+			'closed' 		=> true
+		));
+
 	} # end: cmb2_meta_boxes()
 
-	public static function sanitize_pt_handle( $value ) {
+	/**
+	 * Allows checkboxes to have a default value on new post screen
+	 * @param 	string 	$default 	The default value to assign
+	 * @return 	string 	The default value for new posts, or empty string otherwise
+	 * @since 	2.0.0
+	 */
+	public static function default_for_checkbox( $default ) {
+    	return isset( $_GET['post'] ) ? '' : ( $default ? (string) $default : '' );
+	}
+
+	/**
+	 * Sanitize the user-submitted handle to make sure we only have lowercase and underscores
+	 * @param 	string 	$value 	The user-submitted handle
+	 * @return	string 	The cleaned handle
+	 * @since 	2.0.0
+	 */
+	public static function sanitize_handle( $value ) {
 		return CPTD_Helper::clean_str_for_field( $value );
 	}
-	public static function before_pt_handle( $args, $field ) {
-		$field->args['default'] = 'cptd_pt_'.$field->object_id;
-	}
-	public static function before_pt_labels( $args, $field ) {
+
+	/**
+	 * Add the default value for post type or taxonomy handle
+	 * @param	string	$args 	The arguments for the CMB2 field
+	 * @param	string 	$field	The CMB2 field object
+	 * @since 	2.0.0
+	 */
+	public static function before_handle( $args, $field ) {
+
+		global $post;
 
 		# do nothing if value is saved
-		if( ! empty( get_post_meta( $field->object_id, $args['id'], true ) ) ) return;
+		if( ! empty( $field->value ) ) return;
 
-		$field->args['description'] = 'ex: <code>Book Review' .  ( '_cptd_meta_plural' == $args['id'] ? 's' : '') . '</code>';
+		# whether this is a post type (true) or taxonomy (false)
+		$bPT = ( 'cptd_pt' == $post->post_type )  ? true : false;
+
+		# the extension for the handle (pt or tax)
+		$handle_extension = $bPT ? "pt" : "tax";
+
+		# add the default value
+		$field->args['default'] = 'cptd_'. $handle_extension . '_'.$field->object_id;
 	}
 
+	/**
+	 * Add a helpful description for singular/plural for post types and taxonomies if value is not set
+	 *
+	 * @param	string	$args 	The arguments for the CMB2 field
+	 * @param	string 	$field	The CMB2 field object
+	 * @since 	2.0.0
+	 */
+	public static function before_label( $args, $field ) {
+
+		global $post;
+
+		# do nothing if value is saved
+		if( ! empty( $field->value ) ) return;
+
+		# whether this is a post type (true) or taxonomy (false)
+		$bPT = ( 'cptd_pt' == $post->post_type )  ? true : false;
+		$text = $bPT ? "Book Review" : "Genre";
+
+		$field->args['description'] = 'ex: <code>' . $text .  ( '_cptd_meta_plural' == $args['id'] ? 's' : '') . '</code>';
+	}
+
+	/**
+	 * Add a default value for the slug based on the post title
+	 *
+	 * @param	string	$args 	The arguments for the CMB2 field
+	 * @param	string 	$field	The CMB2 field object
+	 * @since 	2.0.0
+	 */
 	public static function before_slug( $args, $field ) {
 		global $post;
 		$field->args['default'] = CPTD_Helper::clean_str_for_url($post->post_title);
 	}
+
+	/**
+	 * Sanitize the user-submitted slug to make sure we only have lowercase, underscore and hyphens
+	 *
+	 * @param	string	$value	The user-submitted slug value
+	 * @since 	2.0.0
+	 */
 	public static function sanitize_slug( $value ) {
 		return CPTD_Helper::clean_str_for_url( $value );
 	}
 
 	/**
-	 * Allows checkboxes to have a default value on new post screen
+	 * Load post types as options for taxonomy "Post Type" checkboxes
+	 *
+	 * @param	string	$args 	The arguments for the CMB2 field
+	 * @param	string 	$field	The CMB2 field object
+	 * @since 	2.0.0
 	 */
-	public static function default_for_checkbox( $default ) {
-    	return isset( $_GET['post'] ) ? '' : ( $default ? (string) $default : '' );
+	public static function before_tax_post_types( $args, $field ) {
+		$post_types = CPTD::get_post_types();
+		foreach( $post_types as $pt ) {
+
+			$pt = new CPTD_pt( $pt );
+			$field->args['options'][ $pt->ID ] = $pt->plural;
+		}
 	}
 
 	/**

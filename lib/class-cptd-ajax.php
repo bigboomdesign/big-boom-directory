@@ -13,7 +13,7 @@ class CPTD_Ajax{
 	/**
 	 * @param 	array 	$actions 	The actions to register with wp_ajax
 	 */
-	static $actions = array('cptd_post_type_handle_from_title', 'cptd_post_type_slug_from_title');
+	static $actions = array('cptd_handle_from_title', 'cptd_slug_from_title');
 
 
 	/**
@@ -27,8 +27,8 @@ class CPTD_Ajax{
 	/**
 	 * Ajax callback methods
 	 *
-	 * - cptd_post_type_handle_from_title()
-	 * - cptd_post_type_slug_from_title()
+	 * - cptd_handle_from_title()
+	 * - cptd_slug_from_title()
 	 */
 
 	/**
@@ -37,7 +37,7 @@ class CPTD_Ajax{
 	 * @param 	string 	$_POST['title'] 	The title to convert into a handle
 	 * @since 	2.0.0
 	 */
-	public static function cptd_post_type_handle_from_title(){
+	public static function cptd_handle_from_title(){
 		$title = sanitize_text_field( $_POST['title'] );
 		if( ! $title ) die();
 		
@@ -48,20 +48,20 @@ class CPTD_Ajax{
 
 		echo CPTD_Helper::clean_str_for_field( $title );
 		die();
-	} # end: cptd_post_type_handle_from_title()
+	} # end: cptd_handle_from_title()
 
 	/**
 	 * Print a slug suitable for URL usage, given a title via $_POST
 	 * @param 	string 	$_POST['title']		The title to convert into a slug
 	 * @since 	2.0.0
 	 */
-	public static function cptd_post_type_slug_from_title() {
+	public static function cptd_slug_from_title() {
 		$title = sanitize_text_field( $_POST['title'] );
 		if( ! $title ) die();
 		
 		echo CPTD_Helper::clean_str_for_url( $title );
 		die();
-	} # end: cptd_post_type_slug_from_title()
+	} # end: cptd_slug_from_title()
 	
 
 	/**

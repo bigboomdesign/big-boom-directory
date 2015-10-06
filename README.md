@@ -14,7 +14,11 @@ Directory management system based on Custom Post Types, Taxonomies, and Fields
 
 ## Notes
 
-* Default behaviors for fields are not well-defined without Advanced Custom Fields plugin.  Using ACF adds support for field ordering and field types, as well as improving backend data entry experience
+* Default behaviors for fields are not well-defined without Advanced Custom Fields plugin.  Using ACF adds support for field ordering and field types, as well as improving backend data entry experience.
+
+* Uses [Extended Custom Post Types](https://github.com/johnbillion/extended-cpts) and [Extended Taxonomies](https://github.com/johnbillion/extended-taxos) for registering post types and taxonomies.
+
+* Uses [CMB2](https://github.com/WebDevStudios/CMB2) for handling post meta boxes.
 
 ---
 

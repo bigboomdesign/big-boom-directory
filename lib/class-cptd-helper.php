@@ -179,6 +179,7 @@ class CPTD_Helper{
 	 */
 
 	public static function register(){
+
 		# Main CPTD post type
 		register_extended_post_type('cptd_pt', 
 			array(
@@ -196,6 +197,7 @@ class CPTD_Helper{
 				'plural' => 'Post Types',
 			)
 		);
+
 		# CPTD Taxonomies
 		register_extended_post_type('cptd_tax',
 			array(
@@ -213,22 +215,24 @@ class CPTD_Helper{
 		);
 		
 		# User-defined post types
-		foreach(CPTD::get_post_types() as $pt){
+		foreach( CPTD::$post_type_ids as $pt_id){
+
+			$pt = new CPTD_pt( $pt_id );
 
 			# make sure that the post for this post type is published
-			if( empty ( $pt->post ) ) continue;
-			if('publish' != $pt->post->post_status) continue;
+			if( empty( $pt->post_status ) || 'publish' != $pt->post_status ) continue;
 
 			# register the post type
 			$pt->register();
 		}
 
 		# User-defined taxonomies
-		foreach(CPTD::get_taxonomies() as $tax){
+		foreach( CPTD::$taxonomy_ids as $tax_id ){
+
+			$tax = new CPTD_tax( $tax_id );
 
 			# make sure that the post for this taxonomy is published
-			if( empty( $tax->post ) ) continue;
-			if('publish' != $tax->post->post_status) continue;
+			if( empty( $tax->post_status ) || 'publish' != $tax->post_status  ) continue;
 
 			# register the taxonomy
 			$tax->register();
@@ -255,113 +259,8 @@ class CPTD_Helper{
 	 * @deprecated
 	 */
 
-	/**
-	 * Register meta boxes for post edit screens
-	 *
-	 * Only activated for posts of type `cptd_pt` and `cptd_tax`
-	 *
-	 * @param  	string 	$post_type 		The post type of the post we're editing
-	 * @param  	WP_Post 	$post 			The post we're editing
-	 *
-	 * @deprecated
-	 */
-
-	public static function add_meta_boxes($post_type, $post) {
-
-		# whether we're editing a `cptd_pt` or a `cptd_tax` post
-		$bPT = ('cptd_pt' == $post_type);
-		$bTax = ('cptd_tax' == $post_type);
-
-		if(!$bPT && !$bTax) return;
-
-		# Define a label to use ('Post Type' or 'Taxonomy')
-		$label = ($bPT) ? 'Post Type' : 'Taxonomy';
-
-		add_meta_box(
-			'cptd_post_meta_box',
-			"{$label} Settings",
-			($bPT ? array('CPTD_Helper', 'post_type_meta_box') : array('CPTD_Helper', 'taxonomy_meta_box')),
-			$post_type,
-			'normal',
-			'high'
-		);
-
-		# the code below removes the default editor, and then re-adds it so that our meta box is at the top
-		global $_wp_post_type_features;
-		if (isset($_wp_post_type_features[$post_type]['editor']) && $_wp_post_type_features['post']['editor']) {
-			unset($_wp_post_type_features[$post_type]['editor']);
-			add_meta_box(
-				'description_section',
-				__(' Description'),
-				array('CPTD_Helper', 'post_content_box'),
-				$post_type, 'normal', 'high'
-			);
-		}
-	} # end: add_meta_boxes()
-
-	/**
-	 * Display the "Post Type Settings" meta box for `cptd_pt` posts
-	 * 
-	 * @param  	WP_Post 	$post 	The post we're currently editing
-	 * @deprecated 
-	 */
-
-	public static function post_type_meta_box($post){
-		
-		$pt = new CPTD_pt($post);
-		$pt->load_cptd_meta();
 	
-		// Add a nonce field so we can check for it later.
-		wp_nonce_field( 'cptd_save_meta_box_data', 'cptd_meta_box_nonce' );
-		
-		ob_start();
-		?>
-		<div id='post-type-meta-box' class='cptd-post-meta-box'>
-			<div class='field' id='handle-container'>
-				<label for="handle">
-					Name <span class='required'>*</span><br />
-					<input 
-						autocomplete='off' 
-						type='text' 
-						class='regular-text' 
-						id='handle'
-						name='cptd_post_meta[handle]'  
-						value="<?php echo $pt->meta['handle']; ?>" 
-						readonly="readonly"
-					/>
-					<div>
-						<a id='change-name'>Change</a>
-						<div style='display: none;' id='cancel-name-change'>
-							 | <a>Cancel</a>
-							 | <a target='_blank' href='https://codex.wordpress.org/Post_Types#Naming_Best_Practices'>More Info</a>
-						</div>
-					</div>
-				</label>
-				<div id='handle-info' style='display: none;'>
-					<p class="description">The Post Type Name is the most important part of your post type. Once it is set and you have created posts for your post type, this value should not be changed. Don't change this unless you are confident that you know what you are doing.</p>
-					<p class="description">We guessed the ideal Post Type Name based on your title.  If you edit this field, please use only lowercase letters and underscores, and use a singular name like <code>book</code> instead of a plural name like <code>books</code>.</p>
-				</div>
-			</div>
-			<div class='field'>
-				<label for="singular">
-				Singular Label<br />
-				<input type='text' name="cptd_post_meta[singular]" id='singular' class='regular-text' value="<?php echo $pt->meta['singular']; ?>" />
-				</label>
-				<p class='description'>Ex: <code>Book</code></p>
-			</div>
-			<div class='field'>
-				<label for="plural">
-				Plural Label<br />
-				<input type='text' class='regular-text' name='cptd_post_meta[plural]' id='plural' value="<?php echo $pt->meta['plural']; ?>"  />
-				</label>
-				<p class='description'>Ex: <code>Books</code></p>
-			</div>
-		</div>
-		<?php
-		$html = ob_get_contents();
-		ob_end_clean();
-		echo $html;
-	} # end: post_type_meta_box()
+
 
 	/**
 	 * Display the "Post Type Settings" meta box for `cptd_pt` posts

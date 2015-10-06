@@ -10,51 +10,52 @@
 class CPTD_tax extends CPTD_Post{
 
 	/**
-	 * Class parameters
-	 */
-
-	/**
-	 * @param 	array 	$meta 	Contains the `_cptd_meta_` fields and their values as $k => $v
-	 * @since 	2.0.0
-	 */
-	var $meta = array(); 
-
-	/**
-	 *
-	 * @param 	array 	$tax_meta 	To be deprecated
-	 * @since 	2.0.0
-	 */
-	var $tax_meta = array(); // from the `cptd_tax_meta` custom field
-
-	/**
-	 * @param 	string 	$name 		To be deprecated
-	 * @since 	2.0.0
-	 */
-	var $name;
-
-	/**
-	 * @param 	string	$handle 	The taxonomy name to be registered
+	 * @param 	string		The taxonomy name to be registered
 	 * @since 	2.0.0
 	 */
 	var $handle;
 
 	/**
-	 * @param 	string	$singular 	The singular label for this taxonomy
+	 * @param 	string		The singular label for this taxonomy
 	 * @since 	2.0.0
 	 */
 	var $singular;
 
 	/**
-	 * @param 	string	$plural	 	The plural label for this taxonomy
+	 * @param 	string		The plural label for this taxonomy
 	 * @since 	2.0.0
 	 */
 	var $plural;
 
 	/**
-	 * @param 	string 	$slug 		The URL slug for this post type
+	 * @param 	bool		Whether this taxonomy is hierarchical
+	 * @since 	2.0.0
+	 */
+	var $hierarchical;
+
+	/**
+	 * @param 	array		A list of the post type ID's for this taxonomy
+	 * @since 	2.0.0
+	 */
+	var $post_types = array();
+
+	/**
+	 * @param 	string		The URL slug for this post type
 	 * @since 	2.0.0
 	 */
 	var $slug;
+
+	/**
+	 * @param 	array 		List of object parameters used for taxonomy registration ( $args for register_taxonomy )
+	 * @since 	2.0.0
+	 */
+	var $args_settings = array();
+
+	/**
+	 * @param 	bool 		Whether or not this taxonomy is public
+	 * @since 	2.0.0
+	 */
+	var $public;
 
 
 	/**
@@ -72,19 +73,15 @@ class CPTD_tax extends CPTD_Post{
 	 */
 
 	public function __construct( $post ){
+
 		parent::__construct($post);
 
-		# Load the CPTD post meta
-		$this->load_cptd_meta();
-		# Load the CPTD tax meta
-		$this->get_meta();
+		if( ! $this->ID ) return;
 
-		# Set object parameters
-		/*
-		$this->name = $this->meta['handle'];
-		$this->singular = $this->meta['singular'];
-		$this->plural = $this->meta['plural'];
-		*/
+		$this->load_post_data();
+		$this->load_post_meta();
+
+		if( empty( $this->hierarchical ) ) $this->hierarchical = false;
 
 	} # end: __construct()
 
@@ -112,66 +109,46 @@ class CPTD_tax extends CPTD_Post{
 		if( empty( $this->handle ) ) return;
 
 		# produce an array for the $args['object_type']
-		if(!$this->tax_meta['post_types']) return;
+		if( empty( $this->post_types ) ) return;
 
 		$object_type = array();
 		
 		# loop through post ID's which control the post types for this taxonomy
-		foreach($this->tax_meta['post_types'] as $post_id){
+		foreach( $this->post_types as $post_id){
 
 			# make sure we have an acceptable post type
-			$pt = new CPTD_pt($post_id);
-			if( ! $pt->ID ) continue;
+			if( ! in_array( $post_id, CPTD::$post_type_ids ) ) return;
+			$pt = new CPTD_pt( $post_id );
 
-			# add the post type name to the list
-			$object_type[] = $pt->name;
+			# add the post type name to the list for registration
+			$object_type[] = $pt->handle;
 
 		} # end foreach: post types for this taxonomy
 
-		if( ! $object_type ) return;
+		if( empty( $object_type ) ) return;
 
 		$args = array(
-			'taxonomy' => $this->name,
+			'taxonomy' => $this->handle,
 			'object_type' => $object_type,
 			'args' => array(),
 			'names' => array(
 				'singular' 	=> $this->singular,
-				'plural' 	=> $this->plural
+				'plural' 	=> $this->plural,
 			)
 		);
+
+
+		if( ! empty( $this->slug ) ) $ars['names']['slug'] = $this->slug;
+		if( is_bool( $this->hierarchical ) ) {
+			$args['args']['hierarchical'] = $this->hierarchical;
+		}
 
 		# apply filter that user can hook into
 		$args = apply_filters('cptd_register_tax', $args);
 
 		# register the taxonomy using Extended Taxonomies
-		register_extended_taxonomy($args['taxonomy'], $args['object_type'], $args['args'], $args['names']);
+		register_extended_taxonomy( $args['taxonomy'], $args['object_type'], $args['args'], $args['names'] );
+
 	} # end: register()
-
-	/**
-	 * Load the CPTD taxonomy meta for this post
-	 *
-	 * To be deprecated in favor of load_cptd_meta
-	 */
-
-	public function get_meta(){
-
-		# get the array from the custom field `cptd_post_meta`
-		$meta = get_post_meta($this->ID, 'cptd_tax_meta', true);
-
-		if(!$meta) $meta = array();
-
-		# don't pass any empty values into our array merge if we're forcing the defaults
-		foreach($meta as $k => $v){
-			if(!$v) unset($meta[$k]);
-		}
-
-		$this->tax_meta = shortcode_atts(
-			array(
-				'post_types' => array(),
-			),
-			$meta,
-			'cptd_tax_meta'
-		);
-	}
 
 } # end class: CPTD_tax
