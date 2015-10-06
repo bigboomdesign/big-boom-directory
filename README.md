@@ -1,4 +1,6 @@
-# Custom Post Type Directory
+# Custom Post Type Directory (Version 1)
+
+## `git checkout v2` for Version 2
 ---
 
 A directory plugin for WordPress, driven by the WP Custom Post Type environment.
