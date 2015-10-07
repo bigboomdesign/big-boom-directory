@@ -28,12 +28,6 @@ class CPTD_tax extends CPTD_Post{
 	var $plural;
 
 	/**
-	 * @param 	bool		Whether this taxonomy is hierarchical
-	 * @since 	2.0.0
-	 */
-	var $hierarchical;
-
-	/**
 	 * @param 	array		A list of the post type ID's for this taxonomy
 	 * @since 	2.0.0
 	 */
@@ -49,13 +43,19 @@ class CPTD_tax extends CPTD_Post{
 	 * @param 	array 		List of object parameters used for taxonomy registration ( $args for register_taxonomy )
 	 * @since 	2.0.0
 	 */
-	var $args_settings = array();
+	var $args_settings = array( 'public', 'hierarchical' );
 
 	/**
 	 * @param 	bool 		Whether or not this taxonomy is public
 	 * @since 	2.0.0
 	 */
 	var $public;
+
+	/**
+	 * @param 	bool		Whether this taxonomy is hierarchical
+	 * @since 	2.0.0
+	 */
+	var $hierarchical;
 
 
 	/**
@@ -82,6 +82,7 @@ class CPTD_tax extends CPTD_Post{
 		$this->load_post_meta();
 
 		if( empty( $this->hierarchical ) ) $this->hierarchical = false;
+		if( empty( $this->public ) ) $this->public = false;
 
 	} # end: __construct()
 
@@ -138,10 +139,28 @@ class CPTD_tax extends CPTD_Post{
 		);
 
 
-		if( ! empty( $this->slug ) ) $ars['names']['slug'] = $this->slug;
-		if( is_bool( $this->hierarchical ) ) {
-			$args['args']['hierarchical'] = $this->hierarchical;
+		if( ! empty( $this->slug ) ) $args['names']['slug'] = $this->slug;
+
+		# load in any settings from the backend
+		foreach( $this->args_settings as $key ) {
+			if( ! empty( $this->$key ) || false === $this->$key ) {
+				$value = $this->$key;
+
+				# for checkboxes
+				if( 'on' == $value ) {
+					$value = true;
+				}
+
+				# for integers
+				if( 'menu_position' == $key ) $value = intval( $value );
+				
+				# add to args for register_taxonomy
+				$args['args'][ $key ] = $value;
+
+				$this->$key = $value;
+			}
 		}
+
 
 		# apply filter that user can hook into
 		$args = apply_filters('cptd_register_tax', $args);

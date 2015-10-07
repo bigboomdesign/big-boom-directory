@@ -361,6 +361,8 @@ class CPTD_Admin{
 		/**
 		 * Advanced taxonomy settings
 		 */
+
+		# Meta box
 		$advanced_tax_settings = new_cmb2_box( array(
 			'id' 			=> 'cptd_advanced_tax_settings',
 			'title'			=> __( 'Advanced Taxonomy Settings', 'cmb2' ),
@@ -368,6 +370,41 @@ class CPTD_Admin{
 			'context' 		=> 'normal',
 			'priority' 		=> 'high',
 			'closed' 		=> true
+		));
+
+		# Fields
+
+		## Slug
+		$advanced_tax_settings->add_field( array(
+			'name' 			=> 'URL slug',
+			'id'			=> $prefix.'slug',
+			'type'			=> 'text',
+			'attributes'	=> array(
+				'readonly' 	=> 'readonly'
+			),
+			'before'		=> array( 'CPTD_Admin', 'before_slug' ),
+			'sanitize_cb' 	=> array( 'CPTD_Admin', 'sanitize_slug' ),
+			'description'	=> 
+				"<p></p>
+				<div id='slug-container'>
+					<a id='change-slug'>Change</a>
+					<div style='display: none;' id='cancel-slug-change'>
+						 | <a>Cancel</a>
+					</div>
+					<div id='slug-info' style='display: none;'>
+						<p class='description'>The slug determines the URL's for your taxonomy's term archive pages. If left empty, we will guess the ideal slug based on your title. For best results, use only lowercase letters and hyphens if you change the slug.</p>
+						<p class='description'>For example, <code>book-genres</code> would produce <code>http://mysite.com/book-genres/fiction</code> if you had a term called 'Fiction'</p>
+						<p class='description'>Once the slug is set and you have created posts for your post type, changing this value can negatively affect your search engine performance and user experience. Don't change this unless you are confident that you know what you are doing.</p>
+					</div>
+				</div>",
+		));
+
+		## Public
+		$advanced_tax_settings->add_field( array(
+			'name'	=> 'Public',
+			'id'	=> $prefix.'public',
+			'type' 	=> 'checkbox',
+			'default' => self::default_for_checkbox( 'on' )
 		));
 
 	} # end: cmb2_meta_boxes()
