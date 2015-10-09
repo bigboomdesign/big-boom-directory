@@ -20,7 +20,11 @@ class CPTD_Admin{
 	
 		# Action links on main Plugins screen
 		$plugin = plugin_basename( cptd_dir( '/cpt-directory.php' ) );
-		add_filter("plugin_action_links_$plugin", array('CPTD_Admin', 'plugin_actions'));
+		add_filter( "plugin_action_links_$plugin", array('CPTD_Admin', 'plugin_actions') );
+
+		# Row actions for custom post types
+		add_filter( 'post_row_actions', array( 'CPTD_Admin', 'post_row_actions' ), 10, 2 );
+		add_filter( 'page_row_actions', array( 'CPTD_Admin', 'post_row_actions' ), 10, 2 );
 
 		# CMB2 meta boxes
 		add_action('cmb2_admin_init', array( 'CPTD_Admin', 'cmb2_meta_boxes' ), 10 );
@@ -39,6 +43,7 @@ class CPTD_Admin{
 	 * - admin_menu()
 	 * - admin_enqueue()
 	 * - plugin_actions()
+	 * - post_row_actions()
 	 * - cmb2_meta_boxes()
 	 */
 
@@ -107,6 +112,28 @@ class CPTD_Admin{
 
 		return $links;
 	} # end: plugin_actions()
+
+	/**
+	 * Add to the post row actions for custom post types (edit.php)
+	 *
+	 * @param 	array 		$actions 	The existing array of actions
+	 * @param 	WP_Post		$post 		The post for the row whose actions are being edited
+	 * @since 	2.0.0
+	 */
+	public static function post_row_actions( $actions, $post ){
+
+		# make sure we have the post type 'cptd_pt'
+		if ( ! ( 'cptd_pt' == $post->post_type ) ) return $actions;
+		
+		# remove the `Quick Edit` link
+		unset( $actions['inline hide-if-no-js'] );
+
+		$pt = new CPTD_pt( $post->ID );
+
+		$actions['view_posts'] = '<a href="'. admin_url( 'edit.php?post_type='.$pt->handle ) .'">View Posts</a>';
+
+		return $actions;
+	}
 
 	/**
 	 * Set up the meta boxes for the plugin using CMB2
