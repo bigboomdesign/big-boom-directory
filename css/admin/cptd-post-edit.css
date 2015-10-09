@@ -5,32 +5,13 @@ h1 a.page-title-action{
 	display: none;
 }
 
-/* post meta box */
+/* post meta boxes */
 
-/*
-.cptd-post-meta-box .field{
-	margin-bottom: 1.2em;
-}
-.cptd-post-meta-box .field label{
-	font-weight: bold;
-}
-.cptd-post-meta-box .field label input[type=text]{
-	font-weight: normal;
-	margin-top: 0.3em;
-}
-*/
-
-/* post name box */
+/** post type settings meta boxes */
 #handle-container.highlight,
 #slug-container.highlight{
 	padding: 1em;
 }
-
-/*
-#handle-container p.description{
-	margin-top: 1em;
-}
-*/
 
 #handle-container a,
 #slug-container a{
@@ -54,7 +35,17 @@ div#slug-info p{
 	padding-top: 1em;
 }
 
-/* taxonomy settings meta box */
+div.cptd-field-select{
+	border-top: solid 1px #ddd;
+	margin-top: 1em;
+	padding-top: 1em;
+}
+
+div.cptd-field-select label{
+	display: block;
+}
+
+/** taxonomy settings meta boxes */
 #tax-assign-pt h3{
 	padding-left: 0;
 }

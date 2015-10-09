@@ -1,4 +1,7 @@
-// post title
+// localized variables
+var postId = cptdData.postId
+
+// post title input
 var $title;
 
 // the link to change the PT name
@@ -16,7 +19,13 @@ var $ptName;
 // div that holds the input
 var $handleContainer;
 
-jQuery(document).ready(function($){
+// the meta box that holds the archive fields
+var $archiveFieldsContainer;
+
+// the meta box that holds the single fields
+var $singleFieldsContainer;
+
+jQuery( document ).ready( function( $ ) {
 
 	// post title input
 	$title = $('#title');
@@ -119,21 +128,69 @@ jQuery(document).ready(function($){
 		hideSlugInfo($);
 
 	});
-});
+
+	/**
+	 * Field group selection
+	 *
+	 * - Archive fields
+	 * - Single fields
+	 */
+
+	/**
+	 * Archive fields
+	 */
+	$archiveFieldsContainer = $('.cmb2-id--cptd-meta-pt-archive-fields');
+
+	// onclick for archive field group checkbox
+	$archiveFieldsContainer
+		.find('input[type=checkbox].cptd_field_group_select')
+		.on( 'click', function() {
+			fieldGroupChange( $(this), 'archive', $ );
+		}
+	); // end: onclick for archive field group checkbox
+
+	// trigger any archive field group checkboxes that are already checked on page load
+	$archiveFieldsContainer
+		.find('input[type=checkbox].cptd_field_group_select:checked')
+		.each( function() { fieldGroupChange( $(this), 'archive', $ ); } );
+
+	/**
+	 * Single fields
+	 */
+	$singleFieldsContainer = $('.cmb2-id--cptd-meta-pt-single-fields');
+
+	// onclick for single field group checkbox
+	$singleFieldsContainer
+		.find('input[type=checkbox].cptd_field_group_select')
+		.on( 'click', function() {
+			fieldGroupChange( $(this), 'single', $ );
+		}
+	);
+
+	// trigger any single field group checkboxes that are already checked on page load
+	$singleFieldsContainer
+		.find('input[type=checkbox].cptd_field_group_select:checked')
+		.each( function() { fieldGroupChange( $(this), 'single', $ ); } );
+
+}); // end: on document ready
 
 /**
  * Subroutines
  *
  * - Name change routines
  * - Slug change routines
+ * - Field group change routines
  */
 
  /**
-  * Name change routines
+  * Name change subroutines
+  *
+  * - triggerHandleInfo()
+  * - hideHandleInfo()
   */
 
  /**
-  *  Enables the post type name input to be changed and pre-populates with 
+  *  Enables the post type name input to be changed and pre-populates using post title if necessary
   */
 function triggerHandleInfo( $ ){
 
@@ -162,8 +219,12 @@ function triggerHandleInfo( $ ){
 			$handleContainer.find('#handle-info').css('display', 'block');
 		} // end: success
 	}); // end: ajax
-}
 
+} // end: triggerHandleInfo()
+
+/**
+ * Hide the handle change dialog box
+ */
 function hideHandleInfo( $ ) {
 	$handle.prop('readonly', true);
 	$changeName.html('Change');
@@ -171,10 +232,18 @@ function hideHandleInfo( $ ) {
 	$handleContainer.removeClass('highlight');
 	$handleContainer.find('#handle-info').css('display', 'none');
 	$cancelNameChange.css('display', 'none');
-}
+} // end: hideHandleInfo()
+
 
 /**
  * Slug change subroutines
+ * 
+ * - triggerSlugInfo()
+ * - hideSlugInfo()
+ */
+
+/**
+ * Enables the slug input to be changed
  */
 function triggerSlugInfo( $ ){
 
@@ -203,8 +272,12 @@ function triggerSlugInfo( $ ){
 			$slugContainer.find('#slug-info').css('display', 'block');
 		} // end: success
 	}); // end: ajax
-}
 
+} // end: triggerSlugInfo()
+
+/**
+ * Hide the slug change dialog box
+ */
 function hideSlugInfo( $ ) {
 	$slug.prop('readonly', true);
 	$changeSlug.html('Change');
@@ -212,4 +285,58 @@ function hideSlugInfo( $ ) {
 	$slugContainer.removeClass('highlight');
 	$slugContainer.find('#slug-info').css('display', 'none');
 	$cancelSlugChange.css('display', 'none');
-}
+} // end: hideSlugInfo()
+
+
+/**
+ * Field group change routines
+ *
+ */
+
+/**
+ * Changes the available fields whenever a field groupd is selected
+ *
+ * @param 	jQuery 	$checkbox 		The checkbox being changed
+ * @param 	string 	type 			(archive|single) Which view's field group is being toggled
+ * @param	jQuery	$				The global jQuery object
+ * @since 	2.0.0
+ */
+ function fieldGroupChange($checkbox, type, $) {
+
+ 	// the target for where our output is going to go
+	var target = ( 'archive' == type ) ? 
+		$('#_cptd_meta_pt_archive_fields-field-results') : 
+		$('#_cptd_meta_pt_single_fields-field-results');
+
+ 	// if we are turning the checkbox off
+ 	if( false == $checkbox.prop('checked') ) {
+ 		target.html('');
+ 		return;
+ 	}
+
+ 	// get the container of the field group being changed
+	var $container = ( 'archive' == type ) ? $archiveFieldsContainer : $singleFieldsContainer;
+	
+	// uncheck all other checkboxes in this meta box
+	$container
+	.find('input[type=checkbox].cptd_field_group_select')
+	.each( function() {
+		if( $checkbox.attr('id') != $(this).attr('id') ) $(this).prop('checked', false);
+	});
+
+	// make an ajax call to populate the fields for this field group
+	$.ajax( {
+		url: ajaxurl,
+		method: 'POST',
+		data: {
+			action: 'cptd_select_field_group',
+			post_id: postId,
+			field_group_post_id: $checkbox.val(),
+			view_type: type
+		},
+		success: function(data) {
+			// populate the proper container with the field checkboxes
+			target.html(data);
+		}
+	}); // end: ajax()
+ } // end: fieldGroupChange()

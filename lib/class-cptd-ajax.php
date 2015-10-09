@@ -13,7 +13,11 @@ class CPTD_Ajax{
 	/**
 	 * @param 	array 	$actions 	The actions to register with wp_ajax
 	 */
-	static $actions = array('cptd_handle_from_title', 'cptd_slug_from_title');
+	static $actions = array(
+		'cptd_handle_from_title', 
+		'cptd_slug_from_title',
+		'cptd_select_field_group'
+	);
 
 
 	/**
@@ -29,6 +33,7 @@ class CPTD_Ajax{
 	 *
 	 * - cptd_handle_from_title()
 	 * - cptd_slug_from_title()
+	 * - cptd_select_field_group()
 	 */
 
 	/**
@@ -62,6 +67,82 @@ class CPTD_Ajax{
 		echo CPTD_Helper::clean_str_for_url( $title );
 		die();
 	} # end: cptd_slug_from_title()
+
+	/**
+	 * Print a checkbox group of fields for the selected field group
+	 *
+	 * @param 	string 	$_POST['post_id'] 				The post ID of the post being edited
+	 * @param 	string 	$_POST['field_group_post_id'] 	The post ID of the selected field group
+	 * @param 	string 	$_POST['view_type'] 			(single|archive) The section for the selected field group
+	 * @since 	2.0.0
+	 */
+	public static function cptd_select_field_group() {
+
+		# make sure we have a view type ('single' or 'archive')
+		if( empty( $_POST['view_type'] ) ) die();
+		$view_type = $_POST['view_type'];
+
+		# make sure we have an ID for the field group being selected
+		if( empty( $_POST['field_group_post_id'] ) || ! ( $field_group_post_id = intval( $_POST['field_group_post_id'] ) ) ) die();
+
+		# get the current post ID if we have one
+		$post_id = isset( $_POST['post_id'] ) ? $_POST['post_id'] : 0;
+
+		global $wpdb;
+
+		# get all the fields for this field group from the postmeta table
+		$meta_query = "SELECT * FROM " . $wpdb->postmeta . 
+			" WHERE post_id = " . $field_group_post_id . 
+			" AND meta_key LIKE \"%field_%\"";
+		$r = $wpdb->get_results( $meta_query );
+
+		ob_start();
+		?>
+		<div class="cptd-field-select">
+		<?php
+
+			# if no fields were found
+			if( ! $r ) {
+				echo 'No fields were found for that field group.';
+			}
+
+			# if fields exist
+			else{
+
+				# get the saved fields, if any, so we can pre-check them
+				$saved_fields = array();
+				if( $post_id ) {
+					$saved_fields = (array) get_post_meta( $post_id, '_cptd_meta_'. $_POST['view_type'] .'_fields', true );
+				}
+
+				# loop through the fields for this field group and generate checkboxes
+				foreach( $r as $row ) {
+					
+					$value = unserialize( $row->meta_value );
+					if( ! $value ) continue;
+					?>
+					<label>
+						<input 
+							type='checkbox' 
+							name="_cptd_meta_<?php echo $_POST['view_type']; ?>_fields[]"
+							value="<?php echo  $value['key']; ?>" 
+							<?php checked( true, in_array( $value['key'], $saved_fields ) ); ?>
+						/> <?php echo $value['label']; ?>
+					</label>
+				<?php
+				} # end foreach: fields for this field group
+			} # end else: fields exist
+		?>
+		</div>
+		<?php
+
+		# print the generated HTML
+		$html = ob_get_contents();
+		ob_end_clean();
+		echo $html;
+		die();
+	
+	} # end: cptd_select_field_group()
 	
 
 	/**

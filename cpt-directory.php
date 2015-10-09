@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Directory management system based on Custom Post Types, Taxonomies, and Fields
- * Version: 2.0.0.7.1
+ * Version: 2.0.0.8.0
  * Author: Big Boom Design
  * Author URI: http://bigboomdesign.com
  */
@@ -24,8 +24,8 @@ require_once cptd_dir('/lib/class-cptd-tax.php');
 require_once cptd_dir('/lib/class-cptd-ajax.php');
 
 # Extended Post Types & Taxonomies
-if( ! function_exists( 'register_extended_post_type' ) ) require_once cptd_dir('/assets/extended-cpts.php');
-if( ! function_exists( 'register_extended_taxonomy' ) ) require_once cptd_dir('/assets/extended-taxos.php');
+if( ! function_exists( 'register_extended_post_type' ) ) require_once cptd_dir( '/assets/extended-cpts.php' );
+if( ! function_exists( 'register_extended_taxonomy' ) ) require_once cptd_dir( '/assets/extended-taxos.php' );
 
 
 /**
@@ -33,8 +33,8 @@ if( ! function_exists( 'register_extended_taxonomy' ) ) require_once cptd_dir('/
  */
 
 # Register user-defined post types
-add_action('init', array('CPTD', 'load_cptd_post_data'));
-add_action('init', array('CPTD_Helper', 'register'));
+add_action('init', array( 'CPTD', 'load_cptd_post_data' ) ) ;
+add_action('init', array( 'CPTD_Helper', 'register' ) );
 
 
 /**
@@ -42,9 +42,9 @@ add_action('init', array('CPTD_Helper', 'register'));
  */
 if(is_admin()){
 	
-	require_once cptd_dir('/lib/admin/class-cptd-admin.php');
-	require_once cptd_dir('/lib/class-cptd-options.php');
-	require_once cptd_dir('/assets/cmb2/init.php');
+	require_once cptd_dir( '/lib/admin/class-cptd-admin.php' );
+	require_once cptd_dir( '/lib/class-cptd-options.php' );
+	require_once cptd_dir( '/assets/cmb2/init.php' );
 	
 	CPTD_Admin::init();
 	CPTD_Ajax::add_actions();
@@ -78,8 +78,7 @@ function cptd_should_load(){
 }
 
 /**
- * Whether or not a query is for a CPTD object
- *
+ * Whether or not the main query is for a CPTD object
  *
  * @return 	bool	Returns true when viewing any the following:
  *

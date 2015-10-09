@@ -78,6 +78,22 @@ class CPTD{
 	public static $meta = array();
 
 	/**
+	 * All ACF field groups (WP_Post) objects 
+	 * 
+	 * @param 	array
+	 * @since 	2.0.0
+	 */
+	public static $acf_field_groups = array();
+
+	/**
+	 * Whether we've already checked and found no ACF field groups
+	 *
+	 * @param 	bool
+	 * @since 	2.0.0
+	 */
+	public static $no_acf_field_groups = false;
+
+	/**
 	 * Whether we're viewing a CPTD object on the front end
 	 * 
 	 * @param 	bool
@@ -146,7 +162,6 @@ class CPTD{
 
 	/**
 	 * Load all data necessary to bootstrap the custom post types and taxonomies
-	 * 
 	 * @since 	2.0.0
 	 */ 
 	public static function load_cptd_post_data() {
@@ -154,11 +169,13 @@ class CPTD{
 		# query the database for post type 'cptd_pt' and 'cptd_tax'
 		global $wpdb;
 
+		# build the posts query
 		$posts_query = "SELECT ID, post_title, post_type, post_status FROM " . $wpdb->posts .
-			" WHERE post_type IN ( 'cptd_pt', 'cptd_tax' )" . 
-			" AND post_status IN ( 'publish', 'draft' )" . 
+			" WHERE post_type IN ( 'cptd_pt', 'cptd_tax' ) " .
+			" AND post_status IN ( 'publish', 'draft' ) " .
 			" ORDER BY post_title ASC";
 
+		# execute the query
 		$posts = $wpdb->get_results( $posts_query );
 		
 		# if we don't have any post types or taxonomies, set the object values to indicate so
@@ -252,6 +269,28 @@ class CPTD{
 
 	} # end: get_taxonomies()
 
+	/**
+	 * Get all ACF field groups.  Returns and/or populates self::$acf_field_groups
+	 */
+	public static function get_acf_field_groups() {
+
+		# if we've run this function before, return the result
+		if( self::$acf_field_groups || self::$no_acf_field_groups ) return self::$acf_field_groups;
+
+		$field_groups = get_posts( array(
+				'posts_per_page' => -1,
+				'post_type' => array( 'acf-field-group', 'acf' ),
+				'post_status' => 'publish',
+		));
+
+		if( ! $field_groups ) {
+			self::$no_acf_field_groups = true;
+		}
+		
+		CPTD::$acf_field_groups = $field_groups;
+		return CPTD::$acf_field_groups;
+
+	} # end: get_acf_field_groups()
 
 	/**
 	 * Load info about the current front end view

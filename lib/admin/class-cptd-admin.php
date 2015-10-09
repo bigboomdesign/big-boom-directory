@@ -9,7 +9,6 @@ class CPTD_Admin{
 
 	/**
 	 * Insert actions and filters for the backend
-	 * 
 	 * @since 2.0.0
 	 */ 
 	public static function init(){
@@ -22,13 +21,6 @@ class CPTD_Admin{
 		# Action links on main Plugins screen
 		$plugin = plugin_basename( cptd_dir( '/cpt-directory.php' ) );
 		add_filter("plugin_action_links_$plugin", array('CPTD_Admin', 'plugin_actions'));
-		
-		# Add meta boxes on post edit screens for `cptd_pt` and `cptd_tax` posts
-		/*
-		add_action( 'add_meta_boxes', array('CPTD_Helper', 'add_meta_boxes'), 10, 2);
-		add_action( 'save_post', array('CPTD_Helper', 'save_meta_box_data') );
-		add_action( 'admin_notices', array('CPTD_Helper', 'post_edit_admin_notices'), 100 );
-		*/
 
 		# CMB2 meta boxes
 		add_action('cmb2_admin_init', array( 'CPTD_Admin', 'cmb2_meta_boxes' ), 10 );
@@ -36,9 +28,9 @@ class CPTD_Admin{
 		# fix for the URL that cmb2 defines
 		add_filter( 'cmb2_meta_box_url', 'update_cmb_meta_box_url' );
 		function update_cmb_meta_box_url( $url ) {
-		    // modify the url here
 		    return cptd_url('/assets/cmb2');
 		}
+
 	} # end: init()
 	
 	/**
@@ -80,6 +72,10 @@ class CPTD_Admin{
 		){
 			wp_enqueue_style('cptd-post-edit-css', cptd_url('/css/admin/cptd-post-edit.css'));
 			wp_enqueue_script('cptd-post-edit-js', cptd_url('/js/admin/cptd-post-edit.js'), array('jquery'));
+
+			# pass the post ID to the post-edit-js
+			$post_id = isset( $_GET['post'] ) ? $_GET['post'] : 0;
+			wp_localize_script( 'cptd-post-edit-js', 'cptdData', array( 'postId' =>  $post_id ) );
 		}
 			
 		# Information screen
@@ -134,6 +130,8 @@ class CPTD_Admin{
 		 * 		- Has Archive
 		 * 		- Menu Position
 		 * 		- Menu Icon
+		 *
+		 * - Post type fields meta box
 		 */
 
 		/**
@@ -149,7 +147,7 @@ class CPTD_Admin{
 			'priority' 		=> 'high',
 		));
 
-		# Fields
+		# Basic post type settings fields
 		
 		## Name/Handle
 		$pt_settings->add_field( array(
@@ -205,7 +203,7 @@ class CPTD_Admin{
 			'closed'		=> true
 		));
 
-		# Fields
+		# Advanced post type fields
 
 		## Slug
 		$advanced_pt_settings->add_field( array(
@@ -264,6 +262,49 @@ class CPTD_Admin{
 			'default' 	=> 'dashicons-admin-post',
 			'description'	=> '<a target="_blank" href="https://developer.wordpress.org/resource/dashicons/#admin-post">Learn More</a>'
 		));
+
+		/**
+		 * Post Type `fields selection` meta box
+		 */
+
+		# Meta box
+		$pt_fields = new_cmb2_box( array(
+			'id' 			=> 'cptd_pt_fields_settings',
+			'title'			=> __( 'Fields Setup', 'cmb2' ),
+			'object_types' 	=> array( 'cptd_pt' ),
+			'context' 		=> 'normal',
+			'priority' 		=> 'high',
+		));
+
+		# Post type archive fields
+		$pt_fields->add_field(  array(
+			'name' => 'Post Type Archive Fields',
+			'id' => $prefix.'pt_archive_fields',
+			'type' => 'multicheck',
+			'attributes' => array( 
+				'class' => 'cptd_field_group_select',
+				'autocomplete' => 'off'
+			),
+			'description' => "Select which fields show for your posts on the post type archive page.",
+			'before' 	=> array( 'CPTD_Admin', 'before_fields_select'),
+			'select_all_button' => false,
+			'sanitization_cb' => array( 'CPTD_Admin', 'sanitize_archive_fields' )
+		));
+
+		# Post type single fields
+		$pt_fields->add_field( array(
+			'name' => 'Single Post Fields',
+			'id' => $prefix.'pt_single_fields',
+			'type' => 'multicheck',
+			'attributes' => array( 
+				'class' => 'cptd_field_group_select',
+				'autocomplete' => 'off'
+			),
+			'description' => 'Select which fields show on the single post view for your post type.',
+			'before' 	=> array( 'CPTD_Admin', 'before_fields_select'),
+			'select_all_button' => false
+		));
+
 
 
 		/**
@@ -503,13 +544,81 @@ class CPTD_Admin{
 	 * @since 	2.0.0
 	 */
 	public static function before_tax_post_types( $args, $field ) {
+
+		# get all post types		
 		$post_types = CPTD::get_post_types();
+
+		# filter out drafts and add to options
 		foreach( $post_types as $pt ) {
+
+			if( 'publish' != $pt->post_status ) continue;
 
 			$pt = new CPTD_pt( $pt );
 			$field->args['options'][ $pt->ID ] = $pt->plural;
+
 		}
-	}
+
+		# if no post types have been created yet
+		if( empty( $field->args['options'] ) ){
+
+			$field->args['description'] = "<p>You don't have any published post types yet.  You'll need to <a href='". admin_url('edit.php?post_type=cptd_pt') . "'>create a post type</a> before creating taxonomies.</p>";
+			return;
+		
+		} # end if: no post types
+	
+	} # end: before_tax_post_types()
+
+	/**
+	 * Load post type ACF field group choices
+	 *
+	 * @param	string	$args 	The arguments for the CMB2 field
+	 * @param	string 	$field	The CMB2 field object
+	 * @since 	2.0.0
+	 */
+ 	public static function before_fields_select($args, $field) {
+
+ 		# get the field groups
+ 		$field_groups = CPTD::get_acf_field_groups();
+
+ 		# loop through ACF field groups
+ 		if( $field_groups ) {
+
+ 			foreach( $field_groups as $group ) {
+ 				$field->args['options'][ $group->ID ] = $group->post_title;
+ 			}
+
+	 		# add a container to the description to hold the fields generated by AJAX calls
+	 		$field->args['description'] .= "<div id='". $field->args['id'] ."-field-results'></div>";
+
+ 		} # end if: field groups exist
+
+ 	} # end: before_fields_select()
+
+ 	/**
+ 	 * Adds the fields selected for the chosen field group to the post meta
+	 * @param	string	$value	The user-submitted field group ID
+	 * @since 	2.0.0
+ 	 */
+ 	public static function sanitize_archive_fields( $value ) {
+
+ 		# see if the archive fields are set
+ 		if( isset( $_POST['_cptd_meta_archive_fields'] ) ) {
+ 			update_post_meta( $_POST['ID'], '_cptd_meta_archive_fields', $_POST['_cptd_meta_archive_fields'] );
+ 		}
+ 		# if not, clear out the archive fields post meta
+ 		else update_post_meta( $_POST['ID'], '_cptd_meta_archive_fields', '' );
+
+ 		# see if the single fields are set
+ 		if( isset( $_POST['_cptd_meta_single_fields'] ) ) {
+ 			update_post_meta( $_POST['ID'], '_cptd_meta_single_fields', $_POST['_cptd_meta_single_fields'] );
+ 		}
+ 		# if not, clear out the single fields post meta
+ 		else update_post_meta( $_POST['ID'], '_cptd_meta_single_fields', '' );
+
+ 		return $value;
+
+ 	} # end: sanitize_archive_fields()
+
 
 	/**
 	 * HTML for admin screens produced by this plugin
