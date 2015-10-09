@@ -10,49 +10,65 @@
 class CPTD_tax extends CPTD_Post{
 
 	/**
-	 * @param 	string		The taxonomy name to be registered
+	 * The taxonomy name to be registered
+	 *
+	 * @param 	string
 	 * @since 	2.0.0
 	 */
 	var $handle;
 
 	/**
-	 * @param 	string		The singular label for this taxonomy
+	 * The singular label for this taxonomy
+	 *
+	 * @param 	string
 	 * @since 	2.0.0
 	 */
 	var $singular;
 
 	/**
-	 * @param 	string		The plural label for this taxonomy
+	 * The plural label for this taxonomy
+	 *
+	 * @param 	string
 	 * @since 	2.0.0
 	 */
 	var $plural;
 
 	/**
-	 * @param 	array		A list of the post type ID's for this taxonomy
+	 * A list of the post type ID's for this taxonomy
+	 *
+	 * @param 	array
 	 * @since 	2.0.0
 	 */
 	var $post_types = array();
 
 	/**
-	 * @param 	string		The URL slug for this post type
+	 * The URL slug for this post type
+	 *
+	 * @param 	string
 	 * @since 	2.0.0
 	 */
 	var $slug;
 
 	/**
-	 * @param 	array 		List of object parameters used for taxonomy registration ( $args for register_taxonomy )
+	 * List of object parameters used for taxonomy registration ( $args for register_taxonomy )
+	 *
+	 * @param 	array
 	 * @since 	2.0.0
 	 */
 	var $args_settings = array( 'public', 'hierarchical' );
 
 	/**
-	 * @param 	bool 		Whether or not this taxonomy is public
+	 * Whether or not this taxonomy is public
+	 *
+	 * @param 	bool
 	 * @since 	2.0.0
 	 */
 	var $public;
 
 	/**
-	 * @param 	bool		Whether this taxonomy is hierarchical
+	 * Whether this taxonomy is hierarchical
+	 *
+	 * @param 	bool
 	 * @since 	2.0.0
 	 */
 	var $hierarchical;

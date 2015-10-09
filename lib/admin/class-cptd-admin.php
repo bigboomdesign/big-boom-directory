@@ -133,7 +133,7 @@ class CPTD_Admin{
 		$actions['view_posts'] = '<a href="'. admin_url( 'edit.php?post_type='.$pt->handle ) .'">View Posts</a>';
 
 		return $actions;
-	}
+	} # end: post_row_actions()
 
 	/**
 	 * Set up the meta boxes for the plugin using CMB2

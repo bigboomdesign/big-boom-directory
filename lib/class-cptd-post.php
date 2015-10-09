@@ -12,43 +12,57 @@ class CPTD_Post{
 	 */
 
 	/**
-	 * @param 	WP_Post		The WP_Post object being 'extended'
+	 * The WP_Post object being 'extended'
+	 *
+	 * @param 	WP_Post	
 	 * @since 	2.0.0
 	 */
-	var $post = ''; # (WP_POST) since we can't extend WP_Post
+	var $post = '';
 
 	/**
-	 * @param  	int 		The post ID
+	 * The post ID
+	 *
+	 * @param  	int
 	 * @since 	2.0.0
 	 */
-	var $ID = 0;  # (int) shortcut for $this->post->ID
+	var $ID = 0;
 
 	/**
-	 * @param 	int			The post type for the post being extended
+	 * The post type for the post being extended
+	 *
+	 * @param 	string
 	 * @since 	2.0.0
 	 */
 	var $post_type = '';
 
 	/**
-	 * @param 	string 		The title of the post 
+	 * The title of the post 
+	 * 
+	 * @param 	string 
 	 * @since 	2.0.0
 	 */	
 	var $post_title;
 
 	/**
-	 * @param 	string 		The post content
+	 * The post content
+	 *
+	 * @param 	string 
 	 * @since 	2.0.0
 	 */	
 	var $post_content;
 
 	/**
-	 * @param 	string 		The title of the post being extended
+	 * The status of the post
+	 *
+	 * @param 	string 
 	 * @since 	2.0.0
 	 */
 	var $post_status = '';
 
 	/**
-	 * @param 	array 		Holds post meta for the post
+	 * The post meta for the post
+	 * 
+	 * @param 	array 
 	 */
 	var $fields = array();
 
@@ -111,6 +125,7 @@ class CPTD_Post{
 
 	} # end: __construct()
 
+
 	/**
 	 * Methods specific to CPTD_pt and CPTD_tax and common to both
 	 * 
@@ -120,6 +135,7 @@ class CPTD_Post{
 
 	/**
 	 * Use $this->ID to load post data for this instance from CPTD::$post_types and CPTD::$taxonomies
+	 * 
 	 * @since 	2.0.0
 	 */
 	public function load_post_data() {
@@ -152,6 +168,7 @@ class CPTD_Post{
 
 	/**
 	 * Use $this->ID to load CPTD meta values for this instance from CPTD::$meta
+	 *
 	 * @since 	2.0.0
 	 */
 	public function load_post_meta() {

@@ -13,60 +13,81 @@ class CPTD_pt extends CPTD_Post{
 	 */
 
 	/**
-	 * @param 	string		The post type name to be registered
+	 * The post type name to be registered
+	 *
+	 * @param 	string
 	 * @since 	2.0.0
 	 */
 	var $handle;
 
 	/**
-	 * @param 	string		The singular label for this post type
+	 * The singular label for this post type
+	 *
+	 * @param 	string
 	 * @since 	2.0.0
 	 */
 	var $singular;
 
 	/**
-	 * @param 	string 		The plural label for this post type
+	 * The plural label for this post type
+	 *
+	 * @param 	string 
 	 * @since 	2.0.0
 	 */
 	var $plural;
 
 	/**
-	 * @param 	string 		The URL slug for this post type
+	 * The URL slug for this post type
+	 *
+	 * @param 	string 
 	 * @since 	2.0.0
 	 */
 	var $slug;
 
 	/**
-	 * @param 	array 		List of object parameters used for post registration ( $args for register_post_type )
+	 * List of object parameters used for post registration ($args for register_post_type)
+	 * 
+	 * @param 	array
+	 * @since 	2.0.0
 	 */
 	var $args_settings = array( 'public', 'has_archive', 'menu_position', 'menu_icon' );
 
 	/** 
-	 * @param 	bool 	Whether the post type is public
+	 * Whether the post type is public
+	 * 
+	 * @param 	bool
 	 * @since 	2.0.0
 	 */
 	var $public;
 
 	/** 
-	 * @param 	bool 	Whether the post type has an archive page
+	 * Whether the post type has an archive page
+	 * 
+	 * @param 	bool
 	 * @since 	2.0.0
 	 */
 	var $has_archive;
 
 	/**
-	 * @param 	int 	The position of the post type in the WP Admin menu
+	 * The position of the post type in the WP Admin menu
+	 *
+	 * @param 	int
 	 * @since 	2.0.0
 	 */
 	var $menu_position;
 
 	/**
-	 * @param 	string 	The menu icon to use in the WP Admin menu
+	 * The menu icon to use in the WP Admin menu
+	 * 
+	 * @param 	string 
 	 * @since 	2.0.0
 	 */
 	var $menu_icon;
 
 	/**
-	 * @param 	array 	The ACF fields for this post type
+	 * The ACF fields for this post type
+	 * 
+	 * @param 	array
 	 * @since 	2.0.0
 	 */
 	var $acf_field_groups;
@@ -155,12 +176,5 @@ class CPTD_pt extends CPTD_Post{
 		$args = apply_filters('cptd_register_pt', $args );
 		register_extended_post_type($args['post_type'], $args['args'], $args['names']);
 	} # end: register()
-
-	/**
-	 * Load the ACF field groups for this post type
-	 */
-	public function load_acf_field_groups() {
-		var_dump( 'choding' );
-	} # end: load_acf_field_groups()
 
 } # end class: CPTD_pt

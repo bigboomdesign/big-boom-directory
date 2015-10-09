@@ -14,7 +14,8 @@ class CPTD{
 	 */
 
 	/**
-	 * List of post IDs for CPT post types
+	 * List of post IDs for CPTD post types
+	 *
 	 * @param 	array 	
 	 * @since 	2.0.0
 	 */
@@ -22,6 +23,7 @@ class CPTD{
 
 	/**
 	 * List of post types created by CPTD user (stdClass objects retrieved from DB) 
+	 *
 	 * @param 	array 	
 	 * @since 	2.0.0
 	 */
@@ -36,7 +38,8 @@ class CPTD{
 	public static $no_post_types = false;
 
 	/**
-	 * List of post IDs for CPT taxonomies
+	 * List of post IDs for CPTD taxonomies
+	 *
 	 * @param 	array 	
 	 * @since 	2.0.0
 	 */
@@ -74,6 +77,7 @@ class CPTD{
 	 *			@type 	string	$meta_value	
 	 * 		}
 	 * }
+	 * @since 	2.0.0
 	 */
 	public static $meta = array();
 
@@ -136,7 +140,8 @@ class CPTD{
 	 *
 	 * Defines a custom action 'cptd_pre_get_posts' after validating the view as CPTD
 	 *
-	 * @since 2.0.0
+	 * @param 	WP_Query 	$query 		The query object that is getting posts
+	 * @since 	2.0.0
 	 */
 	public static function pre_get_posts($query) {
 
@@ -162,6 +167,7 @@ class CPTD{
 
 	/**
 	 * Load all data necessary to bootstrap the custom post types and taxonomies
+	 *
 	 * @since 	2.0.0
 	 */ 
 	public static function load_cptd_post_data() {
@@ -271,6 +277,8 @@ class CPTD{
 
 	/**
 	 * Get all ACF field groups.  Returns and/or populates self::$acf_field_groups
+	 *
+	 * @since 	2.0.0
 	 */
 	public static function get_acf_field_groups() {
 

@@ -11,7 +11,10 @@ class CPTD_Ajax{
 	 */
 
 	/**
-	 * @param 	array 	$actions 	The actions to register with wp_ajax
+	 * The actions to register with wp_ajax
+	 *
+	 * @param 	array 
+	 * @since 	2.0.0
 	 */
 	static $actions = array(
 		'cptd_handle_from_title', 
@@ -57,6 +60,7 @@ class CPTD_Ajax{
 
 	/**
 	 * Print a slug suitable for URL usage, given a title via $_POST
+	 *
 	 * @param 	string 	$_POST['title']		The title to convert into a slug
 	 * @since 	2.0.0
 	 */

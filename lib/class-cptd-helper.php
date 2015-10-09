@@ -17,6 +17,7 @@ class CPTD_Helper{
 	
 	/**
 	 * Check if a $_POST value is empty and return sanitized value
+	 *
 	 * @param 	string 	$field 		The key to check within the $_POST array
 	 * @since 	2.0.0
 	 */
