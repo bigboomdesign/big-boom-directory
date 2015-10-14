@@ -55,8 +55,8 @@ class CPTD_Admin{
 	public static function admin_menu(){
 
 		# sub-pages
-		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Settings | CPT Directory', 'Settings', 'administrator', 'cptdir-settings', array('CPTD_Admin', 'settings_page'));
-		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Information | CPT Directory', 'Information', 'administrator', 'cptdir-information', array('CPTD_Admin', 'information_page'));
+		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Settings | CPT Directory', 'Settings', 'administrator', 'cptd-settings', array('CPTD_Admin', 'settings_page'));
+		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Information | CPT Directory', 'Information', 'administrator', 'cptd-information', array('CPTD_Admin', 'information_page'));
 		
 		global $submenu;
         unset($submenu['edit.php?post_type=cptd_pt'][10]);
@@ -84,7 +84,7 @@ class CPTD_Admin{
 		}
 			
 		# Information screen
-		if($screen->base == 'cptd_pt_page_cptdir-information'){
+		if($screen->base == 'cptd_pt_page_cptd-information'){
 			wp_enqueue_style('cptd-readme-css', cptd_url('/css/admin/cptd-readme.css'));
 			wp_enqueue_script('cptd-readme-js', cptd_url('/js/admin/cptd-readme.js'), array('jquery'));
 		}
@@ -103,11 +103,11 @@ class CPTD_Admin{
 		array_pop($links);
 
 		# Add 'Settings' link to the front
-		$settings_link = '<a href="admin.php?page=cptdir-settings">Settings</a>';
+		$settings_link = '<a href="admin.php?page=cptd-settings">Settings</a>';
 		array_unshift($links, $settings_link);
 
 		# Add 'Instructions' link to the front
-		$instructions_link = '<a href="admin.php?page=cptdir-information">Instructions</a>';
+		$instructions_link = '<a href="admin.php?page=cptd-information">Instructions</a>';
 		array_unshift($links, $instructions_link);
 
 		return $links;
@@ -128,7 +128,7 @@ class CPTD_Admin{
 		# remove the `Quick Edit` link
 		unset( $actions['inline hide-if-no-js'] );
 
-		$pt = new CPTD_pt( $post->ID );
+		$pt = new CPTD_PT( $post->ID );
 
 		$actions['view_posts'] = '<a href="'. admin_url( 'edit.php?post_type='.$pt->handle ) .'">View Posts</a>';
 
@@ -580,7 +580,7 @@ class CPTD_Admin{
 
 			if( 'publish' != $pt->post_status ) continue;
 
-			$pt = new CPTD_pt( $pt );
+			$pt = new CPTD_PT( $pt );
 			$field->args['options'][ $pt->ID ] = $pt->plural;
 
 		}
@@ -708,7 +708,7 @@ class CPTD_Admin{
 	 * @return 	string		The HTML including the standard wrapper
 	 */
 	public static function page_wrap($s){
-		return "<div class='wrap cptdir-admin'>{$s}</div>";
+		return "<div class='wrap cptd-admin'>{$s}</div>";
 	}
 	
 } # end: CPTD_Admin

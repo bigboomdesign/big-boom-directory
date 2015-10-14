@@ -3,7 +3,8 @@
  * A post-like object which is essentially an extension of WP_Post and can itself be extended.
  *
  * Used in favor of WP_Post and `get_post()/get_posts()/get_post_meta()` for better DB performance
- * 
+ *
+ * @since 	2.0.0
  */ 
 class CPTD_Post{
 
@@ -127,7 +128,7 @@ class CPTD_Post{
 
 
 	/**
-	 * Methods specific to CPTD_pt and CPTD_tax and common to both
+	 * Methods specific to CPTD_PT and CPTD_Tax and common to both
 	 * 
 	 * - load_post_data()
 	 * - load_post_meta()

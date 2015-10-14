@@ -1,6 +1,6 @@
 <h1>Custom Post Type Directory (Version 2)</h1>
 
-<h2><code>git checkout master</code> for Version 1</h2>
+<h2>Run <code>git checkout master</code> for Version 1</h2>
 
 <p>Directory management system based on Custom Post Types, Taxonomies, and Fields</p>
 
@@ -15,9 +15,10 @@
 <h2>Notes</h2>
 
 <ul>
-<li><p>Default behaviors for front end field display are not well-defined without Advanced Custom Fields plugin.  Using ACF adds support for field ordering and field types, as well as improving backend data entry experience.</p></li>
+<li><p>Default behaviors for front end field display are not well-defined without Advanced Custom Fields plugin.  Using ACF adds support for field placement and ordering on single/archive pages for your various post types as well as field type selection.</p></li>
 <li><p>Uses <a href="https://github.com/johnbillion/extended-cpts">Extended Custom Post Types</a> and <a href="https://github.com/johnbillion/extended-taxos">Extended Taxonomies</a> for registering post types and taxonomies.</p></li>
 <li><p>Uses <a href="https://github.com/WebDevStudios/CMB2">CMB2</a> for handling post meta boxes.</p></li>
+<li><p>Giving a field a key of <code>web</code>, <code>website</code>, or <code>url</code> will cause the field value to autolink on front end CPTD views</p></li>
 </ul>
 
 <hr />
@@ -71,7 +72,7 @@ function my_register_pt( $args ) {
 
 <h4>Return</h4>
 
-<pre><code>You must return the altered HTML to be displayed
+<pre><code>(string) You must return the altered HTML to be displayed
 </code></pre>
 
 <h4>Example</h4>
@@ -87,6 +88,35 @@ function my_the_content( $content ) {
     if( $phone ) $new_html = '&lt;p&gt;Phone: '. $phone .'&lt;/p&gt;':
 
     return $content . $new_html;
+}
+</code></pre>
+
+<hr />
+
+<h3><code>cptd_field_value_{$field_name}</code></h3>
+
+<p>Use this to filter a field value before it is displayed on the front end. Use your own field name (meta key) in place of <code>{$field_name}</code>. </p>
+
+<h4>Parameters</h4>
+
+<pre><code>$value: The field value to be displayed
+</code></pre>
+
+<h4>Return</h4>
+
+<pre><code>(string) You must return the altered field value
+</code></pre>
+
+<h4>Example</h4>
+
+<p>Below, we are filtering the value of a field called <code>email</code> and adding a mailto link.</p>
+
+<pre><code>add_filter( 'cptd_field_email', 'my_email_filter' );
+function my_email_filter( $value ){
+
+    $value = "&lt;a href='mailto:". $value . "' &gt;" . $value . "&lt;/a&gt;";
+    return $value;
+
 }
 </code></pre>
 
@@ -119,6 +149,36 @@ function my_pre_get_posts( $query ) {
 
     $query-&gt;query_vars['orderby'] = 'meta_value';
     $query-&gt;query_vars['meta_key'] = 'last_name';
+}
+</code></pre>
+
+<h3><code>cptd_pre_render_field_{$field_name}</code></h3>
+
+<h3><code>cptd_post_render_field_{$field_name}</code></h3>
+
+<p>These actions allow users to insert their own HTML before (<em>pre</em>) or after (<em>post</em>) a field is rendered.  Use your own field name (meta key) in place of <code>{$field_name}</code>.  Note that the action fires whether or not the field has a value.</p>
+
+<h3>Parameters</h3>
+
+<p><code>$field</code> (CPTD_Field) The field object being displayed</p>
+
+<h3>Example</h3>
+
+<p>Below is an example to wrap a field called <code>email</code> in a div. Note the example doesn't use the <code>$field</code> object, although it is available inside the function.</p>
+
+<pre><code>add_action('cptd_pre_render_field_email', 'my_pre_email');
+add_action('cptd_post_render_field_email', 'my_post_email');
+
+function my_pre_email( $field ){
+?&gt;
+    &lt;div id='my-email-field' class='my-custom-class' &gt;
+&lt;?php
+}
+
+function my_post_email( $field ){
+?&gt;
+    &lt;/div&gt;
+&lt;?php
 }
 </code></pre>
 

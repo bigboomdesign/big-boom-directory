@@ -7,7 +7,7 @@
  * @since 2.0.0
  */
 
-class CPTD_tax extends CPTD_Post{
+class CPTD_Tax extends CPTD_Post{
 
 	/**
 	 * The taxonomy name to be registered
@@ -135,7 +135,7 @@ class CPTD_tax extends CPTD_Post{
 
 			# make sure we have an acceptable post type
 			if( ! in_array( $post_id, CPTD::$post_type_ids ) ) return;
-			$pt = new CPTD_pt( $post_id );
+			$pt = new CPTD_PT( $post_id );
 
 			# add the post type name to the list for registration
 			$object_type[] = $pt->handle;
@@ -186,4 +186,4 @@ class CPTD_tax extends CPTD_Post{
 
 	} # end: register()
 
-} # end class: CPTD_tax
+} # end class: CPTD_Tax

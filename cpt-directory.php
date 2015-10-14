@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Directory management system based on Custom Post Types, Taxonomies, and Fields
- * Version: 2.0.0.9.1
+ * Version: 2.0.0.10.0
  * Author: Big Boom Design
  * Author URI: http://bigboomdesign.com
  */
@@ -55,7 +55,8 @@ if(is_admin()){
  */
 else{
 	
-	require_once cptd_dir('/lib/class-cptd-view.php');	
+	require_once cptd_dir('/lib/class-cptd-view.php');
+	require_once cptd_dir('/lib/class-cptd-field.php');
 	
 	# the front end view object ( initialized via `wp` action )
 	global $cptd_view;
@@ -121,5 +122,5 @@ function cptd_dir($s){ return plugin_dir_path(__FILE__).$s; }
  * @return 	string
  * @since 	2.0.0
  */
-function cptd_success($msg, $tag = 'p', $class=''){ return "<{$tag} class='cptdir-success" . ($class ? " ".$class:null) . "'>{$msg}</{$tag}>"; }
-function cptd_fail($msg, $tag = 'p', $class = ''){ return "<{$tag} class='cptdir-fail" . ($class ? " ".$class:null) . "'>{$msg}</{$tag}>"; }
+function cptd_success($msg, $tag = 'p', $class=''){ return "<{$tag} class='cptd-success" . ($class ? " ".$class:null) . "'>{$msg}</{$tag}>"; }
+function cptd_fail($msg, $tag = 'p', $class = ''){ return "<{$tag} class='cptd-fail" . ($class ? " ".$class:null) . "'>{$msg}</{$tag}>"; }

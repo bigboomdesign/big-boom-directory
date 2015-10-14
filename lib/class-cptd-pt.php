@@ -6,7 +6,7 @@
  *
  * @since 2.0.0
  */
-class CPTD_pt extends CPTD_Post{
+class CPTD_PT extends CPTD_Post{
 	
 	/**
 	 * Class parameters
@@ -177,4 +177,4 @@ class CPTD_pt extends CPTD_Post{
 		register_extended_post_type($args['post_type'], $args['args'], $args['names']);
 	} # end: register()
 
-} # end class: CPTD_pt
+} # end class: CPTD_PT

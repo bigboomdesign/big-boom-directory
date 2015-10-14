@@ -3,6 +3,7 @@
  * Registers calls with wp_ajax and wp_ajax_nopriv
  * Handles callbacks for wp_ajax and wp_ajax_nopriv
  * 
+ * @since 	2.0.0
  */
 class CPTD_Ajax{
 

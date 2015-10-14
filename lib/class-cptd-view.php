@@ -1,6 +1,8 @@
 <?php
 /**
  * Handles front end implementation of custom post type views
+ *
+ * @since 	2.0.0
  */
 class CPTD_View {
 
@@ -15,13 +17,13 @@ class CPTD_View {
 	/**
 	 * The current post type being viewed on the front end
 	 *
-	 * @param 	CPTD_pt
+	 * @param 	CPTD_PT
 	 * @since 	2.0.0
 	 */
 	var $post_type;
 
 	/**
-	 * The ACF fields to display for the current view
+	 * The ACF fields to display for the current view (CPTD_Field) objects
 	 *
 	 * @param 	array
 	 * @since 	2.0.0
@@ -49,7 +51,7 @@ class CPTD_View {
 		if( ! empty( CPTD::$current_post_type ) && in_array( CPTD::$current_post_type, CPTD::$post_type_ids ) ) {
 
 			# load the post type object
-			$this->post_type = new CPTD_pt( CPTD::$current_post_type );
+			$this->post_type = new CPTD_PT( CPTD::$current_post_type );
 
 			# Load ACF fields
 
@@ -65,10 +67,8 @@ class CPTD_View {
 				# loop through the field keys (e.g. field_5617329134186) and store field arrays
 				foreach( $fields as $field ) {
 
-					$field = get_field_object( $field );
-
-					# make sure the field isn't 'empty' (it may be an array with useles info if no field was found)
-					if( '' != $field['name']  ) $this->acf_fields[] = $field;
+					$field = new CPTD_Field( $field );
+					if( $field->is_acf ) $this->acf_fields[] = $field;
 				}
 
 			} # end if: ACF fields are saved for the current screen's post type and view
@@ -76,6 +76,7 @@ class CPTD_View {
 		} # end if: current post type is set
 
 	} # end: __construct()
+
 
 	/**
 	 * Return HTML containing this view's ACF field data for a post
@@ -88,18 +89,31 @@ class CPTD_View {
 
 			# Use global $post if it exists
 			if( empty( $post ) ) {
+
 				global $post;
 				if( empty( $post ) ) return '';
 			}
 
 			ob_start();
-
-			# loop through ACF fields
-			foreach( $this->acf_fields as $field ) {
 			?>
-				<p><?php echo $field['label']; ?>: <?php echo get_post_meta( $post->ID, $field['name'], true ); ?></p>
+			<div class="cptd-fields-wrap">
 			<?php
-			} # end foreach: ACF fields
+				# loop through fields for this view
+				foreach( $this->acf_fields as $field ) {
+
+					# hookable pre-render action specific to this field name
+					do_action( 'cptd_pre_render_field_' . $field->key, $field );
+
+					# print the field HTML
+					$field->get_html( true );
+
+					# hookable post-render action specific to this field name
+					do_action( 'cptd_post_render_field_' . $field->key, $field );
+
+				} # end foreach: fields
+			?>
+			</div>
+			<?php
 
 			# get the buffer contents
 			$html = ob_get_contents();
@@ -107,6 +121,6 @@ class CPTD_View {
 
 			return $html;
 
-	} # end get_acf_html()
+	} # end get_acf_html()	
 
 } # end class: CPTD_View

@@ -408,7 +408,7 @@ class CPTD{
 			# loop through CPTD post types and check against queried post type
 			foreach( CPTD::$post_type_ids as $pt) {
 
-				$pt = new CPTD_pt( $pt );
+				$pt = new CPTD_PT( $pt );
 				if( empty( $pt->handle ) ) continue;
 
 				# if the queried post type is a CPTD post type
@@ -435,7 +435,7 @@ class CPTD{
 			# loop through CPTD taxonomies and check against queried taxonomies
 			foreach( CPTD::$taxonomy_ids as $tax ) {
 
-				$tax = new CPTD_tax( $tax );
+				$tax = new CPTD_Tax( $tax );
 				foreach( $tax_query->queries as $query ) {
 
 					# if the queried taxonomy is a CPTD taxonomy

@@ -1,6 +1,8 @@
 <?php
 /**
  * Performs helper functions for the plugin's various components
+ *
+ * @since 	2.0.0
  */
 class CPTD_Helper{
 
@@ -231,7 +233,7 @@ class CPTD_Helper{
 		# User-defined post types
 		foreach( CPTD::$post_type_ids as $pt_id){
 
-			$pt = new CPTD_pt( $pt_id );
+			$pt = new CPTD_PT( $pt_id );
 
 			# make sure that the post for this post type is published
 			if( empty( $pt->post_status ) || 'publish' != $pt->post_status ) continue;
@@ -243,7 +245,7 @@ class CPTD_Helper{
 		# User-defined taxonomies
 		foreach( CPTD::$taxonomy_ids as $tax_id ){
 
-			$tax = new CPTD_tax( $tax_id );
+			$tax = new CPTD_Tax( $tax_id );
 
 			# make sure that the post for this taxonomy is published
 			if( empty( $tax->post_status ) || 'publish' != $tax->post_status  ) continue;
