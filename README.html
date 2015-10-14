@@ -15,7 +15,7 @@
 <h2>Notes</h2>
 
 <ul>
-<li><p>Default behaviors for fields are not well-defined without Advanced Custom Fields plugin.  Using ACF adds support for field ordering and field types, as well as improving backend data entry experience.</p></li>
+<li><p>Default behaviors for front end field display are not well-defined without Advanced Custom Fields plugin.  Using ACF adds support for field ordering and field types, as well as improving backend data entry experience.</p></li>
 <li><p>Uses <a href="https://github.com/johnbillion/extended-cpts">Extended Custom Post Types</a> and <a href="https://github.com/johnbillion/extended-taxos">Extended Taxonomies</a> for registering post types and taxonomies.</p></li>
 <li><p>Uses <a href="https://github.com/WebDevStudios/CMB2">CMB2</a> for handling post meta boxes.</p></li>
 </ul>
@@ -46,11 +46,47 @@ containing the arguments for <a href="https://github.com/johnbillion/extended-cp
 
 <h4>Example</h4>
 
-<pre><code>add_filter('cptd_register_pt', 'my_register_pt');
-function my_register_pt($args){
-    if($cpt['post_type'] == 'my_post_type')
-        $cpt['args']['labels']['menu_name'] = 'Custom Menu Name'
+<pre><code>add_filter( 'cptd_register_pt', 'my_register_pt' );
+function my_register_pt( $args ) {
+
+    if( $cpt['post_type'] == 'my_post_type' )
+        $cpt['args']['labels']['menu_name'] = 'Custom Menu Name';
+
     return $cpt;
+}
+</code></pre>
+
+<hr />
+
+<h3><code>cptd_the_content</code></h3>
+
+<h4>Description</h4>
+
+<p>Use this filter to modify the post content for CPTD views.  Does not fire for non-CPTD page views.</p>
+
+<h4>Parameters</h4>
+
+<pre><code>$content: The post content along with any appended fields for the current view
+</code></pre>
+
+<h4>Return</h4>
+
+<pre><code>You must return the altered HTML to be displayed
+</code></pre>
+
+<h4>Example</h4>
+
+<p>Below, we're appending an additional field called <code>phone</code> below the default fields and post content.</p>
+
+<pre><code>add_filter( 'cptd_the_content', 'my_the_content' );
+function my_the_content( $content ) {
+
+    global $post;
+
+    $phone = get_post_meta( $post-&gt;ID, 'phone', true );
+    if( $phone ) $new_html = '&lt;p&gt;Phone: '. $phone .'&lt;/p&gt;':
+
+    return $content . $new_html;
 }
 </code></pre>
 
@@ -60,11 +96,30 @@ function my_register_pt($args){
 
 <h3><code>cptd_pre_get_posts</code></h3>
 
-<p>Use this action to alter the query for CPTD views.  Does not fire on non-CPTD page views</p>
+<p>Use this action to alter the global <code>$wp_query</code> for CPTD views.  It's essentially the same as <code>pre_get_posts</code>, except CPTD defaults are in place.  Also, there is no need to check whether we're viewing a page for a CPTD object or whether the query is the main query object, as this has been verified before the filter fires.  </p>
 
-<h3>Parameters</h3>
+<p>Below are the default query arguments for a CPTD view:</p>
 
-<pre><code>$query: The same $query passed via 'pre_get_posts'
+<ul>
+<li><code>order_by</code>: post_title</li>
+<li><code>order</code>: ASC</li>
+</ul>
+
+<h4>Parameters</h4>
+
+<pre><code>$query: The same value passed by WP's `pre_get_posts` action, with the CPTD defaults in place
+</code></pre>
+
+<h4>Example</h4>
+
+<p>Below, we are using the <code>cptd_pre_get_posts</code> filter to order CPTD posts by a field called <code>last_name</code></p>
+
+<pre><code>add_action( 'cptd_pre_get_posts', 'my_pre_get_posts' );
+function my_pre_get_posts( $query ) {
+
+    $query-&gt;query_vars['orderby'] = 'meta_value';
+    $query-&gt;query_vars['meta_key'] = 'last_name';
+}
 </code></pre>
 
 <hr />
