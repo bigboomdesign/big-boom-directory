@@ -28,14 +28,14 @@
 
 <h2>Filters</h2>
 
-<p><code>cptd_register_pt</code></p>
+<h3><code>cptd_register_pt</code></h3>
 
-<h3>Description</h3>
+<h4>Description</h4>
 
 <p>Use this filter to access the post type data before CPTD post types are registered.  The filtered object is an array
 containing the arguments for <a href="https://github.com/johnbillion/extended-cpts/wiki/Basic-usage">register_extended_post_type</a>, which is a wrapper for <a href="https://codex.wordpress.org/Function_Reference/register_post_type">register_post_type</a>.</p>
 
-<h3>Parameters</h3>
+<h4>Parameters</h4>
 
 <pre><code>$cpt = array(
     'post_type' =&gt; (string),
@@ -44,7 +44,7 @@ containing the arguments for <a href="https://github.com/johnbillion/extended-cp
 )
 </code></pre>
 
-<h3>Example</h3>
+<h4>Example</h4>
 
 <pre><code>add_filter('cptd_register_pt', 'my_register_pt');
 function my_register_pt($args){
@@ -58,7 +58,7 @@ function my_register_pt($args){
 
 <h2>Actions</h2>
 
-<p><code>cptd_pre_get_posts</code></p>
+<h3><code>cptd_pre_get_posts</code></h3>
 
 <p>Use this action to alter the query for CPTD views.  Does not fire on non-CPTD page views</p>
 
@@ -66,3 +66,13 @@ function my_register_pt($args){
 
 <pre><code>$query: The same $query passed via 'pre_get_posts'
 </code></pre>
+
+<hr />
+
+<h2>Functions</h2>
+
+<p>Here are some helper functions that you can call within your child theme</p>
+
+<h3><code>is_cptd_view()</code></h3>
+
+<p>Returns <code>true</code> if we are viewing a CPTD object and <code>false</code> otherwise.</p>

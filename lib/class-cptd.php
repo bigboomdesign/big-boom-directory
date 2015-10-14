@@ -106,7 +106,15 @@ class CPTD{
 	public static $is_cptd = null;
 
 	/**
-	 * The post type for the current view
+	 * The current front end view type (null if ! self::$is_cptd )
+	 *
+	 * @param 	string 		(null|archive|single)
+	 * @since 	2.0.0
+	 */
+	public static $view_type = null;
+
+	/**
+	 * The post type post ID for the current view
 	 * 
 	 * @param 	string
 	 * @since 	2.0.0
@@ -114,7 +122,7 @@ class CPTD{
 	public static $current_post_type = '';
 
 	/**
-	 * The taxonomy for the current view
+	 * The taxonomy post ID for the current view
 	 * 
 	 * @param 	string
 	 * @since 	2.0.0
@@ -132,8 +140,31 @@ class CPTD{
 	/**
 	 * Basic WP callbacks for actions and filters
 	 *
+	 * - wp()
 	 * - pre_get_posts()
+	 * - the_content()
 	 */
+
+	/**
+	 * Callback for `wp` action
+	 *
+	 * @since 	2.0.0
+	 */
+	public static function wp() {
+
+		global $cptd_view;
+
+		self::load_view_info();
+
+		# make sure we're viewing a CPTD object
+		if( ! is_cptd_view() ) return;
+
+		$cptd_view = new CPTD_View();
+		
+		add_filter( 'the_content', array( 'CPTD', 'the_content' ) );
+		add_filter( 'the_excerpt', array( 'CPTD', 'the_content' ) );
+	
+	} # end: wp()
 
 	/**
 	 * Callback for 'pre_get_posts' action
@@ -143,17 +174,52 @@ class CPTD{
 	 * @param 	WP_Query 	$query 		The query object that is getting posts
 	 * @since 	2.0.0
 	 */
-	public static function pre_get_posts($query) {
+	public static function pre_get_posts( $query ) {
 
 		# make sure we have the main query
 		if( ! $query->is_main_query() ) return;
 
-		# make sure we're viewing a CPTD object
-		if( ! is_cptd_view() ) return;
-		
-		# action that users can hook into
+		# Use post title as the default ordering for CPTD views
+		$query->query_vars['orderby'] = 'post_title';
+		$query->query_vars['order'] = 'ASC';
+
+		# action that users can hook into to edit the query further
 		do_action('cptd_pre_get_posts', $query);
+
 	} # end: pre_get_posts()
+
+	/**
+	 * Callback for 'the_content' and 'the_excerpt' action
+	 *
+	 * @param 	string 	$content 	The post content or excerpt
+	 * @return 	string 	The new post content after being filtered
+	 * @since 	2.0.0
+	 */
+	public static function the_content( $content ) {
+
+		# do nothing if we're not viewing a CPTD object
+		if( ! is_cptd_view() ) return $content;
+
+		global $cptd_view;
+
+		$html = '';
+
+		# check if we have HTML to display based on ACF field data
+		if( ! empty( $cptd_view->acf_fields ) ) {
+
+			$html .= $cptd_view->get_acf_html();
+
+		} # end if: ACF fields are set for the current view
+
+		# prepend the CPTD HTML to the content
+		$output = $html . $content;
+
+		# apply a filter the user can hook into and return the modified content
+		$output = apply_filters( 'cptd_the_content', $html . $content );
+
+		return $output;
+
+	} # end: the_content()
 
 
 	/**
@@ -313,13 +379,21 @@ class CPTD{
 	 * @since 	2.0.0
 	 */
 	public static function load_view_info() {
+		
+		# change from null to false, to indicate we've loaded the view info already and found this wasn't a CPTD view
+		CPTD::$is_cptd = false;
 
 		global $wp_query;
-		if( empty( $wp_query ) ) return;
 
-		# reduce weight for pages, post archives, categories, tags, and author archives
-		if( is_page() || is_home() || is_category() || is_tag() || is_author() ) {
-			CPTD::$is_cptd = false;
+		# reduce weight for pages, posts, post archive, categories, tags, and author archives
+		if( is_page() || is_singular('post') || is_home() || is_category() || is_tag() || is_author() ) {
+			return;
+		}
+
+		# if we are doing a wp search
+		if( is_search() ) { 
+			CPTD::$is_cptd = true;
+			CPTD::$view_type = 'archive';
 			return;
 		}
 
@@ -337,16 +411,21 @@ class CPTD{
 				$pt = new CPTD_pt( $pt );
 				if( empty( $pt->handle ) ) continue;
 
+				# if the queried post type is a CPTD post type
 				if( $queried_post_type == $pt->handle ) {
 
 					CPTD::$is_cptd = true;
 					
 					# set the current post type
-					CPTD::$current_post_type = $pt->handle;
+					CPTD::$current_post_type = $pt->ID;
+
+					if( is_singular() ) CPTD::$view_type = 'single';
+					else CPTD::$view_type = 'archive';
 				}
 
 			} # end foreach: post type IDs
-		}
+
+		} # end if: queried post type exists
 
 		# see if there is a queried taxonomy for this view
 		$tax_query = ( ! empty( $wp_query->tax_query ) ? $wp_query->tax_query : '');
@@ -358,13 +437,18 @@ class CPTD{
 
 				$tax = new CPTD_tax( $tax );
 				foreach( $tax_query->queries as $query ) {
+
+					# if the queried taxonomy is a CPTD taxonomy
 					if( $query['taxonomy'] == $tax->handle ) {
+
 						CPTD::$is_cptd = true;
-						CPTD::$current_taxonomy = $tax->handle;
+						CPTD::$current_taxonomy = $tax->ID;
+						CPTD::$view_type = 'archive';
 					}
 				}
 			} # end foreach: taxonomy IDs
-		}
+		} # end if: tax query exists
 
 	} # end: load_view_info()
+
 } # end class: CPTD

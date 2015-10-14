@@ -152,7 +152,7 @@ jQuery( document ).ready( function( $ ) {
 	// trigger any archive field group checkboxes that are already checked on page load
 	$archiveFieldsContainer
 		.find('input[type=checkbox].cptd_field_group_select:checked')
-		.each( function() { fieldGroupChange( $(this), 'archive', $ ); } );
+		.each( function() { fieldGroupChange( $(this), 'acf_archive', $ ); } );
 
 	/**
 	 * Single fields
@@ -170,7 +170,7 @@ jQuery( document ).ready( function( $ ) {
 	// trigger any single field group checkboxes that are already checked on page load
 	$singleFieldsContainer
 		.find('input[type=checkbox].cptd_field_group_select:checked')
-		.each( function() { fieldGroupChange( $(this), 'single', $ ); } );
+		.each( function() { fieldGroupChange( $(this), 'acf_single', $ ); } );
 
 }); // end: on document ready
 
@@ -304,9 +304,9 @@ function hideSlugInfo( $ ) {
  function fieldGroupChange($checkbox, type, $) {
 
  	// the target for where our output is going to go
-	var target = ( 'archive' == type ) ? 
+	var target = ( 'acf_archive' == type ) ? 
 		$('#_cptd_meta_pt_archive_fields-field-results') : 
-		$('#_cptd_meta_pt_single_fields-field-results');
+		( 'acf_single' == type ? $('#_cptd_meta_pt_single_fields-field-results') : '');
 
  	// if we are turning the checkbox off
  	if( false == $checkbox.prop('checked') ) {
@@ -315,7 +315,11 @@ function hideSlugInfo( $ ) {
  	}
 
  	// get the container of the field group being changed
-	var $container = ( 'archive' == type ) ? $archiveFieldsContainer : $singleFieldsContainer;
+	var $container = ( 'acf_archive' == type ) ? 
+		$archiveFieldsContainer : 
+		( 'acf_single' == type ? $singleFieldsContainer : '');
+
+	if( '' == $container ) return;
 	
 	// uncheck all other checkboxes in this meta box
 	$container

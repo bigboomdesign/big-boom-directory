@@ -629,18 +629,18 @@ class CPTD_Admin{
  	public static function sanitize_archive_fields( $value ) {
 
  		# see if the archive fields are set
- 		if( isset( $_POST['_cptd_meta_archive_fields'] ) ) {
- 			update_post_meta( $_POST['ID'], '_cptd_meta_archive_fields', $_POST['_cptd_meta_archive_fields'] );
+ 		if( isset( $_POST['_cptd_meta_acf_archive_fields'] ) ) {
+ 			update_post_meta( $_POST['ID'], '_cptd_meta_acf_archive_fields', $_POST['_cptd_meta_acf_archive_fields'] );
  		}
  		# if not, clear out the archive fields post meta
- 		else update_post_meta( $_POST['ID'], '_cptd_meta_archive_fields', '' );
+ 		else update_post_meta( $_POST['ID'], '_cptd_meta_acf_archive_fields', '' );
 
  		# see if the single fields are set
- 		if( isset( $_POST['_cptd_meta_single_fields'] ) ) {
- 			update_post_meta( $_POST['ID'], '_cptd_meta_single_fields', $_POST['_cptd_meta_single_fields'] );
+ 		if( isset( $_POST['_cptd_meta_acf_single_fields'] ) ) {
+ 			update_post_meta( $_POST['ID'], '_cptd_meta_acf_single_fields', $_POST['_cptd_meta_acf_single_fields'] );
  		}
  		# if not, clear out the single fields post meta
- 		else update_post_meta( $_POST['ID'], '_cptd_meta_single_fields', '' );
+ 		else update_post_meta( $_POST['ID'], '_cptd_meta_acf_single_fields', '' );
 
  		return $value;
 

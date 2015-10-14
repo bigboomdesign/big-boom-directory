@@ -17,11 +17,11 @@
 
 # CPTD classes
 require_once cptd_dir('/lib/class-cptd.php');
+require_once cptd_dir('/lib/class-cptd-ajax.php');
 require_once cptd_dir('/lib/class-cptd-helper.php');
 require_once cptd_dir('/lib/class-cptd-post.php');
 require_once cptd_dir('/lib/class-cptd-pt.php');
 require_once cptd_dir('/lib/class-cptd-tax.php');
-require_once cptd_dir('/lib/class-cptd-ajax.php');
 
 # Extended Post Types & Taxonomies
 if( ! function_exists( 'register_extended_post_type' ) ) require_once cptd_dir( '/assets/extended-cpts.php' );
@@ -55,7 +55,14 @@ if(is_admin()){
  */
 else{
 	
+	require_once cptd_dir('/lib/class-cptd-view.php');	
+	
+	# the front end view object ( initialized via `wp` action )
+	global $cptd_view;
+	$cptd_view = null;
+
 	add_action( 'pre_get_posts', array( 'CPTD', 'pre_get_posts' ) );
+	add_action( 'wp', array( 'CPTD', 'wp' ) );
 }
 
 /**

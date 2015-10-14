@@ -5,7 +5,15 @@
 .wrap .markdown-body h2{
 	font-size: 1.3em;
 }
-.wrap .markdown-body code{
+.wrap .markdown-body h3{
+  font-size: 1.2em;
+}
+
+.wrap .markdown-body h4{
+  font-size: 1.1em;
+}
+
+.wrap .markdown-body p code{
 	font-size: 1.2em;
 }
 .wrap ul{

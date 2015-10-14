@@ -28,15 +28,15 @@ Directory management system based on Custom Post Types, Taxonomies, and Fields
 
 ## Filters
 
-````cptd_register_pt````
+### ````cptd_register_pt````
 
-### Description
+#### Description
 
 Use this filter to access the post type data before CPTD post types are registered.  The filtered object is an array
 containing the arguments for [register\_extended\_post\_type](https://github.com/johnbillion/extended-cpts/wiki/Basic-usage), which is a wrapper for [register\_post\_type](https://codex.wordpress.org/Function_Reference/register_post_type).
 
 
-### Parameters
+#### Parameters
   
     $cpt = array(
     	'post_type' => (string),
@@ -45,7 +45,7 @@ containing the arguments for [register\_extended\_post\_type](https://github.com
     )
 
   
-### Example
+#### Example
 
     add_filter('cptd_register_pt', 'my_register_pt');
     function my_register_pt($args){
@@ -56,12 +56,34 @@ containing the arguments for [register\_extended\_post\_type](https://github.com
 
 ---
 
+### ````cptd_the_content````
+
+#### Description
+
+Use this filter to modify the post content for CPTD views.  Does not fire for non-CPTD page views.
+
+#### Parameters
+
+    $content: The post content
+
+---
+
 ## Actions
 
-````cptd_pre_get_posts````
+### ````cptd_pre_get_posts````
 
-Use this action to alter the query for CPTD views.  Does not fire on non-CPTD page views
+Use this action to alter the query for CPTD views.  Does not fire on non-CPTD page views.
 
-### Parameters
+#### Parameters
 
     $query: The same $query passed via 'pre_get_posts'
+
+---
+
+## Functions
+
+Here are some helper functions that you can call within your child theme
+
+### ````is_cptd_view()````
+
+Returns `true` if we are viewing a CPTD object and `false` otherwise.
