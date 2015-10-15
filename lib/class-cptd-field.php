@@ -91,25 +91,47 @@ class CPTD_Field {
 	/**
 	 * Display or get the HTML for this field (if $this->value is set)
 	 *
-	 * @param 	bool	$echo 	(Default: false) Prints the field HTML if set to true
+	 * @param 	bool			$echo 		(Default: false) Prints the field HTML if set to true
+	 * @param 	(int|string) 	$post_id 	The post ID we are displaying the field for (default: global $post)
 	 * @since 	2.0.0
 	 */
-	public function get_html( $echo = false ) {
+	public function get_html( $echo = false, $post_id = '' ) {
 
-		global $post;
+		if( empty( $post_id ) ) {
+			global $post;
+			$post_id = $post->ID;
+		}
+		if( empty( $post_id ) ) return '';
 
-		$value = get_post_meta( $post->ID, $this->key, true );
+		global $cptd_view;
+
+		$value = '';
+
+		if( isset( $cptd_view->post_meta[ $post_id ][ $this->key ] ) )
+			$value = $cptd_view->post_meta[ $post_id ][ $this->key ];
+
+		# apply filter to value so users can edit it
+		$value = apply_filters( 'cptd_field_value_' . $this->key, $value );
+
+		# apply filter to the label so users can edit it
+		$label = array(
+			'text' => $this->label,
+			'before' => '<label>',
+			'after' => ': &nbsp;</label>'
+		);
+		$label = apply_filters( 'cptd_field_label_' . $this->key, $label );
 
 		if( empty( $value ) ) return '';
 
 		/**
 		 * Special cases
 		 * 
-		 * - true === $this->auto_link
+		 * - auto detect website field
+		 * - images
 		 */
 
 		# auto detect website field
-		if( true === $this->auto_link ) {
+		if( $this->auto_link ) {
 
 			# do our best to make sure we have a valid URL
 			if( 'http' != substr( $value, 0, 4 ) ) $value = 'http://' . $value;
@@ -121,14 +143,91 @@ class CPTD_Field {
 			</div>
 		<?php
 			return;
-		} # end if: true === $this->auto_link
+		} # end if: auto detect website field
 
-		# apply filter to value so users can edit it
-		$value = apply_filters( 'cptd_field_value_' . $this->key, $value );
+
+		# image fields
+		if( 'image' == $this->type ){
+
+			$src = '';
+
+			# get the appropriate size
+			$size = ( 'archive' == $cptd_view->view_type ) ? 
+				'thumbnail' : 
+				'medium';
+
+			# ACF gives the option of multiple save formats for images (object/url/id)
+			if( $this->is_acf ) {
+
+				switch( $this->acf_field['save_format'] ){
+
+					case 'object':
+					case 'url':
+						# if set to return an object, we'll have an array as the value
+						# otherwise we'll have the URL string
+						$src = is_array( $value ) ? $value['sizes'][ $size ] : '';
+					break;
+
+					case 'id';
+						$src = wp_get_attachment_image_src( $value, $size);
+						if( $src ) $src = $src[0];
+					break;
+				}
+
+				# If we still don't have a source try the ID again in case object/url is ignored 
+				# due to not using get_field
+				if( ! $src && intval( $value ) > 0  ) {
+					if( $src = wp_get_attachment_image_src( $value, $size) ) $src = $src[0];
+				}
+
+			} # end if: ACF field
+
+			# show image if we have a src
+			if( $src ) {
+				
+				# make the image link to the listing page if we are on an archive page or search results view
+				$link = '';
+
+				if( 'archive' == $cptd_view->view_type ) {
+
+					global $post;
+					$link = get_permalink( $post->id );
+				}
+			?>
+				<div class='cptd-image-container'>
+				<?php
+					if( $link ) {
+					?>
+						<a href="<?php echo $link; ?>">
+					<?php
+					}
+					?>
+							<img class="cptd-image <?php echo $this->key; ?>" 
+									src="<?php echo $src; ?>" 
+							/>
+					<?php
+					if( $link ) {
+					?>
+						</a>
+					<?php
+					}
+				?>
+				</div>
+			<?php
+			} # end if: image source is set
+
+			# go to next field after showing the image
+			return;
+		} # endif: image field
 
 		# the field HTML
 		?><div class="cptd-field <?php echo $this->type . " " . $this->key; ?>">
-			<label><?php echo $this->label; ?>: &nbsp; </label><?php echo $value; ?>
+			<?php 
+				echo $label['before'];
+				echo $label['text'];
+				echo $label['after'];
+				echo $value;
+			?>
 		</div>
 		<?php
 	} # end: get_html()

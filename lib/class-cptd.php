@@ -140,9 +140,13 @@ class CPTD{
 	/**
 	 * Basic WP callbacks for actions and filters
 	 *
-	 * - wp()
-	 * - pre_get_posts()
-	 * - the_content()
+	 * - Actions
+	 * 		- wp()
+	 * 		- pre_get_posts()
+	 * 		- enqueue_scripts()
+	 *
+	 * - Filters
+	 * 		- the_content()
 	 */
 
 	/**
@@ -159,7 +163,12 @@ class CPTD{
 		# make sure we're viewing a CPTD object
 		if( ! is_cptd_view() ) return;
 
+		add_action( 'wp_enqueue_scripts', array( 'CPTD', 'enqueue_scripts' ) );
+
 		$cptd_view = new CPTD_View();
+
+		# load the post meta that we'll need for this view
+		$cptd_view->load_post_meta();
 		
 		add_filter( 'the_content', array( 'CPTD', 'the_content' ) );
 		add_filter( 'the_excerpt', array( 'CPTD', 'the_content' ) );
@@ -187,6 +196,15 @@ class CPTD{
 		do_action('cptd_pre_get_posts', $query);
 
 	} # end: pre_get_posts()
+
+	/**
+	 * Enqueue styles and javascripts
+	 *
+	 * @since 	2.0.0
+	 */
+	public static function enqueue_scripts() {
+		wp_enqueue_style( 'cptd-css', cptd_url( '/css/cptd.css' ) );
+	} # end: enqueue_scripts()
 
 	/**
 	 * Callback for 'the_content' and 'the_excerpt' action

@@ -1,0 +1,40 @@
+/* Fields */
+.cptd-field label{ font-weight: bold; }
+
+.cptd-field.wysiwyg,
+.cptd-field.textarea{ margin: 1em 0; }
+
+.cptd-field.wysiwyg label,
+.cptd-field.textarea label{ display: block; }
+
+/** galleries */
+.cptd-gallery{
+	margin: 2em 0;
+}
+a.cptd-gallery-thumb{
+	display: inline-block;
+	margin-right: 0.5em;
+	margin-bottom: 0.5em;
+	max-width: 150px;
+	height: auto;
+	
+	border: solid 3px #aaa;
+	border-radius: 3px;
+	
+	transition: 1s ease;
+}
+a.cptd-gallery-thumb:hover{
+	border-color: #000;
+}
+a.cptd-gallery-thumb img{
+	margin: 0;
+}
+
+/* Search Widget */
+#cptd-search-form{ margin-top: 1em; }
++p.cptd-search-filter{ float: left; margin-right: 1em; margin-bottom: 1.5em; padding-bottom: 0;}
++.cptd-search-submit{ width: 100%; max-width: 250px; height: 3em; }
+
+/* Search Results Page */
+.cptd-search-result-item{ margin-top: 2em; }
+.cptd-archive-thumb{ width: 80px; height: auto; }

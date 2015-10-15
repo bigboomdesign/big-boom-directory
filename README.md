@@ -40,7 +40,7 @@ containing the arguments for [register\_extended\_post\_type](https://github.com
 
 #### Parameters
   
-    $cpt = array(
+    $args = array(
     	'post_type' => (string),
     	'args' => (array, optional), 	// The arguments for `register_post_type`
     	'names' => (array, optional) 	// The corresponding parameter for `register_extended_post_type`
@@ -68,7 +68,7 @@ Use this filter to modify the post content for CPTD views.  Does not fire for no
 
 #### Parameters
 
-    $content: The post content along with any appended fields for the current view
+    (string) $content: The post content along with any appended fields for the current view
 
 #### Return
     
@@ -93,7 +93,7 @@ Below, we're appending an additional field called `phone` below the default fiel
 
 ### ````cptd_field_value_{$field_name}````
 
-Use this to filter a field value before it is displayed on the front end. Use your own field name (meta key) in place of `{$field_name}`. 
+Use this to filter a field value before it is displayed on the front end. Use your own field name (meta key) in place of `{$field_name}`.  Note that the filter fires whether or not the field has a value.
 
 #### Parameters
 
@@ -107,12 +107,46 @@ Use this to filter a field value before it is displayed on the front end. Use yo
 
 Below, we are filtering the value of a field called `email` and adding a mailto link.
 
-    add_filter( 'cptd_field_email', 'my_email_filter' );
-    function my_email_filter( $value ){
+    add_filter( 'cptd_field_value_email', 'my_email_value_filter' );
+    function my_email_value_filter( $value ){
 
         $value = "<a href='mailto:". $value . "' >" . $value . "</a>";
         return $value;
 
+    }
+
+---
+
+### ````cptd_field_label_{$field_name}````
+
+Use this filter to edit a filed's label and label wrap before it is displayed on the front end. Use your own field name (meta key) in place of `{$field_name}`. Note that the filter fires whether or not the field has a value.
+
+#### Parameters
+
+    $label = array(
+        'text'   => (string)   // The label text
+        'before' => (string)   // HTML that comes before the label (Default: "<label>")
+        'after'  => (string)   // HTML that comes after the label (Default: ": &nbsp; </label>")
+    )
+
+#### Return
+
+    (array)  You must return the altered $label array
+
+#### Example
+
+Below, we are setting the `first_name` field's label text to "First" and the `last_name` field's label text to "Last"
+
+    add_filter( 'cptd_field_label_first_name', 'my_first_name_label' );
+    function my_first_name_label( $label ) {
+        $label['text'] = 'First';
+        return $label;
+    }
+
+    add_filter( 'cptd_field_label_last_name', 'my_last_name_label' );
+    function my_last_name_label( $label ) {
+        $label['text'] = 'Last';
+        return $label;
     }
 
 ---
@@ -142,6 +176,8 @@ Below, we are using the `cptd_pre_get_posts` filter to order CPTD posts by a fie
         $query->query_vars['orderby'] = 'meta_value';
         $query->query_vars['meta_key'] = 'last_name';
     }
+
+---
 
 ### ````cptd_pre_render_field_{$field_name}````
 ### ````cptd_post_render_field_{$field_name}````
