@@ -128,6 +128,7 @@ class CPTD_Field {
 		 * 
 		 * - auto detect website field
 		 * - images
+		 * - date picker
 		 */
 
 		# auto detect website field
@@ -220,7 +221,28 @@ class CPTD_Field {
 			return;
 		} # endif: image field
 
-		# the field HTML
+		if( 'date_picker' == $this->type ) {
+
+			# the format saved in ACF
+			$format_in = $this->acf_field['date_format'];
+
+			# conversion from JS to PHP
+			$format_convert = array(
+				'yymmdd' => 'Ymd',
+				'dd/mm/yy' => 'd/m/Y',
+				'mm/dd/yy' => 'm/d/Y',
+				'yy_mm_dd' => 'Y_m_d'
+
+			);
+			# create the PHP date/time object
+			$date = DateTime::createFromFormat($format_convert[ $format_in ], $value );
+
+			# generate the value based on the ACF display type
+			$value = $date->format( $format_convert[ $this->acf_field['display_format'] ] );
+		
+		} # end: date picker field
+
+		# output the field HTML
 		?><div class="cptd-field <?php echo $this->type . " " . $this->key; ?>">
 			<?php 
 				echo $label['before'];

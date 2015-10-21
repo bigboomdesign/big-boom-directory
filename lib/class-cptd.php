@@ -193,7 +193,7 @@ class CPTD{
 		$query->query_vars['order'] = 'ASC';
 
 		# action that users can hook into to edit the query further
-		do_action('cptd_pre_get_posts', $query);
+		do_action( 'cptd_pre_get_posts', $query );
 
 	} # end: pre_get_posts()
 
