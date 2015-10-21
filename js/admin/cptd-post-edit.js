@@ -145,7 +145,7 @@ jQuery( document ).ready( function( $ ) {
 	$archiveFieldsContainer
 		.find('input[type=checkbox].cptd_field_group_select')
 		.on( 'click', function() {
-			fieldGroupChange( $(this), 'archive', $ );
+			fieldGroupChange( $(this), 'acf_archive', $ );
 		}
 	); // end: onclick for archive field group checkbox
 
@@ -163,7 +163,7 @@ jQuery( document ).ready( function( $ ) {
 	$singleFieldsContainer
 		.find('input[type=checkbox].cptd_field_group_select')
 		.on( 'click', function() {
-			fieldGroupChange( $(this), 'single', $ );
+			fieldGroupChange( $(this), 'acf_single', $ );
 		}
 	);
 
