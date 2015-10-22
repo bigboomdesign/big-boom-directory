@@ -191,30 +191,6 @@ class CPTD_Admin{
 		));
 
 		# Basic post type settings fields
-		
-		## Name/Handle
-		$pt_settings->add_field( array(
-			'name' 			=> 'Name <span class="required">*</span>',
-			'id'			=> $prefix.'handle',
-			'type' 			=> 'text',
-			'attributes' 	=> array(
-				'readonly' => 'readonly'
-			),
-			'before' => array( 'CPTD_Admin', 'before_handle' ),
-			'sanitization_cb' => array( 'CPTD_Admin', 'sanitize_handle' ),
-			'description' 	=> 
-				"<div id='handle-container'>
-					<a id='change-name'>Change</a>
-					<div style='display: none;' id='cancel-name-change'>
-						 | <a>Cancel</a>
-						 | <a target='_blank' href='https://codex.wordpress.org/Post_Types#Naming_Best_Practices'>More Info</a>
-					</div>
-					<div id='handle-info' style='display: none;'>
-						<p class='description'>The Post Type Name is the most important part of your post type. Once it is set and you have created posts for your post type, this value should not be changed. Don't change this unless you are confident that you know what you are doing.</p>
-						<p class='description'>We guessed the ideal Post Type Name based on your title.  If you edit this field, please use only lowercase letters and underscores, and use a singular name like <code>book_review</code> instead of a plural name like <code>book_reviews</code>.</p>
-					</div>
-				</div>"
-		));
 
 		## Singular label
 		$pt_settings->add_field( array(
@@ -247,6 +223,30 @@ class CPTD_Admin{
 		));
 
 		# Advanced post type fields
+
+		## Name/Handle
+		$advanced_pt_settings->add_field( array(
+			'name' 			=> 'Name <span class="required">*</span>',
+			'id'			=> $prefix.'handle',
+			'type' 			=> 'text',
+			'attributes' 	=> array(
+				'readonly' => 'readonly'
+			),
+			'before' => array( 'CPTD_Admin', 'before_handle' ),
+			'sanitization_cb' => array( 'CPTD_Admin', 'sanitize_handle' ),
+			'description' 	=> 
+				"<div id='handle-container'>
+					<a id='change-name'>Change</a>
+					<div style='display: none;' id='cancel-name-change'>
+						 | <a>Cancel</a>
+						 | <a target='_blank' href='https://codex.wordpress.org/Post_Types#Naming_Best_Practices'>More Info</a>
+					</div>
+					<div id='handle-info' style='display: none;'>
+						<p class='description'>The Post Type Name is the most important part of your post type. Once it is set and you have created posts for your post type, this value should not be changed. Don't change this unless you are confident that you know what you are doing.</p>
+						<p class='description'>We guessed the ideal Post Type Name based on your title.  If you edit this field, please use only lowercase letters and underscores, and use a singular name like <code>book_review</code> instead of a plural name like <code>book_reviews</code>.</p>
+					</div>
+				</div>"
+		));
 
 		## Slug
 		$advanced_pt_settings->add_field( array(

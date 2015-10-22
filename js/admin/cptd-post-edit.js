@@ -13,8 +13,8 @@ var $cancelNameChange;
 // post type name input
 var $handle;
 
-// original post type name
-var $ptName;
+// original post type name for this page load
+var ptName;
 
 // div that holds the input
 var $handleContainer;
@@ -37,6 +37,9 @@ jQuery( document ).ready( function( $ ) {
 	// post type name/handle input
 	$handle = $('#_cptd_meta_handle');
 
+	// the original post type name 
+	ptName = $handle.val();
+
 	// container div for name change dialog
 	$handleContainer = $('#handle-container');
 
@@ -48,14 +51,11 @@ jQuery( document ).ready( function( $ ) {
 
 	
 	/**
-	 * Post type name change interactions
+	 * Post type name change (handle) interactions
 	 */
 
 	/* onclick for Change/Save link for post type handle */
 	$('a#change-name').on('click', function(){
-
-		// get the current input value
-		$ptName = $handle.val();
 
 		// whether the 'Change Name' dialog box is activated
 		var bOn = ($(this).data('active') == 'true') 
@@ -74,7 +74,7 @@ jQuery( document ).ready( function( $ ) {
 
 	/* onclick for Cancel link for post type handle */
 	$( 'div#cancel-name-change a' ).on( 'click', function() {
-		$handle.val( $ptName );
+		$handle.val( ptName );
 		hideHandleInfo($);
 
 	});
@@ -194,7 +194,7 @@ jQuery( document ).ready( function( $ ) {
   */
 function triggerHandleInfo( $ ){
 
-	// get the title that was entered
+	// get the current value of the post title
 	var title = $title.val();
 	if('' == title) return;
 
@@ -212,8 +212,12 @@ function triggerHandleInfo( $ ){
 			action: 'cptd_handle_from_title',
 			title: title
 		},
-		success: function(data){
-			if('' == $handle.val() || $handle.val().indexOf( 'cptd_pt_' ) > -1 || $handle.val().indexOf( 'cptd_tax_' ) > -1) $handle.val(data);
+		success: function( data ) {
+
+			// only autopopulate based on post title if the handle hasn't been edited yet by the user
+			if( '' == $handle.val() || $handle.val().indexOf( 'cptd_pt_' ) > -1 || $handle.val().indexOf( 'cptd_tax_' ) > -1) {
+				$handle.val( data );
+			}
 			$handle.focus();
 			$handleContainer.addClass('highlight');
 			$handleContainer.find('#handle-info').css('display', 'block');
@@ -226,6 +230,11 @@ function triggerHandleInfo( $ ){
  * Hide the handle change dialog box
  */
 function hideHandleInfo( $ ) {
+
+	// reset to previous post type name if handle is empty
+	if( '' == $handle.val() ) {
+		$handle.val( ptName );
+	}
 	$handle.prop('readonly', true);
 	$changeName.html('Change');
 	$changeName.data('active', 'true');
