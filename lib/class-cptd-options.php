@@ -72,7 +72,7 @@ class CPTD_Options{
 	 * @param 	string|array 	$setting{
 	 *
 	 *		Use a string for simple fields. Use an array to pass detailed information about the
-	 *		setting.  Optional types will be auto-completed via `HPhP::get_field_array()`
+	 *		setting.  Optional types will be auto-completed via `CPTD::get_field_array()`
 	 *
 	 *		@type 	string 			$label 			Required. The label for the form element	 
 	 * 		@type 	string 			$name 			Optional. The HTML name attribute. Will be auto-generated from label if empty
@@ -86,8 +86,8 @@ class CPTD_Options{
 	 * 		@type 	array 			$data 			Optional. An array of data attributes to add to the form element (see `self::data_atts()`)
 	 * }
 	 *
-	 * @param	string	$option 	Optional (Default: 'hphp_options'). By default, an HTML input element whose name is `form_field`
-	 *								will actually have a name attribute of `hphp_options[form_field]`. Pass in a string to 
+	 * @param	string	$option 	Optional (Default: 'cptd_options'). By default, an HTML input element whose name is `form_field`
+	 *								will actually have a name attribute of `cptd_options[form_field]`. Pass in a string to 
 	 *								change the default parent field name, or pass an empty string to use a regular input name without a parent
 	 * @since 	2.0.0
 	 */
@@ -364,10 +364,17 @@ class CPTD_Options{
 	} # end: data_atts()
 	
 	/**
-	 * Register the main option to be stored in the database and add its sections and fields
+	 * Initializes plugin settings whose choices may depend on WP data
+	 * Registers the main option to be stored in the database and adds its sections and fields
+	 * Loads default values for the plugin settings 
+	 *
 	 * @since 	2.0.0
 	 */
 	public static function register_settings(){
+
+		# initialize the settings that depend on WP data
+		self::initialize_settings();
+
 		# main option for this plugin
 		register_setting( 'cptd_options', 'cptd_options', array('CPTD_Options', 'validate_options') );
 		# add sections
@@ -379,14 +386,104 @@ class CPTD_Options{
 		# add fields
 		foreach(self::$settings as $setting){
 			add_settings_field($setting['name'], $setting['label'], array('CPTD_Options','do_settings_field'), 'cptd_settings', ( array_key_exists('section', $setting) ? $setting['section'] : self::$default_section), $setting);
-		}	
+		}
+
+		# load the default settings for this plugin
+		self::load_default_settings();
+
 	} # end: register_settings()
+
+	/**
+	 * Initialize any plugin settings that may depend on WP data
+	 *
+	 * - Image sizes for archive and single views
+	 *
+	 * @since 	2.0.0
+	 */
+	public static function initialize_settings() {
+
+		/**
+		 * Image sizes for archive and single views
+		 */
+
+		# get the WP core image sizes
+		$image_sizes = array(
+			'thumbnail', 'medium', 'large', 'full'
+		);
+
+		# get any custom images sizes that are registered
+		global $_wp_additional_image_sizes;
+		foreach( $_wp_additional_image_sizes as $size => $info ) {
+			$image_sizes[] = $size;
+		}
+
+		# archive image size option
+		CPTD_Options::$settings[] = array(
+			'name' => 'image_size_archive',
+			'label' => 'Image size for archive view',
+			'type' => 'select',
+			'choices' => $image_sizes,
+			'default' => 'medium',
+			'description' => 'Applies to ACF fields with type `image`'
+		);
+
+		# single image size option
+		CPTD_Options::$settings[] = array(
+			'name' => 'image_size_single',
+			'label' => 'Image size for single view',
+			'type' => 'select',
+			'choices' => $image_sizes,
+			'default' => 'thumbnail',
+			'description' => 'Applies to ACF fields with type `image`'
+		);
+	} # end: initialize_settings()
+
+	/**
+	 * Load default values for the plugin's settings
+	 *
+	 * @since 	2.0.0
+	 */
+	public static function load_default_settings() {
+
+		# only allow defaults for checkboxes if we truly have no saved options
+		$allow_for_checkboxes = false;
+
+		if( empty( CPTD_Options::$options ) ) $allow_for_checkboxes = true;
+
+		foreach( CPTD_Options::$settings as $setting ) {
+
+			$default = '';
+			if( ! empty( $setting['default'] ) ) $default = $setting['default'];
+
+			# for checkboxes
+			if( 'checkbox' == $setting['type'] ) {
+
+				if( ! $allow_for_checkboxes ) continue;
+
+				var_dump( 'doing for checkboxes' );
+
+				# checkboxes have on large key in the form `setting_name`_`setting_value`
+				if( $default )  CPTD_Options::$options[ $setting['name'].'_'.$default ] = $default;
+
+				continue;
+				
+			} # end: checkbox fields
+
+			# all other fields
+			if( ! isset ( CPTD_Options::$options[ $setting['name'] ] ) ) CPTD_Options::$options[ $setting['name'] ] = $default;
+		}
+
+		#CPTD_Options::$options['image_size_single'] = 'medium';
+	} # end: load_default_settings()
 	
 	/**
 	 * Display the description for a setting (callback for WP's `add_settings_section`)
 	 * @since 	2.0.0
  	 */
 	public static function section_description($section){
+		?>
+		<hr />
+		<?php
 		# get ID of section being displayed
 		$id = $section['id'];
 		# loop through sections and display the correct description
@@ -470,20 +567,48 @@ class CPTD_Options{
 
 /**
  * Initialize static variables
+ *
+ * - Settings sections for plugin options page
+ * - Settings for plugin options page (these serve as defaults for new CPTD post types)
  */
 
-# settings sections
+# Settings sections for plugin options page
 CPTD_Options::$sections = array(
 	array(
-		'name' => 'cptd_main', 'title' => '',
-		'description' => '<p>Main Settings.</p>'
+		'name' => 'cptd_main', 'title' => 'Post type defaults',
+		'description' => '<p>These options serve as the default settings for new post types you create using this plugin.</p>'
 	),
 );
 
-# generate all settings for backend
+/**
+ * Settings for plugin options page (these serve as defaults for new CPTD post types)
+ * 
+ * - Auto detect website field
+ * - Auto detect social media fields
+ * - Additional settings that depend on WP data are called via self::register_settings, which fires on admin_init
+ */
 CPTD_Options::$settings = array(
-	
+
+	# Auto detect website field
+	array(
+		'name' => 'auto_detect_website',
+		'label' => 'Auto Detect Website Field',
+		'type' => 'checkbox',
+		'choices' => 'Yes',
+		'default' => 'yes',
+		'description' => 'Displays "View Website" link text for `web`, `website`, and `url` fields',
+	),
+
+	# Auto detect social media fields
+	array(
+		'name' => 'auto_detect_social',
+		'label' => 'Auto Detect Social Media Fields',
+		'type' => 'checkbox',
+		'choices' => 'Yes',
+		'default' => 'yes',
+		'description' => 'Uses icons for `facebook`, `twitter`, `linkedin`, `instagram`, `pinterest`, `google_plus` fields'
+	),
 );
 
 # get saved options
-CPTD_Options::$options = (get_option('cptd_options') ? get_option('cptd_options') : array());
+CPTD_Options::$options = ( $option = get_option('cptd_options' ) ) ? $option : array();

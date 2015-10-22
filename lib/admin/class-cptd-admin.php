@@ -12,8 +12,12 @@ class CPTD_Admin{
 	 * @since 2.0.0
 	 */ 
 	public static function init(){
+
+		# Admin init hook
+		add_action( 'admin_init',  array( 'CPTD_Admin', 'admin_init' ) );
+
 		# Admin menu items
-		add_action('admin_menu', array('CPTD_Admin', 'admin_menu'));
+		add_action('admin_menu', array( 'CPTD_Admin', 'admin_menu' ) );
 		
 		# Admin scripts
 		add_action('admin_enqueue_scripts', array('CPTD_Admin', 'admin_enqueue'));
@@ -40,6 +44,7 @@ class CPTD_Admin{
 	/**
 	 * Callbacks for backend actions and filters
 	 * 
+	 * - admin_init
 	 * - admin_menu()
 	 * - admin_enqueue()
 	 * - plugin_actions()
@@ -48,15 +53,26 @@ class CPTD_Admin{
 	 */
 
 	/**
+	 * Handler for the admin_init hook
+	 *
+	 * @since	2.0.0
+	 */
+	public static function admin_init() {
+
+		# register setttings for the plugin options page
+		CPTD_Options::register_settings();
+	}
+
+	/**
 	 * Create all admin menu items for the plugin
 	 * 
-	 * @since 2.0.0
+	 * @since 	2.0.0
 	 */
 	public static function admin_menu(){
 
 		# sub-pages
-		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Settings | CPT Directory', 'Settings', 'administrator', 'cptd-settings', array('CPTD_Admin', 'settings_page'));
-		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Information | CPT Directory', 'Information', 'administrator', 'cptd-information', array('CPTD_Admin', 'information_page'));
+		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Settings | CPT Directory', 'Settings', 'manage_options', 'cptd-settings', array('CPTD_Admin', 'settings_page'));
+		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Information | CPT Directory', 'Information', 'manage_options', 'cptd-information', array('CPTD_Admin', 'information_page'));
 		
 		global $submenu;
         unset($submenu['edit.php?post_type=cptd_pt'][10]);
@@ -65,7 +81,7 @@ class CPTD_Admin{
 	/**
 	 * Enqueue admin scripts and styles
 	 * 
-	 * @since 2.0.0
+	 * @since	2.0.0
 	 */
 	public static function admin_enqueue(){
 		$screen = get_current_screen();
@@ -662,7 +678,7 @@ class CPTD_Admin{
 	public static function settings_page(){
 		ob_start();
 		?>
-		<h2>Custom Post Type Directory</h2>
+		<h2>CPT Directory Settings</h2>
 		<form action="options.php" method="post">
 			<?php settings_fields('cptd_options'); ?>
 			<?php do_settings_sections('cptd_settings'); ?>
@@ -671,6 +687,7 @@ class CPTD_Admin{
 		<?php
 		$html = ob_get_contents();
 		ob_end_clean();
+
 		echo self::page_wrap($html);
 	} # end: settings_page()
 	
