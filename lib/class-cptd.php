@@ -204,6 +204,7 @@ class CPTD{
 	 */
 	public static function enqueue_scripts() {
 		wp_enqueue_style( 'cptd-css', cptd_url( '/css/cptd.css' ) );
+		wp_enqueue_style( 'cptd-fa', '//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css');
 	} # end: enqueue_scripts()
 
 	/**

@@ -108,20 +108,64 @@ class CPTD_Field {
 		);
 		$label = apply_filters( 'cptd_field_label_' . $this->key, $label );
 
-		if( empty( $value ) ) return '';
-
 		/**
 		 * Special cases
 		 * 
-		 * - auto detect website field
+		 * - auto detect social media fields
+		 * - return if no value is in place
+		 * - auto detect URL fields
 		 * - images
 		 * - date picker
 		 */
 
-		# autodetect
+		# Auto detect social media fields
+		if( $cptd_view->auto_detect_social ) {
 
-		## website field
-		if( $cptd_view->auto_detect_website ) {
+			# see if we have a social media field key
+			if( in_array( $this->key, $cptd_view->auto_social_field_keys ) ) {
+
+				# if this is the first social media field, set the indicator and open up a wrapping div for the icons				
+				if( 0 == count( $cptd_view->completed_social_fields ) ) {
+					?>
+					<div class='cptd-social-icons'>
+					<?php
+				}
+
+				# display the field
+				if( $value ) {
+
+					# make sure we have a valid Font Awesome icon
+					$fa_icon = $this->key;
+					if( false !== strpos( $fa_icon, 'plus' ) ) $fa_icon = 'google-plus';
+					elseif( false !== strpos( $fa_icon, 'linked' ) ) $fa_icon = 'linkedin';
+				?>
+					<a target="_blank" href="<?php echo $value; ?>"><i class="fa fa-<?php echo $fa_icon; ?>" ></i></a>
+				<?php
+				}
+
+				# load this fields into the completed social fields array
+				$cptd_view->completed_social_fields[] = $this->key;
+
+				# check if this is the last social media field and close the wrapping div if so
+				if( count( $cptd_view->completed_social_fields ) >= count( $cptd_view->social_fields_to_check ) ) {
+					
+					$cptd_view->completed_social_fields = array(); 
+					?>
+					</div><!-- .cptd-social-icons -->
+					<?php
+				}
+
+				return;
+			} # end if: field key is a social media field
+		
+		} # end if: auto detect social is enabled
+
+		# At this point, we'll do nothing further if we don't have a value
+		# We needed to do stuff for social media detection even if values are empty
+		if( empty( $value ) ) return '';
+
+		# Auto-detect URL fields
+		if( $cptd_view->auto_detect_url ) {
 
 			# see if we have a website field key
 			if( 'web' == $this->key || 'website' == $this->key || 'url' == $this->key ) {
@@ -215,6 +259,7 @@ class CPTD_Field {
 			return;
 		} # endif: image field
 
+		# Date picker field
 		if( 'date_picker' == $this->type ) {
 
 			# the format saved in ACF

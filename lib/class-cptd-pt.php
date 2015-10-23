@@ -44,7 +44,14 @@ class CPTD_PT extends CPTD_Post{
 	 */
 	var $slug;
 
-	var $auto_detect_website = false;
+	/**
+	 * Whether or not to auto detect website fields and social media links
+	 *
+	 * @param	bool
+	 * @since 	2.0.0
+	 */
+	var $auto_detect_url = false;
+	var $auto_detect_social = false;
 
 
 	/**

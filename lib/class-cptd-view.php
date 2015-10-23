@@ -56,9 +56,62 @@ class CPTD_View {
 	var $acf_fields = array();
 
 	/** 
-	 * Whether or not to auto detect website fields
+	 * Whether or not to auto detect website fields and social media links
+	 *
+	 * @param 	bool
+	 * @since 	2.0.0
 	 */
-	var $auto_detect_website = false;
+	var $auto_detect_url = false;
+	var $auto_detect_social = false;
+
+	/**
+	 * Fields that can be auto detected as URL's
+	 *
+	 * @param 	array
+	 * @since 	2.0.0
+	 */
+	var $auto_url_field_keys = array(
+		'web', 'website', 'url'
+	);
+
+	/**
+	 * The social media keys that can be auto detected
+	 *
+	 * @param	array
+	 * @since 	2.0.0
+	 */
+	var $auto_social_field_keys = array(
+		'facebook', 
+		'twitter', 
+		'googleplus', 'google_plus', 'google-plus', 'gplus', 'g-plus', 'g_plus',
+		'pinterest',
+		'instagram',
+		'linkedin', 'linked_in', 'linked-in',
+	);
+
+	/**
+	 * Whether we're in the middle of an auto social loop
+	 *
+	 * @param	bool
+	 * @since 	2.0.0
+	 */
+	var $doing_social = false;
+
+	/**
+	 * The social fields that need to be checked for this view
+	 *
+	 * @param 	array
+	 * @since 	2.0.0
+	 */
+	var $social_fields_to_check = array();
+
+	/**
+	 * The social fields we've completed during the current loop
+	 *
+	 * @param	array
+	 * @since 	2.0.0
+	 */
+	var $completed_social_fields = array();
 
 
 	/**
@@ -102,14 +155,24 @@ class CPTD_View {
 					$this->field_keys[] = $field->key;
 					if( $field->is_acf ) $this->acf_fields[] = $field;
 
-					# if the post type detects URLs, so should this view
-					if( $this->post_type->auto_detect_website ) {
-
-						$this->auto_detect_website = true;
+					# add field key to social media fields to check, if applicable
+					if( in_array( $field->key, $this->auto_social_field_keys ) ) {
+						$this->social_fields_to_check[] = $field->key;
 					}
-				}
+
+				} # end foreach: ACF fields
 
 			} # end if: ACF fields are saved for the current screen's post type and view
+
+			# if the post type detects URLs, so should this view
+			if( $this->post_type->auto_detect_url ) {
+				$this->auto_detect_url = true;
+			}
+
+			# if the post type detects social media fields, so should this view
+			if( $this->post_type->auto_detect_social ) {
+				$this->auto_detect_social = true;
+			}
 
 		} # end if: current post type is set
 

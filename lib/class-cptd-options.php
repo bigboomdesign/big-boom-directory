@@ -591,7 +591,7 @@ CPTD_Options::$settings = array(
 
 	# Auto detect website field
 	array(
-		'name' => 'auto_detect_website',
+		'name' => 'auto_detect_url',
 		'label' => 'Auto Detect Website Field',
 		'type' => 'checkbox',
 		'choices' => 'Yes',

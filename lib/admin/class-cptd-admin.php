@@ -217,11 +217,11 @@ class CPTD_Admin{
 
 		### Auto detect website field
 		$website_field = array(
-			'id' => $prefix.'auto_detect_website',
+			'id' => $prefix.'auto_detect_url',
 			'type' => 'checkbox',
-			'name' => 'Auto detect website field',
+			'name' => 'Auto detect URL fields',
 		);
-		if( isset( CPTD_Options::$options['auto_detect_website_yes'] ) ) {
+		if( isset( CPTD_Options::$options['auto_detect_url_yes'] ) ) {
 			$website_field['default'] = self::default_for_checkbox('on');
 		}
 		$pt_settings->add_field( $website_field );
