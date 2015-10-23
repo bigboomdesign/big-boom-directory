@@ -82,6 +82,14 @@ class CPTD{
 	public static $meta = array();
 
 	/**
+	 * An alphabetical list of unique field keys for all CPTD user-created posts
+	 *
+	 * @param 	array
+	 * @since 	2.0.0
+	 */
+	public static $all_field_keys = null;
+
+	/**
 	 * All ACF field groups (WP_Post) objects 
 	 * 
 	 * @param 	array

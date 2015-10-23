@@ -14,7 +14,9 @@ class CPTD_Helper{
 	 * - clean_str_for_field()
 	 * - get_field_array()
 	 * - get_choice_array()
+	 *
 	 * - register()
+	 * - get_all_field_keys()
 	 * - get_image_sizes()
 	 */
 	
@@ -256,6 +258,71 @@ class CPTD_Helper{
 		}
 
 	} # end: register()
+
+	/**
+	 * Get an alphabetical list of unique field keys for CPTD user-created posts
+	 * Fields starting with _ are ignored
+	 *
+	 * @since 	2.0.0
+	 */
+	public static function get_all_field_keys() {
+
+		if( is_array( CPTD::$all_field_keys ) ) return CPTD::$all_field_keys;
+
+		# build an array of post type handles
+		$pt_names = array();
+
+		# loop through the array of existing CPTD user-created post type ID's to form the array of handles
+		foreach( CPTD::$post_type_ids as $pt ) {
+
+			$pt = new CPTD_PT( $pt );
+
+			if(! in_array( $pt->handle, $pt_names ) ) $pt_names[] = $pt->handle;
+		}
+
+		# make sure post type handles exist
+		if( ! $pt_names ) {
+
+			# indicator that the value has been initialized so we don't have to run this function again
+			CPTD::$all_field_keys = array();
+			return array();
+		}
+
+		global $wpdb;
+
+		# SQL for post meta
+		$fields_query = "SELECT DISTINCT meta_key FROM " . $wpdb->postmeta . 
+			" WHERE post_id IN (  
+				SELECT ID FROM " .  $wpdb->posts .
+				" WHERE post_type IN ( '" .
+					implode( "', '", $pt_names ) .
+				"' )
+			) ";
+
+		$fields_results = $wpdb->get_results( $fields_query );
+
+		# make sure we found results
+		if( ! $fields_results ) {
+
+			CPTD::$all_field_keys = array();
+			return array();
+		}
+
+		# the array we'll return 
+		$field_keys = array();
+
+		foreach( $fields_results as $r ) {
+
+			# skip fields that start with _
+			if( 0 === strpos( $r->meta_key, '_') ) continue;
+
+			$field_keys[] = $r->meta_key;
+		}
+
+		CPTD::$all_field_keys = $field_keys;
+		return $field_keys;
+
+	} # end: get_all_field_keys()
 
 	/**
 	 * Get a list of all core and custom image sizes that are registered

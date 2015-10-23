@@ -18,9 +18,14 @@ class CPTD_Ajax{
 	 * @since 	2.0.0
 	 */
 	static $actions = array(
+
+		/* post edit */
 		'cptd_handle_from_title', 
 		'cptd_slug_from_title',
-		'cptd_select_field_group'
+		'cptd_select_field_group',
+
+		/* import */
+		'cptd_import_csv_submit'
 	);
 
 
@@ -35,9 +40,13 @@ class CPTD_Ajax{
 	/**
 	 * Ajax callback methods
 	 *
-	 * - cptd_handle_from_title()
-	 * - cptd_slug_from_title()
-	 * - cptd_select_field_group()
+	 * - Post edit
+	 * 		- cptd_handle_from_title()
+	 * 		- cptd_slug_from_title()
+	 * 		- cptd_select_field_group()
+	 *
+	 * - Import
+	 * 		- cptd_import_csv_submit()
 	 */
 
 	/**
@@ -160,7 +169,28 @@ class CPTD_Ajax{
 		die();
 	
 	} # end: cptd_select_field_group()
+
+	/**
+	 * Import
+	 */
 	
+	/**
+	 * Callback for submitting CSV during import process
+	 *
+	 * @param	string 		$_POST['post_type'] 	The post type to use for the imported rows
+	 * @since 	2.0.0
+	 */
+	public static function cptd_import_csv_submit() {
+
+		$post_type = sanitize_text_field( $_POST['post_type'] );
+
+		require_once( cptd_dir( '/lib/class-cptd-import.php' ) );
+		$importer = new CPTD_Import();
+		$importer->do_import_content();
+
+		die();
+
+	} # end: cptd_import_csv_submit()
 
 	/**
 	 * Helper methods

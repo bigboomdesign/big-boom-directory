@@ -73,8 +73,9 @@ class CPTD_Admin{
 	public static function admin_menu(){
 
 		# sub-pages
-		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Settings | CPT Directory', 'Settings', 'manage_options', 'cptd-settings', array('CPTD_Admin', 'settings_page'));
-		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Information | CPT Directory', 'Information', 'manage_options', 'cptd-information', array('CPTD_Admin', 'information_page'));
+		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Settings | CPT Directory', 'Settings', 'manage_options', 'cptd-settings', array('CPTD_Admin', 'settings_page') );
+		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Import | CPT Directory', 'Import', 'manage_options', 'cptd-import', array( 'CPTD_Admin', 'import_page' ) );
+		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Information | CPT Directory', 'Information', 'manage_options', 'cptd-information', array('CPTD_Admin', 'information_page') );
 		
 		global $submenu;
         unset($submenu['edit.php?post_type=cptd_pt'][10]);
@@ -90,7 +91,7 @@ class CPTD_Admin{
 
 		# Post type edit screen
 		if(
-			$screen->base == 'post' 
+			'post' == $screen->base
 			&& ( $screen->post_type == 'cptd_pt' || $screen->post_type == 'cptd_tax')
 		){
 			wp_enqueue_style('cptd-post-edit-css', cptd_url('/css/admin/cptd-post-edit.css'));
@@ -100,12 +101,20 @@ class CPTD_Admin{
 			$post_id = isset( $_GET['post'] ) ? $_GET['post'] : 0;
 			wp_localize_script( 'cptd-post-edit-js', 'cptdData', array( 'postId' =>  $post_id ) );
 		}
+
+		# Import screen
+		if( 'cptd_pt_page_cptd-import' == $screen->base ) {
+			wp_enqueue_style( 'cptd-admin', cptd_url( '/css/admin/cptd-admin.css' ) );
+			wp_enqueue_script( 'cptd-import', cptd_url( '/js/admin/cptd-import.js' ), array( 'jquery' ) );
+		}
+
 			
 		# Information screen
 		if($screen->base == 'cptd_pt_page_cptd-information'){
 			wp_enqueue_style('cptd-readme-css', cptd_url('/css/admin/cptd-readme.css'));
 			wp_enqueue_script('cptd-readme-js', cptd_url('/js/admin/cptd-readme.js'), array('jquery'));
 		}
+
 	} # end: admin_enqueue()
 	
 	/**
@@ -750,13 +759,14 @@ class CPTD_Admin{
 	 * HTML for admin screens produced by this plugin
 	 *
 	 * - settings_page()
+	 * - import_page()
 	 * - information_page()
 	 */
 	
 	/**
 	 * Output HTML for the main settings page
 	 * 
-	 * @since 2.0.0
+	 * @since 	2.0.0
 	 */
 	public static function settings_page(){
 		ob_start();
@@ -773,11 +783,32 @@ class CPTD_Admin{
 
 		echo self::page_wrap($html);
 	} # end: settings_page()
+
+	/**
+	 * Output HTML for the import page
+	 *
+	 * @since 	2.0.0
+	 */
+	public static function import_page() {
+
+		require_once cptd_dir("lib/class-cptd-import.php"); 
+		$importer = new CPTD_Import();
+
+		ob_start();
+
+		$importer->do_import_page();
+		
+		$html = ob_get_contents();
+		
+		ob_end_clean();
+
+		echo self::page_wrap( $html );
+	} # end: import_page()
 	
 	/**
 	 * Output HTML for the Information (README.html) page
 	 *
-	 * @since 2.0.0
+	 * @since 	2.0.0
 	 */
 	public static function information_page(){
 		ob_start();
