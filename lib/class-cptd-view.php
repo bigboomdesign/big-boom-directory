@@ -90,14 +90,6 @@ class CPTD_View {
 	);
 
 	/**
-	 * Whether we're in the middle of an auto social loop
-	 *
-	 * @param	bool
-	 * @since 	2.0.0
-	 */
-	var $doing_social = false;
-
-	/**
 	 * The social fields that need to be checked for this view
 	 *
 	 * @param 	array
@@ -106,7 +98,7 @@ class CPTD_View {
 	var $social_fields_to_check = array();
 
 	/**
-	 * The social fields we've completed during the current loop
+	 * The social fields we've completed during the current post
 	 *
 	 * @param	array
 	 * @since 	2.0.0
@@ -152,8 +144,11 @@ class CPTD_View {
 
 					$field = new CPTD_Field( $field );
 
-					$this->field_keys[] = $field->key;
-					if( $field->is_acf ) $this->acf_fields[] = $field;
+					# store the field into the ACF fields array, indexed by order number
+					$this->acf_fields[ $field->acf_field['order_no'] ] = $field;
+
+					# store the field key, indexed by the order number
+					$this->field_keys[ $field->acf_field['order_no'] ] = $field->key;
 
 					# add field key to social media fields to check, if applicable
 					if( in_array( $field->key, $this->auto_social_field_keys ) ) {
@@ -161,6 +156,10 @@ class CPTD_View {
 					}
 
 				} # end foreach: ACF fields
+
+				# key sort the fields
+				ksort( $this->field_keys );
+				ksort( $this->acf_fields );
 
 			} # end if: ACF fields are saved for the current screen's post type and view
 
