@@ -406,16 +406,7 @@ class CPTD_Options{
 		 * Image sizes for archive and single views
 		 */
 
-		# get the WP core image sizes
-		$image_sizes = array(
-			'thumbnail', 'medium', 'large', 'full'
-		);
-
-		# get any custom images sizes that are registered
-		global $_wp_additional_image_sizes;
-		foreach( $_wp_additional_image_sizes as $size => $info ) {
-			$image_sizes[] = $size;
-		}
+		$image_sizes = CPTD_Helper::get_image_sizes();
 
 		# archive image size option
 		CPTD_Options::$settings[] = array(

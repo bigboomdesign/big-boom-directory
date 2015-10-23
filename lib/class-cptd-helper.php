@@ -15,6 +15,7 @@ class CPTD_Helper{
 	 * - get_field_array()
 	 * - get_choice_array()
 	 * - register()
+	 * - get_image_sizes()
 	 */
 	
 	/**
@@ -255,5 +256,26 @@ class CPTD_Helper{
 		}
 
 	} # end: register()
+
+	/**
+	 * Get a list of all core and custom image sizes that are registered
+	 *
+	 * @since 	2.0.0
+	 */
+	public static function get_image_sizes() {
+
+		# The WP core image sizes
+		$image_sizes = array(
+			'thumbnail', 'medium', 'large', 'full'
+		);
+
+		# get any custom images sizes that are registered
+		global $_wp_additional_image_sizes;
+		foreach( $_wp_additional_image_sizes as $size => $info ) {
+			$image_sizes[] = $size;
+		}
+
+		return $image_sizes;
+	} # end: get_image_sizes()
 
 } # end class CPTD_Helper
