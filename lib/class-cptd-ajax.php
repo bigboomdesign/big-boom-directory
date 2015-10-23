@@ -101,6 +101,18 @@ class CPTD_Ajax{
 			" AND meta_key LIKE \"%field_%\"";
 		$r = $wpdb->get_results( $meta_query );
 
+		# sort the fields by the ACF order
+		usort( $r, function( $a, $b ) {
+
+			# unserialize values
+			$value_a = unserialize( $a->meta_value );
+			$value_b = unserialize( $b->meta_value );
+
+			# compare `order_no`
+			return strnatcmp( $value_a['order_no'], $value_b['order_no'] );
+
+		});
+
 		ob_start();
 		?>
 		<div class="cptd-field-select">
