@@ -55,6 +55,11 @@ class CPTD_View {
 	 */
 	var $acf_fields = array();
 
+	/** 
+	 * Whether or not to auto detect website fields
+	 */
+	var $auto_detect_website = false;
+
 
 	/**
 	 * Object methods
@@ -93,8 +98,15 @@ class CPTD_View {
 				foreach( $fields as $field ) {
 
 					$field = new CPTD_Field( $field );
+
 					$this->field_keys[] = $field->key;
 					if( $field->is_acf ) $this->acf_fields[] = $field;
+
+					# if the post type detects URLs, so should this view
+					if( $this->post_type->auto_detect_website ) {
+
+						$this->auto_detect_website = true;
+					}
 				}
 
 			} # end if: ACF fields are saved for the current screen's post type and view

@@ -38,7 +38,7 @@ containing the arguments for <a href="https://github.com/johnbillion/extended-cp
 
 <h4>Parameters</h4>
 
-<pre><code>$cpt = array(
+<pre><code>$args = array(
     'post_type' =&gt; (string),
     'args' =&gt; (array, optional),    // The arguments for `register_post_type`
     'names' =&gt; (array, optional)    // The corresponding parameter for `register_extended_post_type`
@@ -67,7 +67,7 @@ function my_register_pt( $args ) {
 
 <h4>Parameters</h4>
 
-<pre><code>$content: The post content along with any appended fields for the current view
+<pre><code>(string) $content: The post content along with any appended fields for the current view
 </code></pre>
 
 <h4>Return</h4>
@@ -95,7 +95,7 @@ function my_the_content( $content ) {
 
 <h3><code>cptd_field_value_{$field_name}</code></h3>
 
-<p>Use this to filter a field value before it is displayed on the front end. Use your own field name (meta key) in place of <code>{$field_name}</code>. </p>
+<p>Use this to filter a field value before it is displayed on the front end. Use your own field name (meta key) in place of <code>{$field_name}</code>.  Note that the filter fires whether or not the field has a value.</p>
 
 <h4>Parameters</h4>
 
@@ -111,12 +111,99 @@ function my_the_content( $content ) {
 
 <p>Below, we are filtering the value of a field called <code>email</code> and adding a mailto link.</p>
 
-<pre><code>add_filter( 'cptd_field_email', 'my_email_filter' );
-function my_email_filter( $value ){
+<pre><code>add_filter( 'cptd_field_value_email', 'my_email_value_filter' );
+function my_email_value_filter( $value ){
 
     $value = "&lt;a href='mailto:". $value . "' &gt;" . $value . "&lt;/a&gt;";
     return $value;
 
+}
+</code></pre>
+
+<hr />
+
+<h3><code>cptd_field_label_{$field_name}</code></h3>
+
+<p>Use this filter to edit a filed's label and label wrap before it is displayed on the front end. Use your own field name (meta key) in place of <code>{$field_name}</code>. Note that the filter fires whether or not the field has a value.</p>
+
+<h4>Parameters</h4>
+
+<pre><code>$label = array(
+    'text'   =&gt; (string)   // The label text
+    'before' =&gt; (string)   // HTML that comes before the label (Default: "&lt;label&gt;")
+    'after'  =&gt; (string)   // HTML that comes after the label (Default: ": &amp;nbsp; &lt;/label&gt;")
+)
+</code></pre>
+
+<h4>Return</h4>
+
+<pre><code>(array)  You must return the altered $label array
+</code></pre>
+
+<h4>Example</h4>
+
+<p>Below, we are setting the <code>first_name</code> field's label text to "First" and the <code>last_name</code> field's label text to "Last"</p>
+
+<pre><code>add_filter( 'cptd_field_label_first_name', 'my_first_name_label' );
+function my_first_name_label( $label ) {
+    $label['text'] = 'First';
+    return $label;
+}
+
+add_filter( 'cptd_field_label_last_name', 'my_last_name_label' );
+function my_last_name_label( $label ) {
+    $label['text'] = 'Last';
+    return $label;
+}
+</code></pre>
+
+<hr />
+
+<h3><code>cptd_link_text</code></h3>
+
+<p>Use to change the default "View Website" link text for auto detected URL fields (<code>web</code>, <code>website</code>, <code>url</code>)</p>
+
+<h4>Parameters</h4>
+
+<pre><code>(string)        $text      The link text currently set for display (default: "View Website")
+(CPTD_Field)    $field    The field object currently being displayed
+</code></pre>
+
+<h4>Return</h4>
+
+<pre><code>(string) You must return the new link text for display
+</code></pre>
+
+<h4>Examples</h4>
+
+<p>Below, we're changing the link text to 'Visit Webpage'</p>
+
+<pre><code>add_filter( 'cptd_link_text', 'my_link_text' );
+function my_link_text() {
+    return 'Visit Webpage';
+}
+</code></pre>
+
+<p>For a more complex example, we can get the post currently being displayed and incorporate a custom field with the link text. Note that we are checking first that the post has a specific post type, <code>author</code>.  We also check that the user has a value for the custom field <code>first_name</code>.</p>
+
+<pre><code>add_filter( 'cptd_link_text', 'my_variable_link_text', 10, 2 );
+function my_variable_link_text( $text, $field ) {
+
+    # get the current post in the loop
+    global $post;
+
+    # make sure the post type is `author`
+    if( 'author' != $post-&gt;post_type ) return $text;
+
+    # get the user's first name if it exists
+    if( $first_name = get_post_meta( $post-&gt;ID, 'first_name', true ) ) {
+
+        # add first name to link text
+        return "Visit {$first_name}'s Website";
+    }
+
+    # otherwise, return a generic link text
+    return 'Visit Website';
 }
 </code></pre>
 
@@ -151,6 +238,8 @@ function my_pre_get_posts( $query ) {
     $query-&gt;query_vars['meta_key'] = 'last_name';
 }
 </code></pre>
+
+<hr />
 
 <h3><code>cptd_pre_render_field_{$field_name}</code></h3>
 

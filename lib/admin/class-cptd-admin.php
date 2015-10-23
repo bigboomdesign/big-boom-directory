@@ -14,7 +14,8 @@ class CPTD_Admin{
 	public static function init(){
 
 		# Admin init hook
-		add_action( 'admin_init',  array( 'CPTD_Admin', 'admin_init' ) );
+		add_action( 'admin_init', array( 'CPTD_Admin', 'admin_init' ) );
+
 
 		# Admin menu items
 		add_action('admin_menu', array( 'CPTD_Admin', 'admin_menu' ) );
@@ -31,7 +32,7 @@ class CPTD_Admin{
 		add_filter( 'page_row_actions', array( 'CPTD_Admin', 'post_row_actions' ), 10, 2 );
 
 		# CMB2 meta boxes
-		add_action('cmb2_admin_init', array( 'CPTD_Admin', 'cmb2_meta_boxes' ), 10 );
+		add_action( 'cmb2_admin_init', array( 'CPTD_Admin', 'cmb2_meta_boxes' ) );
 		
 		# fix for the URL that cmb2 defines
 		add_filter( 'cmb2_meta_box_url', 'update_cmb_meta_box_url' );
@@ -44,7 +45,7 @@ class CPTD_Admin{
 	/**
 	 * Callbacks for backend actions and filters
 	 * 
-	 * - admin_init
+	 * - admin_init()
 	 * - admin_menu()
 	 * - admin_enqueue()
 	 * - plugin_actions()
@@ -52,14 +53,15 @@ class CPTD_Admin{
 	 * - cmb2_meta_boxes()
 	 */
 
+
 	/**
-	 * Handler for the admin_init hook
+	 * Handler for admin_init hook
 	 *
 	 * @since	2.0.0
 	 */
 	public static function admin_init() {
 
-		# register setttings for the plugin options page
+		# register the plugin settings with defaults
 		CPTD_Options::register_settings();
 	}
 
@@ -158,6 +160,9 @@ class CPTD_Admin{
 	 */
 	public static function cmb2_meta_boxes() {
 
+		# initialize the settings (they depend on WP data are are not loaded before cmb2_admin_init)
+		CPTD_Options::initialize_settings();
+
 		$prefix = '_cptd_meta_';
 
 		/**
@@ -216,7 +221,7 @@ class CPTD_Admin{
 			'type' => 'checkbox',
 			'name' => 'Auto detect website field',
 		);
-		if( isset( CPTD_Options::$options['auto_detect_website_yet'] ) ) {
+		if( isset( CPTD_Options::$options['auto_detect_website_yes'] ) ) {
 			$website_field['default'] = self::default_for_checkbox('on');
 		}
 		$pt_settings->add_field( $website_field );

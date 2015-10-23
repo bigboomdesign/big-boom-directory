@@ -61,6 +61,11 @@ class CPTD_Options{
 	 * @since 	2.0.0
 	 */
 	static $default_section = 'cptd_main';
+
+	/**
+	 * Whether or not the defaults have been loaded
+	 */
+	static $options_initialized = false;
 		
 	/**
 	 * Class methods
@@ -372,7 +377,7 @@ class CPTD_Options{
 	 */
 	public static function register_settings(){
 
-		# initialize the settings that depend on WP data
+		# initialize the settings that depend on WP data if necessary
 		self::initialize_settings();
 
 		# main option for this plugin
@@ -388,9 +393,6 @@ class CPTD_Options{
 			add_settings_field($setting['name'], $setting['label'], array('CPTD_Options','do_settings_field'), 'cptd_settings', ( array_key_exists('section', $setting) ? $setting['section'] : self::$default_section), $setting);
 		}
 
-		# load the default settings for this plugin
-		self::load_default_settings();
-
 	} # end: register_settings()
 
 	/**
@@ -401,6 +403,12 @@ class CPTD_Options{
 	 * @since 	2.0.0
 	 */
 	public static function initialize_settings() {
+
+		# don't initialize settings twice
+		if( self::$options_initialized ) return;
+
+		# set the repeat indicator to true
+		self::$options_initialized = true;
 
 		/**
 		 * Image sizes for archive and single views
@@ -414,7 +422,7 @@ class CPTD_Options{
 			'label' => 'Image size for archive view',
 			'type' => 'select',
 			'choices' => $image_sizes,
-			'default' => 'medium',
+			'default' => 'thumbnail',
 			'description' => 'Applies to ACF fields with type `image`'
 		);
 
@@ -424,9 +432,12 @@ class CPTD_Options{
 			'label' => 'Image size for single view',
 			'type' => 'select',
 			'choices' => $image_sizes,
-			'default' => 'thumbnail',
+			'default' => 'medium',
 			'description' => 'Applies to ACF fields with type `image`'
 		);
+		
+		self::load_default_settings();
+
 	} # end: initialize_settings()
 
 	/**
@@ -450,8 +461,6 @@ class CPTD_Options{
 			if( 'checkbox' == $setting['type'] ) {
 
 				if( ! $allow_for_checkboxes ) continue;
-
-				var_dump( 'doing for checkboxes' );
 
 				# checkboxes have on large key in the form `setting_name`_`setting_value`
 				if( $default )  CPTD_Options::$options[ $setting['name'].'_'.$default ] = $default;

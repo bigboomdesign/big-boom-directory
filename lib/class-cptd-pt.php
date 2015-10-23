@@ -44,6 +44,9 @@ class CPTD_PT extends CPTD_Post{
 	 */
 	var $slug;
 
+	var $auto_detect_website = false;
+
+
 	/**
 	 * List of object parameters used for post registration ($args for register_post_type)
 	 * 

@@ -151,6 +151,53 @@ Below, we are setting the `first_name` field's label text to "First" and the `la
 
 ---
 
+### ````cptd_link_text````
+
+Use to change the default "View Website" link text for auto detected URL fields (`web`, `website`, `url`)
+
+#### Parameters
+
+    (string)        $text      The link text currently set for display (default: "View Website")
+    (CPTD_Field)    $field    The field object currently being displayed
+
+#### Return
+
+    (string) You must return the new link text for display
+
+#### Examples
+
+Below, we're changing the link text to 'Visit Webpage'
+
+    add_filter( 'cptd_link_text', 'my_link_text' );
+    function my_link_text() {
+        return 'Visit Webpage';
+    }
+
+
+For a more complex example, we can get the post currently being displayed and incorporate a custom field with the link text. Note that we are checking first that the post has a specific post type, `author`.  We also check that the user has a value for the custom field `first_name`.
+
+    add_filter( 'cptd_link_text', 'my_variable_link_text', 10, 2 );
+    function my_variable_link_text( $text, $field ) {
+        
+        # get the current post in the loop
+        global $post;
+
+        # make sure the post type is `author`
+        if( 'author' != $post->post_type ) return $text;
+
+        # get the user's first name if it exists
+        if( $first_name = get_post_meta( $post->ID, 'first_name', true ) ) {
+
+            # add first name to link text
+            return "Visit {$first_name}'s Website";
+        }
+
+        # otherwise, return a generic link text
+        return 'Visit Website';
+    }
+
+---
+
 ## Actions
 
 ### ````cptd_pre_get_posts````

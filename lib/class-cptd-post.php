@@ -186,7 +186,7 @@ class CPTD_Post{
 		} # end if: post meta exists
 
 		# Use post title for default labels
-		if( ( empty( $post->singular ) || empty( $this->plural ) ) &&! empty( $this->post_title )  ) {
+		if( ( empty( $this->singular ) || empty( $this->plural ) ) && ! empty( $this->post_title )  ) {
 			if( empty( $this->singular ) ) $this->singular = $this->post_title;
 			if( empty( $this->plural ) ) $this->plural = $this->post_title;
 		}

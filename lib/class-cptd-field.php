@@ -24,14 +24,6 @@ class CPTD_Field {
 	var $type = '';
 
 	/**
-	 * Whether to autodetect URLs (by default this is true for fields with key `web`, `website`, or `url`)
-	 *
-	 * @param	bool
-	 * @since 	2.0.0
-	 */
-	var $auto_link = false;
-
-	/**
 	 * Whether this is an ACF field
 	 *
 	 * @param 	(bool|null)
@@ -80,11 +72,6 @@ class CPTD_Field {
 		# load the ACF field info if applicable
 		$this->is_acf();
 
-		# autodetect
-		if( 'web' == $this->key || 'website' == $this->key || 'url' == $this->key ) {
-			$this->auto_link = true;
-		}
-
 	} # end: __construct()
 
 
@@ -131,19 +118,26 @@ class CPTD_Field {
 		 * - date picker
 		 */
 
-		# auto detect website field
-		if( $this->auto_link ) {
+		# autodetect
 
-			# do our best to make sure we have a valid URL
-			if( 'http' != substr( $value, 0, 4 ) ) $value = 'http://' . $value;
-		?>
-			<div class="cptd-field text <?php echo $this->key; ?>">
-					<a target="_blank" class='cptd-website-link' href="<?php echo $value; ?>" >
-						View Website
-					</a>
-			</div>
-		<?php
-			return;
+		## website field
+		if( $cptd_view->auto_detect_website ) {
+
+			# see if we have a website field key
+			if( 'web' == $this->key || 'website' == $this->key || 'url' == $this->key ) {
+				# do our best to make sure we have a valid URL
+				if( 'http' != substr( $value, 0, 4 ) ) $value = 'http://' . $value;
+			?>
+				<div class="cptd-field text <?php echo $this->key; ?>">
+						<a target="_blank" class='cptd-website-link' href="<?php echo $value; ?>" >
+							<?php echo apply_filters('cptd_link_text', 'View Website', $this ); ?>
+						</a>
+				</div>
+			<?php
+				return;
+			
+			} # end if: website field key
+
 		} # end if: auto detect website field
 
 
