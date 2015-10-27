@@ -199,10 +199,15 @@ class CPTD_Field {
 
 			$src = '';
 
-			# get the appropriate size
-			$size = ( 'archive' == $cptd_view->view_type ) ? 
-				'thumbnail' : 
-				'medium';
+			# get the appropriate size, falling back on thumbnail for archive and medium for single
+			$size = ( isset( $cptd_view->image_size ) ? 
+				$cptd_view->image_size :
+				( 'archive' == $cptd_view->view_type  ? 
+					'thumbnail' :
+					'medium'
+				)
+			);
+				
 
 			# ACF gives the option of multiple save formats for images (object/url/id)
 			if( $this->is_acf ) {

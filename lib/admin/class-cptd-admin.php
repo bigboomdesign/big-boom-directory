@@ -188,7 +188,8 @@ class CPTD_Admin{
 		 * 		- Menu Position
 		 * 		- Menu Icon
 		 *
-		 * - Post type fields meta box
+		 * - Field selection meta box
+		 * - Advanced field setup meta box
 		 */
 
 		/**
@@ -220,51 +221,6 @@ class CPTD_Admin{
 			'id' 	=> $prefix.'plural',
 			'type'	=> 'text',
 			'before' => array( 'CPTD_Admin', 'before_label' ),
-		));
-
-		## Settings from CPTD core that can be overriden for this post type
-
-		### Auto detect website field
-		$website_field = array(
-			'id' => $prefix.'auto_detect_url',
-			'type' => 'checkbox',
-			'name' => 'Auto detect URL fields',
-		);
-		if( isset( CPTD_Options::$options['auto_detect_url_yes'] ) ) {
-			$website_field['default'] = self::default_for_checkbox('on');
-		}
-		$pt_settings->add_field( $website_field );
-
-		### Auto detect social media
-		$social_field = array(
-			'id' => $prefix.'auto_detect_social',
-			'type' => 'checkbox',
-			'name' => 'Auto detect social media fields',
-		);
-
-		### default for social media field
-		if( isset( CPTD_Options::$options['auto_detect_social_yes'] ) ) {
-			$social_field['default'] = self::default_for_checkbox('on');
-		}
-
-		$pt_settings->add_field( $social_field );
-
-		### Image size for archives
-		$pt_settings->add_field( array(
-			'id' => $prefix.'image_size_archive',
-			'type' => 'select',
-			'default' => CPTD_Options::$options['image_size_archive'],
-			'name' => 'Image size for archive views',
-			'before' => array('CPTD_Admin', 'before_image_size')
-		));
-
-		### Image size for single
-		$pt_settings->add_field( array(
-			'id' => $prefix.'image_size_single',
-			'type' => 'select',
-			'default' => CPTD_Options::$options['image_size_single'],
-			'name' => 'Image size for single views',
-			'before' => array('CPTD_Admin', 'before_image_size')
 		));
 
 
@@ -381,7 +337,7 @@ class CPTD_Admin{
 
 		# Post type archive fields
 		$pt_fields_select->add_field(  array(
-			'name' => 'Post Type Archive Fields',
+			'name' => 'Fields for archive views',
 			'id' => $prefix.'pt_archive_fields',
 			'type' => 'multicheck',
 			'attributes' => array( 
@@ -396,7 +352,7 @@ class CPTD_Admin{
 
 		# Post type single fields
 		$pt_fields_select->add_field( array(
-			'name' => 'Single Post Fields',
+			'name' => 'Fields for single post view',
 			'id' => $prefix.'pt_single_fields',
 			'type' => 'multicheck',
 			'attributes' => array( 
@@ -408,6 +364,61 @@ class CPTD_Admin{
 			'select_all_button' => false
 		));
 
+		$advanced_fields_setup = new_cmb2_box( array(
+			'id' 			=> 'cptd_pt_advanced_fields_setup',
+			'title'			=> __( 'Advanced Fields Setup', 'cmb2' ),
+			'object_types' 	=> array( 'cptd_pt' ),
+			'context' 		=> 'normal',
+			'priority' 		=> 'high',
+		));
+
+		/**
+		 * Advanced fields setup
+		 * Settings from CPTD core that can be overriden for this post type
+		 */
+
+		# Auto detect website field
+		$website_field = array(
+			'id' => $prefix.'auto_detect_url',
+			'type' => 'checkbox',
+			'name' => 'Auto detect URL fields',
+		);
+		if( isset( CPTD_Options::$options['auto_detect_url_yes'] ) ) {
+			$website_field['default'] = self::default_for_checkbox('on');
+		}
+		$advanced_fields_setup->add_field( $website_field );
+
+		# Auto detect social media
+		$social_field = array(
+			'id' => $prefix.'auto_detect_social',
+			'type' => 'checkbox',
+			'name' => 'Auto detect social media fields',
+		);
+
+		# default for social media field
+		if( isset( CPTD_Options::$options['auto_detect_social_yes'] ) ) {
+			$social_field['default'] = self::default_for_checkbox('on');
+		}
+
+		$advanced_fields_setup->add_field( $social_field );
+
+		# Image size for archives
+		$advanced_fields_setup->add_field( array(
+			'id' => $prefix.'image_size_archive',
+			'type' => 'select',
+			'default' => CPTD_Options::$options['image_size_archive'],
+			'name' => 'Image size for archive views',
+			'before' => array('CPTD_Admin', 'before_image_size')
+		));
+
+		# Image size for single
+		$advanced_fields_setup->add_field( array(
+			'id' => $prefix.'image_size_single',
+			'type' => 'select',
+			'default' => CPTD_Options::$options['image_size_single'],
+			'name' => 'Image size for single views',
+			'before' => array('CPTD_Admin', 'before_image_size')
+		));
 
 
 		/**
