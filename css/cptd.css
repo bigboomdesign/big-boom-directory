@@ -1,4 +1,6 @@
-/* Fields */
+/**
+ * Fields 
+ */
 .cptd-field label{ font-weight: bold; }
 
 .cptd-field.wysiwyg,
@@ -7,7 +9,11 @@
 .cptd-field.wysiwyg label,
 .cptd-field.textarea label{ display: block; }
 
-/** galleries */
+.cptd-field.image {
+	margin-bottom: 1em;
+}
+
+/* gallery */
 .cptd-gallery{
 	margin: 2em 0;
 }
@@ -30,11 +36,15 @@ a.cptd-gallery-thumb img{
 	margin: 0;
 }
 
-/* Search Widget */
+/**
+ * Search Widget 
+*/
 #cptd-search-form{ margin-top: 1em; }
-+p.cptd-search-filter{ float: left; margin-right: 1em; margin-bottom: 1.5em; padding-bottom: 0;}
-+.cptd-search-submit{ width: 100%; max-width: 250px; height: 3em; }
+p.cptd-search-filter{ float: left; margin-right: 1em; margin-bottom: 1.5em; padding-bottom: 0;}
+.cptd-search-submit{ width: 100%; max-width: 250px; height: 3em; }
 
-/* Search Results Page */
+/**
+ * Search Results Page 
+*/
 .cptd-search-result-item{ margin-top: 2em; }
 .cptd-archive-thumb{ width: 80px; height: auto; }

@@ -116,9 +116,12 @@ class CPTD_Field {
 		 * - auto detect URL fields
 		 * - images
 		 * - date picker
+		 * - gallery
 		 */
 
-		# Auto detect social media fields
+		/**
+		 * Auto detect social media fields
+		 */
 		if( $cptd_view->auto_detect_social ) {
 
 			# see if we have a social media field key
@@ -160,11 +163,15 @@ class CPTD_Field {
 		
 		} # end if: auto detect social is enabled
 
-		# At this point, we'll do nothing further if we don't have a value
-		# We needed to do stuff for social media detection even if values are empty
+		/** 
+		 * At this point, we'll do nothing further if we don't have a value
+		 * We needed to do stuff for social media detection even if values are empty
+		 */
 		if( empty( $value ) ) return '';
 
-		# Auto-detect URL fields
+		/**
+		 * Auto-detect URL fields
+		 */
 		if( $cptd_view->auto_detect_url ) {
 
 			# see if we have a website field key
@@ -185,7 +192,9 @@ class CPTD_Field {
 		} # end if: auto detect website field
 
 
-		# image fields
+		/**
+		 * Image field
+		 */
 		if( 'image' == $this->type ){
 
 			$src = '';
@@ -233,7 +242,7 @@ class CPTD_Field {
 					$link = get_permalink( $post->id );
 				}
 			?>
-				<div class='cptd-image-container'>
+				<div class='cptd-field image <?php echo $this->key; ?>'>
 				<?php
 					if( $link ) {
 					?>
@@ -241,9 +250,7 @@ class CPTD_Field {
 					<?php
 					}
 					?>
-							<img class="cptd-image <?php echo $this->key; ?>" 
-									src="<?php echo $src; ?>" 
-							/>
+							<img src="<?php echo $src; ?>" />
 					<?php
 					if( $link ) {
 					?>
@@ -259,7 +266,9 @@ class CPTD_Field {
 			return;
 		} # endif: image field
 
-		# Date picker field
+		/**
+		 * Date picker field
+		 */
 		if( 'date_picker' == $this->type ) {
 
 			# the format saved in ACF
@@ -280,6 +289,71 @@ class CPTD_Field {
 			$value = $date->format( $format_convert[ $this->acf_field['display_format'] ] );
 		
 		} # end: date picker field
+
+		/** 
+		 * Gallery field
+		 */
+		if( 'gallery' == $this->type ) {
+
+			# unserialize and make sure we have images
+			$image_ids = unserialize( $value );
+			if( ! $image_ids  ) return;
+
+			# query the DB for all attachment metadata (so we don't have to call a WP function multiple times
+			# that will hit the database for every image)
+			global $wpdb;
+
+			$image_query = "SELECT post_id, meta_value FROM " . $wpdb->postmeta . 
+				" WHERE meta_key = '_wp_attachment_metadata' " . 
+				" AND post_id IN ( " . implode( ", ", $image_ids ) . " )";
+
+			$image_results = $wpdb->get_results( $image_query );
+
+			if( ! $image_results ) return;
+
+			# get the uploads directory URL
+			$uploads_dir = wp_upload_dir();
+			$uploads_url = $uploads_dir['baseurl'];
+
+			# display the gallery
+			$image_num = 0;
+		?>
+			<div class="cptd-gallery <?php echo $this->key; ?>">
+			<?php
+				foreach( $image_results as $row ) {
+
+					$image_num++;
+					
+					$image_data = unserialize( $row->meta_value );
+
+					if( ! isset( $image_data['sizes']['thumbnail']['file'] ) ) continue;
+
+					$thumbnail_file = $image_data['sizes']['thumbnail']['file'];
+					$full_size_file = $image_data['file'];
+
+					$thumbnail_url = $uploads_url . '/' . $thumbnail_file;
+					$full_size_url = $uploads_url . '/' . $full_size_file;
+				?>
+					<a 
+						class="cptd-gallery-thumb <?php echo $image_num; ?>" 
+						href="<?php echo $full_size_url; ?>" 
+						data-lightbox="gallery-<?php echo $this->key; ?>"
+					>
+						<img class="cptd-image <?php echo $this->key . " " . $image_num; ?>" src="<?php echo $thumbnail_url; ?>" />
+					</a>
+				<?php
+				} #end foreach: gallery image
+			?>
+			</div>
+		<?php
+			return;
+		} # end: gallery field
+
+		/**
+		 * end: special cases
+		 *
+		 * At this point, all fields not addressed by special cases will be displayed the same way
+		 */
 
 		# output the field HTML
 		?><div class="cptd-field <?php echo $this->type . " " . $this->key; ?>">

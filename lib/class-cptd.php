@@ -212,7 +212,13 @@ class CPTD{
 	 */
 	public static function enqueue_scripts() {
 		wp_enqueue_style( 'cptd-css', cptd_url( '/css/cptd.css' ) );
+
+		# font awesome
 		wp_enqueue_style( 'cptd-fa', '//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css');
+
+		# lightbox
+		wp_enqueue_script('cptd-lightbox', cptd_url('/assets/lightbox/lightbox.min.js'), array('jquery'));
+		wp_enqueue_style('cptd-lightbox', cptd_url('/assets/lightbox/lightbox.css'));
 	} # end: enqueue_scripts()
 
 	/**
