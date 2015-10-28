@@ -45,6 +45,30 @@ class CPTD_PT extends CPTD_Post{
 	var $slug;
 
 	/**
+	 * The default post orderby parameter for this post type
+	 * 
+	 * @param 	string 	( title | meta_value | date | rand )
+	 * @since 	2.0.0
+	 */
+	var $post_orderby;
+
+	/**
+	 * The meta key parameter to use if ordering by custom field
+	 *
+	 * @param	string
+	 * @since	2.0.0
+	 */
+	var $meta_key_orderby;
+
+	/**
+	 * The default post order for this post type
+	 *
+	 * @param	string 	( ASC | DESC )
+	 */
+	var $post_order;
+
+
+	/**
 	 * Whether or not to auto detect website fields and social media links
 	 *
 	 * @param	bool

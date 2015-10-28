@@ -4,6 +4,12 @@ var postId = cptdData.postId
 // post title input
 var $title;
 
+// the select element for post orderby
+var $orderby;
+
+// the meta key orderby field that gets hidden and shown
+var $metaKeyOrderbyContainer;
+
 // the link to change the PT name
 var $changeName;
 
@@ -34,6 +40,9 @@ jQuery( document ).ready( function( $ ) {
 	 * Post type name/handle-related elements
 	 */
 
+	$orderby = $('#_cptd_meta_post_orderby');
+	$metaKeyOrderbyContainer = $( '.cmb2-id-meta-key-orderby' );
+
 	// post type name/handle input
 	$handle = $('#_cptd_meta_handle');
 
@@ -50,6 +59,18 @@ jQuery( document ).ready( function( $ ) {
 	$cancelNameChange = $('div#cancel-name-change');
 
 	
+	/**
+	 * On change for post orderby
+	 */
+	$orderby.on( 'change', function() {
+
+		orderbyChange();
+
+	});
+	// initialize the orderby
+	orderbyChange();
+
+
 	/**
 	 * Post type name change (handle) interactions
 	 */
@@ -177,10 +198,35 @@ jQuery( document ).ready( function( $ ) {
 /**
  * Subroutines
  *
+ * - Orderby change routines
  * - Name change routines
  * - Slug change routines
  * - Field group change routines
  */
+
+/**
+ * Orderby change routines
+ *
+ * - orderbyChange()
+ * - orderbyCustomField()
+ * - orderbyOther()
+ */
+function orderbyChange() {
+	// if we're selecting the "Custom Field" option
+	if( 'meta_value' == $orderby.val() ) {
+		orderbyCustomField();
+	}
+	else{
+		orderbyOther();
+	}
+}
+function orderbyCustomField() {
+	$metaKeyOrderbyContainer.css( 'display', 'block' );
+} // end: orderbyCustomField()
+
+function orderbyOther() {
+	$metaKeyOrderbyContainer.css( 'display', 'none' );
+} // end: orderbyOther()
 
  /**
   * Name change subroutines

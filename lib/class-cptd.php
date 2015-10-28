@@ -149,13 +149,100 @@ class CPTD{
 	 * Basic WP callbacks for actions and filters
 	 *
 	 * - Actions
-	 * 		- wp()
+	 * 		- init()
 	 * 		- pre_get_posts()
+	 * 		- wp()
 	 * 		- enqueue_scripts()
 	 *
 	 * - Filters
 	 * 		- the_content()
 	 */
+
+	/**
+	 * Callback for 'init' action
+	 *
+	 * @since 	2.0.0
+	 */
+	public static function init() {
+
+	}
+
+	/**
+	 * Callback for 'pre_get_posts' action
+	 *
+	 * Defines a custom action 'cptd_pre_get_posts' after validating the view as CPTD
+	 *
+	 * @param 	WP_Query 	$query 		The query object that is getting posts
+	 * @since 	2.0.0
+	 */
+	public static function pre_get_posts( $query ) {
+
+		# the value of CPTD::$is_cptd hasn't been set when this hook fires
+		$is_cptd = false;
+
+		# make sure we have the main query
+		if( ! $query->is_main_query() ) return;
+
+		$post_order = '';
+
+		# see if the query has a post type set
+		if( isset( $query->query['post_type'] ) ) {
+
+			$post_type = $query->query['post_type'];
+
+			# loop through CPTD post types and see if any of them match the current query
+			foreach( CPTD::$post_type_ids  as $post_id ) {
+
+				$pt = new CPTD_PT( $post_id );
+
+				if( $post_type == $pt->handle ) {
+					$is_cptd = true;
+					$current_post_type = $pt;
+				}
+			}
+		} # end if: query has a post type set
+
+		/*
+		# Use post title as the default ordering for CPTD views
+		$query->query_vars['orderby'] = 'post_title';
+		$query->query_vars['order'] = 'ASC';
+		*/
+
+		if( ! $is_cptd ) return;
+
+		# get the post orderby parameter
+		$orderby = $current_post_type->post_orderby;
+		if( ! $orderby ) $orderby = 'title';
+
+		# the order parameter
+		$order = $current_post_type->post_order;
+
+		# the meta key for ordering
+		$meta_key = $current_post_type->meta_key_orderby;
+
+		$query->query_vars['orderby'] = $orderby;
+		$query->query_vars['order'] = $order;
+
+		# when ordering by meta value
+		if( 'meta_value' == $orderby && $meta_key ) {
+
+			# set the meta key argument
+			$query->query_vars['meta_key'] = $meta_key;
+
+			# make sure that we filter out posts with the meta value saved as an empty string
+			# these posts appear at the top otherwise
+			$query->query_vars['meta_query'][] = array(
+				'key' => $meta_key,
+				'value' => '',
+				'compare' => '!=',
+			);
+
+		} # end if: ordering by custom field
+
+		# action that users can hook into to edit the query further
+		do_action( 'cptd_pre_get_posts', $query );
+
+	} # end: pre_get_posts()
 
 	/**
 	 * Callback for `wp` action
@@ -182,28 +269,6 @@ class CPTD{
 		add_filter( 'the_excerpt', array( 'CPTD', 'the_content' ) );
 	
 	} # end: wp()
-
-	/**
-	 * Callback for 'pre_get_posts' action
-	 *
-	 * Defines a custom action 'cptd_pre_get_posts' after validating the view as CPTD
-	 *
-	 * @param 	WP_Query 	$query 		The query object that is getting posts
-	 * @since 	2.0.0
-	 */
-	public static function pre_get_posts( $query ) {
-
-		# make sure we have the main query
-		if( ! $query->is_main_query() ) return;
-
-		# Use post title as the default ordering for CPTD views
-		$query->query_vars['orderby'] = 'post_title';
-		$query->query_vars['order'] = 'ASC';
-
-		# action that users can hook into to edit the query further
-		do_action( 'cptd_pre_get_posts', $query );
-
-	} # end: pre_get_posts()
 
 	/**
 	 * Enqueue styles and javascripts

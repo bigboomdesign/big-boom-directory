@@ -583,11 +583,48 @@ CPTD_Options::$sections = array(
 /**
  * Settings for plugin options page (these serve as defaults for new CPTD post types)
  * 
+ * - Default post orderby
+ * - Default post order
+ * - Meta key to order by
  * - Auto detect website field
  * - Auto detect social media fields
  * - Additional settings that depend on WP data are called via self::register_settings, which fires on admin_init
  */
 CPTD_Options::$settings = array(
+
+	# Default post orderby
+	array(
+		'name' 		=> 'post_orderby',
+		'label' 	=> 'Order Posts By',
+		'type' 		=> 'select',
+		'choices' 	=> array(
+			array( 'value' => 'title', 'label' => 'Post Title' ),
+			array( 'value' => 'meta_value', 'label' => 'Custom Field' ),
+			array( 'value' => 'date', 'label' => 'Post Date' ),
+			array( 'value' => 'rand', 'label' => 'Random' ),
+		),
+		'default' 	=> 'title',
+	),
+
+	# Meta key to order by, if 'post_orderby' = 'meta_value'
+	array(
+		'name'		=> 'meta_key_orderby',
+		'label'		=> 'Field key to use for ordering posts',
+		'type'		=> 'text',
+		'description' 	=> 'Use a field key like <code>last_name</code>. Posts with no value for the field will not appear in results.'
+	),
+
+	# Default post order
+	array(
+		'name'		=> 'post_order',
+		'label' 	=> 'Post Order',
+		'type' 		=> 'select',
+		'choices'	=> array(
+			array( 'value' => 'ASC', 'label' => 'Ascending' ),
+			array( 'value' => 'DESC', 'label' => 'Descending' ),
+		),
+		'default' => 'ASC',
+	),
 
 	# Auto detect website field
 	array(

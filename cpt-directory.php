@@ -44,6 +44,7 @@ add_action('init', array( 'CPTD_Helper', 'register' ) );
 if(is_admin()){
 	
 	require_once cptd_dir( '/lib/admin/class-cptd-admin.php' );
+	require_once cptd_dir( '/lib/admin/class-cptd-meta-boxes.php' );
 	require_once cptd_dir( '/assets/cmb2/init.php' );
 	
 	CPTD_Admin::init();
@@ -62,6 +63,7 @@ else{
 	global $cptd_view;
 	$cptd_view = null;
 
+	add_action( 'init', array( 'CPTD', 'init' ) );
 	add_action( 'pre_get_posts', array( 'CPTD', 'pre_get_posts' ) );
 	add_action( 'wp', array( 'CPTD', 'wp' ) );
 }
