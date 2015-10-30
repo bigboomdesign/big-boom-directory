@@ -600,18 +600,20 @@ CPTD_Options::$settings = array(
 		'choices' 	=> array(
 			array( 'value' => 'title', 'label' => 'Post Title' ),
 			array( 'value' => 'meta_value', 'label' => 'Custom Field' ),
+			array( 'value' => 'meta_value_num', 'label' => 'Custom Field (Numerical)' ),
 			array( 'value' => 'date', 'label' => 'Post Date' ),
 			array( 'value' => 'rand', 'label' => 'Random' ),
 		),
 		'default' 	=> 'title',
 	),
 
-	# Meta key to order by, if 'post_orderby' = 'meta_value'
+	# Meta key to order by, if 'post_orderby' = ( 'meta_value' | 'meta_value_num' )
 	array(
 		'name'		=> 'meta_key_orderby',
 		'label'		=> 'Field key to use for ordering posts',
 		'type'		=> 'text',
-		'description' 	=> 'Use a field key like <code>last_name</code>. Posts with no value for the field will not appear in results.'
+		'description' 	=> 'Use a field key like <code>last_name</code>. Posts with no value for the field will not appear in results.',
+		'default'		=> 'title',
 	),
 
 	# Default post order

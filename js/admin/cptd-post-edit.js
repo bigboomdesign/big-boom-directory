@@ -213,7 +213,7 @@ jQuery( document ).ready( function( $ ) {
 function orderbyChange() {
 
 	// if we're selecting the "Custom Field" option
-	if( 'meta_value' == $orderby.val() ) {
+	if( 'meta_value' == $orderby.val() || 'meta_value_num' == $orderby.val() ) {
 		orderbyCustomField();
 	}
 	else{

@@ -71,20 +71,22 @@ class CPTD_Meta_Boxes {
 			'id' 	=> $prefix.'post_orderby',
 			'type' 	=> 'select',
 			'options' => array(
-				'title' 		=> 'Post Title', 
-				'meta_value' 	=> 'Custom Field',
-				'date' 			=> 'Publish Date',
-				'rand' 			=> 'Random',
+				'title' 			=> 'Post Title', 
+				'meta_value' 		=> 'Custom Field',
+				'meta_value_num' 	=> 'Custom Field (Numerical)',
+				'date' 				=> 'Publish Date',
+				'rand' 				=> 'Random',
 			),
 			'default' 	=> CPTD_Options::$options['post_orderby'],
 		));
 
-		## Meta key to order by, if 'post_orderby' = 'meta_value'
+		## Meta key to order by, if 'post_orderby' = ( 'meta_value' | 'meta_value_num' )
 		$pt_settings->add_field( array(
 			'name' 	=> 'Field key to use for ordering posts',
 			'id' 	=> $prefix.'meta_key_orderby',
 			'type' 	=> 'text',
-			'description' 	=> 'Use a field key like <code>last_name</code>. Posts with no value for the field will not appear in results.'
+			'description' 	=> 'Use a field key like <code>last_name</code>. Posts with no value for the field will not appear in results.',
+			'default'		=> CPTD_Options::$options['meta_key_orderby'],
 		));
 
 		## Post order

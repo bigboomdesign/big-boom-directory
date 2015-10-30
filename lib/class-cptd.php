@@ -251,7 +251,7 @@ class CPTD{
 		$query->query_vars['order'] = $order;
 
 		# when ordering by meta value
-		if( 'meta_value' == $orderby && $meta_key ) {
+		if( $meta_key && ( 'meta_value' == $orderby || 'meta_value_num' == $orderby ) ) {
 
 			# set the meta key argument
 			$query->query_vars['meta_key'] = $meta_key;
