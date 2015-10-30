@@ -84,7 +84,7 @@ class CPTD_PT extends CPTD_Post{
 	 * @param 	array
 	 * @since 	2.0.0
 	 */
-	var $args_settings = array( 'public', 'has_archive', 'menu_position', 'menu_icon' );
+	var $args_settings = array( 'public', 'has_archive', 'exclude_from_search', 'menu_position', 'menu_icon' );
 
 	/** 
 	 * Whether the post type is public
@@ -101,6 +101,14 @@ class CPTD_PT extends CPTD_Post{
 	 * @since 	2.0.0
 	 */
 	var $has_archive;
+
+	/**
+	 * Whether to exclude the post type from WP search
+	 *
+	 * @param 	bool
+	 * @since 	2.0.0
+	 */
+	var $exclude_from_search;
 
 	/**
 	 * The position of the post type in the WP Admin menu

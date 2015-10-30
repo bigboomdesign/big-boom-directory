@@ -169,10 +169,10 @@ class CPTD_Meta_Boxes {
 
 		## Public
 		$advanced_pt_settings->add_field( array(
-			'name'	=> 'Public',
-			'id'	=> $prefix.'public',
-			'type' 	=> 'checkbox',
-			'default' => self::default_for_checkbox( 'on' )
+			'name'		=> 'Public',
+			'id'		=> $prefix.'public',
+			'type' 		=> 'checkbox',
+			'default' 	=> self::default_for_checkbox( 'on' )
 		));
 
 		## Has Archive
@@ -180,7 +180,14 @@ class CPTD_Meta_Boxes {
 			'name'		=> 'Has Archive',
 			'id'		=> $prefix.'has_archive',
 			'type' 		=> 'checkbox',
-			'default' => self::default_for_checkbox( 'on' )
+			'default' 	=> self::default_for_checkbox( 'on' )
+		));
+
+		## Exclude From Search
+		$advanced_pt_settings->add_field( array(
+			'name' 		=> 'Exclude From Search',
+			'id' 		=> $prefix.'exclude_from_search',
+			'type' 		=> 'checkbox',
 		));
 
 		# Menu Position
