@@ -75,6 +75,13 @@ class CPTD_Admin{
 		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Settings | CPT Directory', 'Settings', 'manage_options', 'cptd-settings', array('CPTD_Admin', 'settings_page') );
 		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Import | CPT Directory', 'Import', 'manage_options', 'cptd-import', array( 'CPTD_Admin', 'import_page' ) );
 		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Information | CPT Directory', 'Information', 'manage_options', 'cptd-information', array('CPTD_Admin', 'information_page') );
+
+		# Add "Edit Post Type" submenu item for each post type
+		foreach( CPTD::$post_type_ids as $id ) {
+
+			$pt = new CPTD_PT( $id );
+			add_submenu_page( 'edit.php?post_type=' . $pt->handle, '', 'Edit Post Type', 'manage_options', 'post.php?post=' . $id .'&action=edit' );
+		}
 		
 		global $submenu;
         unset($submenu['edit.php?post_type=cptd_pt'][10]);

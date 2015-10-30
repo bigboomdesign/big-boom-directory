@@ -41,7 +41,7 @@ jQuery( document ).ready( function( $ ) {
 	 */
 
 	$orderby = $('#_cptd_meta_post_orderby');
-	$metaKeyOrderbyContainer = $( '.cmb2-id-meta-key-orderby' );
+	$metaKeyOrderbyContainer = $( '.cmb2-id--cptd-meta-meta-key-orderby' );
 
 	// post type name/handle input
 	$handle = $('#_cptd_meta_handle');
@@ -63,10 +63,9 @@ jQuery( document ).ready( function( $ ) {
 	 * On change for post orderby
 	 */
 	$orderby.on( 'change', function() {
-
 		orderbyChange();
-
 	});
+	
 	// initialize the orderby
 	orderbyChange();
 
@@ -212,6 +211,7 @@ jQuery( document ).ready( function( $ ) {
  * - orderbyOther()
  */
 function orderbyChange() {
+
 	// if we're selecting the "Custom Field" option
 	if( 'meta_value' == $orderby.val() ) {
 		orderbyCustomField();

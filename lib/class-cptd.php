@@ -170,7 +170,7 @@ class CPTD{
 	/**
 	 * Callback for 'pre_get_posts' action
 	 *
-	 * Defines a custom action 'cptd_pre_get_posts' after validating the view as CPTD
+	 * Executes a custom action 'cptd_pre_get_posts' after validating the view as CPTD
 	 *
 	 * @param 	WP_Query 	$query 		The query object that is getting posts
 	 * @since 	2.0.0
@@ -180,6 +180,9 @@ class CPTD{
 		# the value of CPTD::$is_cptd hasn't been set when this hook fires
 		$is_cptd = false;
 
+		$current_post_type = '';
+		$current_taxonomy = '';
+
 		# make sure we have the main query
 		if( ! $query->is_main_query() ) return;
 
@@ -188,27 +191,51 @@ class CPTD{
 		# see if the query has a post type set
 		if( isset( $query->query['post_type'] ) ) {
 
-			$post_type = $query->query['post_type'];
+			# get the post type name for the query
+			$queried_post_type = $query->query['post_type'];
 
 			# loop through CPTD post types and see if any of them match the current query
 			foreach( CPTD::$post_type_ids  as $post_id ) {
 
 				$pt = new CPTD_PT( $post_id );
 
-				if( $post_type == $pt->handle ) {
+				if( $queried_post_type == $pt->handle ) {
 					$is_cptd = true;
 					$current_post_type = $pt;
 				}
 			}
 		} # end if: query has a post type set
 
-		/*
-		# Use post title as the default ordering for CPTD views
-		$query->query_vars['orderby'] = 'post_title';
-		$query->query_vars['order'] = 'ASC';
-		*/
+		# see if the query has a taxonomy set
+		if( ! empty( $query->tax_query->queries ) ) {
+
+			$tax_queries = $query->tax_query->queries;
+
+			# make sure we have exactly one taxonomy set, otherwise we won't consider this a CPTD view
+			if( 1 != count( $tax_queries ) ) return;
+			
+			# get the taxonomy name for the query
+			$queried_taxonomy = $tax_queries[0]['taxonomy'];
+
+			foreach( CPTD::$taxonomy_ids as $tax_id ) {
+
+				$tax = new CPTD_Tax( $tax_id );
+				if( $tax->handle == $queried_taxonomy ) {
+
+					$is_cptd = true;
+					$current_taxonomy = $tax;
+
+					# if the current post type isn't set, use the first post type tied to the current taxonomy
+					if( ! $current_post_type ) {
+
+						$current_post_type = new CPTD_PT( $current_taxonomy->post_types[0] );
+					}
+				}
+			}
+		} # end if: query has a taxonomy set
 
 		if( ! $is_cptd ) return;
+		if( empty( $current_post_type ) ) return;
 
 		# get the post orderby parameter
 		$orderby = $current_post_type->post_orderby;

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Directory management system based on Custom Post Types, Taxonomies, and Fields
- * Version: 2.0.0.18.0
+ * Version: 2.0.0.19.1
  * Author: Big Boom Design
  * Author URI: http://bigboomdesign.com
  */
@@ -19,7 +19,7 @@
 require_once cptd_dir('/lib/class-cptd.php');
 require_once cptd_dir('/lib/class-cptd-ajax.php');
 require_once cptd_dir('/lib/class-cptd-helper.php');
-require_once cptd_dir( '/lib/class-cptd-options.php' );
+require_once cptd_dir('/lib/class-cptd-options.php' );
 require_once cptd_dir('/lib/class-cptd-post.php');
 require_once cptd_dir('/lib/class-cptd-pt.php');
 require_once cptd_dir('/lib/class-cptd-tax.php');
@@ -36,6 +36,7 @@ if( ! function_exists( 'register_extended_taxonomy' ) ) require_once cptd_dir( '
 # Register user-defined post types
 add_action('init', array( 'CPTD', 'load_cptd_post_data' ) ) ;
 add_action('init', array( 'CPTD_Helper', 'register' ) );
+add_action( 'pre_get_posts', array( 'CPTD', 'pre_get_posts' ) );
 
 
 /**
@@ -64,7 +65,6 @@ else{
 	$cptd_view = null;
 
 	add_action( 'init', array( 'CPTD', 'init' ) );
-	add_action( 'pre_get_posts', array( 'CPTD', 'pre_get_posts' ) );
 	add_action( 'wp', array( 'CPTD', 'wp' ) );
 }
 
