@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Directory management system based on Custom Post Types, Taxonomies, and Fields
- * Version: 2.0.0.21.3
+ * Version: 2.0.0.21.4
  * Author: Big Boom Design
  * Author URI: http://bigboomdesign.com
  */
@@ -19,7 +19,7 @@
 require_once cptd_dir('/lib/class-cptd.php');
 require_once cptd_dir('/lib/class-cptd-ajax.php');
 require_once cptd_dir('/lib/class-cptd-helper.php');
-require_once cptd_dir('/lib/class-cptd-options.php' );
+require_once cptd_dir('/lib/class-cptd-options.php');
 require_once cptd_dir('/lib/class-cptd-post.php');
 require_once cptd_dir('/lib/class-cptd-pt.php');
 require_once cptd_dir('/lib/class-cptd-tax.php');

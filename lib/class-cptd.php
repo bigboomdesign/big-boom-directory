@@ -180,19 +180,28 @@ class CPTD{
 	 *
 	 * Executes a custom action 'cptd_pre_get_posts' after validating the view as CPTD
 	 *
+	 * Initializes the following static variables
+	 *
+	 * - CPTD::$is_cptd
+	 * - CPTD::$current_post_type
+	 * - CPTD::$current_taxonomy
+	 *
 	 * @param 	WP_Query 	$query 		The query object that is getting posts
 	 * @since 	2.0.0
 	 */
 	public static function pre_get_posts( $query ) {
 
-		# the value of CPTD::$is_cptd hasn't been set when this hook fires
-		$is_cptd = false;
-
-		$current_post_type = '';
-		$current_taxonomy = '';
-
 		# make sure we have the main query
 		if( ! $query->is_main_query() ) return;
+
+		# the value of CPTD::$is_cptd hasn't been set when this hook fires
+		self::$is_cptd = false;
+
+		# The CPTD_PT object for the current view
+		$current_post_type = '';
+
+		# The CPTD_Tax object for the current view
+		$current_taxonomy = '';
 
 		$post_order = '';
 
@@ -208,8 +217,9 @@ class CPTD{
 				$pt = new CPTD_PT( $post_id );
 
 				if( $queried_post_type == $pt->handle ) {
-					$is_cptd = true;
+					self::$is_cptd = true;
 					$current_post_type = $pt;
+					self::$current_post_type = $pt->ID;
 				}
 			}
 		} # end if: query has a post type set
@@ -230,19 +240,21 @@ class CPTD{
 				$tax = new CPTD_Tax( $tax_id );
 				if( $tax->handle == $queried_taxonomy ) {
 
-					$is_cptd = true;
+					self::$is_cptd = true;
 					$current_taxonomy = $tax;
+					self::$current_taxonomy = $tax->ID;
 
 					# if the current post type isn't set, use the first post type tied to the current taxonomy
 					if( ! $current_post_type ) {
 
 						$current_post_type = new CPTD_PT( $current_taxonomy->post_types[0] );
+						self::$current_post_type = $current_post_type->ID;
 					}
 				}
 			}
 		} # end if: query has a taxonomy set
 
-		if( ! $is_cptd ) return;
+		if( ! CPTD::$is_cptd ) return;
 		if( empty( $current_post_type ) ) return;
 
 		# get the post orderby parameter
@@ -504,29 +516,20 @@ class CPTD{
 	 *
 	 * Initializes the following static variables
 	 *
-	 * - self::$is_cptd
-	 * - self::$view_type
-	 * - self::$current_post_type
-	 * - self::$current_taxonomy
+	 * - CPTD::$view_type
+	 * - CPTD::$is_cptd (if is_search() is true)
 	 * 
 	 * @since 	2.0.0
 	 */
 	public static function load_view_info() {
-		
-		# change from null to false, to indicate we've loaded the view info already and found this wasn't a CPTD view
-		CPTD::$is_cptd = false;
 
-		global $wp_query;
-
-		# reduce weight for pages, posts, post archive, categories, tags, and author archives
-		if( is_page() || is_singular('post') || is_home() || is_category() || is_tag() || is_author() ) {
-			return;
-		}
+		# reduce weight for non-plugin views
+		if( ! is_search() && ! is_cptd_view() ) return;
 
 		# if we are doing a wp search
 		if( is_search() ) { 
-			CPTD::$is_cptd = true;
-			CPTD::$view_type = 'archive';
+			self::$is_cptd = true;
+			self::$view_type = 'archive';
 			return;
 		}
 
@@ -534,53 +537,10 @@ class CPTD{
 		if( empty( self::$post_type_ids ) || empty( self::$taxonomy_ids ) ) self::load_cptd_post_data();
 
 		# see if there is a queried post type for this view
-		$queried_post_type = ( isset( $wp_query->query_vars['post_type'] ) ? $wp_query->query_vars['post_type'] : '' );
-
-		if( $queried_post_type ) {
-
-			# loop through CPTD post types and check against queried post type
-			foreach( CPTD::$post_type_ids as $pt) {
-
-				$pt = new CPTD_PT( $pt );
-				if( empty( $pt->handle ) ) continue;
-
-				# if the queried post type is a CPTD post type
-				if( $queried_post_type == $pt->handle ) {
-
-					CPTD::$is_cptd = true;
-					
-					# set the current post type
-					CPTD::$current_post_type = $pt->ID;
-
-					if( is_singular() ) CPTD::$view_type = 'single';
-					else CPTD::$view_type = 'archive';
-				}
-
-			} # end foreach: post type IDs
-
-		} # end if: queried post type exists
-
-		# see if there is a queried taxonomy for this view
-		$tax_query = ( ! empty( $wp_query->tax_query ) ? $wp_query->tax_query : '');
-
-		if( $tax_query ) {
-		
-			# loop through CPTD taxonomies and check against queried taxonomies
-			foreach( CPTD::$taxonomy_ids as $tax ) {
-
-				$tax = new CPTD_Tax( $tax );
-				foreach( $tax_query->queries as $query ) {
-
-					# if the queried taxonomy is a CPTD taxonomy
-					if( $query['taxonomy'] == $tax->handle ) {
-
-						CPTD::$is_cptd = true;
-						CPTD::$current_taxonomy = $tax->ID;
-						CPTD::$view_type = 'archive';
-					}
-				}
-			} # end foreach: taxonomy IDs
-		} # end if: tax query exists
+		if( self::$current_post_type ) {
+			if( is_singular() ) self::$view_type = 'single';
+			else self::$view_type = 'archive';
+		}
 
 	} # end: load_view_info()
 
