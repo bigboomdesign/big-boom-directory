@@ -16,6 +16,8 @@ class CPTD_Helper{
 	 * - get_choice_array()
 	 *
 	 * - register()
+	 * - get_post_type_names()
+	 * - get_all_post_ids()
 	 * - get_all_field_keys()
 	 * - get_image_sizes()
 	 */
@@ -260,14 +262,11 @@ class CPTD_Helper{
 	} # end: register()
 
 	/**
-	 * Get an alphabetical list of unique field keys for CPTD user-created posts
-	 * Fields starting with _ are ignored
+	 * Return an array of user-created post type handles registered by this plugin
 	 *
 	 * @since 	2.0.0
 	 */
-	public static function get_all_field_keys() {
-
-		if( is_array( CPTD::$all_field_keys ) ) return CPTD::$all_field_keys;
+	public static function get_post_type_names() {
 
 		# build an array of post type handles
 		$pt_names = array();
@@ -280,11 +279,62 @@ class CPTD_Helper{
 			if(! in_array( $pt->handle, $pt_names ) ) $pt_names[] = $pt->handle;
 		}
 
-		# make sure post type handles exist
-		if( ! $pt_names ) {
+		return $pt_names;
 
-			# indicator that the value has been initialized so we don't have to run this function again
-			CPTD::$all_field_keys = array();
+	} # end: get_post_type_names()
+
+	/**
+	 * Return an array of post ID's belonging to all user-created custom post types
+	 * 
+	 * @since 	2.0.0
+	 */
+	public static function get_all_post_ids() {
+
+		if( is_array( CPTD::$all_post_ids ) ) return CPTD::$all_post_ids;
+
+		# the indicator that we've checked this and don't need to query the DB
+		CPTD::$all_post_ids = array();
+
+		$pt_names = self::get_post_type_names();
+
+		if( ! $pt_names ) return array();
+
+		$post_ids = array();
+
+		global $wpdb;
+		$post_id_query = "SELECT DISTINCT ID FROM " . $wpdb->posts . 
+			" WHERE post_type IN ( '" . 
+				implode( "', '", $pt_names ) .
+			"' )";
+		$post_id_results = $wpdb->get_results( $post_id_query );
+
+		foreach( $post_id_results as $r ) {
+
+			$post_ids[] = $r->ID;
+		}
+
+		return $post_ids;
+
+	} # end: get_all_post_ids()
+
+	/**
+	 * Get an alphabetical list of unique field keys for CPTD user-created posts
+	 * Fields starting with _ are ignored
+	 *
+	 * @since 	2.0.0
+	 */
+	public static function get_all_field_keys() {
+
+		if( is_array( CPTD::$all_field_keys ) ) return CPTD::$all_field_keys;
+
+		# indicator that the value has been initialized so we don't have to run this function again
+		CPTD::$all_field_keys = array();
+
+		$post_ids = self::get_all_post_ids();
+
+		# make sure post type handles exist
+		if( ! $post_ids ) {
+
 			return array();
 		}
 
@@ -292,19 +342,15 @@ class CPTD_Helper{
 
 		# SQL for post meta
 		$fields_query = "SELECT DISTINCT meta_key FROM " . $wpdb->postmeta . 
-			" WHERE post_id IN (  
-				SELECT ID FROM " .  $wpdb->posts .
-				" WHERE post_type IN ( '" .
-					implode( "', '", $pt_names ) .
-				"' )
-			) ";
+			" WHERE post_id IN (  " . 
+					implode( ", ", $post_ids ) .
+			" ) ";
 
 		$fields_results = $wpdb->get_results( $fields_query );
 
 		# make sure we found results
 		if( ! $fields_results ) {
 
-			CPTD::$all_field_keys = array();
 			return array();
 		}
 

@@ -82,6 +82,14 @@ class CPTD{
 	public static $meta = array();
 
 	/**
+	 * A list of post ID's belonging to user-created post types
+	 *
+	 * @param 	array
+	 * @since 	2.0.0
+	 */
+	public static $all_post_ids = null;
+
+	/**
 	 * An alphabetical list of unique field keys for all CPTD user-created posts
 	 *
 	 * @param 	array
