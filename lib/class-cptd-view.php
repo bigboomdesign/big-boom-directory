@@ -87,7 +87,8 @@ class CPTD_View {
 	 */
 	var $auto_social_field_keys = array(
 		'facebook', 
-		'twitter', 
+		'twitter',
+		'youtube', 'you-tube', 'you_tube',
 		'googleplus', 'google_plus', 'google-plus', 'gplus', 'g-plus', 'g_plus',
 		'pinterest',
 		'instagram',
