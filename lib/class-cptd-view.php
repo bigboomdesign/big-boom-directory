@@ -157,7 +157,8 @@ class CPTD_View {
 					$this->field_keys[ $field->acf_field['order_no'] ] = $field->key;
 
 					# add field key to social media fields to check, if applicable
-					if( in_array( $field->key, $this->auto_social_field_keys ) ) {
+					foreach( $this->auto_social_field_keys as $possible_key )
+					if( false !== strpos( $field->key, $possible_key ) ) {
 						$this->social_fields_to_check[] = $field->key;
 					}
 

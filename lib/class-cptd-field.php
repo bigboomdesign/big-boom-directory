@@ -125,7 +125,10 @@ class CPTD_Field {
 		if( $cptd_view->auto_detect_social ) {
 
 			# see if we have a social media field key
-			if( in_array( $this->key, $cptd_view->auto_social_field_keys ) ) {
+			# if( in_array( $this->key, $cptd_view->auto_social_field_keys ) ) {
+			foreach( $cptd_view->auto_social_field_keys as $possible_key ) 
+			if( false !== strpos( $this->key, $possible_key ) ) {
+
 
 				# if this is the first social media field, set the indicator and open up a wrapping div for the icons				
 				if( 0 == count( $cptd_view->completed_social_fields ) ) {
@@ -139,7 +142,12 @@ class CPTD_Field {
 
 					# make sure we have a valid Font Awesome icon
 					$fa_icon = $this->key;
-					if( false !== strpos( $fa_icon, 'plus' ) ) $fa_icon = 'google-plus';
+					if( false !== strpos( $fa_icon, 'facebook' ) ) $fa_icon = 'facebook';
+					elseif( false !== strpos( $fa_icon, 'twitter' ) ) $fa_icon = 'twitter';
+					elseif( false !== strpos( $fa_icon, 'tube' ) ) $fa_icon = 'youtube';
+					elseif( false !== strpos( $fa_icon, 'instagram' ) ) $fa_icon = 'instagram';
+					elseif( false !== strpos( $fa_icon, 'pinterest' ) ) $fa_icon = 'pinterest';
+					elseif( false !== strpos( $fa_icon, 'plus' ) ) $fa_icon = 'google-plus';
 					elseif( false !== strpos( $fa_icon, 'linked' ) ) $fa_icon = 'linkedin';
 				?>
 					<a target="_blank" href="<?php echo $value; ?>"><i class="fa fa-<?php echo $fa_icon; ?>" ></i></a>
