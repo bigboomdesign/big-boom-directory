@@ -13,7 +13,7 @@ class CPTD_Options{
 	 */
 
 	/**
-	 * The available settings for the plugin.
+	 * The available settings for the plugin. Initialized in this file, below class definition
 	 *
 	 * See `do_settings_field()` for a description of a typical element of the array
 	 * 
@@ -29,14 +29,10 @@ class CPTD_Options{
 	/**
 	 * Options saved by the user.
 	 *
-	 * In addition to the defaults below, the array contains a key/value pair 
+	 * In addition to the defaults in self::$settings, the array contains a key/value pair 
 	 * corresponding to each self::$settings element and the user-selected value
 	 *
-	 * Default values:
-	 *
-	 * @param 	array 	$options{
-	 *
-	 * }
+	 * @param 	array 
 	 * @since 	2.0.0
 	 */
 	static $options = array();
