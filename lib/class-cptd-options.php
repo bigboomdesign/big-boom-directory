@@ -303,7 +303,7 @@ class CPTD_Options{
 		?><input 
 			type='text'
 			id="<?php echo $name; ?>" 
-			class="regular-text text-upload <?php if($class) echo $class; ?>"
+			class="regular-text text-upload <?php if( ! empty( $class ) ) echo $class; ?>"
 			name="<?php echo $setting['option_name']; ?>"
 			value="<?php if($val) echo esc_url( $val ); ?>"
 		/>		
