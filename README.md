@@ -97,7 +97,10 @@ Use this to filter a field value before it is displayed on the front end. Use yo
 
 #### Parameters
 
-    $value: The field value to be displayed
+    (string) $value: The field value to be displayed
+
+    (CPTD_Field) $field: The field object that is being displayed
+
 
 #### Return
 
@@ -123,11 +126,14 @@ Use this filter to edit a filed's label and label wrap before it is displayed on
 
 #### Parameters
 
-    $label = array(
+    (array) $label {
         'text'   => (string)   // The label text
         'before' => (string)   // HTML that comes before the label (Default: "<label>")
         'after'  => (string)   // HTML that comes after the label (Default: ": &nbsp; </label>")
-    )
+    }
+
+    (CPTD_Field) $field: The field object that is being displayed
+
 
 #### Return
 
@@ -148,6 +154,21 @@ Below, we are setting the `first_name` field's label text to "First" and the `la
         $label['text'] = 'Last';
         return $label;
     }
+
+---
+
+### ````cptd_field_wrap_{$field_name}````
+
+#### Parameters
+
+    (array) $wrap {
+        'before_tag'    => 'div',
+        'classes'       => (array),
+        'id'            => (string),
+        'after_tag'     => 'div',
+    }
+
+    (CPTD_Field) $field: The field being displayed
 
 ---
 

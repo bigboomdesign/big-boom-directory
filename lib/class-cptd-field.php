@@ -98,7 +98,7 @@ class CPTD_Field {
 			$value = $cptd_view->post_meta[ $post_id ][ $this->key ];
 
 		# apply filter to value so users can edit it
-		$value = apply_filters( 'cptd_field_value_' . $this->key, $value );
+		$value = apply_filters( 'cptd_field_value_' . $this->key, $value, $this );
 
 		# apply filter to the label so users can edit it
 		$label = array(
@@ -106,7 +106,16 @@ class CPTD_Field {
 			'before' => '<label>',
 			'after' => ': &nbsp;</label>'
 		);
-		$label = apply_filters( 'cptd_field_label_' . $this->key, $label );
+		$label = apply_filters( 'cptd_field_label_' . $this->key, $label, $this );
+
+		# apply filter to the field wrap so users can hook in and edit
+		$field_wrap = array(
+			'classes' 		=> array( 'cptd-field', $this->type, $this->key ),
+			'id'			=> '',
+			'before_tag' 	=> 'div',
+			'after_tag' 	=> 'div',
+		);
+		$field_wrap = apply_filters( 'cptd_field_wrap_' . $this->key, $field_wrap, $this );
 
 		/**
 		 * Special cases
@@ -369,15 +378,29 @@ class CPTD_Field {
 		 */
 
 		# output the field HTML
-		?><div class="cptd-field <?php echo $this->type . " " . $this->key; ?>">
-			<?php 
-				echo $label['before'];
-				echo $label['text'];
-				echo $label['after'];
-				echo $value;
-			?>
-		</div>
+		if( ! empty( $field_wrap['before_tag'] ) ) {
+
+			# open the wrap element
+		?>
+			<<?php 
+				echo $field_wrap['before_tag'] . ' ';
+				if( ! empty( $field_wrap['classes'] ) ) echo 'class="' . implode(' ', $field_wrap['classes'] ) . '" '; 
+				if( ! empty( $field_wrap['id'] ) ) echo 'id="' . $field_wrap['id'] .'" ';
+			?> 
+			>
+		<?php 
+		}
+			echo $label['before'];
+			echo $label['text'];
+			echo $label['after'];
+			echo $value;
+
+		if( ! empty( $field_wrap['after_tag'] ) ) {
+		?>
+			</<?php echo $field_wrap['after_tag']; ?>>
 		<?php
+		} # end if: field wrap has a tag set
+
 	} # end: get_html()
 
 
