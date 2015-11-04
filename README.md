@@ -170,6 +170,54 @@ Below, we are setting the `first_name` field's label text to "First" and the `la
 
     (CPTD_Field) $field: The field being displayed
 
+#### Return
+
+    (array) You must return the $wrap array
+
+#### Example
+
+Below is a fairly involved example that uses the `cptd_field_wrap` filter along with `cptd_field_value` and `cptd_field_label` to do the following:
+
+* Append a space to the `first_name` field
+* Remove individual labels for the `first_name` and `last_name` fields
+* Remove the individual wrappers for the `first_name` and `last_name` fields and wrap them together in a single div
+
+    # append a space to the first name
+    add_filter( 'cptd_field_value_first_name', 'my_first_name_value' );
+    function my_first_name_value( $value ) {
+        return $value . ' ';
+    }
+
+    # empty out the labels for first and last name fields
+    add_filter( 'cptd_field_label_first_name', 'my_name_label' );
+    add_filter( 'cptd_field_label_last_name', 'my_name_label' );
+    function my_name_label( $label ) {
+        return array('before' => '', 'after' => '', 'text' => '');
+    }
+
+    # add a <p> wrapper around the first and last name fields
+    add_filter( 'cptd_field_wrap_first_name', 'my_name_wrap', 10, 2 );
+    add_filter( 'cptd_field_wrap_last_name', 'my_name_wrap', 10, 2 );
+    function my_name_wrap( $wrap, $field ) {
+
+        # for the first name field
+        if( 'first_name' == $field->key ) {
+            $wrap['before_tag'] = 'p';
+            $wrap['after_tag'] = '';
+            $wrap['classes'][] = 'name-field';
+            $wrap['id'] = 'my-name-field';
+        }
+
+        # for the last name field
+        elseif( 'last_name' == $field->key ) {
+            $wrap['before_tag'] = '';
+            $wrap['after_tag'] = 'p';
+
+        }
+        
+        return $wrap;
+    }
+ 
 ---
 
 ### ````cptd_link_text````
