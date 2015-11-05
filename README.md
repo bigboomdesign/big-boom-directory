@@ -267,6 +267,10 @@ For a more complex example, we can get the post currently being displayed and in
 
 ---
 
+### ````cptd_pt_description_wrap````
+
+---
+
 ## Actions
 
 ### ````cptd_pre_get_posts````
@@ -292,6 +296,16 @@ Below, we are using the `cptd_pre_get_posts` filter to order CPTD posts by a fie
         $query->query_vars['orderby'] = 'meta_value';
         $query->query_vars['meta_key'] = 'last_name';
     }
+
+---
+
+### ````cptd_wp````
+
+### ````cptd_enqueue_scripts````
+
+### ````cptd_before_pt_description````
+
+### ````cptd_after_pt_description````
 
 ---
 

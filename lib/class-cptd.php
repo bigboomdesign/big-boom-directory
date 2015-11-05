@@ -161,6 +161,7 @@ class CPTD{
 	 * 		- pre_get_posts()
 	 * 		- wp()
 	 * 		- enqueue_scripts()
+	 * 		- loop_start()
 	 *
 	 * - Filters
 	 * 		- the_content()
@@ -311,9 +312,13 @@ class CPTD{
 
 		# load the post meta that we'll need for this view
 		$cptd_view->load_post_meta();
+
+		add_filter( 'loop_start', array( 'CPTD', 'loop_start' ) );
 		
 		add_filter( 'the_content', array( 'CPTD', 'the_content' ) );
 		add_filter( 'the_excerpt', array( 'CPTD', 'the_content' ) );
+
+		do_action( 'cptd_wp' );
 	
 	} # end: wp()
 
@@ -323,6 +328,7 @@ class CPTD{
 	 * @since 	2.0.0
 	 */
 	public static function enqueue_scripts() {
+
 		wp_enqueue_style( 'cptd-css', cptd_url( '/css/cptd.css' ) );
 
 		# font awesome
@@ -331,7 +337,68 @@ class CPTD{
 		# lightbox
 		wp_enqueue_script('cptd-lightbox', cptd_url('/assets/lightbox/lightbox.min.js'), array('jquery'));
 		wp_enqueue_style('cptd-lightbox', cptd_url('/assets/lightbox/lightbox.css'));
+
+		do_action( 'cptd_enqueue_scripts' );
+
 	} # end: enqueue_scripts()
+
+	/**
+	 * Callback for WP loop_start hook. Inserts post type description before post type archive
+	 *
+	 * @param 	WP_Query 	$query 		The query whose loop is starting
+	 * @since 	2.0.0
+	 */
+	public static function loop_start( $query ) {
+		
+		# make sure we have the main query
+		if( ! $query->is_main_query() ) return;
+
+		# we're only wanting to hook on post type archive pages
+		if( ! is_post_type_archive() || empty( CPTD::$current_post_type ) ) return;
+
+		do_action( 'cptd_before_pt_description' );
+
+		# get the current post type object
+		$pt = new CPTD_PT( CPTD::$current_post_type );
+
+		# get the post content for the current post type
+		$post_type_description = get_post_field( 'post_content', $pt->ID );
+
+		# make sure we have content to display
+		if( empty( $post_type_description ) ) return;
+
+		# the wrapper for the post type description 
+		$wrap = array(
+			'before_tag' 	=> 'div',
+			'after_tag' 	=> 'div',
+			'classes'		=> array('cptd-post-type-description'),
+			'id'			=> '',
+		);
+		# apply a hookable filter for the wrapper
+		$wrap = apply_filters( 'cptd_pt_description_wrap', $wrap );
+
+		# show the post type description
+		if( ! empty( $wrap['before_tag'] ) ) {
+		?>
+			<<?php 
+				echo $wrap['before_tag'] . ' ';
+				if( ! empty( $wrap['classes'] ) ) echo 'class="' . implode( ' ', $wrap['classes'] ) . '" ';
+				if( ! empty( $wrap['id'] ) ) echo 'id="' . $wrap['id'] . '"';
+				
+			?>>
+		<?php
+		} # end if: wrap has an opening tag
+			echo apply_filters( 'the_content', $post_type_description );
+
+		if( ! empty( $wrap['after_tag'] ) ) {
+		?>
+			</<?php echo $wrap['after_tag']; ?>>
+		<?php
+		}
+
+		do_action( 'cptd_after_pt_description' );
+
+	} # end: loop_start()
 
 	/**
 	 * Callback for 'the_content' and 'the_excerpt' action
@@ -342,8 +409,8 @@ class CPTD{
 	 */
 	public static function the_content( $content ) {
 
-		# do nothing if we're not viewing a CPTD object
-		if( ! is_cptd_view() ) return $content;
+		# if we're doing the loop_start action, we don't want to append fields
+		if( doing_action('loop_start') ) return $content;
 
 		global $cptd_view;
 
@@ -360,7 +427,7 @@ class CPTD{
 		$output = $html . $content;
 
 		# apply a filter the user can hook into and return the modified content
-		$output = apply_filters( 'cptd_the_content', $html . $content );
+		$output = apply_filters( 'cptd_the_content', $output );
 
 		return $output;
 
