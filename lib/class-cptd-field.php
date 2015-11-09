@@ -16,6 +16,13 @@ class CPTD_Field {
 	var $key = '';
 
 	/**
+	 * The text label for this field (e.g. `Email`)
+	 *
+	 * @since 	2.0.0
+	 */
+	var $label = '';
+
+	/**
 	 * The field type
 	 *
 	 * @param	string
@@ -432,6 +439,8 @@ class CPTD_Field {
 	 * Load ACF data for this field
 	 */
 	public function load_acf_data() {
+
+			if( ! function_exists( 'get_field_object' ) ) return;
 
 			# check the ACF field key pattern 
 			if( preg_match("/field_[\dA-z]+/", $this->key ) ) {
