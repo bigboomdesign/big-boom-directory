@@ -166,7 +166,7 @@ class CPTD_Options{
 	/**
 	 * Display a text input element
 	 *
-	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `RO3::get_field_array()`
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
 	public static function text_field($setting){
@@ -183,7 +183,7 @@ class CPTD_Options{
 	
 	/**
 	 * Display a textarea element
-	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `RO3::get_field_array()`
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
 	public static function textarea_field($setting){
@@ -200,7 +200,7 @@ class CPTD_Options{
 	
 	/**
 	 * Display one or more checkboxes
-	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `RO3::get_field_array()`
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
 	public static function checkbox_field($setting){
@@ -226,7 +226,7 @@ class CPTD_Options{
 	
 	/**
 	 * Display a group of radio buttons
-	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `RO3::get_field_array()`
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
 	public static function radio_field($setting){
@@ -252,7 +252,7 @@ class CPTD_Options{
 	
 	/**
 	 * Display a <select> dropdown element
-	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `RO3::get_field_array()`
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
 	public static function select_field($setting){		
@@ -292,7 +292,7 @@ class CPTD_Options{
 	
 	/**
 	 * Display an image upload element that uses the WP Media browser
-	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `RO3::get_field_array()`
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
 	public static function image_field($setting){
@@ -326,7 +326,7 @@ class CPTD_Options{
 	 * The main benefit is that no special case needs to be added in the main switch 
 	 * statement in `self::do_settings_field()`
 	 * 
-	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `RO3::get_field_array()`
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
 	public static function on_the_fly($setting){
