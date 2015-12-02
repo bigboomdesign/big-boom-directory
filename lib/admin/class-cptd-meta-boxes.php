@@ -305,6 +305,19 @@ class CPTD_Meta_Boxes {
 			'before' => array('CPTD_Meta_Boxes', 'before_image_size')
 		));
 
+		# Image alignment
+		$advanced_fields_setup->add_field( array(
+			'id' => $prefix.'image_alignment',
+			'type' => 'select',
+			'default' => CPTD_Options::$options['image_alignment'],
+			'name' => 'Image alignment',
+			'options' => array(
+				'none' => 'None', 
+				'right' => 'Right', 
+				'left' => 'Left'
+			),
+		));
+
 
 		/**
 		 * Taxonomy meta boxes

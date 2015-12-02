@@ -77,6 +77,30 @@ class CPTD_PT extends CPTD_Post{
 	var $auto_detect_url = false;
 	var $auto_detect_social = false;
 
+	/**
+	 * The ACF fields for this post type
+	 * 
+	 * @param 	array
+	 * @since 	2.0.0
+	 */
+	var $acf_field_groups;
+
+	/**
+	 * The image sizes for this post type's views (chosen by user from WP's registered sizes)
+	 *
+	 * @param 	string
+	 * @since	2.0.0
+	 */
+	var $image_size_single;
+	var $image_size_archive;
+
+	/**
+	 * The image alignment for the post type's image fields
+	 *
+	 * @param 	string		(none|left|right)
+	 * @since 	2.0.0
+	 */
+	var $image_alignment;
 
 	/**
 	 * List of object parameters used for post registration ($args for register_post_type)
@@ -125,14 +149,6 @@ class CPTD_PT extends CPTD_Post{
 	 * @since 	2.0.0
 	 */
 	var $menu_icon;
-
-	/**
-	 * The ACF fields for this post type
-	 * 
-	 * @param 	array
-	 * @since 	2.0.0
-	 */
-	var $acf_field_groups;
 
 
 	/**

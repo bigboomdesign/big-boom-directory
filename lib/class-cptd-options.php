@@ -431,6 +431,16 @@ class CPTD_Options{
 			'default' => 'medium',
 			'description' => 'Applies to ACF fields with type `image`'
 		);
+
+		# image alignment
+		CPTD_Options::$settings[] = array(
+			'name' => 'image_alignment',
+			'label' => 'Image alignment',
+			'type' => 'select',
+			'choices' => array('None', 'Right', 'Left'),
+			'default' => 'none',
+			'description' => 'Applies to ACF fields with type `image`'
+		);
 		
 		self::load_default_settings();
 

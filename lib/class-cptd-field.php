@@ -270,8 +270,16 @@ class CPTD_Field {
 					global $post;
 					$link = get_permalink( $post->id );
 				}
+
+				# set the class for the image wrapper
+				$wrapper_class = 'cptd-field image ' . $this->key;
+
+				# add image alignment to the class
+				if( 'left' == $cptd_view->image_alignment || 'right' == $cptd_view->image_alignment ) {
+					$wrapper_class .= ' ' . $cptd_view->image_alignment;
+				}
 			?>
-				<div class='cptd-field image <?php echo $this->key; ?>'>
+				<div class="<?php echo $wrapper_class; ?>" >
 				<?php
 					if( $link ) {
 					?>

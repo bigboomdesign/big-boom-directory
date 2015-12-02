@@ -1,15 +1,33 @@
 /**
  * Fields 
  */
-
+.cptd-field label{ font-weight: bold; }
 .cptd-field.wysiwyg,
 .cptd-field.textarea{ margin: 1em 0; }
 
 .cptd-field.wysiwyg label,
 .cptd-field.textarea label{ display: block; }
 
-.cptd-field.image {
+.cptd-field.image img{
 	margin-bottom: 1em;
+}
+.cptd-field.image.right img{
+	float: right;
+	margin-left: 1em;
+}
+.cptd-field.image.left img{
+	float: left;
+	margin-right: 1em;
+}
+
+.cptd-field.website {
+	margin: 0.5em 0;
+}
+.cptd-social-icons {
+	margin: 0.5em 0;
+}
+.cptd-field.address {
+	margin: 1em 0;
 }
 
 /* gallery */

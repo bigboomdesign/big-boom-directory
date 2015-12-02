@@ -57,8 +57,19 @@ class CPTD_View {
 
 	/**
 	 * The image size to use for image fields in this view
+	 *
+	 * @param 	array
+	 * @since 	2.0.0
 	 */
 	var $image_size = array();
+
+	/**
+	 * The image alignment to use for image fields in this view
+	 *
+	 * @param 	array
+	 * @since 	2.0.0
+	 */
+	var $image_alignment = 'none';
 
 	/** 
 	 * Whether or not to auto detect website fields and social media links
@@ -170,9 +181,13 @@ class CPTD_View {
 
 			} # end if: ACF fields are saved for the current screen's post type and view
 
-			# set this view's image size based on the post type
+			# set this view's image size based on the post type and the view type
 			$image_size_key = 'image_size_' . $this->view_type;
 			if( isset( $this->post_type->$image_size_key ) ) $this->image_size = $this->post_type->$image_size_key;
+
+			# set the image alignment for the view
+			if( empty( $this->post_type->image_alignment ) ) $this->image_alignment = 'none';
+			else $this->image_alignment = $this->post_type->image_alignment;
 
 			# if the post type detects URLs, so should this view
 			if( $this->post_type->auto_detect_url ) {
