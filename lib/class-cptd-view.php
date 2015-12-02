@@ -58,15 +58,15 @@ class CPTD_View {
 	/**
 	 * The image size to use for image fields in this view
 	 *
-	 * @param 	array
+	 * @param 	string
 	 * @since 	2.0.0
 	 */
-	var $image_size = array();
+	var $image_size = '';
 
 	/**
 	 * The image alignment to use for image fields in this view
 	 *
-	 * @param 	array
+	 * @param 	string
 	 * @since 	2.0.0
 	 */
 	var $image_alignment = 'none';
