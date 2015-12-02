@@ -1,6 +1,6 @@
 <h1>Custom Post Type Directory (Version 2)</h1>
 
-<h2>Run <code>git checkout master</code> for Version 1</h2>
+<h2>## Run <code>git checkout master</code> for Version 1</h2>
 
 <p>Directory management system based on Custom Post Types, Taxonomies, and Fields</p>
 
@@ -24,6 +24,16 @@
 <hr />
 
 <h2>Shortcodes</h2>
+
+<ul>
+<li><p>[cptd-a-z-listing]</p>
+
+<ul>
+<li><p>Displays an A-Z listing of all posts for the custom post type</p></li>
+<li><p><strong>Attributes:</strong> </p></li>
+<li><p><code>post_types</code> The post types to be displayed, separated by comma (<code>ex: 'book, movie'</code>)</p></li>
+</ul></li>
+</ul>
 
 <hr />
 
@@ -99,7 +109,9 @@ function my_the_content( $content ) {
 
 <h4>Parameters</h4>
 
-<pre><code>$value: The field value to be displayed
+<pre><code>(string) $value: The field value to be displayed
+
+(CPTD_Field) $field: The field object that is being displayed
 </code></pre>
 
 <h4>Return</h4>
@@ -128,11 +140,13 @@ function my_email_value_filter( $value ){
 
 <h4>Parameters</h4>
 
-<pre><code>$label = array(
+<pre><code>(array) $label {
     'text'   =&gt; (string)   // The label text
     'before' =&gt; (string)   // HTML that comes before the label (Default: "&lt;label&gt;")
     'after'  =&gt; (string)   // HTML that comes after the label (Default: ": &amp;nbsp; &lt;/label&gt;")
-)
+}
+
+(CPTD_Field) $field: The field object that is being displayed
 </code></pre>
 
 <h4>Return</h4>
@@ -154,6 +168,79 @@ add_filter( 'cptd_field_label_last_name', 'my_last_name_label' );
 function my_last_name_label( $label ) {
     $label['text'] = 'Last';
     return $label;
+}
+</code></pre>
+
+<hr />
+
+<h3><code>cptd_field_wrap_{$field_name}</code></h3>
+
+<h4>Parameters</h4>
+
+<pre><code>(array) $wrap {
+    'before_tag'    =&gt; 'div',
+    'classes'       =&gt; (array),
+    'id'            =&gt; (string),
+    'after_tag'     =&gt; 'div',
+}
+
+(CPTD_Field) $field: The field being displayed
+</code></pre>
+
+<h4>Return</h4>
+
+<pre><code>(array) You must return the $wrap array
+</code></pre>
+
+<h4>Example</h4>
+
+<p>Below is a fairly involved example that uses the <code>cptd_field_wrap</code> filter along with <code>cptd_field_value</code> and <code>cptd_field_label</code> to do the following:</p>
+
+<ul>
+<li>Append a space to the <code>first_name</code> field</li>
+<li>Remove individual labels for the <code>first_name</code> and <code>last_name</code> fields</li>
+<li>Remove the individual wrappers for the <code>first_name</code> and <code>last_name</code> fields and wrap them together in a single div</li>
+</ul>
+
+<h5>append a space to the first name</h5>
+
+<pre><code>add_filter( 'cptd_field_value_first_name', 'my_first_name_value' );
+function my_first_name_value( $value ) {
+    return $value . ' ';
+}
+</code></pre>
+
+<h5>empty out the labels for first and last name fields</h5>
+
+<pre><code>add_filter( 'cptd_field_label_first_name', 'my_name_label' );
+add_filter( 'cptd_field_label_last_name', 'my_name_label' );
+function my_name_label( $label ) {
+    return array('before' =&gt; '', 'after' =&gt; '', 'text' =&gt; '');
+}
+</code></pre>
+
+<h5>add a <p> wrapper around the first and last name fields</h5>
+
+<pre><code>add_filter( 'cptd_field_wrap_first_name', 'my_name_wrap', 10, 2 );
+add_filter( 'cptd_field_wrap_last_name', 'my_name_wrap', 10, 2 );
+function my_name_wrap( $wrap, $field ) {
+
+    // for the first name field
+    if( 'first_name' == $field-&gt;key ) {
+        $wrap['before_tag'] = 'p';
+        $wrap['after_tag'] = '';
+        $wrap['classes'][] = 'name-field';
+        $wrap['id'] = 'my-name-field';
+    }
+
+    // for the last name field
+    elseif( 'last_name' == $field-&gt;key ) {
+        $wrap['before_tag'] = '';
+        $wrap['after_tag'] = 'p';
+
+    }
+
+    return $wrap;
 }
 </code></pre>
 
@@ -209,6 +296,10 @@ function my_variable_link_text( $text, $field ) {
 
 <hr />
 
+<h3><code>cptd_pt_description_wrap</code></h3>
+
+<hr />
+
 <h2>Actions</h2>
 
 <h3><code>cptd_pre_get_posts</code></h3>
@@ -238,6 +329,16 @@ function my_pre_get_posts( $query ) {
     $query-&gt;query_vars['meta_key'] = 'last_name';
 }
 </code></pre>
+
+<hr />
+
+<h3><code>cptd_wp</code></h3>
+
+<h3><code>cptd_enqueue_scripts</code></h3>
+
+<h3><code>cptd_before_pt_description</code></h3>
+
+<h3><code>cptd_after_pt_description</code></h3>
 
 <hr />
 

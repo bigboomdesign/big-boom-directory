@@ -26,6 +26,14 @@ Directory management system based on Custom Post Types, Taxonomies, and Fields
 
 ## Shortcodes
 
+* [cptd-a-z-listing]
+
+ * Displays an A-Z listing of all posts for the custom post type
+
+ * **Attributes:** 
+
+    * `post_types` The post types to be displayed, separated by comma (`ex: 'book, movie'`)
+
 ---
 
 ## Filters
@@ -182,25 +190,28 @@ Below is a fairly involved example that uses the `cptd_field_wrap` filter along 
 * Remove individual labels for the `first_name` and `last_name` fields
 * Remove the individual wrappers for the `first_name` and `last_name` fields and wrap them together in a single div
 
-    # append a space to the first name
+##### append a space to the first name
+
     add_filter( 'cptd_field_value_first_name', 'my_first_name_value' );
     function my_first_name_value( $value ) {
         return $value . ' ';
     }
 
-    # empty out the labels for first and last name fields
+##### empty out the labels for first and last name fields
+
     add_filter( 'cptd_field_label_first_name', 'my_name_label' );
     add_filter( 'cptd_field_label_last_name', 'my_name_label' );
     function my_name_label( $label ) {
         return array('before' => '', 'after' => '', 'text' => '');
     }
 
-    # add a <p> wrapper around the first and last name fields
+##### add a <p> wrapper around the first and last name fields 
+
     add_filter( 'cptd_field_wrap_first_name', 'my_name_wrap', 10, 2 );
     add_filter( 'cptd_field_wrap_last_name', 'my_name_wrap', 10, 2 );
     function my_name_wrap( $wrap, $field ) {
 
-        # for the first name field
+        // for the first name field
         if( 'first_name' == $field->key ) {
             $wrap['before_tag'] = 'p';
             $wrap['after_tag'] = '';
@@ -208,7 +219,7 @@ Below is a fairly involved example that uses the `cptd_field_wrap` filter along 
             $wrap['id'] = 'my-name-field';
         }
 
-        # for the last name field
+        // for the last name field
         elseif( 'last_name' == $field->key ) {
             $wrap['before_tag'] = '';
             $wrap['after_tag'] = 'p';

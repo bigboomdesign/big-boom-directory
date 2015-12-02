@@ -150,6 +150,7 @@ class CPTD{
 	 * Class methods
 	 * 
 	 * - Basic WP callbacks for actions and filters
+	 * - Callbacks for shortcodes
 	 * - Retrieve and store static information about post types and taxonomies
 	 */
 
@@ -174,7 +175,10 @@ class CPTD{
 	 */
 	public static function init() {
 
-	}
+		# shortcodes
+		add_shortcode('cptd-a-z-listing', array('CPTD', 'a_to_z_html')); 
+
+	} # end: init()
 
 	/**
 	 * Callback for 'pre_get_posts' action
@@ -433,6 +437,65 @@ class CPTD{
 
 	} # end: the_content()
 
+	/**
+	 * Callbacks for shortcodes
+	 * 
+	 * - a_to_z_html()
+	 */
+
+	/**
+	 * Return HTML for the cptd-a-z-listing shortcode
+	 */
+	public static function a_to_z_html( $atts ) {
+
+		# get the post types
+		$atts = shortcode_atts( array(
+			'post_types' => '',
+		), $atts, 'cptd-a-z-listing');
+
+		$post_types = $atts['post_types'];
+		
+		# turn the string into an array if post types are set
+		if( ! empty( $post_types ) ) {
+
+			$post_types =  array_map( 'trim' , explode(  ',', $post_types ) );
+		}
+
+		# if no post types are given, use all CPTD post types
+		if( empty( $post_types ) ) {
+			$post_types = self::get_post_type_names();
+		}
+		
+		if( empty( $post_types ) ) return '';
+
+		# get the posts for the A-Z listing
+		$posts = get_posts(array(
+			'posts_per_page' => -1,
+			'orderby' => 'post_title',
+			'order' => 'ASC',
+			'post_type' => $post_types,
+		));
+
+		if( empty( $posts ) ) return '';
+
+		# generate the HTML
+		ob_start();
+	?>
+		<div id='cptd-a-z-listing'>
+			<ul>
+				<?php foreach( $posts as $post ) { ?>
+					<li><a href="<?php echo get_permalink( $post->ID ); ?>"><?php echo $post->post_title; ?></a></li>
+				<?php } ?>
+			</ul>
+		</div>
+	<?php
+		$html = ob_get_contents();
+		ob_end_clean();
+
+		return $html;
+
+	} # end: a_to_z_html()
+
 
 	/**
 	 * Retrieve and store static information about post types and taxonomies
@@ -440,6 +503,9 @@ class CPTD{
 	 * - load_cptd_post_data()
 	 * - get_post_types()
 	 * - get_taxonomies()
+	 * - get_post_type_objects()
+	 * - get_post_type_names()
+	 * - get_acf_field_groups()
 	 * - load_view_info()
 	 */
 
@@ -520,7 +586,7 @@ class CPTD{
 
 
 	/**
-	 * Return the self::$post_types array. Executes self::load_cptd_post_data if necessary
+	 * Return and/or populate self::$post_types array. Executes self::load_cptd_post_data if necessary
 	 *
 	 * @return 	array 	May be empty.
 	 * @since 	2.0.0
@@ -529,8 +595,11 @@ class CPTD{
 
 		# see if the post types are already loaded
 		if( self::$post_types ) return self::$post_types;
+
+		# if we have already loaded post types and none were found
 		elseif( self::$no_post_types ) return array();
 
+		# load the post data and return
 		self::load_cptd_post_data();
 		return self::$post_types;
 		
@@ -552,6 +621,48 @@ class CPTD{
 		return self::$taxonomies;
 
 	} # end: get_taxonomies()
+
+
+	/**
+	 * Return an array of CPTD_PT objects for the registered post types
+	 *
+	 * @return 	array 	May be empty.
+	 * @since 	2.0.0
+	 */
+	public static function get_post_type_objects() {
+
+		$post_type_objects = array();
+
+		# get the active post types
+		$post_types = self::get_post_types();
+		foreach( $post_types as $post_type ) {
+			
+			$pt = new CPTD_PT( $post_type->ID );
+			$post_type_objects[] = $pt;
+		}
+
+		return $post_type_objects;
+
+	} # end: get_post_types_data()
+
+	/**
+	 * Return a list of CPTD post type names
+	 *
+	 * @return 	array 	May be empty.
+	 * @since 	2.0.0
+	 */
+	public static function get_post_type_names() {
+
+		$post_type_names = array();
+
+		$post_type_objects = self::get_post_type_objects();
+		foreach( $post_type_objects as $pt ) {
+			$post_type_names[] = $pt->handle;
+		}
+
+		return $post_type_names;
+
+	} # end: get_post_type_names()
 
 	/**
 	 * Get all ACF field groups.  Returns and/or populates self::$acf_field_groups
