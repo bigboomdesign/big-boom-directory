@@ -384,6 +384,8 @@ class CPTD_Helper{
 
 		# get any custom images sizes that are registered
 		global $_wp_additional_image_sizes;
+		if( empty( $wp_additional_image_sizes ) ) return $image_sizes;
+
 		foreach( $_wp_additional_image_sizes as $size => $info ) {
 			$image_sizes[] = $size;
 		}
