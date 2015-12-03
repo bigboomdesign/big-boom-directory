@@ -57,7 +57,7 @@ a.cptd-gallery-thumb img{
  * A-Z listing
  */
 #cptd-a-z-listing > ul {
-	margin: 0 0 0 0;
+	margin: 0 0 1em 0;
 	padding: 0 0 0 0;
 }
 
@@ -65,7 +65,7 @@ a.cptd-gallery-thumb img{
  * Terms list
  */
 #cptd-terms > ul {
-	margin: 0 0 0 0;
+	margin: 0 0 1em 0;
 	padding: 0 0 0 0;
 }
 
