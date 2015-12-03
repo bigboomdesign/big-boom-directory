@@ -32,7 +32,9 @@ Directory management system based on Custom Post Types, Taxonomies, and Fields
 
  * **Attributes:** 
 
-    * `post_types` The post types to be displayed, separated by comma (`ex: 'book, movie'`)
+    * `post_types` The post types to be displayed, separated by comma `ex: 'book, movie'`
+
+    * `list_style` The list style for the `ul` element `ex: 'disc'`
 
 ---
 

@@ -54,6 +54,14 @@ a.cptd-gallery-thumb img{
 }
 
 /**
+ * A-Z listing
+ */
+#cptd-a-z-listing > ul {
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+}
+
+/**
  * Search Widget 
 */
 #cptd-search-form{ margin-top: 1em; }

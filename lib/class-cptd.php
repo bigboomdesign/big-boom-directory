@@ -448,11 +448,18 @@ class CPTD{
 	 */
 	public static function a_to_z_html( $atts ) {
 
-		# get the post types
+		# get the attributes with defaults
 		$atts = shortcode_atts( array(
 			'post_types' => '',
+			'list_style' => '',
 		), $atts, 'cptd-a-z-listing');
 
+		# validate the list style
+		$list_style = $atts['list_style'];
+		if( ! in_array( $list_style, array( 'none', 'inherit', 'disc', 'circle', 'square' ) ) )
+			$list_style = '';
+
+		# get the post types
 		$post_types = $atts['post_types'];
 		
 		# turn the string into an array if post types are set
@@ -468,7 +475,7 @@ class CPTD{
 		
 		if( empty( $post_types ) ) return '';
 
-		# get the posts for the A-Z listing
+		# get the posts for the A-Z listing using the given post types
 		$posts = get_posts(array(
 			'posts_per_page' => -1,
 			'orderby' => 'post_title',
@@ -478,13 +485,20 @@ class CPTD{
 
 		if( empty( $posts ) ) return '';
 
+		# if we have posts, enqueue the CPTD stylesheet in the footer
+		wp_enqueue_style( 'cptd-css', cptd_url( '/css/cptd.css' ), true );
+
 		# generate the HTML
 		ob_start();
 	?>
 		<div id='cptd-a-z-listing'>
 			<ul>
 				<?php foreach( $posts as $post ) { ?>
-					<li><a href="<?php echo get_permalink( $post->ID ); ?>"><?php echo $post->post_title; ?></a></li>
+					<li
+						<?php 
+							if( ! empty( $list_style ) ) echo 'style="list-style: ' . $list_style .'"'; 
+						?>
+					><a href="<?php echo get_permalink( $post->ID ); ?>"><?php echo $post->post_title; ?></a></li>
 				<?php } ?>
 			</ul>
 		</div>
