@@ -25,13 +25,29 @@
 
 <h2>Shortcodes</h2>
 
-<ul>
-<li><p>[cptd-a-z-listing]</p>
+<h3>[cptd-a-z-listing]</h3>
 
 <ul>
 <li><p>Displays an A-Z listing of all posts for the custom post type</p></li>
-<li><p><strong>Attributes:</strong> </p></li>
-<li><p><code>post_types</code> The post types to be displayed, separated by comma (<code>ex: 'book, movie'</code>)</p></li>
+<li><p><strong>Attributes:</strong> </p>
+
+<ul>
+<li><p><code>post_types</code> The post types to be displayed, separated by comma <code>ex: 'book, movie'</code></p></li>
+<li><p><code>list_style</code> The list style for the <code>li</code> HTML elements <code>ex: 'disc'</code></p></li>
+</ul></li>
+</ul>
+
+<hr />
+
+<h3>[cptd-terms]</h3>
+
+<ul>
+<li><p>Displays a term list for one or more taxonomies</p></li>
+<li><p><strong>Attributes:</strong></p>
+
+<ul>
+<li><p><code>taxonomies</code>  The taxonomies to show terms for, separated by comma <code>ex: 'book_genre, movie_genre'</code></p></li>
+<li><p><code>list_style</code> The list style for the <code>li</code> HTML elements <code>ex: 'none'</code></p></li>
 </ul></li>
 </ul>
 

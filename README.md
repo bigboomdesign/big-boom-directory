@@ -26,7 +26,7 @@ Directory management system based on Custom Post Types, Taxonomies, and Fields
 
 ## Shortcodes
 
-* [cptd-a-z-listing]
+### [cptd-a-z-listing]
 
  * Displays an A-Z listing of all posts for the custom post type
 
@@ -34,7 +34,19 @@ Directory management system based on Custom Post Types, Taxonomies, and Fields
 
     * `post_types` The post types to be displayed, separated by comma `ex: 'book, movie'`
 
-    * `list_style` The list style for the `ul` element `ex: 'disc'`
+    * `list_style` The list style for the `li` HTML elements `ex: 'disc'`
+
+---
+
+### [cptd-terms]
+
+* Displays a term list for one or more taxonomies
+
+* **Attributes:**
+
+    * `taxonomies`  The taxonomies to show terms for, separated by comma `ex: 'book_genre, movie_genre'`
+
+    * `list_style` The list style for the `li` HTML elements `ex: 'none'`
 
 ---
 

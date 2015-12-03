@@ -1,13 +1,13 @@
 <?php
 /**
- * Stores static information about post types and taxonomies created by CPTD
  * Handles callbacks for front end WP actions and filters
  * Handles callbacks for shortcodes
  * Handles callbacks for custom front end actions and filters
+ * Stores and retrieves static information about post types and taxonomies created by the plugin
  *
  * @since 2.0.0
  */
-class CPTD{
+class CPTD {
 
 	/**
 	 * Class parameters 
@@ -151,7 +151,7 @@ class CPTD{
 	 * 
 	 * - Basic WP callbacks for actions and filters
 	 * - Callbacks for shortcodes
-	 * - Retrieve and store static information about post types and taxonomies
+	 * - Store and retrieve and store static information about post types and taxonomies
 	 */
 
 	/**
@@ -177,6 +177,7 @@ class CPTD{
 
 		# shortcodes
 		add_shortcode('cptd-a-z-listing', array('CPTD', 'a_to_z_html')); 
+		add_shortcode('cptd-terms', array('CPTD', 'terms_html')); 
 
 	} # end: init()
 
@@ -441,10 +442,14 @@ class CPTD{
 	 * Callbacks for shortcodes
 	 * 
 	 * - a_to_z_html()
+	 * - terms_html()
 	 */
 
 	/**
-	 * Return HTML for the cptd-a-z-listing shortcode
+	 * Generate HTML for the `cptd-a-z-listing` shortcode
+	 *
+	 * @return 	string
+	 * @since 	2.0.0
 	 */
 	public static function a_to_z_html( $atts ) {
 
@@ -510,15 +515,92 @@ class CPTD{
 
 	} # end: a_to_z_html()
 
+	/**
+	 * Generate HTML for `cptd-terms` shortcode
+	 *
+	 * @return 	string
+	 * @since 	2.0.0
+	 */
+	public static function terms_html( $atts = array() ) {
+
+		# get the attributes with defaults
+		$atts = shortcode_atts( array(
+			'taxonomies' => '',
+			'list_style' => '',
+		), $atts, 'cptd-terms');
+
+		# validate the list style
+		$list_style = $atts['list_style'];
+		if( ! in_array( $list_style, array( 'none', 'inherit', 'disc', 'circle', 'square' ) ) )
+			$list_style = '';
+
+		# get the taxonomy names
+		# if none are given, we'll use all CPTD taxonomies
+		$taxonomy_names = array();
+
+		# if we are passed taxonomies
+		if( ! empty( $atts['taxonomies'] ) ) {
+
+			$taxonomy_names = array_map( 'trim', explode( ',', $atts['taxonomies'] ) );
+
+		} # end if: taxonomies were given
+
+		# if no taxonomies were given or found, try to use all CPTD taxonomies
+		if( empty( $taxonomy_names ) ) {
+			
+			$taxonomy_names = CPTD::get_taxonomy_names();
+
+			# do nothing if no taxonomies are registered and none are given to us
+			if( empty( $taxonomy_names ) ) return '';
+
+		}
+
+		# get the terms for the taxonomies
+		$terms = get_terms( $taxonomy_names );
+
+		# make sure we have terms
+		if( empty( $terms ) || is_wp_error( $terms ) ) return '';
+
+		# generate HTML for list
+		ob_start();
+		?>
+		<div id="cptd-terms">
+			<ul>
+				<?php
+				foreach($terms as $term){
+				?>
+					<li <?php if( $list_style ) echo 'style="list-style: ' . $list_style . '"'; ?>>
+						<a href="<?php echo get_term_link( $term ); ?>" >
+							<?php echo $term->name; ?>
+						</a>
+					</li>
+				<?php
+				}
+				?>
+			</ul>
+		</div>
+		<?php
+
+		# enqueue the CPTD stylesheet in the footer
+		wp_enqueue_style( 'cptd-css', cptd_url('/css/cptd.css'), true );
+
+		$html = ob_get_contents();
+		ob_end_clean();
+		return $html;
+
+	} # end: terms_html()
+
 
 	/**
-	 * Retrieve and store static information about post types and taxonomies
+	 * Store and retrieve and store static information about post types and taxonomies
 	 *
 	 * - load_cptd_post_data()
 	 * - get_post_types()
 	 * - get_taxonomies()
 	 * - get_post_type_objects()
 	 * - get_post_type_names()
+	 * - get_taxonomy_objects()
+	 * - get_taxonomy_names()
 	 * - get_acf_field_groups()
 	 * - load_view_info()
 	 */
@@ -657,7 +739,7 @@ class CPTD{
 
 		return $post_type_objects;
 
-	} # end: get_post_types_data()
+	} # end: get_post_type_objects()
 
 	/**
 	 * Return a list of CPTD post type names
@@ -677,6 +759,47 @@ class CPTD{
 		return $post_type_names;
 
 	} # end: get_post_type_names()
+
+	/**
+	 * Return an array of CPTD_Tax objects for CPTD taxonomies
+	 *
+	 * @return 	array 	May be empty.
+	 * @since 	2.0.0
+	 */
+	public static function get_taxonomy_objects() {
+
+		$taxonomy_objects = array();
+
+		# get the active post types
+		$taxonomies = self::get_taxonomies();
+		foreach( $taxonomies as $taxonomy ) {
+			
+			$tax = new CPTD_Tax( $taxonomy->ID );
+			$taxonomy_objects[] = $tax;
+		}
+
+		return $taxonomy_objects;
+
+	} # end: get_taxonomy_objects
+
+	/**
+	 * Return an array of CPTD taxonomy names
+	 *
+	 * @param	array 	May be empty.
+	 * @since 	2.0.0
+	 */
+	public static function get_taxonomy_names() {
+
+		$taxonomy_names = array();
+
+		$taxonomy_objects = self::get_taxonomy_objects();
+		foreach( $taxonomy_objects as $tax ) {
+			$taxonomy_names[] = $tax->handle;
+		}
+
+		return $taxonomy_names;
+
+	} # end: get_taxonomy_names()
 
 	/**
 	 * Get all ACF field groups.  Returns and/or populates self::$acf_field_groups
