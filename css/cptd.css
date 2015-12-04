@@ -73,7 +73,11 @@ a.cptd-gallery-thumb img{
  * Search Widget 
 */
 #cptd-search-form{ margin-top: 1em; }
-p.cptd-search-filter{ float: left; margin-right: 1em; margin-bottom: 1.5em; padding-bottom: 0;}
+div.cptd-search-filter{ margin-bottom: 1.5em; padding-bottom: 0;}
+.cptd-search-filter label {
+	display: block;
+}
+
 .cptd-search-submit{ width: 100%; max-width: 250px; height: 3em; }
 
 /**

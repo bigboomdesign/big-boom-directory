@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Directory management system based on Custom Post Types, Taxonomies, and Fields
- * Version: 2.0.0.25.1
+ * Version: 2.0.0.26.0
  * Author: Big Boom Design
  * Author URI: http://bigboomdesign.com
  */
@@ -23,6 +23,8 @@ require_once cptd_dir('/lib/class-cptd-options.php');
 require_once cptd_dir('/lib/class-cptd-post.php');
 require_once cptd_dir('/lib/class-cptd-pt.php');
 require_once cptd_dir('/lib/class-cptd-tax.php');
+require_once cptd_dir('/lib/class-cptd-field.php');
+require_once cptd_dir('/lib/widgets/class-cptd-search-widget.php');
 
 # Extended Post Types & Taxonomies
 if( ! function_exists( 'register_extended_post_type' ) ) require_once cptd_dir( '/assets/extended-cpts.php' );
@@ -36,7 +38,9 @@ if( ! function_exists( 'register_extended_taxonomy' ) ) require_once cptd_dir( '
 # Register user-defined post types
 add_action('init', array( 'CPTD', 'load_cptd_post_data' ) ) ;
 add_action('init', array( 'CPTD_Helper', 'register' ) );
+
 add_action( 'pre_get_posts', array( 'CPTD', 'pre_get_posts' ) );
+add_action("widgets_init", array( 'CPTD', 'widgets_init' ) );
 
 
 /**

@@ -16,7 +16,6 @@ class CPTD_Helper{
 	 * - get_choice_array()
 	 *
 	 * - register()
-	 * - get_post_type_names()
 	 * - get_all_post_ids()
 	 * - get_all_field_keys()
 	 * - get_image_sizes()
@@ -131,7 +130,8 @@ class CPTD_Helper{
 			if(!array_key_exists('name', $out)) $out['name'] = $id;
 			# make sure all choices are arrays
 			if(array_key_exists('choices', $field)){
-				$out['choices'] = self::get_choice_array($field);
+				$out['choices'] = $field['choices'];
+				$out['choices'] = self::get_choice_array($out);
 			}
 		}
 		return $out;
@@ -262,28 +262,6 @@ class CPTD_Helper{
 	} # end: register()
 
 	/**
-	 * Return an array of user-created post type handles registered by this plugin
-	 *
-	 * @since 	2.0.0
-	 */
-	public static function get_post_type_names() {
-
-		# build an array of post type handles
-		$pt_names = array();
-
-		# loop through the array of existing CPTD user-created post type ID's to form the array of handles
-		foreach( CPTD::$post_type_ids as $pt ) {
-
-			$pt = new CPTD_PT( $pt );
-
-			if(! in_array( $pt->handle, $pt_names ) ) $pt_names[] = $pt->handle;
-		}
-
-		return $pt_names;
-
-	} # end: get_post_type_names()
-
-	/**
 	 * Return an array of post ID's belonging to all user-created custom post types
 	 * 
 	 * @since 	2.0.0
@@ -295,7 +273,7 @@ class CPTD_Helper{
 		# the indicator that we've checked this and don't need to query the DB
 		CPTD::$all_post_ids = array();
 
-		$pt_names = self::get_post_type_names();
+		$pt_names = CPTD::get_post_type_names();
 
 		if( ! $pt_names ) return array();
 
@@ -312,6 +290,8 @@ class CPTD_Helper{
 
 			$post_ids[] = $r->ID;
 		}
+
+		CPTD::$all_post_ids = $post_ids;
 
 		return $post_ids;
 
@@ -330,13 +310,15 @@ class CPTD_Helper{
 		# indicator that the value has been initialized so we don't have to run this function again
 		CPTD::$all_field_keys = array();
 
-		$post_ids = self::get_all_post_ids();
-
-		# make sure post type handles exist
-		if( ! $post_ids ) {
-
+		# if we have no post types, do nothing further
+		if( CPTD::$no_post_types ) {
 			return array();
 		}
+
+		$post_ids = self::get_all_post_ids();
+
+		# make sure post type handles exist 
+		if( ! $post_ids ) return array();
 
 		global $wpdb;
 
@@ -344,7 +326,7 @@ class CPTD_Helper{
 		$fields_query = "SELECT DISTINCT meta_key FROM " . $wpdb->postmeta . 
 			" WHERE post_id IN (  " . 
 					implode( ", ", $post_ids ) .
-			" ) ";
+			" ) ORDER BY meta_key ASC";
 
 		$fields_results = $wpdb->get_results( $fields_query );
 

@@ -95,6 +95,19 @@ class CPTD_Admin{
 	public static function admin_enqueue(){
 		$screen = get_current_screen();
 
+		wp_register_style( 'cptd-admin', cptd_url('/css/admin/cptd-admin.css') );
+
+		# Plugin Settings
+		if( 'cptd_pt_page_cptd-settings' == $screen->base ) {
+			wp_enqueue_style( 'cptd-admin' );
+		}
+
+		# Widgets Screen
+		if( 'widgets' == $screen->base ) {
+			wp_enqueue_style( 'cptd-admin' );
+			wp_enqueue_script( 'cptd-widgets', cptd_url('/js/admin/cptd-widgets.js'), array('jquery') );
+		}
+
 		# Post type edit screen
 		if(
 			'post' == $screen->base
@@ -110,7 +123,7 @@ class CPTD_Admin{
 
 		# Import screen
 		if( 'cptd_pt_page_cptd-import' == $screen->base ) {
-			wp_enqueue_style( 'cptd-admin', cptd_url( '/css/admin/cptd-admin.css' ) );
+			wp_enqueue_style( 'cptd-admin' );
 			wp_enqueue_script( 'cptd-import', cptd_url( '/js/admin/cptd-import.js' ), array( 'jquery' ) );
 		}
 

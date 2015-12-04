@@ -47,11 +47,23 @@ class CPTD_Field {
 	var $acf_field;
 
 	/**
+	 * An array of distinct field values for this field
+	 *
+	 * @param 	array
+	 * @since 	2.0.0
+	 */
+	var $all_values = null;
+
+	/**
 	 * Class methods
 	 *
 	 * - __construct()
 	 * - get_html()
+	 * - get_form_element_html()
+	 *
 	 * - is_acf()
+	 * - load_acf_data()
+	 * - get_all_values()
 	 */
 
 	/**
@@ -78,6 +90,11 @@ class CPTD_Field {
 
 		# load the ACF field info if applicable
 		$this->is_acf();
+
+		# if not an ACF field, we'll try and load as much data as we can about the field
+		if( ! $this->is_acf ) {
+			$this->label = ucwords( str_replace('_', ' ', $this->key ) );
+		}
 
 	} # end: __construct()
 
@@ -418,6 +435,26 @@ class CPTD_Field {
 
 	} # end: get_html()
 
+	public function get_form_element_html( $setting = array() ) {
+
+		# get choices for `select`, `checkbox`
+		if( 'select' == $setting['type'] || 'checkbox' == $setting['type'] ) {
+
+			# whether to allow empty values
+			$allow_empty = ( 'checkbox' != $setting['type'] );
+
+			$choices = $this->get_all_values( $allow_empty );
+			$setting['choices'] = $choices;
+		}
+
+		# load the auto-completed field array
+		$setting = CPTD_Helper::get_field_array( $setting );
+	?>
+		<label for='<?php echo $setting[ 'id' ]; ?>'><?php echo $this->label; ?><br />
+			<?php CPTD_Options::do_settings_field( $setting, 'cptd_search', $_POST ); ?>
+		</label>
+	<?php
+	} # end: get_form_element_html()
 
 	/**
 	 * Sets and returns the `is_acf` class property, or return if already set.  
@@ -474,6 +511,53 @@ class CPTD_Field {
 				$this->acf_field = $acf_field;
 			
 			} # end if: ACF field
-	}
+	
+	} # end: load_acf_data()
+
+	/**
+	 * Set/get all field values based on this field's key (alphabetically, using all post meta)
+	 *
+	 * @param 	bool 	$allow_empty 	Whether to allow empty values
+	 * @since 	2.0.0
+	 */
+	 public function get_all_values( $allow_empty = true ) {
+
+	 	# protect against hitting the DB 2 times
+	 	if( null !== $this->all_values ) return $this->all_values;
+
+	 	if( empty( $this->key ) ) return array();
+
+	 	$key = sanitize_text_field( $this->key );
+
+	 	# query the DB for field values
+	 	global $wpdb;
+	 	$field_values_query = 'SELECT DISTINCT meta_value ' . 
+	 		' FROM ' . $wpdb->postmeta . 
+	 		' WHERE meta_key="' . $this->key . '" ';
+
+	 	# make sure not to get the empty string as a value from the DB
+	 	$field_values_query .= ' AND meta_value != ""';
+
+	 	# order alphabetically
+	 	$field_values_query .= " ORDER BY meta_value ASC";
+
+	 	$field_value_results = $wpdb->get_results( $field_values_query );
+
+	 	# the array we'll output
+	 	$values = array();
+
+	 	# add the empty string as the first value if we're allowing empty
+	 	if( $allow_empty ) $values[] = array( 'label' => 'Select', 'value' => '' );
+
+	 	# loop through DB results and load the output array
+	 	foreach( $field_value_results as $row ) {
+	 		$values[] = $row->meta_value;
+	 	}
+
+	 	# set this instance's property and return tye array
+	 	$this->all_values = $values;
+	 	return $values;
+
+	 } # end: get_all_values()
 
 } # end class: CPTD_Field

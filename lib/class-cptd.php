@@ -159,6 +159,7 @@ class CPTD {
 	 *
 	 * - Actions
 	 * 		- init()
+	 * 		- widgets_init()
 	 * 		- pre_get_posts()
 	 * 		- wp()
 	 * 		- enqueue_scripts()
@@ -180,6 +181,13 @@ class CPTD {
 		add_shortcode('cptd-terms', array('CPTD', 'terms_html')); 
 
 	} # end: init()
+
+	/** 
+	 * Register the widgets for the plugin
+	 */
+	public static function widgets_init() {
+		register_widget("CPTD_Search_Widget");
+	} # end: widgets_init()
 
 	/**
 	 * Callback for 'pre_get_posts' action
@@ -334,7 +342,7 @@ class CPTD {
 	 */
 	public static function enqueue_scripts() {
 
-		wp_enqueue_style( 'cptd-css', cptd_url( '/css/cptd.css' ) );
+		wp_enqueue_style( 'cptd', cptd_url( '/css/cptd.css' ) );
 
 		# font awesome
 		wp_enqueue_style( 'cptd-fa', '//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css');
@@ -491,7 +499,7 @@ class CPTD {
 		if( empty( $posts ) ) return '';
 
 		# if we have posts, enqueue the CPTD stylesheet in the footer
-		wp_enqueue_style( 'cptd-css', cptd_url( '/css/cptd.css' ), true );
+		wp_enqueue_style( 'cptd', cptd_url( '/css/cptd.css' ), true );
 
 		# generate the HTML
 		ob_start();
@@ -582,7 +590,7 @@ class CPTD {
 		<?php
 
 		# enqueue the CPTD stylesheet in the footer
-		wp_enqueue_style( 'cptd-css', cptd_url('/css/cptd.css'), true );
+		wp_enqueue_style( 'cptd', cptd_url('/css/cptd.css'), true );
 
 		$html = ob_get_contents();
 		ob_end_clean();

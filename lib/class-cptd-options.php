@@ -87,14 +87,23 @@ class CPTD_Options{
 	 * 		@type 	array 			$data 			Optional. An array of data attributes to add to the form element (see `self::data_atts()`)
 	 * }
 	 *
-	 * @param	string	$option 	Optional (Default: 'cptd_options'). By default, an HTML input element whose name is `form_field`
-	 *								will actually have a name attribute of `cptd_options[form_field]`. Pass in a string to 
-	 *								change the default parent field name, or pass an empty string to use a regular input name without a parent
+	 * @param	string			$option 		Optional (Default: 'cptd_options'). By default, an HTML input element whose name is `form_field`
+	 *											will actually have a name attribute of `cptd_options[form_field]`. Pass in a string to 
+	 *											change the default parent field name, or pass an empty string to use a regular input name without a parent
+	 *
+	 * @param 	(null|array) 	$prepopulate 	Array to use for prepopulation (default: CPTD_Options::$options)
 	 * @since 	2.0.0
 	 */
-	public static function do_settings_field($setting, $option = 'cptd_options'){
+	public static function do_settings_field( $setting, $option = 'cptd_options', $prepopulate = null ){
+
 		# the option `cptd_options` can be replaced on the fly and will be passed to handler functions
 		$setting['option'] = $option;
+
+		# set the checked/selected status if necessary
+		if( null === $prepopulate  ) $setting['prepopulate'] = self::$options;
+		else {
+			$setting['prepopulate'] = $prepopulate;
+		}
 		
 		# fill out missing attributes for this option and its choices
 		$setting = CPTD_Helper::get_field_array($setting);
@@ -107,28 +116,38 @@ class CPTD_Options{
 		# call one of several handler functions based on what type of field we have
 		
 		## see if a self method is defined having the same name as the setting type
-		if(isset($setting['type']) && method_exists(get_class(), $setting['type'])) self::$setting['type']($setting);
-		else if(!isset($setting['type'])) $setting['type'] = 'text';
-		
-		## special cases
-		switch($setting['type']){
-			case "textarea":
-				self::textarea_field($setting);
-			break;
-			case 'checkbox':
-				self::checkbox_field($setting);
-			break;
-			case 'select':
-				self::select_field($setting);
-			break;
-			case 'radio':
-				self::radio_field($setting);
-			break;			
-			case "single-image":
-				self::image_field($setting);
-			break;
-			default: self::text_field($setting);
-		} # end switch: setting type
+		if( isset( $setting['type'] ) && method_exists(get_class(), $setting['type'])) {
+			self::$setting['type']($setting);
+		}
+
+		## if we're using a built-in settings handler
+		else {
+			if( ! isset( $setting['type'] ) ) $setting['type'] = 'text';
+			
+			## special cases
+			switch( $setting['type'] ) {
+
+				case "textarea":
+					self::textarea_field($setting);
+				break;
+				case 'checkbox':
+					self::checkbox_field($setting);
+				break;
+				case 'select':
+					self::select_field($setting);
+				break;
+				case 'radio':
+					self::radio_field($setting);
+				break;			
+				case "single-image":
+					self::image_field($setting);
+				break;
+
+				default: self::text_field($setting);
+
+			} # end switch: setting type
+
+		} # end else: built-in settings handler
 		
 		if(array_key_exists('description', $setting)) {
 		?>
@@ -203,8 +222,10 @@ class CPTD_Options{
 	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
-	public static function checkbox_field($setting){
+	public static function checkbox_field( $setting ) {
+
 		extract($setting);
+		
 		foreach($choices as $choice){
 		?><label 
 			class="checkbox <?php if(isset($label_class)) echo $label_class; ?>"
@@ -217,7 +238,10 @@ class CPTD_Options{
 				value="<?php echo $choice['value']; ?>"
 				class="<?php if(isset($class)) echo $class; if(array_key_exists('class', $choice)) echo ' ' . $choice['class']; ?>"
 				<?php echo self::data_atts($choice); ?>
-				<?php checked(true, '' != self::get_option_value($setting, $choice)); ?>						
+				<?php 
+					if( isset( $checked ) ) checked( true, $checked );
+					else checked( true, '' != self::get_option_value( $setting, $choice ) ); 
+				?>
 			/>&nbsp;<?php echo $choice['label']; ?> &nbsp; &nbsp;
 		</label>
 		<?php
@@ -229,7 +253,7 @@ class CPTD_Options{
 	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
-	public static function radio_field($setting){
+	public static function radio_field( $setting ) {
 		extract($setting);
 		$val = self::get_option_value($setting);
 		foreach($choices as $choice){
@@ -244,7 +268,10 @@ class CPTD_Options{
 				value="<?php echo $value; ?>"
 				class="<?php if(isset($class)) echo $class; if(array_key_exists('class', $choice)) echo ' ' . $choice['class']; ?>"
 				<?php echo self::data_atts($choice); ?>				
-				<?php checked($value, $val); ?>
+				<?php 
+					if( isset( $checked ) ) checked( true, $checked );
+					else checked($value, $val); 
+				?>
 			/>&nbsp;<?php echo $label; ?></label>&nbsp;&nbsp;
 			<?php
 		}
@@ -255,7 +282,7 @@ class CPTD_Options{
 	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
-	public static function select_field($setting){		
+	public static function select_field( $setting ) {		
 		extract($setting);
 		$val = self::get_option_value($setting);
 	?><select 
@@ -281,7 +308,10 @@ class CPTD_Options{
 				value="<?php echo $value; ?>"
 				<?php if(array_key_exists('class', $choice)) echo "class='".$choice['class']."' "; ?>
 				<?php echo self::data_atts($choice); ?>					
-				<?php selected($val, $value ); ?>					
+				<?php 
+					if( isset( $checked ) ) echo selected( true, $checked );
+					else selected($val, $value ); 
+				?>
 			><?php echo $label; ?></option>
 		<?php
 		} # end foreach: $choices
@@ -316,7 +346,7 @@ class CPTD_Options{
 			<?php if($val){ ?><img src="<?php echo $val; ?>" /><?php } ?>
 		</div>
 		<?php
-	} # end: image_field()
+	} # end: image_field()	
 
 	/**
 	 * Matching a function name with the respecting $setting['type'] allows for creation of "on the fly" options.
@@ -338,6 +368,24 @@ class CPTD_Options{
 		);
 		$setting['type'] = 'radio';
 		self::do_settings_field($setting);
+	}
+
+	/**
+	 * Dropdown pages field type
+	 *
+	 * @since 	2.0.0
+	 */
+	public static function dropdown_pages( $setting ) {
+
+		extract( $setting );
+		
+		$args = array(
+			"selected" => self::get_option_value( $setting ),
+			"name" => $name,
+		);
+		
+		if( isset( $show_option_none ) ) $args['show_option_none'] = $show_option_none;
+		wp_dropdown_pages($args);
 	}
 	
 	/**
@@ -419,7 +467,8 @@ class CPTD_Options{
 			'type' => 'select',
 			'choices' => $image_sizes,
 			'default' => 'thumbnail',
-			'description' => 'Applies to ACF fields with type `image`'
+			'description' => 'Applies to ACF fields with type `image`',
+			'section' 	=> 'cptd_post_type_defaults',
 		);
 
 		# single image size option
@@ -429,7 +478,8 @@ class CPTD_Options{
 			'type' => 'select',
 			'choices' => $image_sizes,
 			'default' => 'medium',
-			'description' => 'Applies to ACF fields with type `image`'
+			'description' => 'Applies to ACF fields with type `image`',
+			'section' 	=> 'cptd_post_type_defaults',			
 		);
 
 		# image alignment
@@ -439,7 +489,8 @@ class CPTD_Options{
 			'type' => 'select',
 			'choices' => array('None', 'Right', 'Left'),
 			'default' => 'none',
-			'description' => 'Applies to ACF fields with type `image`'
+			'description' => 'Applies to ACF fields with type `image`',
+			'section' 	=> 'cptd_post_type_defaults',
 		);
 		
 		self::load_default_settings();
@@ -515,46 +566,61 @@ class CPTD_Options{
 	 */
 	
 	/**
-	 * Get the saved value for a setting, based on the option name we're given
+	 * Get the saved value for a setting or a posted value, based on the option name we're given
 	 * 
 	 * @param  	array 	$setting 	The setting to get the value for (see `do_settings_field`)
 	 * @param  	array 	$choice 	The particular choice to get the value for if necessary
+	 *
 	 * @return 	string
 	 * @since 	2.0.0
 	 */	
-	public static function get_option_value($setting, $choice = ''){
+	public static function get_option_value( $setting, $choice = '' ) {
+
 		# see if an option has been passed in (e.g. `cptd_options`)
-		if($setting['option']){
+		if( $setting['option'] ) {
+
 			# if we're dealing with the default 
 			if('cptd_options' == $setting['option']){
 				$option = self::$options;
 			}
 			
 			# if we have a custom option name or no option name
-			else $option = get_option($setting['option']);
-			if(!$option) return '';
+			else $option = get_option( $setting['option'] );
+			if( ! $option ) {
+				if( ! empty( $_POST[ $setting['option'] ] ) ) $option = $_POST[ $setting['option'] ];
+				if( ! $option ) return '';
+			}
 			
+			$output = '';
+
 			# if the option value is an array, get the desired setting
 			if(is_array($option)){
-				return array_key_exists($setting['name'], $option) 
-					? $option[$setting['name']] 
+				$output = array_key_exists($setting['name'], $option) 
+					? $option[ $setting['name'] ]
 					: (
 						'' != $choice 
 							?
 							(
-								array_key_exists($choice['id'], $option)
-									? $option[$choice['id']]
+								array_key_exists( $choice['id'], $option )
+									? $option[ $choice['id'] ]
 									: ''
 							)
 							: ''
 					);
 			}
-			# if option value is a string
-			return $option;
-		}
+
+			# if option value is a string			
+			elseif( is_string( $option ) ) $output = $option;
+			
+			# return a sanitized string
+			return sanitize_text_field( $output );
+		
+		} // end if: $setting has an option key
+
 		# if no option is passed in, check post
-		return CPTD_Helper::get_post_field($setting['name']);
-	}
+		return CPTD_Helper::get_post_field( $setting['name'] );
+
+	} # end: get_option_value()
 
 	/**
 	 * Get the name attribute for a checkbox choice based on its parent option
@@ -581,7 +647,11 @@ class CPTD_Options{
 # Settings sections for plugin options page
 CPTD_Options::$sections = array(
 	array(
-		'name' => 'cptd_main', 'title' => 'Post type defaults',
+		'name' => 'cptd_main', 'title' => 'Basic Settings',
+		'description' => '',
+	),
+	array(
+		'name' => 'cptd_post_type_defaults', 'title' => 'Post type defaults',
 		'description' => '<p>These options serve as the default settings for new post types you create using this plugin.</p>'
 	),
 );
@@ -598,6 +668,20 @@ CPTD_Options::$sections = array(
  */
 CPTD_Options::$settings = array(
 
+	/**
+	 * Basic settings
+	 */
+	array(
+		'name' => 'search_page',
+		'label' => 'Search results page',
+		'description' => 'This is used to display the search widget results',
+		'type' => 'dropdown_pages',
+	),
+
+	/**
+	 * Post type defaults
+	 */
+
 	# Default post orderby
 	array(
 		'name' 		=> 'post_orderby',
@@ -611,6 +695,7 @@ CPTD_Options::$settings = array(
 			array( 'value' => 'rand', 'label' => 'Random' ),
 		),
 		'default' 	=> 'title',
+		'section' 	=> 'cptd_post_type_defaults',
 	),
 
 	# Meta key to order by, if 'post_orderby' = ( 'meta_value' | 'meta_value_num' )
@@ -620,6 +705,7 @@ CPTD_Options::$settings = array(
 		'type'		=> 'text',
 		'description' 	=> 'Use a field key like <code>last_name</code>. Posts with no value for the field will not appear in results.',
 		'default'		=> 'title',
+		'section' 	=> 'cptd_post_type_defaults',
 	),
 
 	# Default post order
@@ -632,6 +718,7 @@ CPTD_Options::$settings = array(
 			array( 'value' => 'DESC', 'label' => 'Descending' ),
 		),
 		'default' => 'ASC',
+		'section' 	=> 'cptd_post_type_defaults',
 	),
 
 	# Auto detect website field
@@ -642,6 +729,7 @@ CPTD_Options::$settings = array(
 		'choices' => 'Yes',
 		'default' => 'yes',
 		'description' => 'Displays "View Website" link text for `web`, `website`, and `url` fields',
+		'section' 	=> 'cptd_post_type_defaults',
 	),
 
 	# Auto detect social media fields
@@ -651,7 +739,8 @@ CPTD_Options::$settings = array(
 		'type' => 'checkbox',
 		'choices' => 'Yes',
 		'default' => 'yes',
-		'description' => 'Uses icons for `facebook`, `twitter`, `linkedin`, `instagram`, `pinterest`, `google_plus` fields'
+		'description' => 'Uses icons for `facebook`, `twitter`, `linkedin`, `instagram`, `pinterest`, `google_plus` fields',
+		'section' 	=> 'cptd_post_type_defaults',
 	),
 );
 

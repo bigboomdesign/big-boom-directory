@@ -47,7 +47,15 @@ class CPTD_Tax extends CPTD_Post{
 	 * @param 	string
 	 * @since 	2.0.0
 	 */
-	var $slug;
+	var $slug = '';
+
+	/**
+	 * An array of WP_Term objects for this taxonomy
+	 *
+	 * @param 	array
+	 * @since 	2.0.0
+	 */
+	var $terms = array();
 
 	/**
 	 * List of object parameters used for taxonomy registration ( $args for register_taxonomy )
@@ -185,5 +193,38 @@ class CPTD_Tax extends CPTD_Post{
 		register_extended_taxonomy( $args['taxonomy'], $args['object_type'], $args['args'], $args['names'] );
 
 	} # end: register()
+
+	/**
+	 * Generate a terms dropdown for this taxonomy
+	 *
+	 * @since 	2.0.0
+	 */
+	public function get_form_element_html( $setting = array(), $option = '' ) {
+
+		# get the terms if necessary
+		if( empty( $this->terms ) ) {
+
+			$terms = get_terms( $this->handle );
+			if( ! is_wp_error( $terms ) ) $this->terms = $terms;
+		}
+
+		if( empty( $this->terms ) ) return;
+
+		$choices = array();
+		$choices[] = array( 'value' => '', 'label' => 'Select' );
+
+		# Loop through terms and load choices for dropdown
+		foreach( $this->terms as $term ) {
+			$choices[] = array( 'value' => $term->term_id, 'label' => $term->name );
+		}
+		$setting['choices'] = $choices;
+
+		$setting = CPTD_Helper::get_field_array( $setting );
+		?>
+		<label for='<?php echo $setting['id']; ?>' ><?php echo $setting['label']; ?>
+			<?php CPTD_Options::do_settings_field( $setting, $option, $_POST ); ?>
+		</label>
+		<?php
+	} # end: get_form_element_html()
 
 } # end class: CPTD_Tax

@@ -3,6 +3,12 @@
 .cptd-success{ color: green; }
 .cptd-fail{ color: #B42D29; }
 .cptd-indent{ margin-left: 2em; }
+.cptd-highlight{
+	display: block;
+	background-color: #e4f2fd;
+	padding: 1em;
+}
+
 h3.cptd-header{ font-size: 1.5em; }
 h4.cptd-header{ font-size: 1.3em; }
 h5.cptd-header{ font-size: 1.1em; font-weight: bold; }
@@ -16,6 +22,24 @@ form > h3{
 }
 .form-table.indent th{ padding-left: 3em;  }
 .form-table.indent {margin-bottom: 3em;}
+
+/* Search Widget */
+.cptd-search-widget-form label.post-type-select,
+.cptd-search-widget-form label.taxonomy-select {
+	display: block;
+	margin: 0.5em 0;
+	margin: 0.5em 0;
+}
+.cptd-search-widget-field {
+    margin: 0.5em 0;
+    padding-left: 1em;
+}
+.cptd-search-widget-field .field-type-select {
+	margin: 1em 0 0.25em;
+}
+.cptd-search-widget-field .field-type-select label {
+	margin-right: 1em;
+}
 
 /* Import */
 #cptd-import-form input[type=radio]{
