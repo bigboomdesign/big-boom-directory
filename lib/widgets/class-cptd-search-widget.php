@@ -82,7 +82,7 @@ class CPTD_Search_Widget extends WP_Widget{
 		</label></p>
 
 		<?php # The search results page ?>
-		<p><label for='<?php echo $this->get_field_id('results_page'); ?>'>
+		<p><label for='<?php echo $this->get_field_id('search_page'); ?>'>
 		Search Results Page:<br />
 		<?php
 			$search_page = ! empty( $instance['search_page'] )  ? 
@@ -94,8 +94,8 @@ class CPTD_Search_Widget extends WP_Widget{
 				);
 
 			wp_dropdown_pages( array( 
-				'name' => $this->get_field_name('search_page'), '
-				selected' => $search_page 
+				'name' => $this->get_field_name('search_page'),
+				'selected' => $search_page 
 			));
 		?>
 		</label></p>
