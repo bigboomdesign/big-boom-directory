@@ -177,8 +177,8 @@ class CPTD {
 	public static function init() {
 
 		# shortcodes
-		add_shortcode('cptd-a-z-listing', array('CPTD', 'a_to_z_html')); 
-		add_shortcode('cptd-terms', array('CPTD', 'terms_html')); 
+		add_shortcode( 'cptd-a-z-listing', array('CPTD', 'a_to_z_html') );
+		add_shortcode( 'cptd-terms', array('CPTD', 'terms_html') );
 
 	} # end: init()
 

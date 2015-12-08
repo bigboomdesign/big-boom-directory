@@ -3,7 +3,8 @@
  * The CPT Search Widget class
  *
  * Handles the backend widget settings form
- * Handles the front end display of the widget
+ * Handles the front end display of the widget and widget search results
+ * Handles the shortcode implementation for `cptd-search`
  *
  * @since 	2.0.0
  */
@@ -353,8 +354,17 @@ class CPTD_Search_Widget extends WP_Widget{
 					name="cptd_search[widget_id]" 
 					value="<?php echo isset( $widget_id ) ? 
 						$widget_id : 
-						( isset( $_POST['cptd-search-widget-id'] ) ? 
-							sanitize_text_field( $_POST['cptd_search']['widget-id'] ) :
+						( isset( $_POST['cptd_search']['widget_id'] ) ? 
+							sanitize_text_field( $_POST['cptd_search']['widget_id'] ) :
+							''
+						); ?>" 
+				>
+				<input type="hidden" 
+					name="cptd_search[widget_number]" 
+					value="<?php echo isset( $this->number ) ? 
+						$this->number : 
+						( isset( $_POST['cptd_search']['widget_number'] ) ? 
+							sanitize_text_field( $_POST['cptd_search']['widget_number'] ) :
 							''
 						); ?>" 
 				>
@@ -375,15 +385,16 @@ class CPTD_Search_Widget extends WP_Widget{
 	 */
 	function get_search_results_html( $content ) {
 
-		# make sure we only show results for the widget that was submitted
-		if( $this->id != $_POST['cptd_search']['widget_id'] ) return $content;
-
 		# get the settings for this widget (includes all instances)
 		$widget_settings_all = $this->get_settings();
 
-		# get the settings for this widget instance
-		if( empty( $widget_settings_all[ $this->number ] ) ) return $content;
-		$instance = $widget_settings_all[ $this->number ];
+		# get the settings for this widget instance (or the posted instance if different)
+		$widget_number = isset( $_POST['cptd_search']['widget_number'] ) ?
+			$_POST['cptd_search']['widget_number'] : 
+			$this->number;
+
+		if( empty( $widget_settings_all[ $widget_number ] ) ) return $content;
+		$instance = $widget_settings_all[ $widget_number ];
 
 		# get the post type names from the widget settings
 		if( empty( $instance['post_types'] ) ) $post_type_ids = CPTD::$post_type_ids;
@@ -398,8 +409,8 @@ class CPTD_Search_Widget extends WP_Widget{
 		}
 
 		# get the meta keys from the widget settings
-		if( empty( $instance['meta_keys'] ) ) return $content;
-		$meta_keys = $instance['meta_keys'];
+		if( ! empty( $instance['meta_keys'] ) ) $meta_keys = $instance['meta_keys'];
+		else $meta_keys = array();
 
 
 		# get the sanitized search form input
@@ -413,7 +424,6 @@ class CPTD_Search_Widget extends WP_Widget{
 		}
 
 		# query pieces
-		#$query_args = array();
 		$query_args = array( 
 			'post_type' => $post_type_names,
 			'relation' => 'OR',
