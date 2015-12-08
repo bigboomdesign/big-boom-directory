@@ -34,7 +34,7 @@ class CPTD_Search_Widget extends WP_Widget{
 	 * 
 	 * @since 	2.0.0
 	 */
-	function __construct(){
+	public function __construct(){
 
 		$widget_options = array(
 			"classname" => "cptd-search-widget",
@@ -51,7 +51,25 @@ class CPTD_Search_Widget extends WP_Widget{
 			add_filter('the_content', array( $this, 'get_search_results_html' ) );
 		}
 
+		add_shortcode( 'cptd-search', array( $this, 'get_shortcode_html' ) );
+
 	} # end: __construct()
+
+	/**
+	 * Get the widget settings for a particular widget number
+	 *
+	 * @param 	(int|string) 	$widget_number		The number for the desired widget (e.g. 6)
+	 * @return 	array
+	 */
+	public function get_instance( $widget_number ) {
+		
+		# get the settings for this widget (includes all instances)
+		$widget_settings_all = $this->get_settings();
+
+		if( empty( $widget_settings_all[ $widget_number ] ) ) return array();
+		return $widget_settings_all[ $widget_number ];
+
+	} # end: get_instance()
 
 	/**
 	 * Generate HTML for the backend widget settings form
@@ -59,7 +77,7 @@ class CPTD_Search_Widget extends WP_Widget{
 	 * @param 	array 	$instance 	The current widget settings for this instance
 	 * @since 	2.0.0
 	 */
-	function form( $instance ) {
+	public function form( $instance ) {
 	?>
 	<div class='cptd-search-widget-form'>
 	<?php
@@ -248,7 +266,15 @@ class CPTD_Search_Widget extends WP_Widget{
 	 * @param 	array 	$instance 	The widget settings for this instance
 	 * @since 	2.0.0
 	 */
-	function widget( $args, $instance ) {
+	public function widget( $args, $instance ) {
+
+		# the ID and number may need to be set if calling from a shortcode
+		if( empty( $args['widget_id'] ) ) {
+			if( ! empty( $instance['widget_id'] ) ) $args['widget_id'] = $this->id_base . '-' . $instance['widget_id'];
+		}
+		if( -1 == $this->number ) {
+			if( ! empty( $instance['widget_id'] ) ) $this->number = $instance['widget_id'];
+		}
 
 		/**
 		 * Gather the widget arguments and settings
@@ -383,18 +409,16 @@ class CPTD_Search_Widget extends WP_Widget{
 	 * @return 	string
 	 * @since 	2.0.0
 	 */
-	function get_search_results_html( $content ) {
-
-		# get the settings for this widget (includes all instances)
-		$widget_settings_all = $this->get_settings();
+	public function get_search_results_html( $content ) {
 
 		# get the settings for this widget instance (or the posted instance if different)
 		$widget_number = isset( $_POST['cptd_search']['widget_number'] ) ?
 			$_POST['cptd_search']['widget_number'] : 
 			$this->number;
 
-		if( empty( $widget_settings_all[ $widget_number ] ) ) return $content;
-		$instance = $widget_settings_all[ $widget_number ];
+		$instance = $this->get_instance( $widget_number );
+
+		if( ! $instance ) return $content;
 
 		# get the post type names from the widget settings
 		if( empty( $instance['post_types'] ) ) $post_type_ids = CPTD::$post_type_ids;
@@ -541,5 +565,35 @@ class CPTD_Search_Widget extends WP_Widget{
 		ob_end_clean();
 		return $html;
 	} # end: get_search_results_html()
+
+	/**
+	 * Handler for the `cptd-search` shortcode
+	 *
+	 * @param 	array 	$atts 	The shortcode attributes submitted by the user
+	 * @return 	string
+	 * @since 	2.0.0
+	 */
+	public function get_shortcode_html( $atts ) {
+
+		$atts = shortcode_atts( array(
+			'widget_id' => '',
+		), $atts, 'cptd-search');
+
+		$instance = $this->get_instance( $atts['widget_id'] );
+
+		$instance['widget_id'] = $atts['widget_id'];
+		
+		if( empty( $instance ) ) return '';
+
+		ob_start();
+		
+		the_widget( get_class( $this ), $instance );
+
+		$html = ob_get_contents();
+		ob_end_clean();
+
+		return $html;
+
+	} # end: get_shortcode_html()
 
 } # end class: CPTD_Search_Widget

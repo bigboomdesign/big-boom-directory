@@ -50,6 +50,16 @@ Directory management system based on Custom Post Types, Taxonomies, and Fields
 
 ---
 
+### [cptd-search]
+
+* Displays an existing CPTD Search widget 
+
+* **Attributes:**
+
+    * `widget_id`   (required) The widget ID number to be displayed (can be an inactive widget)
+
+---
+
 ## Filters
 
 ### ````cptd_register_pt````
