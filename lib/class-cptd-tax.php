@@ -221,7 +221,7 @@ class CPTD_Tax extends CPTD_Post{
 
 		$setting = CPTD_Helper::get_field_array( $setting );
 		?>
-		<label for='<?php echo $setting['id']; ?>' ><?php echo $setting['label']; ?>
+		<label for='<?php echo $setting['id']; ?>' ><?php echo $this->plural; ?>
 			<?php CPTD_Options::do_settings_field( $setting, $option, $_POST ); ?>
 		</label>
 		<?php

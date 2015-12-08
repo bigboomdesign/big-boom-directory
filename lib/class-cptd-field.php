@@ -443,8 +443,23 @@ class CPTD_Field {
 			# whether to allow empty values
 			$allow_empty = ( 'checkbox' != $setting['type'] );
 
+			# load choices for the field by getting all meta values
 			$choices = $this->get_all_values( $allow_empty );
-			$setting['choices'] = $choices;
+			foreach( $choices as $value ) {
+				
+				# we may have the empty setting as an array
+				if( is_array( $value ) ) {
+					$setting['choices'][] = $value; 
+					continue;
+				}
+
+				# all other values should be strings
+				$setting['choices'][] = array( 
+					'id' => $setting['id'] . '_' . CPTD_Helper::clean_str_for_field( $value ),
+					'value' => $value,
+					'label' => $value,
+				);
+			}
 		}
 
 		# load the auto-completed field array

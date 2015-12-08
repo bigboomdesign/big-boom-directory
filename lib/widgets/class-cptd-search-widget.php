@@ -22,6 +22,10 @@ class CPTD_Search_Widget extends WP_Widget{
 	 * Class methods
 	 *
 	 * - __construct()
+	 * - form()
+	 * - widget()
+	 *
+	 * - get_search_results_html()
 	 */
 
 	/**
@@ -38,6 +42,13 @@ class CPTD_Search_Widget extends WP_Widget{
 
 		parent::__construct("cptd_search_widget", "CPT Directory Search", $widget_options);
 		$this->field_keys = CPTD_Helper::get_all_field_keys();
+
+		# if we are viewing widget search results, add filter for the_content
+		# note we don't have a widget_id at this point, so we need to do a test in the callback function
+		# to match the posted widget_id
+		if( isset( $_POST['cptd_search'] ) ) {
+			add_filter('the_content', array( $this, 'get_search_results_html' ) );
+		}
 
 	} # end: __construct()
 
@@ -269,9 +280,6 @@ class CPTD_Search_Widget extends WP_Widget{
 		# The content to print above the search widget
 		$description = ( ! empty( $instance['description'] ) ? $instance['description'] : '' );
 
-		# The post types we're using for the search
-		$post_types = ( ! empty( $instance['post_types'] ) ? $instance['post_types'] : array() );
-
 		# The taxonomies we're using as filters
 		$taxonomies = ( ! empty( $instance['taxonomies'] ) ? $instance['taxonomies'] : array() );
 
@@ -339,13 +347,6 @@ class CPTD_Search_Widget extends WP_Widget{
 
 				} # end foreach: $this->fields
 
-				# Add hidden input to keep track of the post types
-				?>
-				<input type='hidden' 
-					name='cptd_search[post_types]'
-					value='<?php echo implode( ',', $post_types ); ?>'
-				/>
-				<?php
 				# Add hidden input to keep track of Widget ID
 				?>
 				<input type="hidden" 
@@ -364,5 +365,171 @@ class CPTD_Search_Widget extends WP_Widget{
 		wp_enqueue_style( 'cptd', cptd_url('/css/cptd.css') );
 
 	} # end: widget()
+
+	/**
+	 * Generate the HTML for the widget search results
+	 *
+	 * @param 	array 	$_POST['cptd_search'] 	The user-submitted search parameters
+	 * @return 	string
+	 * @since 	2.0.0
+	 */
+	function get_search_results_html( $content ) {
+
+		# make sure we only show results for the widget that was submitted
+		if( $this->id != $_POST['cptd_search']['widget_id'] ) return $content;
+
+		# get the settings for this widget (includes all instances)
+		$widget_settings_all = $this->get_settings();
+
+		# get the settings for this widget instance
+		if( empty( $widget_settings_all[ $this->number ] ) ) return $content;
+		$instance = $widget_settings_all[ $this->number ];
+
+		# get the post type names from the widget settings
+		if( empty( $instance['post_types'] ) ) $post_type_ids = CPTD::$post_type_ids;
+		else $post_type_ids = $instance[ 'post_types' ];
+
+		$post_type_names = array();
+
+		foreach( $post_type_ids as $pt_id ) {
+
+			$pt = new CPTD_PT( $pt_id );
+			$post_type_names[] = $pt->handle;
+		}
+
+		# get the meta keys from the widget settings
+		if( empty( $instance['meta_keys'] ) ) return $content;
+		$meta_keys = $instance['meta_keys'];
+
+
+		# get the sanitized search form input
+		$raw_input = $_POST['cptd_search'];
+		$form_input = array();
+
+		foreach( $raw_input as $k => $v ) {
+
+			if( empty( $v ) ) continue;
+			$form_input[ sanitize_key( $k ) ] = sanitize_text_field( $v );
+		}
+
+		# query pieces
+		#$query_args = array();
+		$query_args = array( 
+			'post_type' => $post_type_names,
+			'relation' => 'OR',
+			'orderby' => 'title',
+			'order' => 'ASC',
+		);
+
+		$tax_query = array();
+		$meta_query = array();
+
+		# loop through sanitized form inputs
+		foreach( $form_input as $k => $v ) {
+
+			# load taxonomies into $tax_query
+			if( false !== strpos( $k, 'taxonomy_' ) ) {
+				
+				# get the post ID for this taxonomy (post type is `cptd_tax`)
+				$tax_id = str_replace( 'taxonomy_', '', $k );
+
+				# get the taxonomy object
+				$tax = new CPTD_Tax( $tax_id );
+				if( empty( $tax->handle ) ) continue;
+
+				$tax_query[] = array(
+					'taxonomy' => $tax->handle,
+					'field' => 'term_id',
+					'terms' => intval( $v ),
+				);
+
+				continue;
+			}
+
+			# load custom fields into $meta_query
+			else {
+
+				# check if the key is in the selected meta keys for the widget
+				if( in_array( $k, $meta_keys ) ) {
+
+					# get the field type
+					if( empty( $instance[ $k . '_field_type' ] ) ) continue;
+					$field_type = $instance[ $k . '_field_type' ];
+
+					$meta_query[] = array(
+						'key' => $k,
+						'value' => $v,
+						'compare' => (
+							'text' == $field_type ?
+								'LIKE' :
+								'='
+						)
+					);
+
+					continue;
+
+				} # end if: form input is in the widget's meta keys
+
+				# if the field is not in the array, it could be a checkbox where the field name contains
+				# both the key and the value (e.g. `available_yes` )
+				foreach( $meta_keys as $test_key ) {
+
+					# the key which will trigger a positive match for checkboxes
+					$match_key = $test_key . '_' . CPTD_Helper::clean_str_for_field( $v );
+
+					if( $match_key == $k ) {
+						$meta_query[] = array(
+							'key' => $test_key,
+							'value' => $v,
+							'compare' => '=',
+						);
+					}
+
+				} # end foreach: widget meta keys
+			
+			} # end else: custom field instead of taxonomy
+
+		} # end foreach: form inputs
+
+
+		if( ! empty( $tax_query ) ) {
+			$tax_query['relation'] = 'OR';
+			$query_args['tax_query'] = $tax_query;
+		}
+		if( ! empty( $meta_query ) ) {
+			$meta_query['relation'] = 'OR';
+			$query_args['meta_query'] = $meta_query;
+		}
+
+		$search_query = new WP_Query( $query_args );
+
+		ob_start();
+		?>
+		<div id='cptd-search-results' class='<?php echo $this->id; ?>'>
+		<?php
+			# if posts were found
+			if( $search_query->have_posts() ) while( $search_query->have_posts() ) {
+
+				$search_query->the_post();
+				$post = $search_query->post;
+				?>
+				<a href='<?php echo get_the_permalink( $post->ID ); ?>'><?php echo $post->post_title . '<br />'; ?></a>
+				<?php
+				wp_reset_query();
+			}
+
+			# if no posts were found
+			else {
+			?>
+				<p>Sorry, we didn't find any results.</p>
+			<?php
+			}
+		?>
+		</div>
+		<?php
+		$html = ob_get_contents();
+		ob_end_clean();
+		return $html;
+	} # end: get_search_results_html()
 
 } # end class: CPTD_Search_Widget

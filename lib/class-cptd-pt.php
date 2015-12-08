@@ -231,6 +231,11 @@ class CPTD_PT extends CPTD_Post{
 			}
 		}
 
+		$args['args']['supports'] = array('title', 'editor', 'excerpt');
+
+		# add featured image support for all post types if the theme does
+		if( current_theme_supports('thumbnail') ) $args['args']['supports'][] = 'thumbnail';
+
 		$args = apply_filters('cptd_register_pt', $args );
 		register_extended_post_type($args['post_type'], $args['args'], $args['names']);
 	} # end: register()

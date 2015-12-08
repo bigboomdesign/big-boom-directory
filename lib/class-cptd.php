@@ -316,7 +316,7 @@ class CPTD {
 
 		self::load_view_info();
 
-		# make sure we're viewing a CPTD object
+		# if we're not viewing a CPTD object
 		if( ! is_cptd_view() ) return;
 
 		add_action( 'wp_enqueue_scripts', array( 'CPTD', 'enqueue_scripts' ) );
