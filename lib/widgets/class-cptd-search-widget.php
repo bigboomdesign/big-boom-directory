@@ -80,8 +80,12 @@ class CPTD_Search_Widget extends WP_Widget{
 	public function form( $instance ) {
 	?>
 	<div class='cptd-search-widget-form'>
-	<?php
-		# the widget title ?>
+		<?php
+		# show the shortcode for this widget
+		echo '<p><b>Shortcode:</b><br />[cptd-search widget_id="' . $this->number . '"]</p>';
+
+		# the widget title 
+		?>
 		<p><label for="<?php echo $this->get_field_id('title'); ?>">
 		Title: 
 		<input type="text" class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" value="<?php if( ! empty( $instance['title'] ) ) echo esc_attr( $instance['title'] ); ?>"/>
