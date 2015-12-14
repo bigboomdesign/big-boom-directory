@@ -232,6 +232,7 @@ class CPTD_PT extends CPTD_Post{
 		}
 
 		$args['args']['supports'] = array('title', 'editor', 'excerpt');
+		$args['args']['show_in_nav_menus'] = false;
 
 		# add featured image support for all post types if the theme does
 		if( current_theme_supports('thumbnail') ) $args['args']['supports'][] = 'thumbnail';

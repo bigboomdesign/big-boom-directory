@@ -184,7 +184,8 @@ class CPTD_Tax extends CPTD_Post{
 				$this->$key = $value;
 			}
 		}
-
+		
+		$args['args']['show_in_nav_menus'] = false;
 
 		# apply filter that user can hook into
 		$args = apply_filters('cptd_register_tax', $args);
