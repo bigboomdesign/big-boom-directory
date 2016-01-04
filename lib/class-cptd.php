@@ -620,6 +620,9 @@ class CPTD {
 	 */ 
 	public static function load_cptd_post_data() {
 
+		# make sure we only call the function one time
+		if( self::$no_post_types || ! empty( self::$post_type_ids ) ) return;
+
 		# query the database for post type 'cptd_pt' and 'cptd_tax'
 		global $wpdb;
 
