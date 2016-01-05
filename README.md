@@ -1,7 +1,6 @@
 
 # Custom Post Type Directory (Version 2)
 
-## Run `git checkout master` for Version 1
 ---
 
 Directory management system based on Custom Post Types, Taxonomies, and Fields
@@ -20,7 +19,7 @@ Directory management system based on Custom Post Types, Taxonomies, and Fields
 
 * Uses [CMB2](https://github.com/WebDevStudios/CMB2) for handling post meta boxes.
 
-* Giving a field a key of `web`, `website`, or `url` will cause the field value to autolink on front end CPTD views
+* By default, giving a field a key equal `web`, `website`, or `url`, or a key containing `_website` or `_url` will cause the field value to autolink on front end CPTD views
 
 ---
 
@@ -257,7 +256,7 @@ Below is a fairly involved example that uses the `cptd_field_wrap` filter along 
 
 ### ````cptd_link_text````
 
-Use to change the default "View Website" link text for auto detected URL fields (`web`, `website`, `url`)
+Use to change the default "View Website" link text for auto detected URL fields (`web`, `website`, `url`, or matching `_website` or `_url`)
 
 #### Parameters
 

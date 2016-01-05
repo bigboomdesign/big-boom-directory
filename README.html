@@ -1,6 +1,6 @@
 <h1>Custom Post Type Directory (Version 2)</h1>
 
-<h2>Run <code>git checkout master</code> for Version 1</h2>
+<hr />
 
 <p>Directory management system based on Custom Post Types, Taxonomies, and Fields</p>
 
@@ -18,7 +18,7 @@
 <li><p>Default behaviors for front end field display are not well-defined without Advanced Custom Fields plugin.  Using ACF adds support for field placement and ordering on single/archive pages for your various post types as well as field type selection.</p></li>
 <li><p>Uses <a href="https://github.com/johnbillion/extended-cpts">Extended Custom Post Types</a> and <a href="https://github.com/johnbillion/extended-taxos">Extended Taxonomies</a> for registering post types and taxonomies.</p></li>
 <li><p>Uses <a href="https://github.com/WebDevStudios/CMB2">CMB2</a> for handling post meta boxes.</p></li>
-<li><p>Giving a field a key of <code>web</code>, <code>website</code>, or <code>url</code> will cause the field value to autolink on front end CPTD views</p></li>
+<li><p>By default, giving a field a key equal <code>web</code>, <code>website</code>, or <code>url</code>, or a key containing <code>_website</code> or <code>_url</code> will cause the field value to autolink on front end CPTD views</p></li>
 </ul>
 
 <hr />
@@ -277,7 +277,7 @@ function my_name_wrap( $wrap, $field ) {
 
 <h3><code>cptd_link_text</code></h3>
 
-<p>Use to change the default "View Website" link text for auto detected URL fields (<code>web</code>, <code>website</code>, <code>url</code>)</p>
+<p>Use to change the default "View Website" link text for auto detected URL fields (<code>web</code>, <code>website</code>, <code>url</code>, or matching <code>_website</code> or <code>_url</code>)</p>
 
 <h4>Parameters</h4>
 

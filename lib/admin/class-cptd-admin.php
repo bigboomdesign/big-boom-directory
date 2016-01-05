@@ -32,6 +32,7 @@ class CPTD_Admin{
 
 		# CMB2 meta boxes
 		add_action( 'cmb2_admin_init', array( 'CPTD_Meta_Boxes', 'cmb2_meta_boxes' ) );
+		add_filter( 'cmb2_render_url_link_texts', array( 'CPTD_Meta_Boxes', 'cmb2_render_url_link_texts_callback' ), 10, 5 );
 		
 		# fix for the URL that cmb2 defines
 		add_filter( 'cmb2_meta_box_url', 'update_cmb_meta_box_url' );

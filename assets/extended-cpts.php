@@ -1,24 +1,24 @@
 <?php
-/*
-Plugin Name:  Extended CPTs
-Description:  Extended custom post types.
-Version:      2.5.2
-Plugin URI:   https://github.com/johnbillion/extended-cpts
-Author:       John Blackbourn
-Author URI:   https://johnblackbourn.com
-Text Domain:  extended-cpts
-Domain Path:  /languages/
-License:      GPL v2 or later
-Copyright © 2012-2015 John Blackbourn
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-*/
+/**
+ * Extended custom post types for WordPress.
+ *
+ * @package   ExtendedCPTs
+ * @version   3.0.0
+ * @author    John Blackbourn <https://johnblackbourn.com>
+ * @link      https://github.com/johnbillion/extended-cpts
+ * @copyright 2012-2015 John Blackbourn
+ * @license   GPL v2 or later
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
 if ( ! function_exists( 'register_extended_post_type' ) ) {
 /**
  * Register an Extended Post Type.
@@ -106,19 +106,21 @@ class Extended_CPT {
 	public $post_singular_low;
 	public $post_plural_low;
 	public $args;
-	protected $_cols;
 	/**
 	 * Class constructor.
 	 *
+	 * @see register_extended_post_type()
+	 *
 	 * @param string $post_type The post type name.
-	 * @param array  $args      Optional. The post type arguments. {@see register_extended_post_type()}.
-	 * @param array  $names     Optional. The plural, singular, and slug names. {@see register_extended_post_type()}.
+	 * @param array  $args      Optional. The post type arguments.
+	 * @param array  $names     Optional. The plural, singular, and slug names.
 	 */
 	public function __construct( $post_type, array $args = array(), array $names = array() ) {
 		/**
 		 * Filter the arguments for this post type.
 		 *
 		 * @since 2.4.0
+		 *
 		 * @param array $args The post type arguments.
 		 */
 		$args  = apply_filters( "ext-cpts/{$post_type}/args", $args );
@@ -126,6 +128,7 @@ class Extended_CPT {
 		 * Filter the names for this post type.
 		 *
 		 * @since 2.4.0
+		 *
 		 * @param array $names The plural, singular, and slug names (if any were specified).
 		 */
 		$names = apply_filters( "ext-cpts/{$post_type}/names", $names );
@@ -155,20 +158,20 @@ class Extended_CPT {
 		# Why aren't these translatable?
 		# Answer: https://github.com/johnbillion/extended-cpts/pull/5#issuecomment-33756474
 		$this->defaults['labels'] = array(
-			'name'               => $this->post_plural,
-			'singular_name'      => $this->post_singular,
-			'menu_name'          => $this->post_plural,
-			'name_admin_bar'     => $this->post_singular,
-			'add_new'            => 'Add New',
-			'add_new_item'       => sprintf( 'Add New %s', $this->post_singular ),
-			'edit_item'          => sprintf( 'Edit %s', $this->post_singular ),
-			'new_item'           => sprintf( 'New %s', $this->post_singular ),
-			'view_item'          => sprintf( 'View %s', $this->post_singular ),
-			'search_items'       => sprintf( 'Search %s', $this->post_plural ),
-			'not_found'          => sprintf( 'No %s found.', $this->post_plural_low ),
-			'not_found_in_trash' => sprintf( 'No %s found in trash.', $this->post_plural_low ),
-			'parent_item_colon'  => sprintf( 'Parent %s:', $this->post_singular ),
-			'all_items'          => sprintf( 'All %s', $this->post_plural ),
+			'name'                  => $this->post_plural,
+			'singular_name'         => $this->post_singular,
+			'menu_name'             => $this->post_plural,
+			'name_admin_bar'        => $this->post_singular,
+			'add_new'               => 'Add New',
+			'add_new_item'          => sprintf( 'Add New %s', $this->post_singular ),
+			'edit_item'             => sprintf( 'Edit %s', $this->post_singular ),
+			'new_item'              => sprintf( 'New %s', $this->post_singular ),
+			'view_item'             => sprintf( 'View %s', $this->post_singular ),
+			'search_items'          => sprintf( 'Search %s', $this->post_plural ),
+			'not_found'             => sprintf( 'No %s found.', $this->post_plural_low ),
+			'not_found_in_trash'    => sprintf( 'No %s found in trash.', $this->post_plural_low ),
+			'parent_item_colon'     => sprintf( 'Parent %s:', $this->post_singular ),
+			'all_items'             => sprintf( 'All %s', $this->post_plural ),
 			'archives'              => sprintf( '%s Archives', $this->post_singular ),
 			'insert_into_item'      => sprintf( 'Insert into %s', $this->post_singular_low ),
 			'uploaded_to_this_item' => sprintf( 'Uploaded to this %s', $this->post_singular_low ),
@@ -332,17 +335,17 @@ class Extended_CPT {
 			if ( isset( $filter['meta_key'] ) ) {
 				$meta_query = array(
 					'key'   => $filter['meta_key'],
-					'value' => stripslashes( $query[ $filter_key ] ),
+					'value' => wp_unslash( $query[ $filter_key ] ),
 				);
 			} else if ( isset( $filter['meta_search_key'] ) ) {
 				$meta_query = array(
 					'key'     => $filter['meta_search_key'],
-					'value'   => stripslashes( $query[ $filter_key ] ),
+					'value'   => wp_unslash( $query[ $filter_key ] ),
 					'compare' => 'LIKE',
 				);
 			} else if ( isset( $filter['meta_exists'] ) ) {
 				$meta_query = array(
-					'key'     => stripslashes( $query[ $filter_key ] ),
+					'key'     => wp_unslash( $query[ $filter_key ] ),
 					'compare' => 'NOT IN',
 					'value'   => array( '', '0', 'false', 'null' ),
 				);
@@ -590,9 +593,18 @@ class Extended_CPT {
 			$query_var = $this->args['query_var'];
 		}
 		$existing = get_post_type_object( $this->post_type );
-		if ( $query_var && count( get_taxonomies( array( 'query_var' => $query_var ) ) ) ) {
-			trigger_error( sprintf( __( 'Post type query var %s clashes with a taxonomy query var of the same name', 'extended-cpts' ), "<code>{$query_var}</code>" ), E_USER_ERROR );
-		} else if ( empty( $existing ) ) {
+		if ( $query_var && count( $taxonomies = get_taxonomies( array( 'query_var' => $query_var ), 'objects' ) ) ) {
+			// https://core.trac.wordpress.org/ticket/35089
+			foreach ( $taxonomies as $tax ) {
+				if ( $tax->query_var === $query_var ) {
+					trigger_error( sprintf(
+						__( 'Post type query var %s clashes with a taxonomy query var of the same name', 'extended-cpts' ),
+						"<code>{$query_var}</code>"
+					), E_USER_ERROR );
+				}
+			}
+		}
+		if ( empty( $existing ) ) {
 			$cpt = register_post_type( $this->post_type, $this->args );
 			if ( is_wp_error( $cpt ) ) {
 				trigger_error( $cpt->get_error_message(), E_USER_ERROR );
@@ -609,10 +621,8 @@ class Extended_CPT {
 	 * @param object $pto A post type object
 	 */
 	public function extend( stdClass $pto ) {
-		
 		# Merge core with overridden labels
 		$this->args['labels'] = array_merge( (array) get_post_type_labels( $pto ), $this->args['labels'] );
-		
 		$GLOBALS['wp_post_types'][ $pto->name ]->labels = (object) $this->args['labels'];
 	}
 	/**
@@ -707,16 +717,12 @@ class Extended_CPT_Admin {
 		if ( $this->args['dashboard_glance'] ) {
 			add_filter( 'dashboard_glance_items', array( $this, 'glance_items' ), $this->cpt->args['menu_position'] );
 		}
-		# Nav menus screen item:
-		if ( $this->cpt->args['has_archive'] ) {
-			add_filter( "nav_menu_items_{$this->cpt->post_type}", array( $this, 'nav_menu_items' ), 10, 3 );
-		}
 		# Post updated messages:
 		add_filter( 'post_updated_messages',      array( $this, 'post_updated_messages' ), 1 );
 		add_filter( 'bulk_post_updated_messages', array( $this, 'bulk_post_updated_messages' ), 1, 2 );
 	}
 	/**
-	 * Add some CSS to the post edit screen. Used to hide various screen elements.
+	 * Add some CSS to the post listing screen. Used to hide various screen elements.
 	 */
 	public function admin_head() {
 		if ( $this->cpt->post_type != self::get_current_post_type() ) {
@@ -771,23 +777,11 @@ class Extended_CPT_Admin {
 	 * @return string The post type name.
 	 */
 	protected static function get_current_post_type() {
-		if ( function_exists( 'get_current_screen' ) && is_object( get_current_screen() ) ) {
-			$post_type = get_current_screen()->post_type;
+		if ( function_exists( 'get_current_screen' ) && is_object( get_current_screen() ) && 'edit' === get_current_screen()->base ) {
+			return get_current_screen()->post_type;
 		} else {
-			$post_type = '';
+			return '';
 		}
-		if ( empty( $post_type ) ) {
-			if ( isset( $_REQUEST['post_type'] ) ) {
-				$post_type = $_REQUEST['post_type'];
-			} else if ( isset( $_REQUEST['post'] ) ) {
-				$post_type = get_post_type( $_REQUEST['post'] );
-			} else if ( isset( $_REQUEST['post_id'] ) ) {
-				$post_type = get_post_type( $_REQUEST['post_id'] );
-			} else if ( isset( $_REQUEST['attachment_id'] ) ) {
-				$post_type = get_post_type( get_post( $_REQUEST['attachment_id'] )->post_parent );
-			}
-		}
-		return $post_type;
 	}
 	/**
 	 * Output custom filter dropdown menus on the admin screen for this post type.
@@ -836,7 +830,7 @@ class Extended_CPT_Admin {
 	 *  - cap - A capability required in order for this filter to be displayed to the current user. Defaults to null,
 	 *    meaning the filter is shown to all users.
 	 *
-	 * @TODO - query - array
+	 * @TODO - meta_query - array
 	 *
 	 * @TODO - options - array or callable
 	 *
@@ -908,13 +902,23 @@ class Extended_CPT_Admin {
 				if ( empty( $filter['options'] ) ) {
 					continue;
 				}
-				$selected = stripslashes( get_query_var( $filter_key ) );
+				$selected = wp_unslash( get_query_var( $filter_key ) );
+				$use_key = false;
+				foreach ( $filter['options'] as $k => $v ) {
+					if ( ! is_numeric( $k ) ) {
+						$use_key = true;
+						break;
+					}
+				}
 				# Output the dropdown:
 				?>
 				<select name="<?php echo esc_attr( $filter_key ); ?>" id="filter_<?php echo esc_attr( $filter_key ); ?>">
 					<option value=""><?php echo esc_html( $filter['title'] ); ?></option>
-					<?php foreach ( $filter['options'] as $v ) { ?>
-						<option value="<?php echo esc_attr( $v ); ?>" <?php selected( $selected, $v ); ?>><?php echo esc_html( $v ); ?></option>
+					<?php
+						foreach ( $filter['options'] as $k => $v ) {
+							$key = ( $use_key ? $k : $v );
+						?>
+						<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $selected, $key ); ?>><?php echo esc_html( $v ); ?></option>
 					<?php } ?>
 				</select>
 				<?php
@@ -924,7 +928,7 @@ class Extended_CPT_Admin {
 					$filter['title'] = str_replace( array( '-', '_' ), ' ', $filter['meta_search_key'] );
 					$filter['title'] = ucwords( $filter['title'] );
 				}
-				$value = stripslashes( get_query_var( $filter_key ) );
+				$value = wp_unslash( get_query_var( $filter_key ) );
 				# Output the search box:
 				?>
 				<label><?php printf( '%s:', esc_html( $filter['title'] ) ); ?>&nbsp;<input type="text" name="<?php echo esc_attr( $filter_key ); ?>" id="filter_<?php echo esc_attr( $filter_key ); ?>" value="<?php echo esc_attr( $value ); ?>" /></label>
@@ -934,7 +938,7 @@ class Extended_CPT_Admin {
 				if ( ! isset( $filter['title'] ) ) {
 					$filter['title'] = $pto->labels->all_items;
 				}
-				$selected = stripslashes( get_query_var( $filter_key ) );
+				$selected = wp_unslash( get_query_var( $filter_key ) );
 				if ( 1 == count( $filter['meta_exists'] ) ) {
 					# Output a checkbox:
 					foreach ( $filter['meta_exists'] as $v => $t ) {
@@ -1340,9 +1344,9 @@ class Extended_CPT_Admin {
 	 * Output column data for a post meta field.
 	 *
 	 * @param string $meta_key The post meta key
-	 * @param array  $args     Optional. Array of arguments for this field
+	 * @param array  $args     Array of arguments for this field
 	 */
-	public function col_post_meta( $meta_key, array $args = array() ) {
+	public function col_post_meta( $meta_key, array $args ) {
 		$vals = get_post_meta( get_the_ID(), $meta_key, false );
 		$echo = array();
 		sort( $vals );
@@ -1374,9 +1378,9 @@ class Extended_CPT_Admin {
 	 * Output column data for a taxonomy's term names.
 	 *
 	 * @param string $taxonomy The taxonomy name
-	 * @param array  $args     Optional. Array of arguments for this field
+	 * @param array  $args     Array of arguments for this field
 	 */
-	public function col_taxonomy( $taxonomy, array $args = array() ) {
+	public function col_taxonomy( $taxonomy, array $args ) {
 		global $post;
 		$terms = get_the_terms( $post, $taxonomy );
 		$tax   = get_taxonomy( $taxonomy );
@@ -1436,20 +1440,18 @@ class Extended_CPT_Admin {
 	 * Output column data for a post field.
 	 *
 	 * @param string $field The post field
-	 * @param array  $args  Optional. Array of arguments for this field
+	 * @param array  $args  Array of arguments for this field
 	 */
-	public function col_post_field( $field, array $args = array() ) {
+	public function col_post_field( $field, array $args ) {
 		global $post;
 		switch ( $field ) {
 			case 'post_date':
 			case 'post_date_gmt':
-				if ( '0000-00-00 00:00:00' != $post->$field ) {
-					echo esc_html( mysql2date( get_option( 'date_format' ), $post->$field ) );
-				}
-				break;
 			case 'post_modified':
 			case 'post_modified_gmt':
-				echo esc_html( mysql2date( get_option( 'date_format' ), $post->$field ) );
+				if ( '0000-00-00 00:00:00' != get_post_field( $field, $post ) ) {
+					echo esc_html( mysql2date( get_option( 'date_format' ), get_post_field( $field, $post ) ) );
+				}
 				break;
 			case 'post_status':
 				if ( $status = get_post_status_object( get_post_status( $post ) ) ) {
@@ -1474,9 +1476,9 @@ class Extended_CPT_Admin {
 	 * Output column data for a post's featured image.
 	 *
 	 * @param string $image_size The image size
-	 * @param array  $args       Optional. Array of `width` and `height` attributes for the image
+	 * @param array  $args       Array of `width` and `height` attributes for the image
 	 */
-	public function col_featured_image( $image_size, array $args = array() ) {
+	public function col_featured_image( $image_size, array $args ) {
 		if ( ! function_exists( 'has_post_thumbnail' ) ) {
 			return;
 		}
@@ -1502,9 +1504,9 @@ class Extended_CPT_Admin {
 	 * Output column data for a Posts 2 Posts connection.
 	 *
 	 * @param string $connection The ID of the connection type
-	 * @param array  $args       Optional. Array of arguments for a given connection type
+	 * @param array  $args       Array of arguments for a given connection type
 	 */
-	public function col_connection( $connection, array $args = array() ) {
+	public function col_connection( $connection, array $args ) {
 		global $post, $wp_query;
 		if ( ! function_exists( 'p2p_type' ) ) {
 			return;
@@ -1523,7 +1525,7 @@ class Extended_CPT_Admin {
 			$meta = array(
 				'connected_meta' => array(
 					$args['field'] => $args['value'],
-				)
+				),
 			);
 			$field .= sanitize_title( '_' . $args['field'] . '_' . $args['value'] );
 		}
@@ -1599,33 +1601,6 @@ class Extended_CPT_Admin {
 		}
 		$post = $_post; // WPCS: override ok.
 		echo implode( ', ', $out ); // WPCS: XSS ok.
-	}
-	/**
-	 * Add our post type archive link to the nav menus screen.
-	 *
-	 * @param  array  $posts     Array of post objects and pseudo-post objects to show on the screen
-	 * @param  array  $meta_box  The meta box arguments
-	 * @param  array  $post_type The current post type in the context of the nav menus screen
-	 * @return array             Updated array of posts and pseudo-posts
-	 */
-	public function nav_menu_items( array $posts, array $meta_box, array $post_type ) {
-		global $_nav_menu_placeholder;
-		$pto = $post_type['args'];
-		$_nav_menu_placeholder = ( 0 > $_nav_menu_placeholder ) ? intval( $_nav_menu_placeholder ) - 1 : -1; // WPCS: override ok.
-		# Add our 'All Posts' item to the beginning of the list:
-		array_unshift( $posts, (object) array(
-			'ID'           => 0,
-			'object_id'    => $_nav_menu_placeholder,
-			'post_content' => '',
-			'post_excerpt' => '',
-			'post_parent'  => 0,
-			'post_type'    => 'nav_menu_item',
-			'post_title'   => $pto->labels->name,
-			'label'        => $pto->labels->all_items, # http://core.trac.wordpress.org/ticket/24840
-			'type'         => 'custom',
-			'url'          => get_post_type_archive_link( $this->cpt->post_type ),
-		) );
-		return $posts;
 	}
 	/**
 	 * Removes the Quick Edit link from the post row actions.
@@ -1727,7 +1702,7 @@ if ( ! class_exists( 'Extended_Rewrite_Testing' ) ) {
  */
 abstract class Extended_Rewrite_Testing {
 	abstract public function get_tests();
-	public function get_rewrites( array $struct, array $additional = array() ) {
+	public function get_rewrites( array $struct, array $additional ) {
 		global $wp_rewrite;
 		if ( ! $wp_rewrite->using_permalinks() ) {
 			return array();
@@ -1749,7 +1724,7 @@ abstract class Extended_Rewrite_Testing {
 			'.+?'            => 'hello',
 			'([^/]+)'        => 'world',
 			'[^/]+'          => 'world',
-			'(/[0-9]+)?'     => '/456',
+			'(?:/([0-9]+))?' => '/456',
 			'([0-9]{4})'     => date( 'Y' ),
 			'[0-9]{4}'       => date( 'Y' ),
 			'([0-9]{1,2})'   => date( 'm' ),
@@ -1767,9 +1742,9 @@ abstract class Extended_Rewrite_Testing {
 			// Change '$2' to '$matches[2]'
 			$result = preg_replace( '/\$([0-9]+)/', '\$matches[$1]', $result );
 			$new[ "/{$regex}" ] = $result;
-			if ( false !== strpos( $regex, $replace['(/[0-9]+)?'] ) ) {
+			if ( false !== strpos( $regex, $replace['(?:/([0-9]+))?'] ) ) {
 				// Add an extra rule for this optional block
-				$regex = str_replace( $replace['(/[0-9]+)?'], '', $regex );
+				$regex = str_replace( $replace['(?:/([0-9]+))?'], '', $regex );
 				$new[ "/{$regex}" ] = $result;
 			}
 		}

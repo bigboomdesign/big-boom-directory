@@ -64,9 +64,18 @@ class CPTD_PT extends CPTD_Post{
 	 * The default post order for this post type
 	 *
 	 * @param	string 	( ASC | DESC )
+	 * @param 	2.0.0
 	 */
 	var $post_order;
 
+	/**
+	 * The ACF field keys chosen for this post type's views (eg: field_12345678)
+	 *
+	 * @param	array
+	 * @since 	2.0.0
+	 */
+	var $acf_archive_fields = array();
+	var $acf_single_fields = array();
 
 	/**
 	 * Whether or not to auto detect website fields and social media links
@@ -78,12 +87,9 @@ class CPTD_PT extends CPTD_Post{
 	var $auto_detect_social = false;
 
 	/**
-	 * The ACF fields for this post type
 	 * 
-	 * @param 	array
-	 * @since 	2.0.0
 	 */
-	var $acf_field_groups;
+	var $url_link_texts = array();
 
 	/**
 	 * The image sizes for this post type's views (chosen by user from WP's registered sizes)
@@ -156,7 +162,6 @@ class CPTD_PT extends CPTD_Post{
 	 * 
 	 * - __construct()
 	 * - register()
-	 * - load_acf_field_groups()
 	 */
 
 	/**

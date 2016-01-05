@@ -1,30 +1,83 @@
 <?php
-/*
-Plugin Name:  Extended Taxonomies
-Description:  Extended custom taxonomies.
-Version:      1.6
-Plugin URI:   https://github.com/johnbillion/extended-taxos
-Author:       John Blackbourn
-Author URI:   https://johnblackbourn.com
-Text Domain:  extended-taxos
-Domain Path:  /languages/
-License:      GPL v2 or later
-Copyright © 2012-2015 John Blackbourn
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-*/
 /**
- * Wrapper function for instantiating a new ExtendedTaxonomy object. This is the only function you need.
- * See the Extended_Taxonomy class for parameters.
+ * Extended custom taxonomies for WordPress.
+ *
+ * @package   ExtendedTaxos
+ * @version   2.0.0
+ * @author    John Blackbourn <https://johnblackbourn.com>
+ * @link      https://github.com/johnbillion/extended-taxos
+ * @copyright 2012-2015 John Blackbourn
+ * @license   GPL v2 or later
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 if ( ! function_exists( 'register_extended_taxonomy' ) ) {
-function register_extended_taxonomy( $taxonomy, $object_type, array $args = array(), $names = array() ) {
+/**
+ * Register an extended custom taxonomy.
+ *
+ * The `$args` parameter accepts all the standard arguments for `register_taxonomy()` in addition to several custom
+ * arguments that provide extended functionality. Some of the default arguments differ from the defaults in
+ * `register_taxonomy()`.
+ *
+ * The `$taxonomy` parameter is used as the taxonomy name and to build the taxonomy labels. This means you can create
+ * a taxonomy with just two parameters and all labels and term updated messages will be generated for you. Example:
+ *
+ *     register_extended_taxonomy( 'location', 'post' );
+ *
+ * The singular name, plural name, and slug are generated from the taxonomy name. These can be overridden with the
+ * `$names` parameter if necessary. Example:
+ *
+ *     register_extended_taxonomy( 'story', 'post' array(), array(
+ *         'plural' => 'Stories',
+ *         'slug'   => 'tales'
+ *     ) );
+ *
+ * @see register_taxonomy() for default arguments.
+ *
+ * @param string       $taxonomy    The taxonomy name.
+ * @param array|string $object_type Name(s) of the object type(s) for the taxonomy.
+ * @param array  $args {
+ *     Optional. The taxonomy arguments.
+ *
+ *     @type string $meta_box         The name of the custom meta box to use on the post editing screen for this
+ *                                    taxonomy. Three custom meta boxes are provided: 'radio' for a meta box with radio
+ *                                    inputs, 'simple' for a meta box with a simplified list of checkboxes, and
+ *                                    'dropdown' for a meta box with a dropdown menu. You can also pass the name of a
+ *                                    callback function, eg my_super_meta_box(), or boolean false to remove the meta
+ *                                    box. Default null, meaning the standard meta box is used.
+ *     @type bool   $checked_ontop    Whether to always show checked terms at the top of the meta box. This allows you
+ *                                    to override WordPress' default behaviour if necessary. Default false if you're
+ *                                    using a custom meta box (see the $meta_box argument), default true otherwise.
+ *     @type bool   $dashboard_glance Whether to show this taxonomy on the 'At a Glance' section of the admin dashboard.
+ *                                    Default false.
+ *     @type array  $admin_cols       Associative array of admin screen columns to show for this taxonomy. See the
+ *                                    `Extended_Taxonomy_Admin::cols()` method for more information.
+ *     @type bool   $exclusive        This parameter isn't feature complete. All it does currently is set the meta box
+ *                                    to the 'radio' meta box, thus meaning any given post can only have one term
+ *                                    associated with it for that taxonomy. 'exclusive' isn't really the right name for
+ *                                    this, as terms aren't exclusive to a post, but rather each post can exclusively
+ *                                    have only one term. It's not feature complete because you can edit a post in
+ *                                    Quick Edit and give it more than one term from the taxonomy.
+ *     @type bool   $allow_hierarchy  All this does currently is disable hierarchy in the taxonomy's rewrite rules.
+ *                                    Default false.
+ * }
+ * @param array  $names {
+ *     Optional. The plural, singular, and slug names.
+ *
+ *     @type string $plural   The plural form of the taxonomy name.
+ *     @type string $singular The singular form of the taxonomy name.
+ *     @type string $slug     The slug used in the term permalinks for this taxonomy.
+ * }
+ */
+function register_extended_taxonomy( $taxonomy, $object_type, array $args = array(), array $names = array() ) {
 	$taxo = new Extended_Taxonomy( $taxonomy, $object_type, $args, $names );
 	if ( is_admin() ) {
 		new Extended_Taxonomy_Admin( $taxo, $args );
@@ -60,43 +113,32 @@ class Extended_Taxonomy {
 	public $tax_plural_low;
 	public $args;
 	/**
-	 * Register an extended custom taxonomy.
+	 * Class constructor.
 	 *
-	 * The `$args` parameter accepts all the standard arguments for `register_taxonomy()` in addition to several custom
-	 * arguments that provide extended functionality. Some of the default arguments differ from the defaults in
-	 * `register_taxonomy()`.
+	 * @see register_extended_taxonomy()
 	 *
-	 * The `$taxonomy` parameter is used as the taxonomy name and to build the taxonomy labels. This means you can create
-	 * a taxonomy with just two parameters and all labels and term updated messages will be generated for you. Example:
-	 *
-	 *     register_extended_taxonomy( 'location', 'post' );
-	 *
-	 * The singular name, plural name, and slug are generated from the taxonomy name. These can be overridden with the
-	 * `$names` parameter if necessary. Example:
-	 *
-	 *     register_extended_taxonomy( 'story', 'post' array(), array(
-	 *         'plural' => 'Stories',
-	 *         'slug'   => 'tales'
-	 *     ) );
-	 *
-	 * Extra parameters: (@TODO: better docs here)
-	 *
-	 * - exclusive - boolean - This parameter isn't feature complete. All it does currently is set the
-	 * meta box to the 'radio' meta box, thus meaning any given post can only have one term associated
-	 * with it for that taxonomy. I've realised that 'exclusive' isn't the right name for this, as terms
-	 * aren't exclusive to a post, but rather each post can exclusively have only one term. It's not
-	 * feature complete because you can still edit a post in Quick Edit and give it more than one term
-	 * from the taxonomy.
-	 *
-	 * - allow_hierarchy - boolean - All this does currently is disable hierarchy in the taxonomy's
-	 * rewrite rules. Defaults to false.
-	 *
-	 * @param string       $taxonomy    The taxonomy name
-	 * @param array|string $object_type Name(s) of the object type(s) for the taxonomy
-	 * @param array        $args        The taxonomy arguments (optional)
-	 * @param array        $names       An associative array of the plural, singular and slug names (optional)
+	 * @param string       $taxonomy    The taxonomy name.
+	 * @param array|string $object_type Name(s) of the object type(s) for the taxonomy.
+	 * @param array        $args        Optional. The taxonomy arguments.
+	 * @param array        $names       Optional. An associative array of the plural, singular, and slug names.
 	 */
 	public function __construct( $taxonomy, $object_type, array $args = array(), array $names = array() ) {
+		/**
+		 * Filter the arguments for this taxonomy.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param array $args The taxonomy arguments.
+		 */
+		$args  = apply_filters( "ext-taxos/{$taxonomy}/args", $args );
+		/**
+		 * Filter the names for this taxonomy.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param array $names The plural, singular, and slug names (if any were specified).
+		 */
+		$names = apply_filters( "ext-taxos/{$taxonomy}/names", $names );
 		if ( isset( $names['singular'] ) ) {
 			$this->tax_singular = $names['singular'];
 		} else {
@@ -160,12 +202,28 @@ class Extended_Taxonomy {
 		if ( isset( $args['labels'] ) ) {
 			$this->args['labels'] = array_merge( $this->defaults['labels'], $args['labels'] );
 		}
+		# Rewrite testing:
+		if ( $this->args['rewrite'] ) {
+			add_filter( 'rewrite_testing_tests', array( $this, 'rewrite_testing_tests' ), 1 );
+		}
 		# Register taxonomy when WordPress initialises:
 		if ( 'init' === current_filter() ) {
 			call_user_func( array( $this, 'register_taxonomy' ) );
 		} else {
 			add_action( 'init', array( $this, 'register_taxonomy' ), 9 );
 		}
+	}
+	/**
+	 * Add our rewrite tests to the Rewrite Rule Testing tests array.
+	 *
+	 * @codeCoverageIgnore
+	 *
+	 * @param  array $tests The existing rewrite rule tests.
+	 * @return array        Updated rewrite rule tests.
+	 */
+	public function rewrite_testing_tests( array $tests ) {
+		$extended = new Extended_Taxonomy_Rewrite_Testing( $this );
+		return array_merge( $tests, $extended->get_tests() );
 	}
 	/**
 	 * Registers our taxonomy.
@@ -199,24 +257,14 @@ class Extended_Taxonomy_Admin {
 		'meta_box'          => null,  # Custom arg
 		'dashboard_glance'  => false, # Custom arg
 		'checked_ontop'     => null,  # Custom arg
+		'admin_cols'        => null,  # Custom arg
 	);
 	public $taxo;
 	public $args;
+	protected $_cols;
+	protected $the_cols = null;
 	/**
 	* Class constructor.
-	*
-	* The $args parameter accepts the following arguments:
-	*
-	* - meta_box - string|bool - The name of the custom meta box to use on the post editing screen for
-	* this taxonomy. Three custom meta boxes are provided: 'radio' for a meta box with radio inputs,
-	* 'simple' for a meta box with a simplified list of checkboxes, and 'dropdown' for a meta box with
-	* a dropdown menu. You can also pass the name of a callback function, eg my_super_meta_box(), or
-	* boolean false to remove the meta box. Defaults to null, meaning the standard meta box is used.
-	*
-	* - dashboard_glance - boolean - Whether to show this taxonomy on the 'At a Glance' section of the
-	* WordPress dashboard. Defaults to false.
-	*
-	* @TODO checked_ontop
 	*
 	* @param Extended_Taxonomy $taxo An extended taxonomy object
 	* @param array             $args The admin arguments
@@ -234,19 +282,190 @@ class Extended_Taxonomy_Admin {
 			add_action( 'add_meta_boxes', array( $this, 'meta_boxes' ), 10, 2 );
 		}
 		# 'At a Glance' dashboard panels:
-		if ( isset( $this->args['right_now'] ) ) {
-			_doing_it_wrong( 'register_extended_taxonomy', sprintf(
-				__( 'The %1$s argument is deprecated. Use %2$s instead.', 'extended-taxos' ),
-				'<code>right_now</code>',
-				'<code>dashboard_glance</code>'
-			), '1.6' );
-			$this->args['dashboard_glance'] = $this->args['right_now'];
-		}
 		if ( $this->args['dashboard_glance'] ) {
 			add_filter( 'dashboard_glance_items', array( $this, 'glance_items' ) );
 		}
 		# Term updated messages:
 		add_filter( 'term_updated_messages', array( $this, 'term_updated_messages' ), 1, 2 );
+		# Admin columns:
+		if ( $this->args['admin_cols'] ) {
+			add_filter( "manage_edit-{$this->taxo->taxonomy}_columns",  array( $this, '_log_default_cols' ), 0 );
+			add_filter( "manage_edit-{$this->taxo->taxonomy}_columns",  array( $this, 'cols' ) );
+			add_action( "manage_{$this->taxo->taxonomy}_custom_column", array( $this, 'col' ), 10, 3 );
+		}
+	}
+	/**
+	 * Logs the default columns so we don't remove any custom columns added by other plugins.
+	 *
+	 * @param  array $cols The default columns for this taxonomy screen
+	 * @return array       The default columns for this taxonomy screen
+	 */
+	public function _log_default_cols( array $cols ) {
+		return $this->_cols = $cols;
+	}
+	/**
+	 * Add columns to the admin screen for this taxonomy.
+	 *
+	 * Each item in the `admin_cols` array is either a string name of an existing column, or an associative
+	 * array of information for a custom column.
+	 *
+	 * Defining a custom column is easy. Just define an array which includes the column title, column
+	 * type, and optional callback function. You can display columns for term meta or custom functions.
+	 *
+	 * The example below adds two columns; one which displays the value of the term's `term_updated` meta
+	 * key, and one which calls a custom callback function:
+	 *
+	 *     register_extended_taxonomy( 'foo', 'bar', array(
+	 *         'admin_cols' => array(
+	 *             'foo_updated' => array(
+	 *                 'title'    => 'Updated',
+	 *                 'meta_key' => 'term_updated'
+	 *             ),
+	 *             'foo_bar' => array(
+	 *                 'title'    => 'Example',
+	 *                 'function' => 'my_custom_callback'
+	 *             )
+	 *         )
+	 *     ) );
+	 *
+	 * That's all you need to do. The columns will handle safely outputting the data
+	 * (escaping text, and comma-separating taxonomy terms). No more messing about with all of those
+	 * annoyingly named column filters and actions.
+	 *
+	 * Each item in the `admin_cols` array must contain one of the following elements which defines the column type:
+	 *
+	 *  - meta_key - A term meta key
+	 *  - function - The name of a callback function
+	 *
+	 * The value for the corresponding term meta are safely escaped and output into the column.
+	 *
+	 * There are a few optional elements:
+	 *
+	 *  - title - Generated from the field if not specified.
+	 *  - function - The name of a callback function for the column (eg. `my_function`) which gets called
+	 *    instead of the built-in function for handling that column. The function is passed the term ID as
+	 *    its first parameter.
+	 *  - date_format - This is used with the `meta_key` column type. The value of the meta field will be
+	 *    treated as a timestamp if this is present. Unix and MySQL format timestamps are supported in the
+	 *    meta value. Pass in boolean true to format the date according to the 'Date Format' setting, or pass
+	 *    in a valid date formatting string (eg. `d/m/Y H:i:s`).
+	 *  - cap - A capability required in order for this column to be displayed to the current user. Defaults
+	 *    to null, meaning the column is shown to all users.
+	 *
+	 * Note that sortable admin columns are not yet supported.
+	 *
+	 * @param  array $cols Associative array of columns
+	 * @return array       Updated array of columns
+	 */
+	public function cols( array $cols ) {
+		// This function gets called multiple times, so let's cache it for efficiency:
+		if ( isset( $this->the_cols ) ) {
+			return $this->the_cols;
+		}
+		$new_cols = array();
+		$keep = array(
+			'cb',
+			'name',
+			'description',
+			'slug',
+		);
+		# Add existing columns we want to keep:
+		foreach ( $cols as $id => $title ) {
+			if ( in_array( $id, $keep ) && ! isset( $this->args['admin_cols'][ $id ] ) ) {
+				$new_cols[ $id ] = $title;
+			}
+		}
+		# Add our custom columns:
+		foreach ( array_filter( $this->args['admin_cols'] ) as $id => $col ) {
+			if ( is_string( $col ) && isset( $cols[ $col ] ) ) {
+				# Existing (ie. built-in) column with id as the value
+				$new_cols[ $col ] = $cols[ $col ];
+			} else if ( is_string( $col ) && isset( $cols[ $id ] ) ) {
+				# Existing (ie. built-in) column with id as the key and title as the value
+				$new_cols[ $id ] = $col;
+			} else if ( is_array( $col ) ) {
+				if ( isset( $col['cap'] ) && ! current_user_can( $col['cap'] ) ) {
+					continue;
+				}
+				if ( ! isset( $col['title'] ) ) {
+					$col['title'] = $this->get_item_title( $col );
+				}
+				$new_cols[ $id ] = $col['title'];
+			}
+		}
+		# Re-add any custom columns:
+		$custom   = array_diff_key( $cols, $this->_cols );
+		$new_cols = array_merge( $new_cols, $custom );
+		return $this->the_cols = $new_cols;
+	}
+	/**
+	 * Output the column data for our custom columns.
+	 *
+	 * @param string $string      Blank string.
+	 * @param string $column_name Name of the column.
+	 * @param int    $term_id     Term ID.
+	 */
+	public function col( $string, $col, $term_id ) {
+		# Shorthand:
+		$c = $this->args['admin_cols'];
+		# We're only interested in our custom columns:
+		$custom_cols = array_filter( array_keys( $c ) );
+		if ( ! in_array( $col, $custom_cols ) ) {
+			return;
+		}
+		if ( isset( $c[ $col ]['function'] ) ) {
+			call_user_func( $c[ $col ]['function'], $term_id );
+		} else if ( isset( $c[ $col ]['meta_key'] ) ) {
+			$this->col_term_meta( $c[ $col ]['meta_key'], $c[ $col ], $term_id );
+		}
+	}
+	/**
+	 * Output column data for a post meta field.
+	 *
+	 * @param string $meta_key The post meta key
+	 * @param array  $args     Optional. Array of arguments for this field
+	 * @param int    $term_id  Term ID.
+	 */
+	public function col_term_meta( $meta_key, array $args, $term_id ) {
+		$vals = get_term_meta( $term_id, $meta_key, false );
+		$echo = array();
+		sort( $vals );
+		if ( isset( $args['date_format'] ) ) {
+			if ( true === $args['date_format'] ) {
+				$args['date_format'] = get_option( 'date_format' );
+			}
+			foreach ( $vals as $val ) {
+				if ( is_numeric( $val ) ) {
+					$echo[] = date( $args['date_format'], $val );
+				} else if ( ! empty( $val ) ) {
+					$echo[] = mysql2date( $args['date_format'], $val );
+				}
+			}
+		} else {
+			foreach ( $vals as $val ) {
+				if ( ! empty( $val ) || ( '0' === $val ) ) {
+					$echo[] = $val;
+				}
+			}
+		}
+		if ( empty( $echo ) ) {
+			echo '&#8212;';
+		} else {
+			echo esc_html( implode( ', ', $echo ) );
+		}
+	}
+	/**
+	 * Get a sensible title for the current item (usually the arguments array for a column)
+	 *
+	 * @param  array  $item An array of arguments
+	 * @return string       The item title
+	 */
+	protected function get_item_title( array $item ) {
+		if ( isset( $item['meta_key'] ) ) {
+			return ucwords( trim( str_replace( array( '_', '-' ), ' ', $item['meta_key'] ) ) );
+		} else {
+			return '';
+		}
 	}
 	/**
 	 * Remove the default meta box from the post editing screen and add our custom meta box.
@@ -358,6 +577,16 @@ class Extended_Taxonomy_Admin {
 		} else {
 			$none = '';
 		}
+		/**
+		 * Execute code before the taxonomy meta box content outputs to the page.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param stdClass $tax  The current taxonomy object.
+		 * @param WP_Post  $post The current post object.
+		 * @param string   $type The taxonomy list type ('checklist' or 'dropdown').
+		 */
+		do_action( 'ext-taxos/meta_box/before', $tax, $post, $type );
 		?>
 		<div id="taxonomy-<?php echo esc_attr( $taxonomy ); ?>" class="categorydiv">
 
@@ -439,6 +668,16 @@ class Extended_Taxonomy_Admin {
 
 		</div>
 		<?php
+		/**
+		 * Execute code after the taxonomy meta box content outputs to the page.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param stdClass $tax  The current taxonomy object.
+		 * @param WP_Post  $post The current post object.
+		 * @param string   $type The taxonomy list type ('checklist' or 'dropdown').
+		 */
+		do_action( 'ext-taxos/meta_box/after', $tax, $post, $type );
 	}
 	/**
 	 * Add our taxonomy to the 'At a Glance' widget on the WordPress 3.8+ dashboard.
@@ -742,6 +981,32 @@ class Walker_ExtendedTaxonomyDropdown extends Walker {
 			$output .= '&nbsp;&nbsp;('. number_format_i18n( $object->count ) .')';
 		}
 		$output .= "</option>\n";
+	}
+}
+}
+if ( ! class_exists( 'Extended_Taxonomy_Rewrite_Testing' ) && class_exists( 'Extended_Rewrite_Testing' ) ) {
+/**
+ * @codeCoverageIgnore
+ */
+class Extended_Taxonomy_Rewrite_Testing extends Extended_Rewrite_Testing {
+	public $taxo;
+	public function __construct( Extended_Taxonomy $taxo ) {
+		$this->taxo = $taxo;
+	}
+	public function get_tests() {
+		global $wp_rewrite;
+		if ( ! $wp_rewrite->using_permalinks() ) {
+			return array();
+		}
+		if ( ! isset( $wp_rewrite->extra_permastructs[ $this->taxo->taxonomy ] ) ) {
+			return array();
+		}
+		$struct     = $wp_rewrite->extra_permastructs[ $this->taxo->taxonomy ];
+		$tax        = get_taxonomy( $this->taxo->taxonomy );
+		$name       = sprintf( '%s (%s)', $tax->labels->name, $this->taxo->taxonomy );
+		return array(
+			$name => $this->get_rewrites( $struct, array() ),
+		);
 	}
 }
 }

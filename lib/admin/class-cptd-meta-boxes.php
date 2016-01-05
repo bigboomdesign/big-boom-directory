@@ -264,14 +264,23 @@ class CPTD_Meta_Boxes {
 
 		# Auto detect website field
 		$website_field = array(
-			'id' => $prefix.'auto_detect_url',
+			'id' => $prefix . 'auto_detect_url',
 			'type' => 'checkbox',
 			'name' => 'Auto detect URL fields',
+			'after' => array( 'CPTD_Meta_Boxes', 'after_auto_detect_url' ),
 		);
 		if( isset( CPTD_Options::$options['auto_detect_url_yes'] ) ) {
 			$website_field['default'] = self::default_for_checkbox('on');
 		}
 		$advanced_fields_setup->add_field( $website_field );
+
+		# Link texts for URL auto detect fields
+		$url_link_texts = array(
+			'id' => $prefix . 'url_link_texts',
+			'type' => 'url_link_texts',
+			'Name' => 'Link Texts',
+		);
+		$advanced_fields_setup->add_field( $url_link_texts );
 
 		# Auto detect social media
 		$social_field = array(
@@ -640,6 +649,17 @@ class CPTD_Meta_Boxes {
  	} # end: before_fields_select()
 
  	/**
+ 	 * Insert link to edit the link texts for auto-detected URLs
+ 	 *
+	 * @param	string	$args 	The arguments for the CMB2 field
+	 * @param	string 	$field	The CMB2 field object
+	 * @since 	2.0.0
+ 	 */
+ 	public static function after_auto_detect_url( $args, $field ) {
+		return '<div style="margin-top: 1em;" id="edit-link-texts"><a id="init" style="cursor: pointer;" >Edit Link Texts</a></div>';
+ 	} # end: after_auto_detect_url()
+
+ 	/**
  	 * Adds the fields selected for the chosen field group to the post meta
 	 * @param	string	$value	The user-submitted field group ID
 	 * @since 	2.0.0
@@ -663,5 +683,79 @@ class CPTD_Meta_Boxes {
  		return $value;
 
  	} # end: sanitize_archive_fields()
+
+
+	/**
+	 * Render HTML for url_link_texts field type
+	 * Generates repeated text fields for each auto-detected URL
+	 *
+	 * @link 	http://bit.ly/1kJxQY1
+	 */
+	public static function cmb2_render_url_link_texts_callback( $field, $value, $object_id, $object_type, $field_type ) {
+
+		// the current post being edited
+		global $post;
+
+		$pt = new CPTD_PT( $post->ID );
+		if( empty( $pt->handle ) ) return;
+
+		# make sure we have at least one field group
+		if( empty( $pt->acf_archive_fields ) && empty( $pt->acf_single_fields ) ) {
+			echo '<p>Before using this feature, you need to select at least one ACF field in the <code>Fields Setup</code> section above.</p>';
+			return;
+		}
+
+		if( empty( $pt->acf_archive_fields ) ) $pt->acf_archive_fields = array();
+		if( empty( $pt->acf_single_fields ) ) $pt->acf_single_fields = array();
+
+		# get the saved fields for both views for this PT
+		$fields = array_merge( $pt->acf_archive_fields, $pt->acf_single_fields );
+
+		# identify the URL fields
+		$url_fields = array();
+		$url_field_keys = array();
+
+		foreach( $fields as $field ) {
+			
+			$field = new CPTD_Field( $field );
+
+			if( ! $field->is_url_field ) continue;
+
+			# make sure we don't load duplicates from the different views
+			if( in_array( $field->key, $url_field_keys ) ) continue;
+
+			$url_fields[] = $field;
+			$url_field_keys[] = $field->key;
+		}
+
+		# the default link text is 'View Website'
+	    $default_values = array();
+	    foreach( $url_field_keys as $key ) {
+	    	$default_values[ $key ] = 'View Website';
+	    }
+
+	    $value = wp_parse_args( $value, $default_values );
+	    ?>
+	    <div id='cptd-url-link-texts'>
+	    <?php 
+	   	foreach( $url_fields as $field ) {
+	   	?>
+		    <div class='link-text-field'><p><label for="<?php echo $field_type->_id( '_' . $field->key ); ?>"><code><?php echo $field->label; ?></code> Link Text</label></p>
+		        <?php echo $field_type->input( array(
+		            'name'  => $field_type->_name( '[' . $field->key . ']' ),
+		            'id'    => $field_type->_id( '_' . $field->key ),
+		            'value' => $value[ $field->key ],
+		            'desc'  => '',
+		        ) ); ?>
+		    </div>
+	    <?php
+		}
+	    ?>
+		</div><!-- #cptd-url-link-texts -->
+	    <br class="clear">
+	    <?php
+	    echo $field_type->_desc( true );
+
+	}
 
 }

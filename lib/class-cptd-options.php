@@ -728,7 +728,7 @@ CPTD_Options::$settings = array(
 		'type' => 'checkbox',
 		'choices' => 'Yes',
 		'default' => 'yes',
-		'description' => 'Displays "View Website" link text for `web`, `website`, and `url` fields',
+		'description' => 'Displays "View Website" or custom link text for `web`, `website`, and `url` fields, or fields keys containing `_website` or `_url`',
 		'section' 	=> 'cptd_post_type_defaults',
 	),
 

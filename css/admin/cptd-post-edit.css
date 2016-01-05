@@ -5,7 +5,9 @@ h1 a.page-title-action{
 	display: none;
 }
 
-/* post meta boxes */
+/**
+ * Post meta boxes 
+ */
 
 /** post type settings meta boxes */
 #handle-container.highlight,
@@ -56,6 +58,18 @@ div.cptd-field-select label{
 }
 #tax-assign-tip{
 	margin-top: 0.5em;
+}
+
+/** 
+ * Advanced Fields Setup
+ */
+
+/* link texts */
+.cmb2-id--cptd-meta-url-link-texts {
+	display: none;
+}
+#cptd-url-link-texts .link-text-field {
+	margin-bottom: 2em;
 }
 
 /**

@@ -39,6 +39,26 @@ class CPTD_Field {
 	var $is_acf = null;
 
 	/**
+	 * Whether this is a social media field (i.e. available for auto detection)
+	 *
+	 * @param 	bool
+	 * @since 	2.0.0
+	 */
+	var $is_social_field = false;
+
+	/**
+	 * Whether this is a URL field (i.e. available for auto detection and link text)
+	 *
+	 * Possible cases where this is true:
+	 * 		- field key is 'web', 'website', or 'url'
+	 * 		- field key contains '_website' or '_url'
+	 *
+	 * @param 	bool
+	 * @since 	2.0.0
+	 */
+	var $is_url_field = false;
+
+	/**
 	 * The ACF field array (if $this->is_acf)
 	 *
 	 * @param 	array
@@ -90,6 +110,35 @@ class CPTD_Field {
 
 		# load the ACF field info if applicable
 		$this->is_acf();
+
+		# is this a social field?
+		$social_fields = CPTD_Helper::$auto_social_field_keys;
+		foreach( $social_fields as $social_key ) {
+			if( false === strpos( $this->key, $social_key ) ) continue;
+			
+			# if we have a match
+			$this->is_social_field = true;
+
+			# no need to check further
+			break;
+		}
+
+		# is this a URL field?
+		if(
+			# first, make sure we don't usurp any social media field auto-detection
+			! $this->is_social_field &&
+
+			# then check that the field key matches a URL field (see doc abov for $this->is_url_field)
+			( 
+				'web' == $this->key || 
+				'website' == $this->key ||
+				'url' == $this->key ||
+				false !== strpos( $this->key, '_website' ) ||
+				false !== strpos( $this->key, '_url' )
+			)
+		) {
+			$this->is_url_field = true;
+		}
 
 		# if not an ACF field, we'll try and load as much data as we can about the field
 		if( ! $this->is_acf ) {
@@ -158,10 +207,7 @@ class CPTD_Field {
 		if( $cptd_view->auto_detect_social ) {
 
 			# see if we have a social media field key
-			# if( in_array( $this->key, $cptd_view->auto_social_field_keys ) ) {
-			foreach( $cptd_view->auto_social_field_keys as $possible_key ) 
-			if( false !== strpos( $this->key, $possible_key ) ) {
-
+			if( $this->is_social_field ) {
 
 				# if this is the first social media field, set the indicator and open up a wrapping div for the icons				
 				if( 0 == count( $cptd_view->completed_social_fields ) ) {
@@ -200,6 +246,7 @@ class CPTD_Field {
 				}
 
 				return;
+				
 			} # end if: field key is a social media field
 		
 		} # end if: auto detect social is enabled
@@ -216,13 +263,18 @@ class CPTD_Field {
 		if( $cptd_view->auto_detect_url ) {
 
 			# see if we have a website field key
-			if( 'web' == $this->key || 'website' == $this->key || 'url' == $this->key ) {
+			if( $this->is_url_field ) {
+
+				# get the link text
+				if( empty( $cptd_view->post_type->url_link_texts[ $this->key ] ) ) $link_text = 'View Website';
+				else $link_text = $cptd_view->post_type->url_link_texts[ $this->key ];
+
 				# do our best to make sure we have a valid URL
 				if( 'http' != substr( $value, 0, 4 ) ) $value = 'http://' . $value;
 			?>
 				<div class="cptd-field text <?php echo $this->key; ?>">
 						<a target="_blank" class='cptd-website-link' href="<?php echo $value; ?>" >
-							<?php echo apply_filters('cptd_link_text', 'View Website', $this ); ?>
+							<?php echo apply_filters('cptd_link_text', $link_text, $this ); ?>
 						</a>
 				</div>
 			<?php

@@ -7,6 +7,22 @@
 class CPTD_Helper{
 
 	/**
+	 * The social media keys that can be auto detected
+	 *
+	 * @param	array
+	 * @since 	2.0.0
+	 */
+	static $auto_social_field_keys = array(
+		'facebook', 
+		'twitter',
+		'youtube', 'you-tube', 'you_tube',
+		'googleplus', 'google_plus', 'google-plus', 'gplus', 'g-plus', 'g_plus',
+		'pinterest',
+		'instagram',
+		'linkedin', 'linked_in', 'linked-in',
+	);
+
+	/**
 	 * Class Methods
 	 *
 	 * - get_post_field()

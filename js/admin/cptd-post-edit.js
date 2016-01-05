@@ -192,6 +192,19 @@ jQuery( document ).ready( function( $ ) {
 		.find('input[type=checkbox].cptd_field_group_select:checked')
 		.each( function() { fieldGroupChange( $(this), 'acf_single', $ ); } );
 
+	/**
+	 * Advanced Fields Setup
+	 */
+
+	// onclick for Edit Link Texts
+	$('#edit-link-texts a#init').on( 'click', function() {
+
+		// toggle the link texts metabox area
+		var $linkTextsRow = $('.cmb2-id--cptd-meta-url-link-texts');
+		var display = ( $linkTextsRow.css('display') == 'none' ) ? 'block' : 'none';
+		$linkTextsRow.css( {'display': display } );
+	});
+
 }); // end: on document ready
 
 /**

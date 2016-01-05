@@ -81,32 +81,6 @@ class CPTD_View {
 	var $auto_detect_social = false;
 
 	/**
-	 * Fields that can be auto detected as URL's
-	 *
-	 * @param 	array
-	 * @since 	2.0.0
-	 */
-	var $auto_url_field_keys = array(
-		'web', 'website', 'url'
-	);
-
-	/**
-	 * The social media keys that can be auto detected
-	 *
-	 * @param	array
-	 * @since 	2.0.0
-	 */
-	var $auto_social_field_keys = array(
-		'facebook', 
-		'twitter',
-		'youtube', 'you-tube', 'you_tube',
-		'googleplus', 'google_plus', 'google-plus', 'gplus', 'g-plus', 'g_plus',
-		'pinterest',
-		'instagram',
-		'linkedin', 'linked_in', 'linked-in',
-	);
-
-	/**
 	 * The social fields that need to be checked for this view
 	 *
 	 * @param 	array
@@ -168,8 +142,7 @@ class CPTD_View {
 					$this->field_keys[ $field->acf_field['order_no'] ] = $field->key;
 
 					# add field key to social media fields to check, if applicable
-					foreach( $this->auto_social_field_keys as $possible_key )
-					if( false !== strpos( $field->key, $possible_key ) ) {
+					if( $field->is_social_field ) {
 						$this->social_fields_to_check[] = $field->key;
 					}
 
