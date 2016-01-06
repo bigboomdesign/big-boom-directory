@@ -40,6 +40,9 @@ class CPTD_Admin{
 		    return cptd_url('/assets/cmb2');
 		}
 
+		# advanced custom fields post type names
+		add_action( 'acf/get_post_types', array( 'CPTD_Admin', 'acf_get_post_types' ) );
+
 	} # end: init()
 	
 	/**
@@ -51,6 +54,7 @@ class CPTD_Admin{
 	 * - plugin_actions()
 	 * - post_row_actions()
 	 * - cmb2_meta_boxes()
+	 * - acf_get_post_types()
 	 */
 
 
@@ -140,9 +144,9 @@ class CPTD_Admin{
 	/**
 	 * Add action links for this plugin on main Plugins screen (under plugin name)
 	 *
-	 * @since	2.0.0
 	 * @param	array 	$links 	A list of anchor tags pre-pouplated with the WP default plugin links
 	 * @return 	array 	The altered $links array 
+	 * @since	2.0.0
 	 */
 	public static function plugin_actions($links){
 
@@ -165,6 +169,7 @@ class CPTD_Admin{
 	 *
 	 * @param 	array 		$actions 	The existing array of actions
 	 * @param 	WP_Post		$post 		The post for the row whose actions are being edited
+	 * @return 	array
 	 * @since 	2.0.0
 	 */
 	public static function post_row_actions( $actions, $post ){
@@ -181,6 +186,40 @@ class CPTD_Admin{
 
 		return $actions;
 	} # end: post_row_actions()
+
+	/** 
+	 * Filter the 'name' => 'label' pairs for ACF post type choices
+	 * Note we are unsetting 'cptd_pt' and 'cptd_tax' since these are internal post types to the plugin
+	 *
+	 * @param 	array 	$choices 	The existing 'name' => 'label' pairs
+	 * @return 	array
+	 * @since 	2.0.0
+	 */
+	public static function acf_get_post_types( $choices ) {
+
+		# loop through post type 'name' => 'label' pairs
+		foreach( $choices as $k => &$v ) {
+
+			# see if the key starts with 'cptd_pt_'
+			if( 0 === strpos( $k, 'cptd_pt_' ) ) {
+
+				# get the post type id from the key
+				$pt_id = str_replace( 'cptd_pt_', '', $k );
+
+				# get the post type
+				$pt = new CPTD_PT( $pt_id );
+				if( empty( $pt->ID ) ) continue;
+
+				$v = $pt->plural;
+			}
+
+			# unset CPTD internal post types
+			elseif( 'cptd_pt' == $k || 'cptd_tax' == $k ) unset( $choices[ $k ] );
+		}  # end foreach: $choices for post types
+
+		return $choices;
+
+	} # acf_get_post_types()
 
 	/**
 	 * HTML for admin screens produced by this plugin
