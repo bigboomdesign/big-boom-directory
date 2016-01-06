@@ -35,6 +35,8 @@ class CPTD_Helper{
 	 * - get_all_post_ids()
 	 * - get_all_field_keys()
 	 * - get_image_sizes()
+	 *
+	 * - sort_terms_by_hierarchy()
 	 */
 	
 	/**
@@ -390,5 +392,34 @@ class CPTD_Helper{
 
 		return $image_sizes;
 	} # end: get_image_sizes()
+
+	/**
+	 * Sort an array of taxonomy terms hierarchically. Child categories will be
+	 * placed under a 'children' member of their parent term.
+	 *
+	 * @param array 	$terms     		List of WP_Term objects
+	 * @param int		$parent_id 		The parent ID for the terms
+	 */
+	public static function sort_terms_by_hierarchy( $terms, $parent_id = 0 ) {
+	    
+	    $out = array();
+
+	    # load the terms matching the given parent ID
+	    foreach ( $terms as $i => $term ) {
+
+	        if ( $term->parent == $parent_id ) {
+	            $out[ $term->term_id ] = $term;
+	            unset( $terms[ $i ] );
+	        }
+	    }
+
+	    # recurse back into the function for all the top level terms we found
+	    foreach ($out as &$top_level_term ) {
+	        $top_level_term->children = self::sort_terms_by_hierarchy( $terms, $top_level_term->term_id );
+	    }
+
+	    return $out;
+
+	} # end: sort_terms_by_hierarchy()
 
 } # end class CPTD_Helper
