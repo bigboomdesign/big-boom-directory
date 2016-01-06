@@ -82,7 +82,9 @@ class CPTD_Search_Widget extends WP_Widget{
 	<div class='cptd-search-widget-form'>
 		<?php
 		# show the shortcode for this widget
-		echo '<p><b>Shortcode:</b><br />[cptd-search widget_id="' . $this->number . '"]</p>';
+		if( ! empty( $this->number ) && -1 != $this->number && '__i__' != $this->number ) {
+			echo '<p><b>Shortcode:</b><br /><code>[cptd-search widget_id="' . $this->number . '"]</code></p>';
+		}
 
 		# the widget title 
 		?>
@@ -271,7 +273,6 @@ class CPTD_Search_Widget extends WP_Widget{
 	 * @since 	2.0.0
 	 */
 	public function widget( $args, $instance ) {
-
 		# the ID and number may need to be set if calling from a shortcode
 		if( empty( $args['widget_id'] ) ) {
 			if( ! empty( $instance['widget_id'] ) ) $args['widget_id'] = $this->id_base . '-' . $instance['widget_id'];
