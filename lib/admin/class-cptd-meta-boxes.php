@@ -162,6 +162,7 @@ class CPTD_Meta_Boxes {
 					<div id='slug-info' style='display: none;'>
 						<p class='description'>The slug determines the URL's for your post type's entries. If left empty, we will guess the ideal slug based on your title. For best results, use only lowercase letters and hyphens if you change the slug.</p>
 						<p class='description'>For example, <code>book-reviews</code> would produce <code>http://mysite.com/book-reviews</code></p>
+						<p class='description'>If you change this value, you may need to <a target='_blank' href='" . admin_url( 'options-permalink.php' ) . "'>save your permalink settings</a> before changes occur.</p>
 						<p class='description'>Once the slug is set and you have created posts for your post type, changing this value can negatively affect your search engine performance and user experience. Don't change this unless you are confident that you know what you are doing.</p>
 					</div>
 				</div>",
@@ -180,7 +181,8 @@ class CPTD_Meta_Boxes {
 			'name'		=> 'Has Archive',
 			'id'		=> $prefix.'has_archive',
 			'type' 		=> 'checkbox',
-			'default' 	=> self::default_for_checkbox( 'on' )
+			'default' 	=> self::default_for_checkbox( 'on' ),
+			'description' => "<p class='description'>If you change this value, you may need to <a target='_blank' href='" . admin_url( 'options-permalink.php' ) . "'>save your permalink settings</a> before changes occur.</p>"
 		));
 
 		## Exclude From Search
@@ -456,6 +458,7 @@ class CPTD_Meta_Boxes {
 					<div id='slug-info' style='display: none;'>
 						<p class='description'>The slug determines the URL's for your taxonomy's term archive pages. If left empty, we will guess the ideal slug based on your title. For best results, use only lowercase letters and hyphens if you change the slug.</p>
 						<p class='description'>For example, <code>book-genres</code> would produce <code>http://mysite.com/book-genres/fiction</code> if you had a term called 'Fiction'</p>
+						<p class='description'>If you change this value, you may need to <a target='_blank' href='" . admin_url( 'options-permalink.php' ) . "'>save your permalink settings</a> before changes occur.</p>
 						<p class='description'>Once the slug is set and you have created posts for your post type, changing this value can negatively affect your search engine performance and user experience. Don't change this unless you are confident that you know what you are doing.</p>
 					</div>
 				</div>",

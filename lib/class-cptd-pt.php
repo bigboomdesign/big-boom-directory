@@ -220,6 +220,7 @@ class CPTD_PT extends CPTD_Post{
 
 		# load in any settings from the backend
 		foreach( $this->args_settings as $key ) {
+
 			if( ! empty( $this->$key ) ) {
 				$value = $this->$key;
 
@@ -230,10 +231,16 @@ class CPTD_PT extends CPTD_Post{
 
 				# for integers
 				if( 'menu_position' == $key ) $value = intval( $value );
-				$args['args'][ $key ] = $value;
-
-				$this->$key = $value;
 			}
+
+			# for empty values, we need to set the parameter to false
+			else {
+				$value = false;
+			}
+
+			# set the object parameter and add the argument into the array to be registered
+			$this->$key = $value;
+			$args['args'][ $key ] = $value;
 		}
 
 		$args['args']['supports'] = array('title', 'editor', 'excerpt');
