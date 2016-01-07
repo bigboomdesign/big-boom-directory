@@ -98,9 +98,9 @@ class CPTD_Tax extends CPTD_Post{
 
 	public function __construct( $post ){
 
-		parent::__construct($post);
+		parent::__construct( $post );
 
-		if( ! $this->ID ) return;
+		if( empty( $this->ID ) ) return;
 
 		$this->load_post_data();
 		$this->load_post_meta();
@@ -194,6 +194,34 @@ class CPTD_Tax extends CPTD_Post{
 		register_extended_taxonomy( $args['taxonomy'], $args['object_type'], $args['args'], $args['names'] );
 
 	} # end: register()
+
+	/**
+	 * Get an instance by handle or label
+	 * Note this does not support taxonomies that may share labels, it returns the first valid match
+	 *
+	 * @param 	string 		$search_text 	The handle or label for a taxonomy
+	 * @return	CPTD_Tax
+	 * @since 	2.0.0
+	 */
+	public static function get_by_text( $search_text ) {
+
+		# loop through post IDs for CPTD posts
+		foreach( CPTD::$taxonomy_ids as $id ) {
+
+			$tax = new CPTD_Tax( $id );
+
+			# see if we match the handle, labels, or post title
+			if( 
+				$search_text == $tax->handle || $search_text == $tax->plural || 
+				$search_text == $tax->singular || $search_text == $tax->post_title
+			) {
+				# if the taxonomy is valid, return the object
+				if( taxonomy_exists( $tax->handle ) ) {
+					return $tax;
+				}
+			}
+		} # end foreach: taxonomy IDs
+	} # end: get_by_text
 
 	/**
 	 * Generate a terms dropdown for this taxonomy
