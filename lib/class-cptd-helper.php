@@ -37,6 +37,10 @@ class CPTD_Helper{
 	 * - get_image_sizes()
 	 *
 	 * - sort_terms_by_hierarchy()
+	 *
+	 * - checkboxes_for_post_types()
+	 * - checkboxes_for_taxonomies()
+	 * - checkboxes_for_terms()
 	 */
 	
 	/**
@@ -421,5 +425,196 @@ class CPTD_Helper{
 	    return $out;
 
 	} # end: sort_terms_by_hierarchy()
+
+	/**
+	 * Generate HTML to display checkboxes for post types registered by the plugin
+	 *
+	 * @param 	array 	$args 		{
+	 * 		
+	 * 		The arguments for the checkbox group (none required)
+	 *
+	 * 		@type 	array 	$selected 		The post type post IDs to be pre-selected
+	 * 		@type	string 	$heading		HTML for heading to be displayed above the checkboxes
+	 * 		@type 	string 	$description	HTML for description to be displayed above the checkboxes
+	 * 		@type 	string	$field_id		The id attribute for individual checkboxes
+	 * 		@type 	string	$field_name		The name attribute for individual checkboxes (we add [] to store as an array)
+	 * 		@type 	string 	$label_class	The class to attach to each checkbox label
+	 * }
+	 * @return 	string
+	 * @since 	2.0.0
+	 */
+	public static function checkboxes_for_post_types( $args = array() ) {
+		
+		if( empty( CPTD::$post_types ) ) return '';
+
+		ob_start();
+		
+		# get arguments
+		$defaults = array(
+			'selected' => array(),
+			'heading' => '',
+			'description' => '',
+			'field_id' => '',
+			'field_name' => '',
+			'label_class' => '',
+		);
+		$args = wp_parse_args( $args, $defaults );
+
+		# heading and description
+		if( ! empty( $args['heading'] ) ) echo $args['heading'];
+		if( ! empty( $args['description'] ) ) echo $args['description'];
+
+		# loop through post types and display checkboxes
+		foreach( CPTD::$post_types as $post_type ) {
+
+			$pt = new CPTD_PT( $post_type->ID );
+		?>
+			<label for="<?php echo $args['field_id'] . '_'  . $pt->ID ; ?>" class="<?php echo $args['label_class']; ?>">
+				<input id="<?php echo $args['field_id'] . '_'  . $pt->ID; ?>"
+					type='checkbox'
+					name="<?php echo $args['field_name']; ?>[]"
+					value="<?php echo $pt->ID; ?>"
+					<?php checked( true, in_array( $pt->ID, $args['selected'] ) ); ?>
+				/> <?php echo $pt->plural; ?>
+			</label>
+		<?php
+		} # end foreach: registered post types
+
+		$html = ob_get_contents();
+		ob_end_clean();
+		return $html;
+
+	} # end: checkboxes_for_post_types()
+
+	/**
+	 * Generate HTML to display checkboxes for taxonomies registered by the plugin
+	 *
+	 * @param 	array 	$args 		{
+	 * 		
+	 * 		The arguments for the checkbox group (none required)
+	 *
+	 * 		@type 	array 	$selected 		The taxonomy post IDs to be pre-selected
+	 * 		@type	string 	$heading		HTML for heading to be displayed above the checkboxes
+	 * 		@type 	string 	$description	HTML for description to be displayed above the checkboxes
+	 * 		@type 	string	$field_id		The id attribute for individual checkboxes
+	 * 		@type 	string	$field_name		The name attribute for individual checkboxes (we add [] to store as an array)
+	 * 		@type 	string 	$label_class	The class to attach to each checkbox label
+	 * }
+	 * @return 	string
+	 * @since 	2.0.0
+	 */
+	public static function checkboxes_for_taxonomies( $args = array() ) {
+		
+		if( empty( CPTD::$taxonomies ) ) return '';
+		
+		ob_start();
+
+		# get arguments
+		$defaults = array(
+			'selected' => array(),
+			'heading' => '',
+			'description' => '',
+			'field_id' => '',
+			'field_name' => '',
+			'label_class' => '',
+		);
+		$args = wp_parse_args( $args, $defaults );
+
+		# heading and description
+		if( ! empty( $args['heading'] ) ) echo $args['heading'];
+		if( ! empty( $args['description'] ) ) echo $args['description'];
+
+		# loop through taxonomies and display checkboxes
+		foreach( CPTD::$taxonomies as $taxonomy ) {
+
+			$tax = new CPTD_Tax( $taxonomy->ID );
+		?>
+			<label for="<?php echo $args['field_id'] . '_'  . $tax->ID ; ?>" class="<?php echo $args['label_class']; ?>">
+				<input id="<?php echo $args['field_id']. '_'  . $tax->ID; ?>"
+					type='checkbox'
+					name="<?php echo $args['field_name']; ?>[]"
+					value="<?php echo $tax->ID; ?>"
+					<?php checked( true, in_array( $tax->ID, $args['selected'] ) ); ?>
+				/> <?php echo $tax->plural; ?>
+			</label>
+		<?php
+		} # end foreach: registered taxonomies
+
+		$html = ob_get_contents();
+		ob_end_clean();
+		return $html;
+
+	} # end: checkboxes_for_taxonomies()
+
+	/**
+	 * Generate HTML for terms checkboxes for a given taxonomy
+	 *
+	 * @param 	array 	$args 		{
+	 * 		
+	 * 		The arguments for the checkbox group (none required)
+	 *
+	 * 		@type 	array 	$selected 		The term IDs to be pre-selected
+	 * 		@type	string 	$heading		HTML for heading to be displayed above the checkboxes
+	 * 		@type 	string 	$description	HTML for description to be displayed above the checkboxes
+	 * 		@type 	string	$field_id		The id attribute for individual checkboxes
+	 * 		@type 	string	$field_name		The name attribute for individual checkboxes (we add [] to store as an array)
+	 * 		@type 	string 	$label_class	The class to attach to each checkbox label
+	 * }
+	 * @param 	int 	$tax_id 	The post ID for the CPTD taxonomy
+	 * @return 	string
+	 * @since 	2.0.0
+	 */
+	public static function checkboxes_for_terms( $args, $tax_id ) {
+		
+		# get the taxonomy
+		$tax = new CPTD_Tax( $tax_id );
+		if( ! $tax->ID ) return '';
+
+		# get the terms for the taxonomy
+		$terms_query_args = array(
+			'taxonomy' => $tax->handle,
+		);
+
+		$terms = get_terms( $terms_query_args );
+
+		if( ! $terms || is_wp_error( $terms ) ) return '';
+
+		# get arguments
+		$defaults = array(
+			'selected' => array(),
+			'heading' => '',
+			'description' => '',
+			'field_id' => '',
+			'field_name' => '',
+			'label_class' => '',
+		);
+		$args = wp_parse_args( $args, $defaults );
+
+		# generate the output
+		ob_start();
+
+		# heading and description
+		if( ! empty( $args['heading'] ) ) echo $args['heading'];
+		if( ! empty( $args['description'] ) ) echo $args['description'];
+
+		# loop through terms and display a checkbox for each one
+		foreach( $terms as $term ) {
+		?>
+			<label for="<?php echo $args['field_id'] . '_'  . $term->term_id; ?>" class="<?php echo $args['label_class']; ?>">
+				<input id="<?php echo $args['field_id']. '_'  . $term->term_id; ?>"
+					type='checkbox'
+					name="<?php echo $args['field_name']; ?>[]"
+					value="<?php echo $term->term_id; ?>"
+					<?php checked( true, in_array( $term->term_id, $args['selected'] ) ); ?>
+				/> <?php echo $term->name; ?>
+			</label>
+		<?php
+		} # end foreach: $terms
+
+		$html = ob_get_contents();
+		ob_end_clean();
+		return $html;
+
+	} # checkboxes_for_terms()
 
 } # end class CPTD_Helper

@@ -24,6 +24,9 @@ class CPTD_Ajax{
 		'cptd_slug_from_title',
 		'cptd_select_field_group',
 
+		/* widgets */
+		'cptd_toggle_taxonomy_term_details',
+
 		/* import */
 		'cptd_import_csv_submit'
 	);
@@ -33,20 +36,18 @@ class CPTD_Ajax{
 	 * Class methods
 	 * 
 	 * - Ajax callback methods
+	 * 		- Post edit
+	 * 		- Widgets
+	 * 		- Import
 	 * - Helper methods
 	 */
 
 
 	/**
-	 * Ajax callback methods
-	 *
-	 * - Post edit
+	 * Post edit AJAX callbacks
 	 * 		- cptd_handle_from_title()
 	 * 		- cptd_slug_from_title()
 	 * 		- cptd_select_field_group()
-	 *
-	 * - Import
-	 * 		- cptd_import_csv_submit()
 	 */
 
 	/**
@@ -171,7 +172,65 @@ class CPTD_Ajax{
 	} # end: cptd_select_field_group()
 
 	/**
+	 * Widgets AJAX callback methods
+	 * 
+	 * - cptd_toggle_taxonomy_term_details()
+	 */
+
+	/**
+	 * Populate the term selection area when a taxonomy checkbox is selected
+	 *
+	 * @param 	string 	$_POST['tax_id'] 			The post ID for the CPTD taxonomy
+	 * @param 	string	$_POST['widget_id_base']	The widget ID to be prepended to fields (e.g. widget-cptd_random_posts_widget)
+	 * @param 	string 	$_POST['widget_number']		The widget number (e.g. 7)
+	 */
+	public static function cptd_toggle_taxonomy_term_details() {
+
+		# get the taxonomy post ID
+		$tax_id = intval( sanitize_text_field( $_POST['tax_id'] ) );
+		if( ! $tax_id ) die();
+
+		# get the taxonomy object
+		$tax = new CPTD_Tax( $tax_id );
+		if( empty( $tax->ID ) ) die();
+
+		# get the name attribute we'll use for our terms
+		$widget_id_base = sanitize_text_field( $_POST['widget_id'] );
+		$widget_number = sanitize_text_field( $_POST['widget_number'] );
+
+		# make sure we have an ID base and a widget number
+		if( empty( $widget_id_base ) || empty( $widget_number ) ) die();
+
+		# get the widget object
+		$widget = new CPTD_Random_Posts_Widget( $widget_id_base );
+		$widget->number = $widget_number;
+
+		# get the settings for this instance
+		$widget_settings = $widget->get_instance( $widget_number );
+
+		$terms_args = array(
+			'description' => '<p>Select which <b>' . $tax->plural . '</b> to use for the random posts</p>',
+			'selected' => ! empty( $widget_settings['terms'] ) ? $widget_settings['terms'] : array(),
+			'field_id' => $widget->get_field_id('terms'),
+			'field_name' => $widget->get_field_name('terms'),
+			'label_class' => 'terms-select',
+		);
+		?>
+		<div class='cptd-terms-list highlight' data-tax-id='<?php echo $tax_id; ?>' >
+			<?php 
+				$checkboxes_html = CPTD_Helper::checkboxes_for_terms( $terms_args, $tax_id ); 
+				if( '' == $checkboxes_html ) echo 'You don\'t have any terms yet for this taxonomy.';
+				else echo $checkboxes_html;
+			?>
+		</div>
+		<?php
+		die();
+	} # end: cptd_toggle_taxonomy_term_details()
+
+	/**
 	 * Import
+	 *
+	 * - cptd_import_csv_submit()
 	 */
 	
 	/**

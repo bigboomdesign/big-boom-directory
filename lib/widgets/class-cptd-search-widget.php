@@ -1,6 +1,6 @@
 <?php
 /**
- * The CPT Search Widget class
+ * The CPTD Search Widget class
  *
  * Handles the backend widget settings form
  * Handles the front end display of the widget and widget search results
@@ -8,7 +8,7 @@
  *
  * @since 	2.0.0
  */
-class CPTD_Search_Widget extends WP_Widget{
+class CPTD_Search_Widget extends WP_Widget {
 
 	/**
 	 * The existing meta keys for all CPTD posts, in alphabetical order
@@ -26,6 +26,7 @@ class CPTD_Search_Widget extends WP_Widget{
 	 * - form()
 	 * - widget()
 	 *
+	 * - get_instance()
 	 * - get_search_results_html()
 	 */
 
@@ -56,22 +57,6 @@ class CPTD_Search_Widget extends WP_Widget{
 	} # end: __construct()
 
 	/**
-	 * Get the widget settings for a particular widget number
-	 *
-	 * @param 	(int|string) 	$widget_number		The number for the desired widget (e.g. 6)
-	 * @return 	array
-	 */
-	public function get_instance( $widget_number ) {
-		
-		# get the settings for this widget (includes all instances)
-		$widget_settings_all = $this->get_settings();
-
-		if( empty( $widget_settings_all[ $widget_number ] ) ) return array();
-		return $widget_settings_all[ $widget_number ];
-
-	} # end: get_instance()
-
-	/**
 	 * Generate HTML for the backend widget settings form
 	 *
 	 * @param 	array 	$instance 	The current widget settings for this instance
@@ -79,7 +64,7 @@ class CPTD_Search_Widget extends WP_Widget{
 	 */
 	public function form( $instance ) {
 	?>
-	<div class='cptd-search-widget-form'>
+	<div id='cptd-search-form' class='cptd-widget-form'>
 		<?php
 		# show the shortcode for this widget
 		if( ! empty( $this->number ) && -1 != $this->number && '__i__' != $this->number ) {
@@ -137,62 +122,28 @@ class CPTD_Search_Widget extends WP_Widget{
 		</label></p>
 
 		<?php 
-
-		# Checkboxes to select post types
-		if( ! empty( CPTD::$post_types ) ) {
-
-			# the current value for this widget instance
-			$post_types = ! empty( $instance['post_types'] ) ? $instance['post_types'] : array();
-		?>
-			<h4>Post Types</h4>
-			<p>Choose which post types should be searched by the widget</p>
-		<?php
-
-			foreach( CPTD::$post_types as $post_type ) {
-
-				$pt = new CPTD_PT( $post_type->ID );
-			?>
-				<label for='<?php echo $this->get_field_id('post_type_' . $pt->ID ); ?>' class='post-type-select'>
-					<input id='<?php echo $this->get_field_id('post_type_' . $pt->ID ); ?>'
-						type='checkbox'
-						name='<?php echo $this->get_field_name( 'post_types' ); ?>[]'
-						value='<?php echo $pt->ID; ?>'
-						<?php checked( true, in_array( $pt->ID, $post_types ) ); ?>
-					/> <?php echo $pt->plural; ?>
-				</label>
-			<?php
-			} # end foreach: registered post types
-
-		} # end if: post types exist
+		# Checkboxes for post types
+		$post_type_args = array(
+			'selected' => ( ! empty( $instance['post_types'] ) ? $instance['post_types'] : array() ),
+			'heading' => '<h4>Post Types</h4>',
+			'description' => '<p>Choose which post types should be searched by the widget</p>',
+			'label_class' => 'post-type-select',
+			'field_id' => $this->get_field_id( 'search_widget_post_type' ),
+			'field_name' => $this->get_field_name( 'post_types' ),
+		);
+		echo CPTD_Helper::checkboxes_for_post_types( $post_type_args );
 
 		# Checkboxes to select taxonomies
-		if( ! empty( CPTD::$taxonomies ) ) {
+		$tax_args = array(
+			'selected' => ( ! empty( $instance['taxonomies'] ) ? $instance['taxonomies'] : array() ),
+			'heading' => '<h4>Taxonomies</h4>',
+			'description' => "<p>Select the taxonomies you'd like to use as search filters</p>",
+			'label_class' => 'taxonomy-select',
+			'field_id' => $this->get_field_id( 'search_widget_taxonomy' ),
+			'field_name' => $this->get_field_name( 'taxonomies' ),
+		);
+		echo CPTD_Helper::checkboxes_for_taxonomies( $tax_args );
 
-			# the current value for this widget instance
-			$taxonomies = ! empty( $instance['taxonomies'] ) ? $instance['taxonomies'] : array();
-		?>
-			<h4>Taxonomies</h4>
-			<p>Select the taxonomies you'd like to use as search filters</p>
-		<?php
-			# loop throught the registered CPTD taxonomies
-			foreach( CPTD::$taxonomies as $tax ) {
-				$tax = new CPTD_Tax( $tax->ID );
-			?>
-				<label for='<?php echo $this->get_field_id( 'taxonomy_' . $tax->ID ); ?>' class='taxonomy-select'>
-					<input id='<?php echo $this->get_field_id( 'taxonomy_' . $tax->ID ); ?>' 
-						type='checkbox' 
-						name='<?php echo $this->get_field_name( 'taxonomies' ); ?>[]' 
-						value='<?php echo $tax->ID; ?>'
-						<?php echo checked( true, in_array( $tax->ID, $taxonomies ) ); ?>
-					 /> <?php echo $tax->plural; ?>
-				</label>
-			<?php
-			} # end foreach: registered taxonomies
-
-		} # end if: taxonomies exist
-		?>
-
-		<?php 
 		# Checkboxes to select custom fields and field options 
 		if( ! empty( $this->field_keys ) ) {
 		?>
@@ -261,7 +212,7 @@ class CPTD_Search_Widget extends WP_Widget{
 			} # end foreach: $this->field_keys
 		} # end if: field keys exist
 	?>
-	</div><?php // .cptd-search-widget-form ?>
+	</div><?php // .cptd-widget-form ?>
 	<?php
 	} # end: form()
 
@@ -406,6 +357,26 @@ class CPTD_Search_Widget extends WP_Widget{
 		wp_enqueue_style( 'cptd', cptd_url('/css/cptd.css') );
 
 	} # end: widget()
+
+	/**
+	 * Helper functions
+	 */
+
+	/**
+	 * Get the widget settings for a particular widget number
+	 *
+	 * @param 	(int|string) 	$widget_number		The number for the desired widget (e.g. 6)
+	 * @return 	array
+	 */
+	public function get_instance( $widget_number ) {
+		
+		# get the settings for this widget (includes all instances)
+		$widget_settings_all = $this->get_settings();
+
+		if( empty( $widget_settings_all[ $widget_number ] ) ) return array();
+		return $widget_settings_all[ $widget_number ];
+
+	} # end: get_instance()
 
 	/**
 	 * Generate the HTML for the widget search results

@@ -23,13 +23,51 @@ form > h3{
 .form-table.indent th{ padding-left: 3em;  }
 .form-table.indent {margin-bottom: 3em;}
 
-/* Search Widget */
-.cptd-search-widget-form label.post-type-select,
-.cptd-search-widget-form label.taxonomy-select {
+/**
+ * Widgets
+ * 
+ * - General
+ * - Search Widget
+ * - Random Posts Widget
+ */
+
+/* General */
+.cptd-widget-form {
+	margin-bottom: 2em;
+}
+.cptd-widget-form h4 {
+	margin-top: 2.5em;
+	margin-bottom: 0em;
+}
+.cptd-widget-form h4 + p {
+	margin-top: 0.5em;
+	margin-bottom: 1.5em;
+}
+.cptd-widget-form label input[type=text],
+.cptd-widget-form label input[type=textarea],
+.cptd-widget-form label input[type=number],
+.cptd-widget-form label input[type=select] {
+	margin-top: 0.3em
+}
+
+.cptd-widget-form label input[type=number] {
+	line-height: 2em;
+}
+
+.cptd-widget-form label.post-type-select,
+.cptd-widget-form label.taxonomy-select,
+.cptd-widget-form label.terms-select {
 	display: block;
 	margin: 0.5em 0;
 	margin: 0.5em 0;
 }
+
+.cptd-terms-list.highlight {
+	padding: 1em;
+}
+.cptd-terms-list.highlight h4{ margin-top: 0; }
+
+/* Search Widget */
 .cptd-search-widget-field {
     margin: 0.5em 0;
     padding-left: 1em;
@@ -40,6 +78,9 @@ form > h3{
 .cptd-search-widget-field .field-type-select label {
 	margin-right: 1em;
 }
+
+/* Random Posts Widget */
+
 
 /* Import */
 #cptd-import-form input[type=radio]{

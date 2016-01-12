@@ -187,6 +187,7 @@ class CPTD {
 	 */
 	public static function widgets_init() {
 		register_widget("CPTD_Search_Widget");
+		register_widget("CPTD_Random_Posts_Widget");
 	} # end: widgets_init()
 
 	/**
