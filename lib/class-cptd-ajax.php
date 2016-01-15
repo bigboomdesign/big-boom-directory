@@ -27,8 +27,6 @@ class CPTD_Ajax{
 		/* widgets */
 		'cptd_toggle_taxonomy_term_details',
 
-		/* import */
-		'cptd_import_csv_submit'
 	);
 
 
@@ -38,7 +36,6 @@ class CPTD_Ajax{
 	 * - Ajax callback methods
 	 * 		- Post edit
 	 * 		- Widgets
-	 * 		- Import
 	 * - Helper methods
 	 */
 
@@ -226,30 +223,6 @@ class CPTD_Ajax{
 		<?php
 		die();
 	} # end: cptd_toggle_taxonomy_term_details()
-
-	/**
-	 * Import
-	 *
-	 * - cptd_import_csv_submit()
-	 */
-	
-	/**
-	 * Callback for submitting CSV during import process
-	 *
-	 * @param	string 		$_POST['post_type'] 	The post type to use for the imported rows
-	 * @since 	2.0.0
-	 */
-	public static function cptd_import_csv_submit() {
-
-		$post_type = sanitize_text_field( $_POST['post_type'] );
-
-		require_once( cptd_dir( '/lib/class-cptd-import.php' ) );
-		$importer = new CPTD_Import();
-		$importer->do_import_content();
-
-		die();
-
-	} # end: cptd_import_csv_submit()
 
 	/**
 	 * Helper methods

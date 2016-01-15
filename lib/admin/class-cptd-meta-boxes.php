@@ -1,6 +1,8 @@
 <?php
 /**
  * Handles the display and updating of meta boxes for the backend using CMB2
+ *
+ * @since 	2.0.0
  */
 class CPTD_Meta_Boxes {
 

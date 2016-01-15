@@ -3,6 +3,8 @@
  * Inserts actions and filters for backend
  * Handles callbacks for actions and filters on backend
  * Produces HTML for backend content on various screens
+ * 
+ * @since 	2.0.0
  */
 class CPTD_Admin{
 
@@ -17,9 +19,12 @@ class CPTD_Admin{
 
 
 		# Admin menu items
-		add_action('admin_menu', array( 'CPTD_Admin', 'admin_menu' ) );
+		add_action('admin_menu', array( 'CPTD_Admin', 'admin_menu' ), 10 );
+
+		# For add-ons, we want to allow them to go above the 'Information' page
+		add_action('admin_menu', array( 'CPTD_Admin', 'admin_menu_information' ), 100 );
 		
-		# Admin scripts
+		# Admin scripts and styles
 		add_action('admin_enqueue_scripts', array('CPTD_Admin', 'admin_enqueue'));
 	
 		# Action links on main Plugins screen
@@ -50,6 +55,7 @@ class CPTD_Admin{
 	 * 
 	 * - admin_init()
 	 * - admin_menu()
+	 * - admin_menu_information()
 	 * - admin_enqueue()
 	 * - plugin_actions()
 	 * - post_row_actions()
@@ -78,8 +84,6 @@ class CPTD_Admin{
 
 		# sub-pages
 		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Settings | CPT Directory', 'Settings', 'manage_options', 'cptd-settings', array('CPTD_Admin', 'settings_page') );
-		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Import | CPT Directory', 'Import', 'manage_options', 'cptd-import', array( 'CPTD_Admin', 'import_page' ) );
-		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Information | CPT Directory', 'Information', 'manage_options', 'cptd-information', array('CPTD_Admin', 'information_page') );
 
 		# Add "Edit Post Type" submenu item for each post type
 		foreach( CPTD::$post_type_ids as $id ) {
@@ -88,9 +92,15 @@ class CPTD_Admin{
 			add_submenu_page( 'edit.php?post_type=' . $pt->handle, '', 'Edit Post Type', 'manage_options', 'post.php?post=' . $id .'&action=edit' );
 		}
 		
+		# remove the 'Add New' for post types
 		global $submenu;
         unset($submenu['edit.php?post_type=cptd_pt'][10]);
+
 	} # end: admin_menu()
+
+	public static function admin_menu_information() {
+		add_submenu_page( 'edit.php?post_type=cptd_pt', 'Information | CPT Directory', 'Information', 'manage_options', 'cptd-information', array('CPTD_Admin', 'information_page') );
+	} # end: admin_menu_information()
 	
 	/**
 	 * Enqueue admin scripts and styles
@@ -125,13 +135,6 @@ class CPTD_Admin{
 			$post_id = isset( $_GET['post'] ) ? $_GET['post'] : 0;
 			wp_localize_script( 'cptd-post-edit-js', 'cptdData', array( 'postId' =>  $post_id ) );
 		}
-
-		# Import screen
-		if( 'cptd_pt_page_cptd-import' == $screen->base ) {
-			wp_enqueue_style( 'cptd-admin' );
-			wp_enqueue_script( 'cptd-import', cptd_url( '/js/admin/cptd-import.js' ), array( 'jquery' ) );
-		}
-
 			
 		# Information screen
 		if($screen->base == 'cptd_pt_page_cptd-information'){
@@ -225,7 +228,6 @@ class CPTD_Admin{
 	 * HTML for admin screens produced by this plugin
 	 *
 	 * - settings_page()
-	 * - import_page()
 	 * - information_page()
 	 */
 	
@@ -249,27 +251,6 @@ class CPTD_Admin{
 
 		echo self::page_wrap($html);
 	} # end: settings_page()
-
-	/**
-	 * Output HTML for the import page
-	 *
-	 * @since 	2.0.0
-	 */
-	public static function import_page() {
-
-		require_once cptd_dir("lib/class-cptd-import.php"); 
-		$importer = new CPTD_Import();
-
-		ob_start();
-
-		$importer->do_import_page();
-		
-		$html = ob_get_contents();
-		
-		ob_end_clean();
-
-		echo self::page_wrap( $html );
-	} # end: import_page()
 	
 	/**
 	 * Output HTML for the Information (README.html) page

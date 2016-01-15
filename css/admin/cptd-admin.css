@@ -81,15 +81,3 @@ form > h3{
 
 /* Random Posts Widget */
 
-
-/* Import */
-#cptd-import-form input[type=radio]{
-	margin: 0.5em 0;
-}
-#cptd-import-form input#title_pattern{
-	margin: 0.5em 0;
-}
-div.cptd-found-header{ padding-bottom: 1.5em; }
-div.cptd-found-header .cptd-header{ color: #1E8CBE; }
-div.cptd-cf-or{ margin: 1.5em 0; }
-.cptd-new-cf-input{ margin-top: 0.8em; }
