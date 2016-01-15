@@ -374,10 +374,57 @@ Below is an example to wrap a field called `email` in a div. Note the example do
 
 ---
 
+### ````cptd_before_search_result````
+### ````cptd_after_search_result````
+
+These actions allow to insert content before or after the search results rendered by the search widget. Note that the widget uses the post excerpt if defined, or truncates the post content to the specified length otherwise.
+
+### Parameters
+
+````$post_id```` (int) The post ID for the current search result being displayed
+
+### Example
+
+The following example will display a field called `email` before the result's excerpt and then show a list of term links for the post from a taxonomy called `movie_genre` after the excerpt
+
+    add_action( 'cptd_before_search_result', 'my_cptd_before_search_result' );
+    function my_cptd_before_search_result( $post_id ) {
+        cptd_field( $post_id, 'email' );
+    }
+    
+    add_action( 'cptd_after_search_result', 'my_cptd_after_search_result' );
+    function my_cptd_after_search_result( $post_id ) {
+    
+        $terms = wp_get_post_terms( $post_id, 'movie_genres' );
+        $term_links = array();
+    
+        foreach( $terms as $term ) {
+            $term_links[] = '<a href="' . get_term_link( $term ) . '">' . $term->name . '</a>';
+        }
+
+        if( ! empty( $term_links ) ) {
+            echo '<p>Located in: ' . implode( ', ', $term_links ) . '</p>';
+        }
+    }
+
+---
+
 ## Functions
 
 Here are some helper functions that you can call within your child theme
 
 ### ````is_cptd_view()````
 
-Returns `true` if we are viewing a CPTD object and `false` otherwise.
+Returns `true` if we are viewing a CPTD object (single post, post archive, or term archive) and `false` otherwise.
+
+---
+
+### ````cptd_field( $post_id, $field_key )````
+
+Renders HTML for a single field for the given post ID.  Any custom hooks registered for the field wrap, label, or value will be executed.
+
+---
+
+### ````cptd_get_field_html( $post_id, $field_key )````
+
+Returns an HTML string for a single field for the given post ID.  Any custom hooks registered for the field wrap, label, or value will fire.

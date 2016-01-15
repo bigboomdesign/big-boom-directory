@@ -164,11 +164,13 @@ class CPTD_Field {
 		if( empty( $post_id ) ) return '';
 
 		global $cptd_view;
+		if( empty( $cptd_view ) ) $cptd_view = new CPTD_View();
 
 		$value = '';
 
 		if( isset( $cptd_view->post_meta[ $post_id ][ $this->key ] ) )
 			$value = $cptd_view->post_meta[ $post_id ][ $this->key ];
+		else $value = get_post_meta( $post_id, $this->key, true );
 
 		# apply filter to value so users can edit it
 		$value = apply_filters( 'cptd_field_value_' . $this->key, $value, $this );
@@ -189,6 +191,9 @@ class CPTD_Field {
 			'after_tag' 	=> 'div',
 		);
 		$field_wrap = apply_filters( 'cptd_field_wrap_' . $this->key, $field_wrap, $this );
+
+		# start the output buffer
+		ob_start();
 
 		/**
 		 * Special cases
@@ -245,7 +250,13 @@ class CPTD_Field {
 					<?php
 				}
 
-				return;
+				$html = ob_get_contents();
+				ob_end_clean();
+				if( $echo ) {
+					echo $html;
+					return;
+				}
+				return $html;
 				
 			} # end if: field key is a social media field
 		
@@ -278,7 +289,14 @@ class CPTD_Field {
 						</a>
 				</div>
 			<?php
-				return;
+				$html = ob_get_contents();
+				ob_end_clean();
+
+				if( $echo ) {
+					echo $html;
+					return;
+				}
+				return $html;
 			
 			} # end if: website field key
 
@@ -369,7 +387,13 @@ class CPTD_Field {
 			} # end if: image source is set
 
 			# go to next field after showing the image
-			return;
+			$html = ob_get_contents();
+			ob_end_clean();
+			if( $echo ) {
+				echo $html;
+				return;
+			}
+			return $html;
 		} # endif: image field
 
 		/**
@@ -403,7 +427,15 @@ class CPTD_Field {
 
 			# unserialize and make sure we have images
 			$image_ids = unserialize( $value );
-			if( ! $image_ids  ) return;
+			if( ! $image_ids  ) {
+				$html = ob_get_contents();
+				ob_end_clean();
+				if( $echo ) {
+					echo $html;
+					return;
+				}
+				return $html;
+			}
 
 			# query the DB for all attachment metadata (so we don't have to call a WP function multiple times
 			# that will hit the database for every image)
@@ -415,7 +447,15 @@ class CPTD_Field {
 
 			$image_results = $wpdb->get_results( $image_query );
 
-			if( ! $image_results ) return;
+			if( ! $image_results ) {
+				$html = ob_get_contents();
+				ob_end_clean();
+				if( $echo ) {
+					echo $html;
+					return;
+				}
+				return $html;
+			}
 
 			# get the uploads directory URL
 			$uploads_dir = wp_upload_dir();
@@ -452,7 +492,13 @@ class CPTD_Field {
 			?>
 			</div>
 		<?php
-			return;
+			$html = ob_get_contents();
+			ob_end_clean();
+			if( $echo ) {
+				echo $html;
+				return;
+			}
+			return $html;
 		} # end: gallery field
 
 		/**
@@ -484,6 +530,14 @@ class CPTD_Field {
 			</<?php echo $field_wrap['after_tag']; ?>>
 		<?php
 		} # end if: field wrap has a tag set
+
+		$html = ob_get_contents();
+		ob_end_clean();
+		if( $echo ) {
+			echo $html;
+			return;
+		}
+		return $html;
 
 	} # end: get_html()
 

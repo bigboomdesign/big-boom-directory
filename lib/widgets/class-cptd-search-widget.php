@@ -20,6 +20,12 @@ class CPTD_Search_Widget extends WP_Widget {
 	var $field_keys = array();
 
 	/**
+	 * Whether we are in the middle of a search result loop 
+	 * Helps with using the_content() filter inside the search results loop
+	 */
+	var $doing_search_results = false;
+
+	/**
 	 * Class methods
 	 *
 	 * - __construct()
@@ -98,8 +104,8 @@ class CPTD_Search_Widget extends WP_Widget {
 		
 		<?php # The `submit_text` option ?>
 		<p><label for="<?php echo $this->get_field_id('submit_text'); ?>">
-		Text for Submit button:
-		<input type="text" class="widefat" id="<?php echo $this->get_field_id('submit_text'); ?>" name="<?php echo $this->get_field_name('submit_text'); ?>" value="<?php if( ! empty( $instance['submit_text'] ) ) echo esc_attr( $instance['submit_text'] ); ?>"/>
+			Text for Submit button:
+			<input type="text" class="widefat" id="<?php echo $this->get_field_id('submit_text'); ?>" name="<?php echo $this->get_field_name('submit_text'); ?>" value="<?php if( ! empty( $instance['submit_text'] ) ) echo esc_attr( $instance['submit_text'] ); ?>"/>
 		</label></p>
 
 		<?php # The search results page ?>
@@ -120,8 +126,20 @@ class CPTD_Search_Widget extends WP_Widget {
 			));
 		?>
 		</label></p>
-
 		<?php 
+
+		# Excerpt length
+		?>
+		<p><label>Excerpt length:
+			<input type='text' class='widefat' 
+				id='<?php echo $this->get_field_id('excerpt_length'); ?>' 
+				name="<?php echo $this->get_field_name('excerpt_length'); ?>" 
+				value="<?php echo ! empty( $instance['excerpt_length'] ) ?  
+					esc_attr( $instance['excerpt_length'] ) :
+					250; ?>"
+			/>
+		</label></p>
+		<?php
 		# Checkboxes for post types
 		$post_type_args = array(
 			'selected' => ( ! empty( $instance['post_types'] ) ? $instance['post_types'] : array() ),
@@ -354,7 +372,7 @@ class CPTD_Search_Widget extends WP_Widget {
 			</form>
 		<?php
 		echo $after_widget;
-		wp_enqueue_style( 'cptd', cptd_url('/css/cptd.css') );
+		wp_enqueue_style( 'cptd', cptd_url('/css/cptd.css'), null, true );
 
 	} # end: widget()
 
@@ -387,6 +405,9 @@ class CPTD_Search_Widget extends WP_Widget {
 	 */
 	public function get_search_results_html( $content ) {
 
+		# make sure we don't recurse when doing search results excerpts
+		if( $this->doing_search_results ) return $content;
+
 		# get the settings for this widget instance (or the posted instance if different)
 		$widget_number = isset( $_POST['cptd_search']['widget_number'] ) ?
 			$_POST['cptd_search']['widget_number'] : 
@@ -395,6 +416,9 @@ class CPTD_Search_Widget extends WP_Widget {
 		$instance = $this->get_instance( $widget_number );
 
 		if( ! $instance ) return $content;
+
+		# excerpt length
+		$excerpt_length = ! empty( $instance['excerpt_length'] ) ? $instance['excerpt_length'] : 250;
 
 		# get the post type names from the widget settings
 		if( empty( $instance['post_types'] ) ) $post_type_ids = CPTD::$post_type_ids;
@@ -518,15 +542,36 @@ class CPTD_Search_Widget extends WP_Widget {
 		<div id='cptd-search-results' class='<?php echo $this->id; ?>'>
 		<?php
 			# if posts were found
-			if( $search_query->have_posts() ) while( $search_query->have_posts() ) {
+			if( $search_query->have_posts() ) {
 
-				$search_query->the_post();
-				$post = $search_query->post;
-				?>
-				<a href='<?php echo get_the_permalink( $post->ID ); ?>'><?php echo $post->post_title . '<br />'; ?></a>
-				<?php
+				$this->doing_search_results = true;
+
+				while( $search_query->have_posts() ) {
+
+					$search_query->the_post();
+					$post = $search_query->post;
+
+					# post title header
+					?>
+					<h2><a href='<?php echo get_the_permalink( $post->ID ); ?>'><?php echo $post->post_title; ?></a></h2>
+					<?php
+					# get the post excerpt
+					$excerpt = '';
+					do_action( 'cptd_before_search_result', $post->ID );
+					if( ! empty( $post->post_excerpt ) ) {
+						$excerpt = apply_filters( 'the_excerpt', $post->post_excerpt );
+					}
+					else{
+						$excerpt = apply_filters( 'the_content', $post->post_content );
+						$excerpt = CPTD_Helper::make_excerpt( $excerpt, $excerpt_length );
+					}
+					echo $excerpt;
+					do_action( 'cptd_after_search_result', $post->ID );
+				}
 				wp_reset_query();
-			}
+
+				$this->doing_search_results = false;
+			} # end if: posts were found
 
 			# if no posts were found
 			else {
@@ -539,6 +584,8 @@ class CPTD_Search_Widget extends WP_Widget {
 		<?php
 		$html = ob_get_contents();
 		ob_end_clean();
+
+		wp_enqueue_style( 'cptd', cptd_url('/css/cptd.css'), null, true );
 		return $html;
 	} # end: get_search_results_html()
 

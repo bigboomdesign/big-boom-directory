@@ -403,10 +403,59 @@ function my_post_email( $field ){
 
 <hr />
 
+<h3><code>cptd_before_search_result</code></h3>
+
+<h3><code>cptd_after_search_result</code></h3>
+
+<p>These actions allow to insert content before or after the search results rendered by the search widget. Note that the widget uses the post excerpt if defined, or truncates the post content to the specified length otherwise.</p>
+
+<h3>Parameters</h3>
+
+<p><code>$post_id</code> (int) The post ID for the current search result being displayed</p>
+
+<h3>Example</h3>
+
+<p>The following example will display a field called <code>email</code> before the result's excerpt and then show a list of term links for the post from a taxonomy called <code>movie_genre</code> after the excerpt</p>
+
+<pre><code>add_action( 'cptd_before_search_result', 'my_cptd_before_search_result' );
+function my_cptd_before_search_result( $post_id ) {
+    cptd_field( $post_id, 'email' );
+}
+
+add_action( 'cptd_after_search_result', 'my_cptd_after_search_result' );
+function my_cptd_after_search_result( $post_id ) {
+
+    $terms = wp_get_post_terms( $post_id, 'movie_genres' );
+    $term_links = array();
+
+    foreach( $terms as $term ) {
+        $term_links[] = '&lt;a href="' . get_term_link( $term ) . '"&gt;' . $term-&gt;name . '&lt;/a&gt;';
+    }
+
+    if( ! empty( $term_links ) ) {
+        echo '&lt;p&gt;Located in: ' . implode( ', ', $term_links ) . '&lt;/p&gt;';
+    }
+}
+</code></pre>
+
+<hr />
+
 <h2>Functions</h2>
 
 <p>Here are some helper functions that you can call within your child theme</p>
 
 <h3><code>is_cptd_view()</code></h3>
 
-<p>Returns <code>true</code> if we are viewing a CPTD object and <code>false</code> otherwise.</p>
+<p>Returns <code>true</code> if we are viewing a CPTD object (single post, post archive, or term archive) and <code>false</code> otherwise.</p>
+
+<hr />
+
+<h3><code>cptd_field( $post_id, $field_key )</code></h3>
+
+<p>Renders HTML for a single field for the given post ID.  Any custom hooks registered for the field wrap, label, or value will be executed.</p>
+
+<hr />
+
+<h3><code>cptd_get_field_html( $post_id, $field_key )</code></h3>
+
+<p>Returns an HTML string for a single field for the given post ID.  Any custom hooks registered for the field wrap, label, or value will fire.</p>

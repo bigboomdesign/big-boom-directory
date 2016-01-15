@@ -25,6 +25,7 @@ class CPTD_Helper{
 	/**
 	 * Class Methods
 	 *
+	 * - make_excerpt()
 	 * - get_post_field()
 	 * - clean_str_for_url()
 	 * - clean_str_for_field()
@@ -42,6 +43,40 @@ class CPTD_Helper{
 	 * - checkboxes_for_taxonomies()
 	 * - checkboxes_for_terms()
 	 */
+
+	/**
+	 * Create an excerpt of a given string with a given length and trailer
+	 *
+	 * @param 	$content 	The string to truncate
+	 * @param 	$length		The number of characters (rounded down to account for full word)
+	 * @param 	$after 		The HTML to display after the excerpt
+	 *
+	 * @return 	string
+	 * @since 	2.0.0
+	 */
+	public static function make_excerpt( $content, $length = 250, $after = '...' ) {
+
+		$excerpt = $content;
+		$excerpt = substr( $excerpt, 0, $length );
+
+		# return the original string if we have no difference
+		if( $excerpt == $content ) return $excerpt;
+		
+		# find the cut point (the last space in the string) and make the cut
+		$cut_point = strrpos( $excerpt, ' ' );
+		if( $cut_point ) $excerpt = trim( substr( $excerpt, 0, $cut_point ) );
+
+		if( '' == $excerpt ) return '';
+
+		# append the HTML from $after to the end of the string 
+		$excerpt .= $after;
+
+		# make sure we return a string with balanced HTML tags
+		$excerpt = force_balance_tags( $excerpt );
+
+		return $excerpt;
+	
+	} # end: make_excerpt()
 	
 	/**
 	 * Check if a $_POST value is empty and return sanitized value
