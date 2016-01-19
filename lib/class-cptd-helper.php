@@ -36,6 +36,7 @@ class CPTD_Helper{
 	 * - get_all_post_ids()
 	 * - get_all_post_ids_for_post_types()
 	 * - get_all_post_ids_for_terms()
+	 * - get_all_post_ids_for_fields()
 	 * - get_all_field_keys()
 	 * - get_image_sizes()
 	 *
@@ -403,7 +404,7 @@ class CPTD_Helper{
 				implode( "', '", $cptd_post_type_handles ) .
 			"' )";
 		$post_ids_result = $wpdb->get_results( $post_ids_query );
-		var_dump( $post_ids_result );
+
 		foreach( $post_ids_result as $r ) {
 			$post_ids[] = $r->ID;
 		}
@@ -476,6 +477,95 @@ class CPTD_Helper{
 
 		return $post_ids;
 	} # end: get_all_post_ids_for_terms()
+
+	/**
+	 * Return a list of post IDs for a given set of field key/value pairs
+	 *
+	 * @param 	array 	$fields 		Associative array of key/value pairs of fields to get posts by
+	 * @param 	string 	$operation 		Whether to match all given values (use "AND") or any given values (use "OR")
+	 *
+	 * @return 	array
+	 * @since 	2.0.0
+	 */
+	public static function get_all_post_ids_for_fields( $fields, $operation = 'OR' ) {
+
+		# the post ID array we'll return
+		$post_ids = array();
+
+		# the meta_key/meta_value clauses for our db query
+		$clauses = array();
+
+		# loop through given fields and populate clauses
+		foreach( $fields as $k => $v ) {
+
+			$key = sanitize_key( $k );
+
+			# if we have an array of field values
+			if( is_array( $v ) ) {
+				foreach( $v as $field_value ) {
+					$clauses[] = " ( meta_key='" . $key . 
+						"' AND meta_value='" . sanitize_text_field( $field_value ) . 
+					"' ) ";
+				}
+			}
+
+			# if we have a single value
+			else {
+				$value = sanitize_text_field( $v );
+				$clauses[] = " ( meta_key='" . $key . "' AND meta_value='" . $value . "' ) ";
+			}
+		}
+
+		if( empty( $clauses ) ) return array();
+
+		# query the database for field matches
+		global $wpdb;
+		$field_match_query = "SELECT DISTINCT meta_key, post_id FROM " . $wpdb->postmeta .
+			" WHERE " . implode( " OR ", $clauses );
+
+		$field_match_results = $wpdb->get_results( $field_match_query );
+
+		/**
+		 * Store the matching post IDs for each field key 
+		 *
+		 * @type array {
+		 *
+		 * 		'field_key_1' => array( id1, id2, ... ),
+		 *		'field_key_2' => array( id1, id2, ... ),
+		 * 		...
+		 * }
+		 */
+		$post_id_matches = array();
+
+		foreach( $field_match_results as $r ) {
+			$post_id_matches[ $r->meta_key ][] = $r->post_id;
+		}
+
+		# if we're looking for any field match (OR)
+		if( 'OR' == strtoupper( $operation ) ) {
+			foreach( $post_id_matches as $k => $ids ) {
+				foreach( $ids as $id ) if( ! in_array( $id, $post_ids ) ) $post_ids[] = $id;
+			}
+		}
+
+		# if we're matching all fields (AND)
+		elseif( 'AND' == strtoupper( $operation ) ) {
+			$i = 0;
+			$intersection = array();
+			foreach( $post_id_matches as $k => $ids ) {
+				if( 0 == $i ) {
+					$intersection = $ids;
+				}
+				else { $intersection = array_intersect( $intersection, $ids ); }
+				$i++;
+			}
+
+			$post_ids = $intersection;
+		} # end else: matching all fields (AND)
+
+		return $post_ids;
+		
+	} # end: get_all_post_ids_for_fields()
 
 	/**
 	 * Get an alphabetical list of unique field keys for CPTD user-created posts
