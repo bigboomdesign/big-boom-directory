@@ -34,6 +34,8 @@ class CPTD_Helper{
 	 *
 	 * - register()
 	 * - get_all_post_ids()
+	 * - get_all_post_ids_for_post_types()
+	 * - get_all_post_ids_for_terms()
 	 * - get_all_field_keys()
 	 * - get_image_sizes()
 	 *
@@ -82,6 +84,8 @@ class CPTD_Helper{
 	 * Check if a $_POST value is empty and return sanitized value
 	 *
 	 * @param 	string 	$field 		The key to check within the $_POST array
+	 *
+	 * @return 	string
 	 * @since 	2.0.0
 	 */
 	public static function get_post_field($field){
@@ -93,6 +97,8 @@ class CPTD_Helper{
 	 * Return a URL-friendly version of a string ( letters/numbers/hyphens only ), replacing unfriendly chunks with a single dash
 	 *
 	 * @param 	string 	$input 		The string to clean for URL usage
+	 *
+	 * @return 	string
 	 * @since 	2.0.0
 	 */
 	public static function clean_str_for_url( $input ){
@@ -114,6 +120,8 @@ class CPTD_Helper{
 	 * Return a field-key-friendly version of a string ( letters/numbers/hyphens/underscores only ), replacing unfriendly chunks with a single underscore
 	 *
 	 * @param 	string 	$input 		The string to clean for field key usage
+	 *
+	 * @return 	string
 	 * @since 	2.0.0
 	 */
 	public static function clean_str_for_field($input){
@@ -200,11 +208,13 @@ class CPTD_Helper{
 	 * so that either way our options display function will have the data it needs
 	 *
 	 * @param 	array 	$setting 	The field array to get choices for (see get_field_array)
+	 *
+	 * @return 	array
 	 * @since 	2.0.0
 	 */
-	public static function get_choice_array($setting){
-		extract($setting);
-		if(!isset($choices)) return;
+	public static function get_choice_array( $setting ) {
+		extract( $setting );
+		if( ! isset( $choices ) ) return array();
 		$out = array();
 		if(!is_array($choices)){
 			$out[] = array(
@@ -321,6 +331,7 @@ class CPTD_Helper{
 	/**
 	 * Return an array of post ID's belonging to all user-created custom post types
 	 * 
+	 * @return 	array
 	 * @since 	2.0.0
 	 */
 	public static function get_all_post_ids() {
@@ -353,6 +364,118 @@ class CPTD_Helper{
 		return $post_ids;
 
 	} # end: get_all_post_ids()
+
+	/**
+	 * Return a list of post IDs for a given set of post types
+	 *
+	 * @param 	array 	$post_types 	A mixed list of post type handles, labels, or IDs
+	 *
+	 * @return 	array
+	 * @since 	2.0.0
+	 */
+	public static function get_all_post_ids_for_post_types( $post_types ) {
+
+		$cptd_post_type_handles = array();
+		$post_ids = array();
+
+		# loop through the given post types and store objects into array
+		foreach( $post_types as $post_type ) {
+			foreach( CPTD::$post_type_ids as $id ) {
+
+				$pt = new CPTD_PT( $id );
+				if( empty( $pt->ID ) ) continue;
+
+				if( in_array( 
+					$post_type, 
+					array( $pt->handle, $pt->singular, $pt->plural, strval( $pt->ID ) ) 
+				) ) {
+					$cptd_post_type_handles[] = $pt->handle;
+				}
+			} # end foreach: CPTD post type IDs
+		} # end foreach: given post types
+
+		if( empty( $cptd_post_type_handles ) ) return array();
+
+		# get post IDS based on the post types we found
+		global $wpdb;
+		$post_ids_query = "SELECT DISTINCT ID FROM " . $wpdb->posts . 
+			" WHERE post_type IN ( '" .
+				implode( "', '", $cptd_post_type_handles ) .
+			"' )";
+		$post_ids_result = $wpdb->get_results( $post_ids_query );
+		var_dump( $post_ids_result );
+		foreach( $post_ids_result as $r ) {
+			$post_ids[] = $r->ID;
+		}
+
+		return $post_ids;
+
+	} # end: get_all_post_ids_for_post_types()
+
+	/**
+	 * Return a list of post IDs for a given set of terms 
+	 * If $taxonomy is empty, term IDs must be used
+	 * If $taxonomy is non-empty, then a mixture of term names and term IDs can be used
+	 *
+	 * @param 	array 	$terms		A list of terms as described above
+	 * @param 	string 	$taxonomy	A handle or label for the taxonomy to get terms from
+	 *
+	 * @return 	array
+	 * @since 	2.0.0
+	 */
+	public static function get_all_post_ids_for_terms( $terms, $taxonomy = '' ) {
+		
+		$term_ids = array();
+
+		# if we don't have a taxonomy, make sure that all $terms are IDs
+		if( empty( $taxonomy ) ) {
+			foreach( $terms as $term ) {
+				if( intval( $term ) ) $term_ids[] = intval( $term );
+			}
+		}
+
+		# if we do have a taxonomy, try to match term IDs by each given ID or name
+		else {
+
+			# make sure we can find a valid taxonomy based on the given value
+			$tax = CPTD_Tax::get_by_text( $taxonomy );
+			if( empty( $tax->ID ) ) return array();
+
+			# get terms for the taxonomy
+			$wp_terms = get_terms( array('taxonomy' => $tax->handle ) );
+
+			# loop through terms and store term IDs into the term ID array
+			if( ! is_wp_error( $wp_terms ) ) foreach( $wp_terms as $wp_term ) {
+				if( 
+					in_array( strval( $wp_term->term_id ), $terms  )
+					|| in_array( $wp_term->name, $terms )
+
+				) { 
+					$term_ids[] = $wp_term->term_id; 
+				} # end if: terms matches a user-submitted term ID or term name
+			} // end foreach: terms for given $taxonomy
+		} # end else: $taxonomy is set
+		
+		# make sure we have term IDs
+		if( ! $term_ids ) return array();
+
+		# get the post IDs for the terms IDs we found
+		$post_ids = array();
+
+		global $wpdb;
+		$post_id_query = "SELECT DISTINCT object_id FROM " . $wpdb->term_relationships . 
+			" WHERE term_taxonomy_id IN ( '" . 
+				implode( "', '", $term_ids ) .
+			"' )";
+		$post_id_results = $wpdb->get_results( $post_id_query );
+
+		foreach( $post_id_results as $r ) {
+
+			$post_ids[] = $r->object_id;
+		}
+
+		return $post_ids;
+	} # end: get_all_post_ids_for_terms()
 
 	/**
 	 * Get an alphabetical list of unique field keys for CPTD user-created posts
