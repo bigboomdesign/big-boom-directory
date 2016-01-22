@@ -582,7 +582,7 @@ class CPTD_Meta_Boxes {
 	 */
 	public static function before_slug( $args, $field ) {
 		global $post;
-		$field->args['default'] = CPTD_Helper::clean_str_for_url($post->post_title);
+		$field->args['default'] = CPTD_Helper::clean_str_for_url( $post->post_title );
 	}
 
 	/**

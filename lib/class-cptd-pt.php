@@ -203,7 +203,8 @@ class CPTD_PT extends CPTD_Post{
 	public function register(){
 
 		# make sure we have the handle set
-		if( empty( $this->handle ) ) return;
+		if( empty( $this->handle ) && empty( $this->post_title ) ) return;
+		if( empty( $this->handle ) ) $this->handle = CPTD_Helper::clean_str_for_field( $this->post_title );
 		
 		$args = array(
 			'post_type' => $this->handle,
@@ -216,7 +217,10 @@ class CPTD_PT extends CPTD_Post{
 			)
 		);
 
-		if( ! empty( $this->slug ) ) $args['names']['slug'] = $this->slug;
+		if( empty( $this->slug ) ) {
+			$this->slug = CPTD_Helper::clean_str_for_url( $this->post_title );
+		}
+		$args['names']['slug'] = $this->slug;
 
 		# load in any settings from the backend
 		foreach( $this->args_settings as $key ) {
