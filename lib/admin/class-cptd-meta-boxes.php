@@ -651,6 +651,30 @@ class CPTD_Meta_Boxes {
 
  		} # end if: field groups exist
 
+		# if no field groups were found
+		else {
+
+			# check if ACF is active and prompt to add field groups if so
+			if( class_exists( 'acf' ) ) {
+
+				$link = class_exists( 'acf_pro' ) ? 
+					admin_url('edit.php?post_type=acf-field-group') : 
+					admin_url('edit.php?post_type=acf');
+
+				$field->args['description'] = '<p style="margin-top: 0;">It looks like you haven\'t added any field groups yet. ' . 
+					'To select fields for your post type, <a href="' .  $link . '">set up some field groups</a> using Advanced Custom Fields</p>';
+
+			} # end if: ACF is active
+
+			# if ACF is not active, prompt to install ACF
+			else {
+				$field->args['description'] = '<p style="margin-top: 0;">We recommend that you install the plugin ' .
+					'<a href="plugin-install.php?tab=search&s=advanced+custom+fields">Advanced Custom Fields</a> ' . 
+					'in order to configure fields for your post type.</p>';
+			}
+
+ 		} # end else: no field groups found
+
  	} # end: before_fields_select()
 
  	/**
