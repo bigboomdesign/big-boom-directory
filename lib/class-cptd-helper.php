@@ -45,6 +45,7 @@ class CPTD_Helper{
 	 * - checkboxes_for_post_types()
 	 * - checkboxes_for_taxonomies()
 	 * - checkboxes_for_terms()
+	 * - checkboxes_for_fields()
 	 */
 
 	/**
@@ -864,5 +865,90 @@ class CPTD_Helper{
 		return $html;
 
 	} # checkboxes_for_terms()
+
+	/**
+	 * Generate HTML for ACF field group checkboxes and dynamic field checkboxes for each group
+	 *
+	 * @param 	array 	$args 		{
+	 * 		
+	 * 		The arguments for the checkbox group (none required)
+	 *
+	 * 		@type 	array 	$selected 		The field group IDs to be pre-selected
+	 * 		@type	string 	$heading		HTML for heading to be displayed above the checkboxes
+	 * 		@type 	string 	$description	HTML for description to be displayed above the checkboxes
+	 * 		@type 	string	$field_id		The id attribute for individual checkboxes
+	 * 		@type 	string	$field_name		The name attribute for individual checkboxes (we add [] to store as an array)
+	 * 		@type 	string 	$label_class	The class to attach to each checkbox label
+	 * 		@type 	string 	$field_class	THe class to add to each field container
+	 * }
+	 * @return 	string
+	 * @since 	2.0.0
+	 */
+	public static function checkboxes_for_fields( $args ) {
+
+			# get arguments
+			$defaults = array(
+				'selected' => array(),
+				'heading' => '',
+				'description' => '',
+				'field_id' => '',
+				'field_name' => '',
+				'label_class' => '',
+				'field_class' => '',
+			);
+			$args = wp_parse_args( $args, $defaults );
+
+			# heading and description
+			?>
+			<div class='fields-header'>
+			<?php
+				if( ! empty( $args['heading'] ) ) echo $args['heading'];
+				if( ! empty( $args['description'] ) ) echo $args['description'];
+			?>
+			</div>
+			<?php 
+
+			# execute an action that we can hook into for different purposes
+			# for example, using a show/hide link above the field checkboxes
+			do_action( 'cptd_before_field_checkboxes', $args );
+			?>
+			<div class='fields-checkboxes'>
+			<?php
+
+				# loop through custom fields and display checkboxes and options area for each field
+				foreach( self::get_all_field_keys() as $field ) {
+
+					$field = new CPTD_Field( $field );
+				?>
+				<div class='<?php echo $args['field_class']; ?>'>
+
+					<?php # The main field checkbox ?>
+					<label for="<?php echo $args['field_id'] . '[' . $field->key . ']'; ?>">
+						<input type="checkbox" name="<?php echo $args['field_name'] . '[]'; ?>" 
+							id="<?php echo $args['field_id'] . '[' . $field->key . ']'; ?>" 
+							value="<?php echo $field->key; ?>" 
+							<?php
+								# check the checkbox if necessary
+								if( ! empty( $args['selected'] ) && is_array( $args['selected'] ) ) 
+								foreach ($args['selected'] as $f ) { 
+									checked( $f , $field->key );  
+								}
+							?>
+						/><?php echo $field->label; ?>
+					</label>
+					<?php 
+					# execute an action after each checkbox that we can hook into for different purposes
+					# for example, to show filter options in the search widget
+					do_action( 'cptd_after_field_checkbox', $field ); ?>
+
+				</div><!-- .{field_class}  -->
+				<?php
+
+				} # end foreach: $widget->field_keys
+			?>
+			</div><!-- .fields-checkboxes -->
+			<?php
+
+	} # end: checkboxes_for_fields()
 
 } # end class CPTD_Helper

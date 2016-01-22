@@ -71,7 +71,7 @@ a.cptd-gallery-thumb img{
 
 /**
  * Search Widget 
-*/
+ */
 #cptd-search-form{ margin-top: 1em; }
 div.cptd-search-filter{ margin-bottom: 1.5em; padding-bottom: 0;}
 .cptd-search-filter label {
@@ -82,6 +82,11 @@ div.cptd-search-filter{ margin-bottom: 1.5em; padding-bottom: 0;}
 
 /**
  * Search Results Page 
-*/
-.cptd-search-result-item{ margin-top: 2em; }
-.cptd-archive-thumb{ width: 80px; height: auto; }
+ */
+.cptd-search-result-item{ margin-bottom: 2em; }
+#cptd-search-results .search-results-fields {
+	margin: 1em 0;
+}
+#cptd-search-results .search-results-fields {
+	margin: 1em 0;
+}

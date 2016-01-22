@@ -5,13 +5,13 @@ jQuery( document ).ready( function($) {
 	 */
 
 	// onchange for field checkboxes: display the field details section
-	$( document).on( 'change', 'div#cptd-search-form div.cptd-search-widget-field input[type=checkbox]', 
+	$( document).on( 'change', 'div#cptd-search-form div.cptd-search-field-filter-select div.cptd-search-widget-field input[type=checkbox]', 
 		function() {
 			toggleSearchFieldDetails( $, this );
 	});
 
 	// initialize field checkboxes
-	$('div.cptd-search-widget-field').find('input[type=checkbox]')
+	$('div.cptd-search-field-filter-select div.cptd-search-widget-field').find('input[type=checkbox]')
 		.each( function() { toggleSearchFieldDetails( $, this ) } );
 
 	/**

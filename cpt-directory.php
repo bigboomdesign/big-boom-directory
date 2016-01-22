@@ -2,60 +2,64 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Directory management system based on Custom Post Types, Taxonomies, and Fields
- * Version: 2.0.0.31.5
+ * Version: 2.0.0.31.6
  * Author: Big Boom Design
  * Author URI: https://bigboomdesign.com
  */
  
 /**
  * Main Routine
+ * 
+ * - Dependencies
+ * - Actions
+ * - Admin Routines
+ * - Front End Routines
+ * - Helper Functions
  */
 
 /**
  * Dependencies
+ * 
+ * Other than core plugin classes, the dependencies are:
+ *
+ * - Extended CPT's
+ * @link 	https://github.com/johnbillion/extended-cpts
+ *
+ * - Extended Taxonomies
+ * @link	https://github.com/johnbillion/extended-taxos
+ *
+ * - CMB2, on the admin side
+ * @link	https://github.com/WebDevStudios/cmb2
  */
 
-# CPTD classes
 require_once cptd_dir('/lib/class-cptd.php');
-require_once cptd_dir('/lib/class-cptd-ajax.php');
-require_once cptd_dir('/lib/class-cptd-helper.php');
-require_once cptd_dir('/lib/class-cptd-options.php');
-require_once cptd_dir('/lib/class-cptd-post.php');
-require_once cptd_dir('/lib/class-cptd-pt.php');
-require_once cptd_dir('/lib/class-cptd-tax.php');
-require_once cptd_dir('/lib/class-cptd-field.php');
-require_once cptd_dir('/lib/widgets/class-cptd-search-widget.php');
-require_once cptd_dir('/lib/widgets/class-cptd-random-posts-widget.php');
-
-# Extended Post Types & Taxonomies
-if( ! function_exists( 'register_extended_post_type' ) ) require_once cptd_dir( '/assets/extended-cpts.php' );
-if( ! function_exists( 'register_extended_taxonomy' ) ) require_once cptd_dir( '/assets/extended-taxos.php' );
+CPTD::load_classes();
 
 
 /**
  * Actions
  */
 
-# Register user-defined post types
-add_action('init', array( 'CPTD', 'load_cptd_post_data' ) ) ;
-add_action('init', array( 'CPTD_Helper', 'register' ) );
-
+add_action( 'init', array( 'CPTD', 'init' ) );
 add_action( 'pre_get_posts', array( 'CPTD', 'pre_get_posts' ) );
-add_action("widgets_init", array( 'CPTD', 'widgets_init' ) );
-
+add_action( 'widgets_init', array( 'CPTD', 'widgets_init' ) );
 
 /**
  * Admin Routines
  */
-if(is_admin()){
+if( is_admin() ) {
 	
+	# the plugin core admin class
 	require_once cptd_dir( '/lib/admin/class-cptd-admin.php' );
+
+	# CMB2, which handles meta boxes for CPTD post type post edit screen
 	require_once cptd_dir( '/lib/admin/class-cptd-meta-boxes.php' );
 	require_once cptd_dir( '/assets/cmb2/init.php' );
 	
 	CPTD_Admin::init();
 	CPTD_Ajax::add_actions();
-}
+
+} # end if: is_admin()
 
 /**
  * Front End Routines
@@ -69,28 +73,23 @@ else{
 	global $cptd_view;
 	$cptd_view = null;
 
-	add_action( 'init', array( 'CPTD', 'init' ) );
 	add_action( 'wp', array( 'CPTD', 'wp' ) );
+
 }
 
 /**
  * Helper Functions
  * 
- * - cptd_should_load()
  * - is_cptd_view()
+ * - cptd_field()
+ * - cptd_get_field_html()
+ *
  * - cptd_url()
  * - cptd_dir()
+ *
  * - cptd_success()
  * - cptd_fail()
  */
-
-/** 
- * Whether or not this plugin should load
- * @since 	2.0.0
- */
-function cptd_should_load(){ 
-	return true; 
-}
 
 /**
  * Whether or not the main query is for a CPTD object
@@ -109,15 +108,50 @@ function is_cptd_view() {
 	if( null === CPTD::$is_cptd ) CPTD::load_view_info();
 
 	return CPTD::$is_cptd;
+
 } # end: is_cptd_view()
 
+/**
+ * Render HTML for a single field for a single post. 
+ * 
+ * Filters through the following:
+ * 	
+ * 	- cptd_field_value_{$field_key}
+ * 	- cptd_field_label_{$field_key}
+ * 	- cptd_field_wrap_{$field_key}
+ *
+ * @param 	int|string 	$post_id		The post ID to get the field value from
+ * @param 	string		$field_key		The field key to get the value for
+ *
+ * @since 	2.0.0
+ */
 function cptd_field( $post_id, $field_key ) {
+
 	$field = new CPTD_Field( $field_key );
 	$field->get_html( true, $post_id );
+
 }
+
+/**
+ * Return HTML for a single field for a single post.
+ *
+ * Filters through the following:
+ *
+ * 	- cptd_field_value_{$field_key}
+ * 	- cptd_field_label_{$field_key}
+ * 	- cptd_field_wrap_{$field_key}
+ *
+ * @param 	int|string 	$post_id		The post ID to get the field value from
+ * @param 	string		$field_key		The field key to get the value for
+ *
+ * @return 	string
+ * @since 	2.0.0
+ */
 function cptd_get_field_html( $post_id, $field_key ) {
+
 	$field = new CPTD_Field( $field_key );
 	return $field->get_html( false, $post_id );
+
 }
 
 /**

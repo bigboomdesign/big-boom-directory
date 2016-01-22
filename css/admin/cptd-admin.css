@@ -23,6 +23,13 @@ form > h3{
 .form-table.indent th{ padding-left: 3em;  }
 .form-table.indent {margin-bottom: 3em;}
 
+.show-hide-field-checkboxes {
+    cursor: pointer;
+    background: #eee none repeat scroll 0 0;
+    border-radius: 5px;
+    padding: 0.2em 1em;
+}
+
 /**
  * Widgets
  * 
@@ -70,7 +77,9 @@ form > h3{
 /* Search Widget */
 .cptd-search-widget-field {
     margin: 0.5em 0;
-    padding-left: 1em;
+}
+.cptd-search-field-filter-select .cptd-search-widget-field {
+	padding-left: 1em;
 }
 .cptd-search-widget-field .field-type-select {
 	margin: 1em 0 0.25em;
@@ -78,6 +87,13 @@ form > h3{
 .cptd-search-widget-field .field-type-select label {
 	margin-right: 1em;
 }
+
+#cptd-search-form .fields-checkboxes {
+	display: none;
+	margin-top: 2em;
+}
+
+
 
 /* Random Posts Widget */
 

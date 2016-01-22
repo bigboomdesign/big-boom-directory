@@ -152,6 +152,7 @@ class CPTD {
 	 * - Basic WP callbacks for actions and filters
 	 * - Callbacks for shortcodes
 	 * - Store and retrieve and store static information about post types and taxonomies
+	 * - Helper Functions
 	 */
 
 	/**
@@ -175,6 +176,12 @@ class CPTD {
 	 * @since 	2.0.0
 	 */
 	public static function init() {
+		
+		# load the data necessary to register post types and taxonomies
+		CPTD::load_cptd_post_data();
+
+		# register post types and taxonomies
+		CPTD_Helper::register();
 
 		# shortcodes
 		add_shortcode( 'cptd-a-z-listing', array('CPTD', 'a_to_z_html') );
@@ -632,12 +639,10 @@ class CPTD {
 			" WHERE post_type IN ( 'cptd_pt', 'cptd_tax' ) " .
 			" AND post_status IN ( 'publish', 'draft' ) " .
 			" ORDER BY post_title ASC";
-
-		# execute the query
-		$posts = $wpdb->get_results( $posts_query );
+		$posts_result = $wpdb->get_results( $posts_query );
 		
 		# if we don't have any post types or taxonomies, set the object values to indicate so
-		if( ! $posts ) {
+		if( ! $posts_result || is_wp_error( $posts_result ) ) {
 			self::$no_post_types = true;
 			self::$no_taxonomies = true;
 			return;
@@ -648,7 +653,7 @@ class CPTD {
 		$has_taxonomy = false;
 
 		# loop through posts and load the IDs
-		foreach( $posts as  $post ) {
+		foreach( $posts_result as  $post ) {
 
 			# for post types
 			if( 'cptd_pt' == $post->post_type ) {
@@ -870,5 +875,35 @@ class CPTD {
 		}
 
 	} # end: load_view_info()
+
+	/**
+	 * Helper Functions
+	 * 
+	 * - load_classes()
+	 */
+
+	/**
+	 * Require the core classes needed whenever the plugin loads
+	 *
+	 * @since 	2.0.0
+	 */ 
+	public static function load_classes() {
+
+		# CPTD classes
+		require_once cptd_dir('/lib/class-cptd-ajax.php');
+		require_once cptd_dir('/lib/class-cptd-helper.php');
+		require_once cptd_dir('/lib/class-cptd-options.php');
+		require_once cptd_dir('/lib/class-cptd-post.php');
+		require_once cptd_dir('/lib/class-cptd-pt.php');
+		require_once cptd_dir('/lib/class-cptd-tax.php');
+		require_once cptd_dir('/lib/class-cptd-field.php');
+		require_once cptd_dir('/lib/widgets/class-cptd-search-widget.php');
+		require_once cptd_dir('/lib/widgets/class-cptd-random-posts-widget.php');
+
+		# Extended Post Types & Taxonomies
+		if( ! function_exists( 'register_extended_post_type' ) ) require_once cptd_dir( '/assets/extended-cpts.php' );
+		if( ! function_exists( 'register_extended_taxonomy' ) ) require_once cptd_dir( '/assets/extended-taxos.php' );
+
+	} # end: load_classes()
 
 } # end class: CPTD

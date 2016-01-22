@@ -11,6 +11,57 @@
 class CPTD_Search_Widget extends WP_Widget {
 
 	/**
+	 * An instance array as passed by $this->form()
+	 * Helps to refer to $this->instance within other functions 
+	 *
+	 * @param 	array
+	 * @since 	2.0.0
+	 */
+	var $instance = array();
+
+	/**
+	 * The instance field keys for individual widgets
+	 *
+	 * @param 	array
+	 * @since 	2.0.0
+	 */
+	var $instance_keys = array(
+		
+		// The widget title
+		'title', 
+		// The widget description
+		'description', 
+
+		// the URL to link to for 'View All'
+		'view_all_link',
+
+		// customizable 'View All' link text
+		'view_all',
+
+		// customize text for submit button
+		'submit_text',
+
+		// array of post IDs for CPTD post types to be searched through
+		'post_types',
+
+		// array of post IDs for CPTD taxonomies to use as search filters
+		'taxonomies',
+
+		// array of field keys to use as search filters
+		'meta_keys',
+
+		// page ID to post results to
+		'search_page',
+
+		// excerpt length for the search results
+		'excerpt_length',
+
+		// fields to show on the search results page
+		'search_results_fields',
+	
+	); # end: $instance_keys
+
+	/**
 	 * The existing meta keys for all CPTD posts, in alphabetical order
 	 * These are the available search filters for the widget
 	 *
@@ -130,7 +181,7 @@ class CPTD_Search_Widget extends WP_Widget {
 
 		# Excerpt length
 		?>
-		<p><label>Excerpt length:
+		<p><label>Excerpt length for results:
 			<input type='text' class='widefat' 
 				id='<?php echo $this->get_field_id('excerpt_length'); ?>' 
 				name="<?php echo $this->get_field_name('excerpt_length'); ?>" 
@@ -154,85 +205,124 @@ class CPTD_Search_Widget extends WP_Widget {
 		# Checkboxes to select taxonomies
 		$tax_args = array(
 			'selected' => ( ! empty( $instance['taxonomies'] ) ? $instance['taxonomies'] : array() ),
-			'heading' => '<h4>Taxonomies</h4>',
-			'description' => "<p>Select the taxonomies you'd like to use as search filters</p>",
+			'heading' => '<h4>Taxonomy Filters</h4>',
+			'description' => "<p>Select the taxonomies to be offered to the user as search filters</p>",
 			'label_class' => 'taxonomy-select',
 			'field_id' => $this->get_field_id( 'search_widget_taxonomy' ),
 			'field_name' => $this->get_field_name( 'taxonomies' ),
 		);
 		echo CPTD_Helper::checkboxes_for_taxonomies( $tax_args );
 
-		# Checkboxes to select custom fields and field options 
+		# If we have field keys to use for additional options
 		if( ! empty( $this->field_keys ) ) {
-		?>
-			<h4>Fields</h4>
-			<p>Select the fields you'd like to use as search filters</p>
-			<?php
 
-			# loop through custom fields and display checkboxes and options area for each field
-			foreach( $this->field_keys as $field ) {
+			/**
+			 * Checkboxes to select fields to use for search filtering
+			 */
 
-				$field = new CPTD_Field( $field );
+			# arguments for the field set
+			$meta_keys_args = array(
+				'selected' 	=> ! empty( $instance['meta_keys'] ) ? $instance['meta_keys'] : array(),
+				'heading' 	=> '<h4>Custom Field Filters</h4>',
+				'description' 	=> '<p>Select the fields to be offered to the user as search filters</p>',
+				'label_class' 	=> 'meta-keys-select',
+				'field_id' 		=> $this->get_field_id( 'meta_keys' ),
+				'field_name' 	=> $this->get_field_name( 'meta_keys' ),
+				'field_class' 	=> 'cptd-search-widget-field',
+			);
+
+			# set the instance parameters for use in helper functions
+			$this->instance = $instance;
+
+			# hook into the action before the field checkbox group to add show/hide link
+			add_action( 'cptd_before_field_checkboxes', array( $this, 'before_field_checkboxes' ), 10, 1 );
+
+			# hook into the action after each field checkbox to add filter details
+			add_action( 'cptd_after_field_checkbox', array( $this, 'after_field_filter_checkbox' ), 10, 1 );
+
+			# do checkboxes for field filters
 			?>
-			<div class='cptd-search-widget-field'>
-
-				<?php # The main field checkbox ?>
-				<label for="<?php echo $this->get_field_id('meta_keys[' . $field->key . ']'); ?>">
-					<input type="checkbox" name="<?php echo $this->get_field_name('meta_keys'); ?>[]" id="<?php echo $this->get_field_id('meta_keys[' . $field->key . ']'); ?>" value="<?php echo $field->key; ?>" 
-						<?php
-							if( ! empty( $instance['meta_keys'] ) && is_array( $instance['meta_keys'] ) ) foreach ($instance['meta_keys'] as $f ) { checked( $f , $field->key );  }
-						?>
-					/><?php echo $field->label; ?>
-				</label>
-
-				<?php # Radio buttons for the different field types ?>
-				<div class='field-type-select' style='display: none;'>
-					<h5>Filter type</h5>
-					<?php 
-						# generate a key for this widget option
-						$field_type_key = $field->key . '_field_type'; 
-
-					# The `text` option
-					?>
-					<label for='<?php echo $this->get_field_id( $field_type_key . '_text' ); ?>' >
-						<input id= '<?php echo $this->get_field_id( $field_type_key . '_text'); ?>' 
-							type='radio' 
-							value='text' 
-							name='<?php echo $this->get_field_name(  $field_type_key ); ?>' 
-							<?php if( ! empty( $instance[ $field_type_key ] ) ) echo checked( $instance[ $field_type_key ], 'text' ); ?>
-						/> Text
-					</label>
-
-					<?php # The `select` option ?>
-					<label for='<?php echo $this->get_field_id( $field_type_key . '_select' ); ?>' >
-						<input id= '<?php echo $this->get_field_id( $field_type_key . '_select' ); ?>' 
-							type='radio' 
-							value='select' 
-							name='<?php echo $this->get_field_name(  $field_type_key ); ?>' 
-							<?php if( ! empty( $instance[ $field_type_key ] ) ) echo checked( $instance[ $field_type_key ], 'select' ); ?>
-						/> Select
-					</label>
-
-					<?php # The `checkbox` option ?>
-					<label for='<?php echo $this->get_field_id( $field_type_key . '_checkbox' ); ?>' >
-						<input id= '<?php echo $this->get_field_id( $field_type_key . '_checkbox' ); ?>' 
-							type='radio' 
-							value='checkbox' 
-							name='<?php echo $this->get_field_name(  $field_type_key ); ?>' 
-							<?php if( ! empty( $instance[ $field_type_key ] ) ) echo checked( $instance[ $field_type_key ], 'checkbox' ); ?>
-						/> Checkboxes
-					</label>
-
-				</div><?php // .field-type-select ?>
-			</div><?php // .cptd-search-widget-field ?>
+			<div class='cptd-search-field-filter-select'>
+				<?php CPTD_Helper::checkboxes_for_fields( $meta_keys_args ); ?>
+			</div>
 			<?php
 
-			} # end foreach: $this->field_keys
+			# remove the action that fires after each field
+			remove_action( 'cptd_after_field_checkbox', array( $this, 'after_field_filter_checkbox' ) );
+
+			/**
+			 * Checkboxes to select fields to show on search results page
+			 */
+			$search_results_fields_args = array(
+				'selected'	=> ! empty( $instance['search_results_fields'] ) ? $instance['search_results_fields'] : array(),
+				'heading' 	=> '<h4>Custom Fields for Search Results</h4>',
+				'description'	=> '<p>Select the fields you\'d like to display for each post on the search results page</p>',
+				'label_class' 	=> 'search-results-fields-select',
+				'field_id'		=> $this->get_field_id( 'search_results_fields' ),
+				'field_name'	=> $this->get_field_name( 'search_results_fields' ),
+				'field_class'	=> 'cptd-search-widget-field'
+			);
+			?>
+			<div class='cptd-search-results-field-select' >
+				<?php CPTD_Helper::checkboxes_for_fields( $search_results_fields_args ); ?>
+			</div>
+			<?php
+			
 		} # end if: field keys exist
 	?>
 	</div><?php // .cptd-widget-form ?>
 	<?php
 	} # end: form()
+
+	public function before_field_checkboxes( $args ) {
+	?>
+		<a data-field-id='<?php echo $args['field_id']; ?>' class='show-hide-field-checkboxes'>Show Fields</a>
+	<?php
+	}
+	public function after_field_filter_checkbox( $field ) {
+
+		# Radio buttons for the different field types
+		?>
+		<div class='field-type-select' style='display: none;'>
+			<h5>Filter type</h5>
+			<?php 
+				# generate a key for this widget option
+				$field_type_key = $field->key . '_field_type'; 
+
+			# The `text` option
+			?>
+			<label for='<?php echo $this->get_field_id( $field_type_key . '_text' ); ?>' >
+				<input id= '<?php echo $this->get_field_id( $field_type_key . '_text'); ?>' 
+					type='radio' 
+					value='text' 
+					name='<?php echo $this->get_field_name(  $field_type_key ); ?>' 
+					<?php if( ! empty( $this->instance[ $field_type_key ] ) ) echo checked( $this->instance[ $field_type_key ], 'text' ); ?>
+				/> Text
+			</label>
+
+			<?php # The `select` option ?>
+			<label for='<?php echo $this->get_field_id( $field_type_key . '_select' ); ?>' >
+				<input id= '<?php echo $this->get_field_id( $field_type_key . '_select' ); ?>' 
+					type='radio' 
+					value='select' 
+					name='<?php echo $this->get_field_name(  $field_type_key ); ?>' 
+					<?php if( ! empty( $this->instance[ $field_type_key ] ) ) echo checked( $this->instance[ $field_type_key ], 'select' ); ?>
+				/> Select
+			</label>
+
+			<?php # The `checkbox` option ?>
+			<label for='<?php echo $this->get_field_id( $field_type_key . '_checkbox' ); ?>' >
+				<input id= '<?php echo $this->get_field_id( $field_type_key . '_checkbox' ); ?>' 
+					type='radio' 
+					value='checkbox' 
+					name='<?php echo $this->get_field_name(  $field_type_key ); ?>' 
+					<?php if( ! empty( $this->instance[ $field_type_key ] ) ) echo checked( $this->instance[ $field_type_key ], 'checkbox' ); ?>
+				/> Checkboxes
+			</label>
+
+		</div>
+		<?php
+	}
 
 	/**
 	 * Generate HTML for the front end widget display
@@ -387,11 +477,17 @@ class CPTD_Search_Widget extends WP_Widget {
 	 * @return 	array
 	 */
 	public function get_instance( $widget_number ) {
+
+		if( ! intval( $widget_number ) ) return array();
 		
 		# get the settings for this widget (includes all instances)
 		$widget_settings_all = $this->get_settings();
 
 		if( empty( $widget_settings_all[ $widget_number ] ) ) return array();
+
+		# set the object property for later use
+		$this->instance = $widget_settings_all[ $widget_number ];
+
 		return $widget_settings_all[ $widget_number ];
 
 	} # end: get_instance()
@@ -553,11 +649,31 @@ class CPTD_Search_Widget extends WP_Widget {
 
 					# post title header
 					?>
+					<div class='cptd-search-result-item'>
 					<h2><a href='<?php echo get_the_permalink( $post->ID ); ?>'><?php echo $post->post_title; ?></a></h2>
 					<?php
+					
+					# execute an action that the user can hook into
+					do_action( 'cptd_before_search_result', $post->ID );
+
+					# show any fields for this post if applicable
+					if( ! empty( $instance['search_results_fields'] ) ) {
+					?>
+						<div class='search-results-fields'>
+						<?php
+						
+							$search_results_fields = $instance['search_results_fields'];
+							foreach( $search_results_fields as $field ) {
+								cptd_field( $post->ID, $field );
+							}
+						?>
+						</div>
+					<?php
+					}
+
 					# get the post excerpt
 					$excerpt = '';
-					do_action( 'cptd_before_search_result', $post->ID );
+
 					if( ! empty( $post->post_excerpt ) ) {
 						$excerpt = apply_filters( 'the_excerpt', $post->post_excerpt );
 					}
@@ -565,8 +681,13 @@ class CPTD_Search_Widget extends WP_Widget {
 						$excerpt = apply_filters( 'the_content', $post->post_content );
 						$excerpt = CPTD_Helper::make_excerpt( $excerpt, $excerpt_length );
 					}
-					echo $excerpt;
+					?>
+					<div class='search-results-excerpt'><?php echo $excerpt; ?></div>
+					<?php
 					do_action( 'cptd_after_search_result', $post->ID );
+					?>
+					</div><!-- .cptd-search-result-item -->
+					<?php
 				}
 				wp_reset_query();
 
