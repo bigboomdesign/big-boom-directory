@@ -206,7 +206,6 @@ class CPTD_Ajax{
 		$widget_settings = $widget->get_instance( $widget_number );
 
 		$terms_args = array(
-			'description' => '<p>Select which <b>' . $tax->plural . '</b> to use for the random posts</p>',
 			'selected' => ! empty( $widget_settings['terms'] ) ? $widget_settings['terms'] : array(),
 			'field_id' => $widget->get_field_id('terms'),
 			'field_name' => $widget->get_field_name('terms'),
@@ -214,6 +213,7 @@ class CPTD_Ajax{
 		);
 		?>
 		<div class='cptd-terms-list highlight' data-tax-id='<?php echo $tax_id; ?>' >
+			<p>Select which <b><?php echo $tax->plural; ?></b> to use for the random posts</p>
 			<?php 
 				$checkboxes_html = CPTD_Helper::checkboxes_for_terms( $terms_args, $tax_id ); 
 				if( '' == $checkboxes_html ) echo 'You don\'t have any terms yet for this taxonomy.';

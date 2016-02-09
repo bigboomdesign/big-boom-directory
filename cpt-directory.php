@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Directory management system based on Custom Post Types, Taxonomies, and Fields
- * Version: 2.0.0.31.6
+ * Version: 2.0.0.32.0
  * Author: Big Boom Design
  * Author URI: https://bigboomdesign.com
  */
@@ -120,16 +120,15 @@ function is_cptd_view() {
  * 	- cptd_field_label_{$field_key}
  * 	- cptd_field_wrap_{$field_key}
  *
- * @param 	int|string 	$post_id		The post ID to get the field value from
- * @param 	string		$field_key		The field key to get the value for
+ * @param 	int|string 				$post_id		The post ID to get the field value from
+ * @param 	string|CPTD_Field		$field			The field key or object to display HTML for
  *
  * @since 	2.0.0
  */
-function cptd_field( $post_id, $field_key ) {
+function cptd_field( $post_id, $field ) {
 
-	$field = new CPTD_Field( $field_key );
+	if( is_string( $field ) ) $field = new CPTD_Field( $field );
 	$field->get_html( true, $post_id );
-
 }
 
 /**
@@ -141,17 +140,16 @@ function cptd_field( $post_id, $field_key ) {
  * 	- cptd_field_label_{$field_key}
  * 	- cptd_field_wrap_{$field_key}
  *
- * @param 	int|string 	$post_id		The post ID to get the field value from
- * @param 	string		$field_key		The field key to get the value for
+ * @param 	int|string 				$post_id		The post ID to get the field value from
+ * @param 	string|CPTD_Field		$field			The field key or object to get HTML for
  *
  * @return 	string
  * @since 	2.0.0
  */
-function cptd_get_field_html( $post_id, $field_key ) {
+function cptd_get_field_html( $post_id, $field ) {
 
-	$field = new CPTD_Field( $field_key );
+	if( is_string( $field ) ) $field = new CPTD_Field( $field );
 	return $field->get_html( false, $post_id );
-
 }
 
 /**

@@ -46,6 +46,7 @@ class CPTD_Helper{
 	 * - checkboxes_for_taxonomies()
 	 * - checkboxes_for_terms()
 	 * - checkboxes_for_fields()
+	 * - draggable_fields()
 	 */
 
 	/**
@@ -761,17 +762,11 @@ class CPTD_Helper{
 		# get arguments
 		$defaults = array(
 			'selected' => array(),
-			'heading' => '',
-			'description' => '',
 			'field_id' => '',
 			'field_name' => '',
 			'label_class' => '',
 		);
 		$args = wp_parse_args( $args, $defaults );
-
-		# heading and description
-		if( ! empty( $args['heading'] ) ) echo $args['heading'];
-		if( ! empty( $args['description'] ) ) echo $args['description'];
 
 		# loop through taxonomies and display checkboxes
 		foreach( CPTD::$taxonomies as $taxonomy ) {
@@ -831,8 +826,6 @@ class CPTD_Helper{
 		# get arguments
 		$defaults = array(
 			'selected' => array(),
-			'heading' => '',
-			'description' => '',
 			'field_id' => '',
 			'field_name' => '',
 			'label_class' => '',
@@ -841,10 +834,6 @@ class CPTD_Helper{
 
 		# generate the output
 		ob_start();
-
-		# heading and description
-		if( ! empty( $args['heading'] ) ) echo $args['heading'];
-		if( ! empty( $args['description'] ) ) echo $args['description'];
 
 		# loop through terms and display a checkbox for each one
 		foreach( $terms as $term ) {
@@ -874,8 +863,6 @@ class CPTD_Helper{
 	 * 		The arguments for the checkbox group (none required)
 	 *
 	 * 		@type 	array 	$selected 		The field group IDs to be pre-selected
-	 * 		@type	string 	$heading		HTML for heading to be displayed above the checkboxes
-	 * 		@type 	string 	$description	HTML for description to be displayed above the checkboxes
 	 * 		@type 	string	$field_id		The id attribute for individual checkboxes
 	 * 		@type 	string	$field_name		The name attribute for individual checkboxes (we add [] to store as an array)
 	 * 		@type 	string 	$label_class	The class to attach to each checkbox label
@@ -886,69 +873,145 @@ class CPTD_Helper{
 	 */
 	public static function checkboxes_for_fields( $args ) {
 
-			# get arguments
-			$defaults = array(
-				'selected' => array(),
-				'heading' => '',
-				'description' => '',
-				'field_id' => '',
-				'field_name' => '',
-				'label_class' => '',
-				'field_class' => '',
-			);
-			$args = wp_parse_args( $args, $defaults );
+		# get arguments
+		$defaults = array(
+			'selected' => array(),
+			'field_id' => '',
+			'field_name' => '',
+			'label_class' => '',
+			'field_class' => '',
+		);
+		$args = wp_parse_args( $args, $defaults );
+		?>
+		<!-- Show/Hide Fields link -->
+		<a data-field-id='<?php echo $args['field_id']; ?>' class='show-hide-fields-area'>Show Fields</a>
+		<div class='cptd-fields-area'>
+		<?php
 
-			# heading and description
+			# loop through custom fields and display checkboxes and options area for each field
+			foreach( self::get_all_field_keys() as $field ) {
+
+				$field = new CPTD_Field( $field );
 			?>
-			<div class='fields-header'>
+			<div class='<?php echo $args['field_class']; ?>'>
+
+				<?php # The main field checkbox ?>
+				<label for="<?php echo $args['field_id'] . '[' . $field->key . ']'; ?>">
+					<input type="checkbox" name="<?php echo $args['field_name'] . '[]'; ?>" 
+						id="<?php echo $args['field_id'] . '[' . $field->key . ']'; ?>" 
+						value="<?php echo $field->key; ?>" 
+						<?php
+							# check the checkbox if necessary
+							if( ! empty( $args['selected'] ) && is_array( $args['selected'] ) ) 
+							foreach ($args['selected'] as $f ) { 
+								checked( $f , $field->key );  
+							}
+						?>
+					/><?php echo $field->label; ?>
+				</label>
+				<?php 
+				# execute an action after each checkbox that we can hook into for different purposes
+				# for example, to show filter options in the search widget
+				do_action( 'cptd_after_field_checkbox', $field ); ?>
+
+			</div><!-- .{field_class}  -->
 			<?php
-				if( ! empty( $args['heading'] ) ) echo $args['heading'];
-				if( ! empty( $args['description'] ) ) echo $args['description'];
-			?>
-			</div>
-			<?php 
 
-			# execute an action that we can hook into for different purposes
-			# for example, using a show/hide link above the field checkboxes
-			do_action( 'cptd_before_field_checkboxes', $args );
-			?>
-			<div class='fields-checkboxes'>
-			<?php
-
-				# loop through custom fields and display checkboxes and options area for each field
-				foreach( self::get_all_field_keys() as $field ) {
-
-					$field = new CPTD_Field( $field );
-				?>
-				<div class='<?php echo $args['field_class']; ?>'>
-
-					<?php # The main field checkbox ?>
-					<label for="<?php echo $args['field_id'] . '[' . $field->key . ']'; ?>">
-						<input type="checkbox" name="<?php echo $args['field_name'] . '[]'; ?>" 
-							id="<?php echo $args['field_id'] . '[' . $field->key . ']'; ?>" 
-							value="<?php echo $field->key; ?>" 
-							<?php
-								# check the checkbox if necessary
-								if( ! empty( $args['selected'] ) && is_array( $args['selected'] ) ) 
-								foreach ($args['selected'] as $f ) { 
-									checked( $f , $field->key );  
-								}
-							?>
-						/><?php echo $field->label; ?>
-					</label>
-					<?php 
-					# execute an action after each checkbox that we can hook into for different purposes
-					# for example, to show filter options in the search widget
-					do_action( 'cptd_after_field_checkbox', $field ); ?>
-
-				</div><!-- .{field_class}  -->
-				<?php
-
-				} # end foreach: $widget->field_keys
-			?>
-			</div><!-- .fields-checkboxes -->
-			<?php
+			} # end foreach: $widget->field_keys
+		?>
+		</div><!-- .cptd-fields-area -->
+		<?php
 
 	} # end: checkboxes_for_fields()
+
+	public static function draggable_fields( $args ) {
+
+		# get arguments
+		$defaults = array(
+			'selected' => array(),
+			'field_id' => '',
+			'field_name' => '',
+			'label_class' => '',
+			'field_class' => '',
+		);
+		$args = wp_parse_args( $args, $defaults );
+		?>
+		<div class='cptd-draggable-fields-container' >
+
+		<!-- Show/Hide Fields link -->
+		<a data-field-id='<?php echo $args['field_id']; ?>' class='show-hide-fields-area'>Show Fields</a>
+		
+		<!-- Droppable area for the fields -->
+		<div class='cptd-fields-drop'><span class='placeholder-text'>Drop fields here</span>
+			<?php
+
+			# Add any saved fields to the droppable area
+			if( ! empty( $args['selected'] ) ) {
+
+				# keeps track of fields completed, to prevent any duplicates
+				$fields_done = array();
+
+				foreach( $args['selected'] as $key ) {
+
+					# check for duplicates
+					if( in_array( $key, $fields_done ) ) {
+						continue;
+					}
+					$fields_done[] = $key;
+
+					# get the field object
+					$field = new CPTD_Field( $key );
+					?>
+					<div class='<?php echo $args['field_class']; ?>'>
+
+						<?php # The main field checkbox ?>
+						<label 
+							data-field-name='<?php echo $args['field_name']; ?>' 
+							data-field-key='<?php echo $field->key; ?>' 
+							for="<?php echo $args['field_id'] . '[' . $field->key . ']'; ?>"
+						><?php
+							echo $field->label;
+						?>
+						</label>
+						<div class='dashicons dashicons-no-alt cptd-remove-field'></div>
+						<input type="hidden" name="<?php echo $args['field_name']; ?>[]" value="<?php echo $field->key; ?>"/>
+					</div><!-- .{field_class}  -->
+					<?php
+
+				} # end foreach: selected keys
+			
+			} # end if: $args['selected'] not empty
+			?>
+			<div id='droppable-helper-<?php echo $args['field_id']; ?>'
+				data-field-name='<?php echo $args['field_name']; ?>' class='cptd-droppable-helper'>
+			</div>
+		</div>
+		<div class='cptd-fields-area'>
+		<?php
+
+			# loop through custom fields and display checkboxes and options area for each field
+			foreach( self::get_all_field_keys() as $field ) {
+
+				$field = new CPTD_Field( $field );
+			?>
+			<div class='<?php echo $args['field_class']; ?>'>
+
+				<?php # The main field checkbox ?>
+				<label 
+					data-field-name='<?php echo $args['field_name']; ?>' 
+					data-field-key='<?php echo $field->key; ?>' 
+					for="<?php echo $args['field_id'] . '[' . $field->key . ']'; ?>"
+				><?php
+					echo $field->label;
+				?></label>
+			</div><!-- .{field_class}  -->
+			<?php
+
+			} # end foreach: $widget->field_keys
+		?>
+		</div><!-- .cptd-fields-area -->
+		</div><!-- .cptd-draggable-fields-container -->
+		<?php
+	} # end: draggable_fields()
 
 } # end class CPTD_Helper

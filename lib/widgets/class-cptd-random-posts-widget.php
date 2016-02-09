@@ -98,13 +98,15 @@ class CPTD_Random_Posts_Widget extends WP_Widget {
 
 		# Taxonomies
 		$taxonomy_args = array(
-			'heading' => '<h4>Taxonomies</h4>',
-			'description' => '<p>Select the taxonomies for the random posts</p>',
 			'selected' => ! empty( $instance['taxonomies'] ) ? $instance['taxonomies'] : array(),
 			'field_id' => $this->get_field_id( 'random_taxonomy' ),
 			'field_name' => $this->get_field_name('taxonomies'),
 			'label_class' => 'taxonomy-select'
 		);
+		?>
+		<h4>Taxonomies</h4>
+		<p>Select the taxonomies for the random posts</p>
+		<?php
 		echo CPTD_Helper::checkboxes_for_taxonomies( $taxonomy_args );
 	?>
 	</div><?php // .cptd-widget-form

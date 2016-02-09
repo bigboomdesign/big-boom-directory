@@ -110,20 +110,23 @@ class CPTD_Admin{
 	public static function admin_enqueue(){
 		$screen = get_current_screen();
 		
-		wp_register_script( 'cptd-admin', cptd_url('/js/admin/cptd-admin.js') );
 		wp_register_style( 'cptd-admin', cptd_url('/css/admin/cptd-admin.css') );
 
 		# Plugin Settings
 		if( 'cptd_pt_page_cptd-settings' == $screen->base ) {
-			wp_enqueue_script( 'cptd-admin' );
 			wp_enqueue_style( 'cptd-admin' );
 		}
 
 		# Widgets Screen
 		if( 'widgets' == $screen->base ) {
-			wp_enqueue_script( 'cptd-admin' );
+			
+			# css
 			wp_enqueue_style( 'cptd-admin' );
-			wp_enqueue_script( 'cptd-widgets', cptd_url('/js/admin/cptd-widgets.js'), array('jquery') );
+
+			# js
+			wp_enqueue_script( 'cptd-widgets', cptd_url('/js/admin/cptd-widgets.js'), 
+				array('jquery', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable') 
+			);
 		}
 
 		# Post type edit screen
@@ -133,7 +136,6 @@ class CPTD_Admin{
 		){
 			wp_enqueue_style('cptd-post-edit-css', cptd_url('/css/admin/cptd-post-edit.css'));
 			
-			wp_enqueue_script( 'cptd-admin' );
 			wp_enqueue_script('cptd-post-edit-js', cptd_url('/js/admin/cptd-post-edit.js'), array('jquery'));
 
 			# pass the post ID to the post-edit-js

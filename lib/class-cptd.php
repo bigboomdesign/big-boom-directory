@@ -124,7 +124,7 @@ class CPTD {
 	/**
 	 * The current front end view type (null if ! self::$is_cptd )
 	 *
-	 * @param 	string 		(null|archive|single)
+	 * @param 	string 		(null|archive|single|cptd-search-results)
 	 * @since 	2.0.0
 	 */
 	public static $view_type = null;
@@ -275,6 +275,11 @@ class CPTD {
 				}
 			}
 		} # end if: query has a taxonomy set
+
+		# if we are doing search widget results
+		if( ! empty( $_POST['cptd_search'] ) ) {
+			self::$is_cptd = true;
+		}
 
 		if( ! CPTD::$is_cptd ) return;
 		if( empty( $current_post_type ) ) return;
@@ -857,12 +862,16 @@ class CPTD {
 
 		# reduce weight for non-plugin views
 		if( ! is_search() && ! is_cptd_view() ) return;
-
 		# if we are doing a wp search
 		if( is_search() ) { 
 			self::$is_cptd = true;
 			self::$view_type = 'archive';
 			return;
+		}
+
+		# if we are doing CPTD Search Widget results
+		if( ! empty( $_POST['cptd_search'] ) ) {
+			self::$view_type = 'cptd-search-results';
 		}
 
 		# make sure the CPTD post data is loaded

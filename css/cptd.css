@@ -87,6 +87,8 @@ div.cptd-search-filter{ margin-bottom: 1.5em; padding-bottom: 0;}
 #cptd-search-results .search-results-fields {
 	margin: 1em 0;
 }
-#cptd-search-results .search-results-fields {
-	margin: 1em 0;
+#cptd-search-results .search-results-fields::after {
+	display: block;
+	content: '';
+	clear: both;	
 }

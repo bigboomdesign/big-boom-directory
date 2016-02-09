@@ -81,6 +81,8 @@ class CPTD_Field {
 	 * - get_html()
 	 * - get_form_element_html()
 	 *
+	 * - get_acf_by_key()
+	 *
 	 * - is_acf()
 	 * - load_acf_data()
 	 * - get_all_values()
@@ -499,7 +501,7 @@ class CPTD_Field {
 				return;
 			}
 			return $html;
-		} # end: gallery field
+		} # end if: gallery field
 
 		/**
 		 * end: special cases
@@ -576,6 +578,48 @@ class CPTD_Field {
 		</label>
 	<?php
 	} # end: get_form_element_html()
+
+	/**
+	 * Attempts to load ACF field info from $this->key, usually when the key is a plain string and 
+	 * we need more info about the field
+	 */
+	public function get_acf_by_key() {
+
+		# make sure ACF is active
+		if( ! function_exists( 'get_field_object' ) ) return;
+
+		# make sure we have a field key set
+		if( empty( $this->key ) ) return;
+
+		/**
+		 * We're using WPDB since we don't have a post ID for get_post_meta(). We are searching for a relational
+		 * row in postmeta that ACF has generated, whose form is _field_key => field123abc
+		 *
+		 * Note that we are just grabbing the first match we find, assuming that multiple fields with the same
+		 * key will have the same field type, etc when created in ACF.
+		 */
+		global $wpdb;
+
+		$acf_relation_query = "SELECT meta_value FROM " . $wpdb->postmeta . 
+			" WHERE meta_key='_" . $this->key . "' LIMIT 1";
+		$r = $wpdb->get_results( $acf_relation_query );
+
+		# make sure we have a valid result
+		if( empty( $r ) || is_wp_error( $r ) ) return;
+
+		# the ACF field ID (e.g. field123abc)
+		$acf_field_id = $r[0]->meta_value;
+
+		# overwrite the text key with the field ID that we found
+		$this->key = $acf_field_id;
+
+		/**
+		 * With the new field key, re-load the ACF data for this field
+		 * Note that the original plain key is restored via load_acf_data() once the ACF data is extracted
+		 */
+		$this->load_acf_data();
+
+	} # end: get_acf_by_key()
 
 	/**
 	 * Sets and returns the `is_acf` class property, or return if already set.  

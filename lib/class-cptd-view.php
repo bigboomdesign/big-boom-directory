@@ -38,22 +38,31 @@ class CPTD_View {
 	 */
 	var $field_keys = array();
 
-
 	/**
-	 * The post meta required for all posts in this view
-	 * 
+	 * The field objects to display for the current view (CPTD_Field objects)
+	 * Typically used for views other than single or archive, where ACF fields may not be saved
+	 * (e.g. if the view is 'cptd-search-results')
+	 *
 	 * @param 	array
 	 * @since 	2.0.0
 	 */
-	var $post_meta = array();
+	var $fields = array();
 
 	/**
-	 * The ACF fields to display for the current view (CPTD_Field objects)
+	 * The saved ACF fields to display for the current view, if any (CPTD_Field objects)
 	 *
 	 * @param 	array
 	 * @since 	2.0.0
 	 */
 	var $acf_fields = array();
+
+	/**
+	 * The post meta required for all posts in this view (for single and archive views)
+	 * 
+	 * @param 	array
+	 * @since 	2.0.0
+	 */
+	var $post_meta = array();
 
 	/**
 	 * The image size to use for image fields in this view
@@ -119,12 +128,14 @@ class CPTD_View {
 			# load the post type object
 			$this->post_type = new CPTD_PT( CPTD::$current_post_type );
 
-			# Load ACF fields
+			/**
+			 * Load ACF fields
+			 */
 
-			## which meta key are we seeking from the post type's WP_Post?
+			# which meta key are we seeking from the post type's WP_Post?
 			$meta_field_to_look_for = 'acf_'. $this->view_type .'_fields';
 
-			## see if we have ACF fields set for this view
+			# see if we have ACF fields set for this view
 			if( ! empty( $this->post_type->$meta_field_to_look_for ) ) {
 				
 				# get the ACF field objects
@@ -154,7 +165,7 @@ class CPTD_View {
 
 			} # end if: ACF fields are saved for the current screen's post type and view
 
-			# set this view's image size based on the post type and the view type
+			 # Set this view's image size based on the view type
 			$image_size_key = 'image_size_' . $this->view_type;
 			if( isset( $this->post_type->$image_size_key ) ) $this->image_size = $this->post_type->$image_size_key;
 
@@ -173,6 +184,26 @@ class CPTD_View {
 			}
 
 		} # end if: current post type is set
+
+		# for search widget results
+		if( 'cptd-search-results' == $this->view_type ) {
+
+			# image size: use main options setting as default
+			$this->image_size = ! empty( CPTD_Options::$options['image_size_archive'] ) ? 
+				CPTD_Options::$options['image_size_archive'] : 
+				'thumbnail';
+
+			$this->image_alignment = ! empty( CPTD_Options::$options['image_alignment'] ) ?
+				CPTD_Options::$options['image_alignment'] :
+				'none';
+
+			# auto-detect URLs
+			$this->auto_detect_url = ! empty( CPTD_Options::$options['auto_detect_url_yes'] );
+
+			# auto-detect social links
+			$this->auto_detect_social = ! empty( CPTD_Options::$options['auto_detect_social_yes'] );
+
+		} # end if: doing search widget results
 
 	} # end: __construct()
 

@@ -56,7 +56,7 @@ class CPTD_Search_Widget extends WP_Widget {
 		// excerpt length for the search results
 		'excerpt_length',
 
-		// fields to show on the search results page
+		// array of field keys to show on the search results page
 		'search_results_fields',
 	
 	); # end: $instance_keys
@@ -80,11 +80,15 @@ class CPTD_Search_Widget extends WP_Widget {
 	 * Class methods
 	 *
 	 * - __construct()
+	 *
 	 * - form()
+	 * 		- field_type_details()
+	 *
 	 * - widget()
 	 *
 	 * - get_instance()
 	 * - get_search_results_html()
+	 * - get_shortcode_html()
 	 */
 
 	/**
@@ -159,7 +163,7 @@ class CPTD_Search_Widget extends WP_Widget {
 			<input type="text" class="widefat" id="<?php echo $this->get_field_id('submit_text'); ?>" name="<?php echo $this->get_field_name('submit_text'); ?>" value="<?php if( ! empty( $instance['submit_text'] ) ) echo esc_attr( $instance['submit_text'] ); ?>"/>
 		</label></p>
 
-		<?php # The search results page ?>
+		<?php # The search results page dropdown ?>
 		<p><label for='<?php echo $this->get_field_id('search_page'); ?>'>
 		Search Results Page:<br />
 		<?php
@@ -194,23 +198,27 @@ class CPTD_Search_Widget extends WP_Widget {
 		# Checkboxes for post types
 		$post_type_args = array(
 			'selected' => ( ! empty( $instance['post_types'] ) ? $instance['post_types'] : array() ),
-			'heading' => '<h4>Post Types</h4>',
-			'description' => '<p>Choose which post types should be searched by the widget</p>',
 			'label_class' => 'post-type-select',
 			'field_id' => $this->get_field_id( 'search_widget_post_type' ),
 			'field_name' => $this->get_field_name( 'post_types' ),
 		);
+		?>
+		<h4>Post Types</h4>
+		<p>Choose which post types should be searched by the widget</p>
+		<?php
 		echo CPTD_Helper::checkboxes_for_post_types( $post_type_args );
 
 		# Checkboxes to select taxonomies
 		$tax_args = array(
 			'selected' => ( ! empty( $instance['taxonomies'] ) ? $instance['taxonomies'] : array() ),
-			'heading' => '<h4>Taxonomy Filters</h4>',
-			'description' => "<p>Select the taxonomies to be offered to the user as search filters</p>",
 			'label_class' => 'taxonomy-select',
 			'field_id' => $this->get_field_id( 'search_widget_taxonomy' ),
 			'field_name' => $this->get_field_name( 'taxonomies' ),
 		);
+		?>
+		<h4>Taxonomy Filters</h4>
+		<p>Select the taxonomies to be offered to the user as search filters</p>
+		<?php
 		echo CPTD_Helper::checkboxes_for_taxonomies( $tax_args );
 
 		# If we have field keys to use for additional options
@@ -221,10 +229,8 @@ class CPTD_Search_Widget extends WP_Widget {
 			 */
 
 			# arguments for the field set
-			$meta_keys_args = array(
+			$search_filter_meta_keys_args = array(
 				'selected' 	=> ! empty( $instance['meta_keys'] ) ? $instance['meta_keys'] : array(),
-				'heading' 	=> '<h4>Custom Field Filters</h4>',
-				'description' 	=> '<p>Select the fields to be offered to the user as search filters</p>',
 				'label_class' 	=> 'meta-keys-select',
 				'field_id' 		=> $this->get_field_id( 'meta_keys' ),
 				'field_name' 	=> $this->get_field_name( 'meta_keys' ),
@@ -234,25 +240,28 @@ class CPTD_Search_Widget extends WP_Widget {
 			# set the instance parameters for use in helper functions
 			$this->instance = $instance;
 
-			# hook into the action before the field checkbox group to add show/hide link
-			add_action( 'cptd_before_field_checkboxes', array( $this, 'before_field_checkboxes' ), 10, 1 );
-
 			# hook into the action after each field checkbox to add filter details
-			add_action( 'cptd_after_field_checkbox', array( $this, 'after_field_filter_checkbox' ), 10, 1 );
+			add_action( 'cptd_after_field_checkbox', array( $this, 'field_type_details' ), 10, 1 );
 
 			# do checkboxes for field filters
 			?>
+			<h4>Custom Field Filters</h4>
+			<p>Select the fields to be offered to the user as search filters</p>
 			<div class='cptd-search-field-filter-select'>
-				<?php CPTD_Helper::checkboxes_for_fields( $meta_keys_args ); ?>
+				<?php CPTD_Helper::checkboxes_for_fields( $search_filter_meta_keys_args ); ?>
 			</div>
 			<?php
 
 			# remove the action that fires after each field
-			remove_action( 'cptd_after_field_checkbox', array( $this, 'after_field_filter_checkbox' ) );
+			remove_action( 'cptd_after_field_checkbox', array( $this, 'field_type_details' ) );
 
 			/**
-			 * Checkboxes to select fields to show on search results page
+			 * Draggable fields to show on search results page
 			 */
+
+			# the saved value for this widget
+			$search_results_fields = ! empty( $instance['search_results_fields'] ) ? $instance['search_results_fields'] : array();
+
 			$search_results_fields_args = array(
 				'selected'	=> ! empty( $instance['search_results_fields'] ) ? $instance['search_results_fields'] : array(),
 				'heading' 	=> '<h4>Custom Fields for Search Results</h4>',
@@ -262,24 +271,32 @@ class CPTD_Search_Widget extends WP_Widget {
 				'field_name'	=> $this->get_field_name( 'search_results_fields' ),
 				'field_class'	=> 'cptd-search-widget-field'
 			);
+
 			?>
-			<div class='cptd-search-results-field-select' >
-				<?php CPTD_Helper::checkboxes_for_fields( $search_results_fields_args ); ?>
-			</div>
-			<?php
+			<h4>Custom Fields for Search Results</h4>
+			<p>Select the fields you'd like to display for each post on the search results page</p>
+			<?php 
+
+			# draggable fields area
+			CPTD_Helper::draggable_fields( $search_results_fields_args );
 			
 		} # end if: field keys exist
+
+		# initilize the main widget JS routines after save
 	?>
+		<script type='text/javascript'>initSearchWidget( jQuery )</script>
 	</div><?php // .cptd-widget-form ?>
 	<?php
 	} # end: form()
 
-	public function before_field_checkboxes( $args ) {
-	?>
-		<a data-field-id='<?php echo $args['field_id']; ?>' class='show-hide-field-checkboxes'>Show Fields</a>
-	<?php
-	}
-	public function after_field_filter_checkbox( $field ) {
+
+	/**
+	 * Add field detail settings for each field type
+	 *
+	 * @param 	CPTD_Field		The field whose checkbox is active in the loop
+	 * @since 	2.0.0
+	 */
+	public function field_type_details( $field ) {
 
 		# Radio buttons for the different field types
 		?>
@@ -322,7 +339,7 @@ class CPTD_Search_Widget extends WP_Widget {
 
 		</div>
 		<?php
-	}
+	} # end: field_type_details()
 
 	/**
 	 * Generate HTML for the front end widget display
@@ -493,6 +510,14 @@ class CPTD_Search_Widget extends WP_Widget {
 	} # end: get_instance()
 
 	/**
+	 *
+	 */
+	public function init_search_results_view() {
+		global $cptd_view;
+
+	}
+
+	/**
 	 * Generate the HTML for the widget search results
 	 *
 	 * @param 	array 	$_POST['cptd_search'] 	The user-submitted search parameters
@@ -500,6 +525,8 @@ class CPTD_Search_Widget extends WP_Widget {
 	 * @since 	2.0.0
 	 */
 	public function get_search_results_html( $content ) {
+
+		global $cptd_view;
 
 		# make sure we don't recurse when doing search results excerpts
 		if( $this->doing_search_results ) return $content;
@@ -512,6 +539,32 @@ class CPTD_Search_Widget extends WP_Widget {
 		$instance = $this->get_instance( $widget_number );
 
 		if( ! $instance ) return $content;
+
+		# get the meta keys to be displayed for each post
+		if( ! empty( $instance['search_results_fields'] ) ) {
+
+			# set up the view for this set of search results
+			$cptd_view->field_keys = $instance['search_results_fields'];
+			foreach( $cptd_view->field_keys as $field_key ) {
+
+				$field = new CPTD_Field( $field_key );
+				
+				# try and load ACF info 
+				$field->get_acf_by_key();
+
+				# load social fields into the view object
+				if( $cptd_view->auto_detect_social ) {
+					if( $field->is_social_field ) {
+						$cptd_view->social_fields_to_check[] = $field->key;
+					}
+				}
+
+				# add the field object to the view object
+				$cptd_view->fields[] = $field;
+
+			} # end foreach: field keys
+
+		} # end if: search results fields are set
 
 		# excerpt length
 		$excerpt_length = ! empty( $instance['excerpt_length'] ) ? $instance['excerpt_length'] : 250;
@@ -657,19 +710,20 @@ class CPTD_Search_Widget extends WP_Widget {
 					do_action( 'cptd_before_search_result', $post->ID );
 
 					# show any fields for this post if applicable
-					if( ! empty( $instance['search_results_fields'] ) ) {
+					if( ! empty( $cptd_view->fields ) ) {
 					?>
 						<div class='search-results-fields'>
 						<?php
-						
-							$search_results_fields = $instance['search_results_fields'];
-							foreach( $search_results_fields as $field ) {
+														
+							foreach( $cptd_view->fields as $field ) {
+								do_action( 'cptd_pre_render_field_' . $field->key, $field );
 								cptd_field( $post->ID, $field );
+								do_action( 'cptd_post_render_field_' . $field->key, $field );
 							}
 						?>
 						</div>
 					<?php
-					}
+					} # end: fields exist for this widget's search results view
 
 					# get the post excerpt
 					$excerpt = '';
