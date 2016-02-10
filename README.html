@@ -1,0 +1,461 @@
+<h1>Custom Post Type Directory (Version 2)</h1>
+
+<hr />
+
+<p>Directory management system based on Custom Post Types, Taxonomies, and Fields</p>
+
+<h2>Features</h2>
+
+<ul>
+<li>Creates custom post type and taxonomies from backend without coding</li>
+</ul>
+
+<hr />
+
+<h2>Notes</h2>
+
+<ul>
+<li><p>Default behaviors for front end field display are not well-defined without Advanced Custom Fields plugin.  Using ACF adds support for field placement and ordering on single/archive pages for your various post types as well as field type selection.</p></li>
+<li><p>Uses <a href="https://github.com/johnbillion/extended-cpts">Extended Custom Post Types</a> and <a href="https://github.com/johnbillion/extended-taxos">Extended Taxonomies</a> for registering post types and taxonomies.</p></li>
+<li><p>Uses <a href="https://github.com/WebDevStudios/CMB2">CMB2</a> for handling post meta boxes.</p></li>
+<li><p>By default, giving a field a key equal <code>web</code>, <code>website</code>, or <code>url</code>, or a key containing <code>_website</code> or <code>_url</code> will cause the field value to autolink on front end CPTD views</p></li>
+</ul>
+
+<hr />
+
+<h2>Shortcodes</h2>
+
+<h3>[cptd-a-z-listing]</h3>
+
+<ul>
+<li><p>Displays an A-Z listing of all posts for the custom post type</p></li>
+<li><p><strong>Attributes:</strong> </p>
+
+<ul>
+<li><p><code>post_types</code> The post types to be displayed, separated by comma <code>ex: 'book, movie'</code></p></li>
+<li><p><code>list_style</code> The list style for the <code>li</code> HTML elements <code>ex: 'disc'</code></p></li>
+</ul></li>
+</ul>
+
+<hr />
+
+<h3>[cptd-terms]</h3>
+
+<ul>
+<li><p>Displays a term list for one or more taxonomies</p></li>
+<li><p><strong>Attributes:</strong></p>
+
+<ul>
+<li><p><code>taxonomies</code>  The taxonomies to show terms for, separated by comma <code>ex: 'book_genre, movie_genre'</code></p></li>
+<li><p><code>list_style</code> The list style for the <code>li</code> HTML elements <code>ex: 'none'</code></p></li>
+</ul></li>
+</ul>
+
+<hr />
+
+<h3>[cptd-search]</h3>
+
+<ul>
+<li><p>Displays an existing CPTD Search widget </p></li>
+<li><p><strong>Attributes:</strong></p>
+
+<ul>
+<li><code>widget_id</code>   (required) The widget ID number to be displayed (can be an inactive widget)</li>
+</ul></li>
+</ul>
+
+<hr />
+
+<h2>Filters</h2>
+
+<h3><code>cptd_register_pt</code></h3>
+
+<h4>Description</h4>
+
+<p>Use this filter to access the post type data before CPTD post types are registered.  The filtered object is an array
+containing the arguments for <a href="https://github.com/johnbillion/extended-cpts/wiki/Basic-usage">register_extended_post_type</a>, which is a wrapper for <a href="https://codex.wordpress.org/Function_Reference/register_post_type">register_post_type</a>.</p>
+
+<h4>Parameters</h4>
+
+<pre><code>$args = array(
+    'post_type' =&gt; (string),
+    'args' =&gt; (array, optional),    // The arguments for `register_post_type`
+    'names' =&gt; (array, optional)    // The corresponding parameter for `register_extended_post_type`
+)
+</code></pre>
+
+<h4>Example</h4>
+
+<pre><code>add_filter( 'cptd_register_pt', 'my_register_pt' );
+function my_register_pt( $args ) {
+
+    if( $cpt['post_type'] == 'my_post_type' )
+        $cpt['args']['labels']['menu_name'] = 'Custom Menu Name';
+
+    return $cpt;
+}
+</code></pre>
+
+<hr />
+
+<h3><code>cptd_the_content</code></h3>
+
+<h4>Description</h4>
+
+<p>Use this filter to modify the post content for CPTD views.  Does not fire for non-CPTD page views.</p>
+
+<h4>Parameters</h4>
+
+<pre><code>(string) $content: The post content along with any appended fields for the current view
+</code></pre>
+
+<h4>Return</h4>
+
+<pre><code>(string) You must return the altered HTML to be displayed
+</code></pre>
+
+<h4>Example</h4>
+
+<p>Below, we're appending an additional field called <code>phone</code> below the default fields and post content.</p>
+
+<pre><code>add_filter( 'cptd_the_content', 'my_the_content' );
+function my_the_content( $content ) {
+
+    global $post;
+
+    $phone = get_post_meta( $post-&gt;ID, 'phone', true );
+    if( $phone ) $new_html = '&lt;p&gt;Phone: '. $phone .'&lt;/p&gt;':
+
+    return $content . $new_html;
+}
+</code></pre>
+
+<hr />
+
+<h3><code>cptd_field_value_{$field_name}</code></h3>
+
+<p>Use this to filter a field value before it is displayed on the front end. Use your own field name (meta key) in place of <code>{$field_name}</code>.  Note that the filter fires whether or not the field has a value.</p>
+
+<h4>Parameters</h4>
+
+<pre><code>(string) $value: The field value to be displayed
+
+(CPTD_Field) $field: The field object that is being displayed
+</code></pre>
+
+<h4>Return</h4>
+
+<pre><code>(string) You must return the altered field value
+</code></pre>
+
+<h4>Example</h4>
+
+<p>Below, we are filtering the value of a field called <code>email</code> and adding a mailto link.</p>
+
+<pre><code>add_filter( 'cptd_field_value_email', 'my_email_value_filter' );
+function my_email_value_filter( $value ){
+
+    $value = "&lt;a href='mailto:". $value . "' &gt;" . $value . "&lt;/a&gt;";
+    return $value;
+
+}
+</code></pre>
+
+<hr />
+
+<h3><code>cptd_field_label_{$field_name}</code></h3>
+
+<p>Use this filter to edit a filed's label and label wrap before it is displayed on the front end. Use your own field name (meta key) in place of <code>{$field_name}</code>. Note that the filter fires whether or not the field has a value.</p>
+
+<h4>Parameters</h4>
+
+<pre><code>(array) $label {
+    'text'   =&gt; (string)   // The label text
+    'before' =&gt; (string)   // HTML that comes before the label (Default: "&lt;label&gt;")
+    'after'  =&gt; (string)   // HTML that comes after the label (Default: ": &amp;nbsp; &lt;/label&gt;")
+}
+
+(CPTD_Field) $field: The field object that is being displayed
+</code></pre>
+
+<h4>Return</h4>
+
+<pre><code>(array)  You must return the altered $label array
+</code></pre>
+
+<h4>Example</h4>
+
+<p>Below, we are setting the <code>first_name</code> field's label text to "First" and the <code>last_name</code> field's label text to "Last"</p>
+
+<pre><code>add_filter( 'cptd_field_label_first_name', 'my_first_name_label' );
+function my_first_name_label( $label ) {
+    $label['text'] = 'First';
+    return $label;
+}
+
+add_filter( 'cptd_field_label_last_name', 'my_last_name_label' );
+function my_last_name_label( $label ) {
+    $label['text'] = 'Last';
+    return $label;
+}
+</code></pre>
+
+<hr />
+
+<h3><code>cptd_field_wrap_{$field_name}</code></h3>
+
+<h4>Parameters</h4>
+
+<pre><code>(array) $wrap {
+    'before_tag'    =&gt; 'div',
+    'classes'       =&gt; (array),
+    'id'            =&gt; (string),
+    'after_tag'     =&gt; 'div',
+}
+
+(CPTD_Field) $field: The field being displayed
+</code></pre>
+
+<h4>Return</h4>
+
+<pre><code>(array) You must return the $wrap array
+</code></pre>
+
+<h4>Example</h4>
+
+<p>Below is a fairly involved example that uses the <code>cptd_field_wrap</code> filter along with <code>cptd_field_value</code> and <code>cptd_field_label</code> to do the following:</p>
+
+<ul>
+<li>Append a space to the <code>first_name</code> field</li>
+<li>Remove individual labels for the <code>first_name</code> and <code>last_name</code> fields</li>
+<li>Remove the individual wrappers for the <code>first_name</code> and <code>last_name</code> fields and wrap them together in a single div</li>
+</ul>
+
+<h5>append a space to the first name</h5>
+
+<pre><code>add_filter( 'cptd_field_value_first_name', 'my_first_name_value' );
+function my_first_name_value( $value ) {
+    return $value . ' ';
+}
+</code></pre>
+
+<h5>empty out the labels for first and last name fields</h5>
+
+<pre><code>add_filter( 'cptd_field_label_first_name', 'my_name_label' );
+add_filter( 'cptd_field_label_last_name', 'my_name_label' );
+function my_name_label( $label ) {
+    return array('before' =&gt; '', 'after' =&gt; '', 'text' =&gt; '');
+}
+</code></pre>
+
+<h5>add a <p> wrapper around the first and last name fields</h5>
+
+<pre><code>add_filter( 'cptd_field_wrap_first_name', 'my_name_wrap', 10, 2 );
+add_filter( 'cptd_field_wrap_last_name', 'my_name_wrap', 10, 2 );
+function my_name_wrap( $wrap, $field ) {
+
+    // for the first name field
+    if( 'first_name' == $field-&gt;key ) {
+        $wrap['before_tag'] = 'p';
+        $wrap['after_tag'] = '';
+        $wrap['classes'][] = 'name-field';
+        $wrap['id'] = 'my-name-field';
+    }
+
+    // for the last name field
+    elseif( 'last_name' == $field-&gt;key ) {
+        $wrap['before_tag'] = '';
+        $wrap['after_tag'] = 'p';
+
+    }
+
+    return $wrap;
+}
+</code></pre>
+
+<hr />
+
+<h3><code>cptd_link_text</code></h3>
+
+<p>Use to change the default "View Website" link text for auto detected URL fields (<code>web</code>, <code>website</code>, <code>url</code>, or matching <code>_website</code> or <code>_url</code>)</p>
+
+<h4>Parameters</h4>
+
+<pre><code>(string)        $text      The link text currently set for display (default: "View Website")
+(CPTD_Field)    $field    The field object currently being displayed
+</code></pre>
+
+<h4>Return</h4>
+
+<pre><code>(string) You must return the new link text for display
+</code></pre>
+
+<h4>Examples</h4>
+
+<p>Below, we're changing the link text to 'Visit Webpage'</p>
+
+<pre><code>add_filter( 'cptd_link_text', 'my_link_text' );
+function my_link_text() {
+    return 'Visit Webpage';
+}
+</code></pre>
+
+<p>For a more complex example, we can get the post currently being displayed and incorporate a custom field with the link text. Note that we are checking first that the post has a specific post type, <code>author</code>.  We also check that the user has a value for the custom field <code>first_name</code>.</p>
+
+<pre><code>add_filter( 'cptd_link_text', 'my_variable_link_text', 10, 2 );
+function my_variable_link_text( $text, $field ) {
+
+    # get the current post in the loop
+    global $post;
+
+    # make sure the post type is `author`
+    if( 'author' != $post-&gt;post_type ) return $text;
+
+    # get the user's first name if it exists
+    if( $first_name = get_post_meta( $post-&gt;ID, 'first_name', true ) ) {
+
+        # add first name to link text
+        return "Visit {$first_name}'s Website";
+    }
+
+    # otherwise, return a generic link text
+    return 'Visit Website';
+}
+</code></pre>
+
+<hr />
+
+<h3><code>cptd_pt_description_wrap</code></h3>
+
+<hr />
+
+<h2>Actions</h2>
+
+<h3><code>cptd_pre_get_posts</code></h3>
+
+<p>Use this action to alter the global <code>$wp_query</code> for CPTD views.  It's essentially the same as <code>pre_get_posts</code>, except CPTD defaults are in place.  Also, there is no need to check whether we're viewing a page for a CPTD object or whether the query is the main query object, as this has been verified before the filter fires.  </p>
+
+<p>Below are the default query arguments for a CPTD view:</p>
+
+<ul>
+<li><code>order_by</code>: post_title</li>
+<li><code>order</code>: ASC</li>
+</ul>
+
+<h4>Parameters</h4>
+
+<pre><code>$query: The same value passed by WP's `pre_get_posts` action, with the CPTD defaults in place
+</code></pre>
+
+<h4>Example</h4>
+
+<p>Below, we are using the <code>cptd_pre_get_posts</code> filter to order CPTD posts by a field called <code>last_name</code></p>
+
+<pre><code>add_action( 'cptd_pre_get_posts', 'my_pre_get_posts' );
+function my_pre_get_posts( $query ) {
+
+    $query-&gt;query_vars['orderby'] = 'meta_value';
+    $query-&gt;query_vars['meta_key'] = 'last_name';
+}
+</code></pre>
+
+<hr />
+
+<h3><code>cptd_wp</code></h3>
+
+<h3><code>cptd_enqueue_scripts</code></h3>
+
+<h3><code>cptd_before_pt_description</code></h3>
+
+<h3><code>cptd_after_pt_description</code></h3>
+
+<hr />
+
+<h3><code>cptd_pre_render_field_{$field_name}</code></h3>
+
+<h3><code>cptd_post_render_field_{$field_name}</code></h3>
+
+<p>These actions allow users to insert their own HTML before (<em>pre</em>) or after (<em>post</em>) a field is rendered.  Use your own field name (meta key) in place of <code>{$field_name}</code>.  Note that the action fires whether or not the field has a value.</p>
+
+<h3>Parameters</h3>
+
+<p><code>$field</code> (CPTD_Field) The field object being displayed</p>
+
+<h3>Example</h3>
+
+<p>Below is an example to wrap a field called <code>email</code> in a div. Note the example doesn't use the <code>$field</code> object, although it is available inside the function.</p>
+
+<pre><code>add_action('cptd_pre_render_field_email', 'my_pre_email');
+add_action('cptd_post_render_field_email', 'my_post_email');
+
+function my_pre_email( $field ){
+?&gt;
+    &lt;div id='my-email-field' class='my-custom-class' &gt;
+&lt;?php
+}
+
+function my_post_email( $field ){
+?&gt;
+    &lt;/div&gt;
+&lt;?php
+}
+</code></pre>
+
+<hr />
+
+<h3><code>cptd_before_search_result</code></h3>
+
+<h3><code>cptd_after_search_result</code></h3>
+
+<p>These actions allow to insert content before or after the search results rendered by the search widget. Note that the widget uses the post excerpt if defined, or truncates the post content to the specified length otherwise.</p>
+
+<h3>Parameters</h3>
+
+<p><code>$post_id</code> (int) The post ID for the current search result being displayed</p>
+
+<h3>Example</h3>
+
+<p>The following example will display a field called <code>email</code> before the result's excerpt and then show a list of term links for the post from a taxonomy called <code>movie_genre</code> after the excerpt</p>
+
+<pre><code>add_action( 'cptd_before_search_result', 'my_cptd_before_search_result' );
+function my_cptd_before_search_result( $post_id ) {
+    cptd_field( $post_id, 'email' );
+}
+
+add_action( 'cptd_after_search_result', 'my_cptd_after_search_result' );
+function my_cptd_after_search_result( $post_id ) {
+
+    $terms = wp_get_post_terms( $post_id, 'movie_genres' );
+    $term_links = array();
+
+    foreach( $terms as $term ) {
+        $term_links[] = '&lt;a href="' . get_term_link( $term ) . '"&gt;' . $term-&gt;name . '&lt;/a&gt;';
+    }
+
+    if( ! empty( $term_links ) ) {
+        echo '&lt;p&gt;Located in: ' . implode( ', ', $term_links ) . '&lt;/p&gt;';
+    }
+}
+</code></pre>
+
+<hr />
+
+<h2>Functions</h2>
+
+<p>Here are some helper functions that you can call within your child theme</p>
+
+<h3><code>is_cptd_view()</code></h3>
+
+<p>Returns <code>true</code> if we are viewing a CPTD object (single post, post archive, or term archive) and <code>false</code> otherwise.</p>
+
+<hr />
+
+<h3><code>cptd_field( $post_id, $field_key )</code></h3>
+
+<p>Renders HTML for a single field for the given post ID.  Any custom hooks registered for the field wrap, label, or value will be executed.</p>
+
+<hr />
+
+<h3><code>cptd_get_field_html( $post_id, $field_key )</code></h3>
+
+<p>Returns an HTML string for a single field for the given post ID.  Any custom hooks registered for the field wrap, label, or value will fire.</p>

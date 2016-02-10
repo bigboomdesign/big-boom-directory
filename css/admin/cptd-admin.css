@@ -1,0 +1,173 @@
+/* General */
+.debug{ color: orange; background: beige; }
+.cptd-success{ color: green; }
+.cptd-fail{ color: #B42D29; }
+.cptd-indent{ margin-left: 2em; }
+.cptd-highlight{
+	display: block;
+	background-color: #e4f2fd;
+	padding: 1em;
+}
+
+h3.cptd-header{ font-size: 1.5em; }
+h4.cptd-header{ font-size: 1.3em; }
+h5.cptd-header{ font-size: 1.1em; font-weight: bold; }
+form > h3{
+	margin-top: 2em;
+}
+.form-table{ 
+	display: block;
+	border-bottom: solid 1px #777; 
+	padding-bottom: 1em; 
+}
+.form-table.indent th{ padding-left: 3em;  }
+.form-table.indent {margin-bottom: 3em;}
+
+.show-hide-fields-area {
+    cursor: pointer;
+    display: inline-block;
+    background: #eee none repeat scroll 0 0;
+    border-radius: 5px;
+    border: solid 1px #ccc;
+    padding: 0.2em 1em;
+}
+
+/**
+ * Widgets
+ * 
+ * - General
+ * - Search Widget
+ * - Random Posts Widget
+ */
+
+/* General */
+.cptd-widget-form {
+	margin-bottom: 2em;
+}
+.cptd-widget-form h4 {
+	margin-top: 2.5em;
+	margin-bottom: 0em;
+}
+.cptd-widget-form h4 + p {
+	margin-top: 0.5em;
+	margin-bottom: 1.5em;
+}
+.cptd-widget-form label input[type=text],
+.cptd-widget-form label input[type=textarea],
+.cptd-widget-form label input[type=number],
+.cptd-widget-form label input[type=select] {
+	margin-top: 0.3em
+}
+
+.cptd-widget-form label input[type=number] {
+	line-height: 2em;
+}
+
+.cptd-widget-form label.post-type-select,
+.cptd-widget-form label.taxonomy-select,
+.cptd-widget-form label.terms-select {
+	display: block;
+	margin: 0.5em 0;
+	margin: 0.5em 0;
+}
+
+.cptd-terms-list.highlight {
+	padding: 1em;
+}
+.cptd-terms-list.highlight h4{ margin-top: 0; }
+
+/* Search Widget */
+.cptd-search-widget-field {
+    margin: 0.5em 0;
+}
+.cptd-search-field-filter-select .cptd-search-widget-field {
+	padding-left: 1em;
+}
+.cptd-search-widget-field .field-type-select {
+	margin: 1em 0 0.25em;
+}
+.cptd-search-widget-field .field-type-select label {
+	margin-right: 1em;
+}
+
+#cptd-search-form .cptd-fields-area {
+	display: none;
+	margin-top: 2em;
+}
+
+.cptd-draggable-fields-container .cptd-search-widget-field {
+	cursor: move;
+	padding: 12px;
+	background: #ccc;
+	margin-bottom: 10px;
+	width: 320px;
+	max-width: 100%;
+	display: block;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	border: solid 1px #aaa;
+	border-radius: 2px;
+	position: relative;
+}
+
+.cptd-draggable-fields-container .cptd-search-widget-field:hover {
+	border: solid 1px #888;
+}
+
+.cptd-fields-drop {
+	display: none;
+	width: 100%;
+	min-height: 100px;
+	padding: 0.5em;
+	/*border: solid black 1px;*/
+	margin-top: 1em;
+	box-sizing: border-box;
+
+	background: #eee;
+	border: solid 1px #ddd;
+}
+
+.cptd-fields-drop  .placeholder-text {
+	color: #aaa;
+}
+
+/* Items that lie in the droppable area */
+
+
+/* "remove" button (x) */
+.cptd-search-widget-field div.dashicons {
+	position: absolute;
+	right: 0.5em;
+	cursor: pointer;
+}
+.cptd-search-widget-field div.dashicons:hover {
+	color: rgb(170,0,0);
+}
+
+.cptd-droppable-helper {
+	width: 320px;
+	height: 40px;
+	border: dashed 1px #aaa;
+	margin-bottom: 10px;
+	display: none;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.cptd-droppable-helper.active {
+	display: block;
+}
+
+.cptd-search-fields-placeholder {
+	height: 40px;
+	border: dashed 1px #aaa;
+	margin-bottom: 10px;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	width: 320px;
+}
+
+
+
+/* Random Posts Widget */
+

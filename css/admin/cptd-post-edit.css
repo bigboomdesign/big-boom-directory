@@ -1,0 +1,83 @@
+.required{
+	color: #D9534F;
+}
+h1 a.page-title-action{
+	display: none;
+}
+
+/**
+ * Post meta boxes 
+ */
+
+/** post type settings meta boxes */
+#handle-container.highlight,
+#slug-container.highlight{
+	padding: 1em;
+}
+
+#handle-container a,
+#slug-container a{
+	cursor: pointer;
+}
+a#change-name,
+a#change-slug{ 
+	display: inline-block;
+	margin-top: 0.2em; 
+	font-style: italic;
+}
+
+div#cancel-name-change a,
+div#cancel-slug-change a{
+	font-style: italic;
+	text-decoration: none;
+}
+
+div#handle-info p,
+div#slug-info p{
+	padding-top: 1em;
+}
+
+div.cptd-field-select{
+	border-top: solid 1px #ddd;
+	margin-top: 1em;
+	padding-top: 1em;
+}
+
+div.cptd-field-select label{
+	display: block;
+}
+
+/** taxonomy settings meta boxes */
+#tax-assign-pt h3{
+	padding-left: 0;
+}
+#tax-assign-pt.field label{
+	font-weight: normal;
+	display: block;
+	margin-top: 0.2em;
+}
+#tax-assign-tip{
+	margin-top: 0.5em;
+}
+
+/** 
+ * Advanced Fields Setup
+ */
+
+/* link texts */
+.cmb2-id--cptd-meta-url-link-texts {
+	display: none;
+}
+#cptd-url-link-texts .link-text-field {
+	margin-bottom: 2em;
+}
+
+/**
+ * CMB2 
+ */
+
+/* descriptions */
+span.cmb2-metabox-description p{
+	margin: 0;
+	padding-top: 0.5em;
+}
