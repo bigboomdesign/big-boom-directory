@@ -910,8 +910,8 @@ class CPTD {
 		require_once cptd_dir('/lib/widgets/class-cptd-random-posts-widget.php');
 
 		# Extended Post Types & Taxonomies
-		if( ! function_exists( 'register_extended_post_type' ) ) require_once cptd_dir( '/assets/extended-cpts.php' );
-		if( ! function_exists( 'register_extended_taxonomy' ) ) require_once cptd_dir( '/assets/extended-taxos.php' );
+		if( ! function_exists( 'register_extended_post_type' ) ) require_once cptd_dir( '/assets/extended-cpts/extended-cpts.php' );
+		if( ! function_exists( 'register_extended_taxonomy' ) ) require_once cptd_dir( '/assets/extended-taxos/extended-taxos.php' );
 
 	} # end: load_classes()
 
