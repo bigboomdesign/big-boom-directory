@@ -37,7 +37,6 @@ form > h3{
  * 
  * - General
  * - Search Widget
- * - Random Posts Widget
  */
 
 /* General */
@@ -166,8 +165,3 @@ form > h3{
 	box-sizing: border-box;
 	width: 320px;
 }
-
-
-
-/* Random Posts Widget */
-

@@ -191,10 +191,11 @@ class CPTD {
 
 	/** 
 	 * Register the widgets for the plugin
+	 *
+	 * @since 	2.0.0
 	 */
 	public static function widgets_init() {
 		register_widget("CPTD_Search_Widget");
-		register_widget("CPTD_Random_Posts_Widget");
 	} # end: widgets_init()
 
 	/**
@@ -907,7 +908,6 @@ class CPTD {
 		require_once cptd_dir('/lib/class-cptd-tax.php');
 		require_once cptd_dir('/lib/class-cptd-field.php');
 		require_once cptd_dir('/lib/widgets/class-cptd-search-widget.php');
-		require_once cptd_dir('/lib/widgets/class-cptd-random-posts-widget.php');
 
 		# Extended Post Types & Taxonomies
 		if( ! function_exists( 'register_extended_post_type' ) ) require_once cptd_dir( '/assets/extended-cpts/extended-cpts.php' );
