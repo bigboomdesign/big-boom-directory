@@ -1,13 +1,33 @@
-<h1>Custom Post Type Directory (Version 2)</h1>
+<h1>Custom Post Type Directory</h1>
 
-<hr />
-
-<p>Directory management system based on Custom Post Types, Taxonomies, and Fields</p>
+<p>Directory management plugin for WordPress, based on Custom Post Types, Taxonomies, and Fields</p>
 
 <h2>Features</h2>
 
 <ul>
-<li>Creates custom post type and taxonomies from backend without coding</li>
+<li><p>Create and manage custom post types and taxonomies from WP Admin.  Settings include:</p>
+
+<ul>
+<li>Post ordering</li>
+<li>Labels</li>
+<li>WP Admin menu icon and position</li>
+<li>URL slug and post type name/handle</li>
+<li>Basic settings like 'Public' and 'Has Archive', and 'Exclude From Search'</li>
+</ul></li>
+<li><p>Add content using the WYSIWYG to act as the post type description for archive pages</p></li>
+<li><p>Pick and choose fields from Advanced Custom Fields groups to be displayed on single and archive views</p></li>
+<li><p>Choose image size and alignment for single and archive views with ACF image fields</p></li>
+<li><p>Automatically detect URL and social media fields, converting them into links</p></li>
+<li><p>Support for ACF Gallery field with integration using Lightbox</p></li>
+<li><p>Full-featured search widget with customizable search filters and field selection for the search results</p></li>
+<li><p>Use hooks to further customize post type registration and front end display</p></li>
+<li><p>The following add-ons are available and/or currently under development:</p>
+
+<ul>
+<li>Map</li>
+<li>Import/Export</li>
+<li>Posts Widget</li>
+</ul></li>
 </ul>
 
 <hr />
@@ -15,10 +35,21 @@
 <h2>Notes</h2>
 
 <ul>
-<li><p>Default behaviors for front end field display are not well-defined without Advanced Custom Fields plugin.  Using ACF adds support for field placement and ordering on single/archive pages for your various post types as well as field type selection.</p></li>
-<li><p>Uses <a href="https://github.com/johnbillion/extended-cpts">Extended Custom Post Types</a> and <a href="https://github.com/johnbillion/extended-taxos">Extended Taxonomies</a> for registering post types and taxonomies.</p></li>
-<li><p>Uses <a href="https://github.com/WebDevStudios/CMB2">CMB2</a> for handling post meta boxes.</p></li>
-<li><p>By default, giving a field a key equal <code>web</code>, <code>website</code>, or <code>url</code>, or a key containing <code>_website</code> or <code>_url</code> will cause the field value to autolink on front end CPTD views</p></li>
+<li><p>Default behaviors for front end views generally fall in line with theme defaults. </p></li>
+<li><p>Default field display on the front end is not well-defined without the Advanced Custom Fields plugin.  Using ACF adds support for field placement and ordering on single/archive pages for the various post types.  It also gives the ability to choose a field type for each field, which is not defined for any fields otherwise.</p></li>
+<li><p>Without ACF, one could still take advantage of plugin hooks that are already set to fire on directory views only, and use this as a starting point for manually inserting post meta fields for the different view types.</p></li>
+<li><p>By default, using a field a key equal <code>web</code>, <code>website</code>, or <code>url</code>; OR a key containing <code>_website</code> or <code>_url</code> will cause the field value to autolink on front end CPTD views. The link texts are editable from the corresponding post type edit screen.  This setting may be deactivated.</p></li>
+<li><p>By default, when using a field key like facebook, twitter, youtube, googleplus, pinterest, instagram, or linkedin, the plugin matches various versions of these field names to try and convert them into social icons.  It's best to group all of these fields together when utilizing this feature.  This setting may be deactivated.</p></li>
+<li><p>Any time you update the options on the main plugin settings screen, the new values will be used as the default when creating a new post type.</p></li>
+</ul>
+
+<hr />
+
+<h2>Dependencies</h2>
+
+<ul>
+<li><p>Uses <a href="https://github.com/johnbillion/extended-cpts">Extended Custom Post Types</a> and <a href="https://github.com/johnbillion/extended-taxos">Extended Taxonomies</a> for registering post types and taxonomies.  Plugin hooks provide access to everything being registered.</p></li>
+<li><p>Uses <a href="https://github.com/WebDevStudios/CMB2">CMB2</a> for handling post meta boxes on the backend.</p></li>
 </ul>
 
 <hr />
@@ -28,12 +59,12 @@
 <h3>[cptd-a-z-listing]</h3>
 
 <ul>
-<li><p>Displays an A-Z listing of all posts for the custom post type</p></li>
+<li><p>Displays an A-Z listing of all posts for one or more custom post types</p></li>
 <li><p><strong>Attributes:</strong> </p>
 
 <ul>
-<li><p><code>post_types</code> The post types to be displayed, separated by comma <code>ex: 'book, movie'</code></p></li>
-<li><p><code>list_style</code> The list style for the <code>li</code> HTML elements <code>ex: 'disc'</code></p></li>
+<li><p><code>post_types</code> The post types to be displayed, separated by comma (<em>ex: 'book, movie'</em>)</p></li>
+<li><p><code>list_style</code> The list style for the <code>li</code> HTML elements (<em>ex: 'disc'</em>)</p></li>
 </ul></li>
 </ul>
 
@@ -46,7 +77,7 @@
 <li><p><strong>Attributes:</strong></p>
 
 <ul>
-<li><p><code>taxonomies</code>  The taxonomies to show terms for, separated by comma <code>ex: 'book_genre, movie_genre'</code></p></li>
+<li><p><code>taxonomies</code>  The taxonomies to show terms for, separated by comma <code>ex: 'book_genre, movie_genre'</code>. If no matching taxonomies are found, terms for all taxonomies are shown.</p></li>
 <li><p><code>list_style</code> The list style for the <code>li</code> HTML elements <code>ex: 'none'</code></p></li>
 </ul></li>
 </ul>
@@ -70,10 +101,7 @@
 
 <h3><code>cptd_register_pt</code></h3>
 
-<h4>Description</h4>
-
-<p>Use this filter to access the post type data before CPTD post types are registered.  The filtered object is an array
-containing the arguments for <a href="https://github.com/johnbillion/extended-cpts/wiki/Basic-usage">register_extended_post_type</a>, which is a wrapper for <a href="https://codex.wordpress.org/Function_Reference/register_post_type">register_post_type</a>.</p>
+<p>Use this filter to access the post type data before CPTD post types are registered.  The filtered object is an array containing the arguments for <a href="https://github.com/johnbillion/extended-cpts/wiki/Basic-usage">register_extended_post_type</a>, which is a wrapper for <a href="https://codex.wordpress.org/Function_Reference/register_post_type">register_post_type</a>.</p>
 
 <h4>Parameters</h4>
 
@@ -89,8 +117,9 @@ containing the arguments for <a href="https://github.com/johnbillion/extended-cp
 <pre><code>add_filter( 'cptd_register_pt', 'my_register_pt' );
 function my_register_pt( $args ) {
 
-    if( $cpt['post_type'] == 'my_post_type' )
+    if( $cpt['post_type'] == 'my_post_type' ) {
         $cpt['args']['labels']['menu_name'] = 'Custom Menu Name';
+    }
 
     return $cpt;
 }
@@ -98,9 +127,13 @@ function my_register_pt( $args ) {
 
 <hr />
 
-<h3><code>cptd_the_content</code></h3>
+<h3><code>cptd_register_tax</code></h3>
 
-<h4>Description</h4>
+<p>Similar to <code>cptd_register_pt</code>, but for taxonomies.</p>
+
+<hr />
+
+<h3><code>cptd_the_content</code></h3>
 
 <p>Use this filter to modify the post content for CPTD views.  Does not fire for non-CPTD page views.</p>
 
@@ -134,7 +167,7 @@ function my_the_content( $content ) {
 
 <h3><code>cptd_field_value_{$field_name}</code></h3>
 
-<p>Use this to filter a field value before it is displayed on the front end. Use your own field name (meta key) in place of <code>{$field_name}</code>.  Note that the filter fires whether or not the field has a value.</p>
+<p>Use this to filter a field value before it is displayed on the front end. Use your own field name (meta key) in place of <code>{$field_name}</code>.  Note that the filter fires whether or not the field has a value, as long as the field is selected for this view.</p>
 
 <h4>Parameters</h4>
 
@@ -165,7 +198,7 @@ function my_email_value_filter( $value ){
 
 <h3><code>cptd_field_label_{$field_name}</code></h3>
 
-<p>Use this filter to edit a filed's label and label wrap before it is displayed on the front end. Use your own field name (meta key) in place of <code>{$field_name}</code>. Note that the filter fires whether or not the field has a value.</p>
+<p>Use this filter to edit a filed's label and label wrap before it is displayed on the front end. Use your own field name (meta key) in place of <code>{$field_name}</code>. Note that the filter fires whether or not the field has a value, as long as the field is selected for this view.</p>
 
 <h4>Parameters</h4>
 
@@ -204,13 +237,15 @@ function my_last_name_label( $label ) {
 
 <h3><code>cptd_field_wrap_{$field_name}</code></h3>
 
+<p>Similar to <code>cptd_field_label_{$field_name}</code>, except we are altering the entire wrapping element for a field.  This can be particularly useful whenever two fields need to share the same parent wrapper, or when a particular class or id needs to be added to the HTML.</p>
+
 <h4>Parameters</h4>
 
 <pre><code>(array) $wrap {
     'before_tag'    =&gt; 'div',
+    'after_tag'     =&gt; 'div',
     'classes'       =&gt; (array),
     'id'            =&gt; (string),
-    'after_tag'     =&gt; 'div',
 }
 
 (CPTD_Field) $field: The field being displayed
@@ -231,7 +266,7 @@ function my_last_name_label( $label ) {
 <li>Remove the individual wrappers for the <code>first_name</code> and <code>last_name</code> fields and wrap them together in a single div</li>
 </ul>
 
-<h5>append a space to the first name</h5>
+<p>First, append a space to the first name</p>
 
 <pre><code>add_filter( 'cptd_field_value_first_name', 'my_first_name_value' );
 function my_first_name_value( $value ) {
@@ -239,7 +274,7 @@ function my_first_name_value( $value ) {
 }
 </code></pre>
 
-<h5>empty out the labels for first and last name fields</h5>
+<p>Then, empty out the labels for first and last name fields</p>
 
 <pre><code>add_filter( 'cptd_field_label_first_name', 'my_name_label' );
 add_filter( 'cptd_field_label_last_name', 'my_name_label' );
@@ -248,7 +283,7 @@ function my_name_label( $label ) {
 }
 </code></pre>
 
-<h5>add a <p> wrapper around the first and last name fields</h5>
+<p>Finally, add a <code>&lt;p&gt;</code> wrapper around the first and last name fields </p>
 
 <pre><code>add_filter( 'cptd_field_wrap_first_name', 'my_name_wrap', 10, 2 );
 add_filter( 'cptd_field_wrap_last_name', 'my_name_wrap', 10, 2 );
@@ -300,7 +335,7 @@ function my_link_text() {
 }
 </code></pre>
 
-<p>For a more complex example, we can get the post currently being displayed and incorporate a custom field with the link text. Note that we are checking first that the post has a specific post type, <code>author</code>.  We also check that the user has a value for the custom field <code>first_name</code>.</p>
+<p>For a more complex example, we can get the post currently being displayed and incorporate a custom field with the link text.  In this example, for an author named John we would have the link text "View John's Website". Note that we are checking first that the post has a specific post type, <code>author</code>.  We also check that the user has a value for the custom field <code>first_name</code>.</p>
 
 <pre><code>add_filter( 'cptd_link_text', 'my_variable_link_text', 10, 2 );
 function my_variable_link_text( $text, $field ) {
@@ -326,6 +361,22 @@ function my_variable_link_text( $text, $field ) {
 <hr />
 
 <h3><code>cptd_pt_description_wrap</code></h3>
+
+<p>This hook allows the customization of the containers for the post type descriptions that show on each post type archive page.  The post type description can be created by using the post content area for any post type.</p>
+
+<p>Also, see the actions <code>cptd_before_pt_description</code> and <code>cptd_after_pt_description</code> which give more general control that may be needed for complex post type descriptions.</p>
+
+<p>We assume that the description should have the same HTML structure as a single loop item, in order to integrate best with the theme being used.  Since the loop item HTML will be different for each theme, we take the approach of displaying a more-or-less unstyled description above the loop. This hook is then provided to allow the wrapper to be altered to match the theme.</p>
+
+<h4>Parameters</h4>
+
+<pre><code>(array) $wrap {
+    'before_tag'    =&gt; 'div',
+    'after_tag'     =&gt; 'div',
+    'classes'       =&gt; (array),
+    'id'            =&gt; (string),
+}
+</code></pre>
 
 <hr />
 
@@ -363,11 +414,11 @@ function my_pre_get_posts( $query ) {
 
 <h3><code>cptd_wp</code></h3>
 
+<p>Fires on the <code>wp</code> hook, but only for CPTD views</p>
+
 <h3><code>cptd_enqueue_scripts</code></h3>
 
-<h3><code>cptd_before_pt_description</code></h3>
-
-<h3><code>cptd_after_pt_description</code></h3>
+<p>Fires on the <code>wp_enqueue_scripts</code> hook, but only for CPTD views</p>
 
 <hr />
 
@@ -375,7 +426,7 @@ function my_pre_get_posts( $query ) {
 
 <h3><code>cptd_post_render_field_{$field_name}</code></h3>
 
-<p>These actions allow users to insert their own HTML before (<em>pre</em>) or after (<em>post</em>) a field is rendered.  Use your own field name (meta key) in place of <code>{$field_name}</code>.  Note that the action fires whether or not the field has a value.</p>
+<p>These actions allow users to insert their own HTML before (<em>pre</em>) or after (<em>post</em>) a field is rendered.  Use your own field name (meta key) in place of <code>{$field_name}</code>.  Note that the filter fires whether or not the field has a value, as long as the field is selected for this view.</p>
 
 <h3>Parameters</h3>
 
@@ -403,17 +454,46 @@ function my_post_email( $field ){
 
 <hr />
 
+<h3><code>cptd_before_pt_description</code></h3>
+
+<h3><code>cptd_after_pt_description</code></h3>
+
+<p>These actions are used to insert HTML (or perform other tasks) before and after the post type description for post type archive pages. The post type description can be created by using the post content area for any post type.</p>
+
+<p>As mentioned above for the <code>cptd_pt_description_wrap</code> filter, these actions are mainly intended to let users match the post type description to their specific theme.</p>
+
+<h4>Example</h4>
+
+<p>This example gives the post type description the same layout as a single loop item for the Twentyfifteen theme.</p>
+
+<pre><code>add_action( 'cptd_before_pt_description', 'my_before_description' );
+function my_before_description() {
+?&gt;
+    &lt;article class='hentry'&gt;&lt;div class='entry-content'&gt;
+&lt;?php
+}
+
+add_action( 'cptd_after_pt_description', 'my_after_description' );
+function my_after_description() {
+?&gt;
+    &lt;/div&gt;&lt;/article&gt;
+&lt;?php
+}
+</code></pre>
+
+<hr />
+
 <h3><code>cptd_before_search_result</code></h3>
 
 <h3><code>cptd_after_search_result</code></h3>
 
-<p>These actions allow to insert content before or after the search results rendered by the search widget. Note that the widget uses the post excerpt if defined, or truncates the post content to the specified length otherwise.</p>
+<p>These actions allow users to insert content before or after the search results rendered by the search widget. Note that the widget uses the post excerpt if defined, or truncates the post content to the specified length otherwise.</p>
 
-<h3>Parameters</h3>
+<h4>Parameters</h4>
 
 <p><code>$post_id</code> (int) The post ID for the current search result being displayed</p>
 
-<h3>Example</h3>
+<h4>Example</h4>
 
 <p>The following example will display a field called <code>email</code> before the result's excerpt and then show a list of term links for the post from a taxonomy called <code>movie_genre</code> after the excerpt</p>
 

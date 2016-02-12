@@ -1,4 +1,7 @@
 /* cptd */
+.wrap .markdown-body {
+  font-size: 1em;
+}
 .wrap .markdown-body h1{
 	font-size: 1.5em;
 }

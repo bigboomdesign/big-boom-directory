@@ -2,9 +2,10 @@
 /**
  * Plugin Name: Custom Post Type Directory
  * Description: Directory management system based on Custom Post Types, Taxonomies, and Fields
- * Version: 2.0.0.32.3
+ * Version: 2.0.0.32.4
  * Author: Big Boom Design
  * Author URI: https://bigboomdesign.com
+ * Text Domain: cptd
  */
  
 /**
@@ -67,7 +68,6 @@ if( is_admin() ) {
 else{
 	
 	require_once cptd_dir('/lib/class-cptd-view.php');
-	require_once cptd_dir('/lib/class-cptd-field.php');
 	
 	# the front end view object ( initialized via `wp` action )
 	global $cptd_view;
@@ -129,7 +129,8 @@ function cptd_field( $post_id, $field ) {
 
 	if( is_string( $field ) ) $field = new CPTD_Field( $field );
 	$field->get_html( true, $post_id );
-}
+
+} # end: cptd_field()
 
 /**
  * Return HTML for a single field for a single post.
@@ -150,7 +151,8 @@ function cptd_get_field_html( $post_id, $field ) {
 
 	if( is_string( $field ) ) $field = new CPTD_Field( $field );
 	return $field->get_html( false, $post_id );
-}
+
+} # end: cptd_get_field_html()
 
 /**
  * Return the URL (cptd_url) or folder path (cptd_dir) for this plugin
