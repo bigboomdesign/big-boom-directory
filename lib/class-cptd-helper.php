@@ -372,11 +372,12 @@ class CPTD_Helper{
 	 * Return a list of post IDs for a given set of post types
 	 *
 	 * @param 	array 	$post_types 	A mixed list of post type handles, labels, or IDs
+	 * @param 	bool	$published		Whether to restrict the posts to those with `publish` status
 	 *
 	 * @return 	array
 	 * @since 	2.0.0
 	 */
-	public static function get_all_post_ids_for_post_types( $post_types ) {
+	public static function get_all_post_ids_for_post_types( $post_types, $published = true ) {
 
 		$cptd_post_type_handles = array();
 		$post_ids = array();
@@ -404,7 +405,13 @@ class CPTD_Helper{
 		$post_ids_query = "SELECT DISTINCT ID FROM " . $wpdb->posts . 
 			" WHERE post_type IN ( '" .
 				implode( "', '", $cptd_post_type_handles ) .
-			"' )";
+			"' ) ";
+		
+		# if we're only getting published posts
+		if( $published ) {
+			$post_ids_query .= " AND post_status='publish'";
+		}
+		
 		$post_ids_result = $wpdb->get_results( $post_ids_query );
 
 		foreach( $post_ids_result as $r ) {
@@ -416,17 +423,19 @@ class CPTD_Helper{
 	} # end: get_all_post_ids_for_post_types()
 
 	/**
-	 * Return a list of post IDs for a given set of terms 
-	 * If $taxonomy is empty, term IDs must be used
-	 * If $taxonomy is non-empty, then a mixture of term names and term IDs can be used
+	 * Return a list of post IDs for a given set of terms
 	 *
-	 * @param 	array 	$terms		A list of terms as described above
+	 * If $taxonomy is empty, only term IDs may be used for the $terms paramater
+	 * If $taxonomy is non-empty, then a mixture of term names, labels and IDs can be used for $terms
+	 *
+	 * @param 	array 	$terms		A list of terms whose format depends on $taxonomy, as described above
 	 * @param 	string 	$taxonomy	A handle or label for the taxonomy to get terms from
+	 * @param 	bool	$publisehd	Whether we are limiting the query to published posts
 	 *
 	 * @return 	array
 	 * @since 	2.0.0
 	 */
-	public static function get_all_post_ids_for_terms( $terms, $taxonomy = '' ) {
+	public static function get_all_post_ids_for_terms( $terms, $taxonomy = '', $published = true ) {
 		
 		$term_ids = array();
 
@@ -466,10 +475,17 @@ class CPTD_Helper{
 		$post_ids = array();
 
 		global $wpdb;
-		$post_id_query = "SELECT DISTINCT object_id FROM " . $wpdb->term_relationships . 
-			" WHERE term_taxonomy_id IN ( '" . 
+		$post_id_query = "SELECT DISTINCT term_rel.object_id FROM " . $wpdb->term_relationships . " as term_rel " .
+			" INNER JOIN " . $wpdb->posts . " as posts ON posts.ID = term_rel.object_id " .
+			" WHERE term_rel.term_taxonomy_id IN ( '" . 
 				implode( "', '", $term_ids ) .
-			"' )";
+			"' ) ";
+		
+		# if we are only getting published posts
+		if( $published ) {
+			$post_id_query .= " AND posts.post_status = 'publish'";
+		}
+		
 		$post_id_results = $wpdb->get_results( $post_id_query );
 
 		foreach( $post_id_results as $r ) {
@@ -483,13 +499,16 @@ class CPTD_Helper{
 	/**
 	 * Return a list of post IDs for a given set of field key/value pairs
 	 *
-	 * @param 	array 	$fields 		Associative array of key/value pairs of fields to get posts by
-	 * @param 	string 	$operation 		Whether to match all given values (use "AND") or any given values (use "OR")
+	 * @param 	array 	$fields 		Associative array of key/value pairs of fields to get posts by. 
+	 * 									The array values themselves can be non-associative arrays, in order to match multiple values for a key
+	 *
+	 * @param 	string 	$operation 		Whether we are expected to match all items in $fields (use "AND") or at least one item in $fields (use "OR")
+	 * @param 	bool 	$published 		Whether to query for published posts only
 	 *
 	 * @return 	array
 	 * @since 	2.0.0
 	 */
-	public static function get_all_post_ids_for_fields( $fields, $operation = 'OR' ) {
+	public static function get_all_post_ids_for_fields( $fields, $operation = 'OR', $published = true ) {
 
 		# the post ID array we'll return
 		$post_ids = array();
@@ -505,8 +524,8 @@ class CPTD_Helper{
 			# if we have an array of field values
 			if( is_array( $v ) ) {
 				foreach( $v as $field_value ) {
-					$clauses[] = " ( meta_key='" . $key . 
-						"' AND meta_value='" . sanitize_text_field( $field_value ) . 
+					$clauses[] = " ( meta.meta_key='" . $key . 
+						"' AND meta.meta_value='" . sanitize_text_field( $field_value ) . 
 					"' ) ";
 				}
 			}
@@ -514,16 +533,32 @@ class CPTD_Helper{
 			# if we have a single value
 			else {
 				$value = sanitize_text_field( $v );
-				$clauses[] = " ( meta_key='" . $key . "' AND meta_value='" . $value . "' ) ";
+				$clauses[] = " ( meta.meta_key='" . $key . "' AND meta.meta_value='" . $value . "' ) ";
 			}
 		}
 
 		if( empty( $clauses ) ) return array();
 
-		# query the database for field matches
+		/**
+		 * Query the database for field matches 
+		 *
+		 * Note that at this point, we are just getting all post IDs that match any of the given items in $fields.
+		 *
+		 * Specifically, we are using OR instead of $operation to piece together the query's WHERE clause,
+		 * since our $clauses array might not have unique keys (e.g.  array { key1: value1, key1: value2 } ).
+		 *
+		 * Since this implies that the user wants to search for multiple matches on a single key, we just go ahead and grab 
+		 * everything here and then sort out the AND/OR implementations after the query
+		 */
 		global $wpdb;
-		$field_match_query = "SELECT DISTINCT meta_key, post_id FROM " . $wpdb->postmeta .
-			" WHERE " . implode( " OR ", $clauses );
+		$field_match_query = "SELECT DISTINCT meta.meta_key, meta.post_id FROM " . 
+			$wpdb->postmeta . " as meta INNER JOIN " . $wpdb->posts . " as posts ON posts.ID = meta.post_id " .
+			" WHERE ( " . implode( " OR ", $clauses ) . " ) ";
+
+		# if we are getting only published posts
+		if( $published ) {
+			$field_match_query .= " AND posts.post_status='publish' ";
+		}
 
 		$field_match_results = $wpdb->get_results( $field_match_query );
 
