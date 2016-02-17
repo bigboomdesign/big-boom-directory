@@ -408,6 +408,7 @@ class CPTD_Search_Widget extends WP_Widget {
 		if( $view_all && $view_all_link ) echo "<p class='cptd-view-all'><a href='" . $view_all_link . "'>" . $view_all . "</a></p>";
 		if( $description ) echo"<p>". $description . "</p>";		
 		?>
+			<div class='cptd-search-widget-container'>
 			<form method="post" 
 				id="cptd-search-form" 
 				action="<?php if( ! empty( $search_page ) ) echo get_permalink( $search_page ); ?>"
@@ -477,6 +478,7 @@ class CPTD_Search_Widget extends WP_Widget {
 				>
 				<input class="cptd-search-submit" type="submit" value="<?php echo $submit_text; ?>"/>
 			</form>
+			</div><!-- .cptd-search-widget-container -->
 		<?php
 		echo $after_widget;
 		wp_enqueue_style( 'cptd', cptd_url('/css/cptd.css'), null, true );
