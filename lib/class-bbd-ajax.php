@@ -5,7 +5,7 @@
  * 
  * @since 	2.0.0
  */
-class CPTD_Ajax{
+class BBD_Ajax{
 
 	/**
 	 * Class parameters
@@ -20,9 +20,9 @@ class CPTD_Ajax{
 	static $actions = array(
 
 		/* post edit */
-		'cptd_handle_from_title', 
-		'cptd_slug_from_title',
-		'cptd_select_field_group',
+		'bbd_handle_from_title', 
+		'bbd_slug_from_title',
+		'bbd_select_field_group',
 	);
 
 
@@ -38,9 +38,9 @@ class CPTD_Ajax{
 
 	/**
 	 * Post edit AJAX callbacks
-	 * 		- cptd_handle_from_title()
-	 * 		- cptd_slug_from_title()
-	 * 		- cptd_select_field_group()
+	 * 		- bbd_handle_from_title()
+	 * 		- bbd_slug_from_title()
+	 * 		- bbd_select_field_group()
 	 */
 
 	/**
@@ -49,7 +49,7 @@ class CPTD_Ajax{
 	 * @param 	string 	$_POST['title'] 	The title to convert into a handle
 	 * @since 	2.0.0
 	 */
-	public static function cptd_handle_from_title(){
+	public static function bbd_handle_from_title(){
 		$title = sanitize_text_field( $_POST['title'] );
 		if( ! $title ) die();
 		
@@ -58,9 +58,9 @@ class CPTD_Ajax{
 			$title = substr( $title, 0, -1 );
 		}
 
-		echo CPTD_Helper::clean_str_for_field( $title );
+		echo BBD_Helper::clean_str_for_field( $title );
 		die();
-	} # end: cptd_handle_from_title()
+	} # end: bbd_handle_from_title()
 
 	/**
 	 * Print a slug suitable for URL usage, given a title via $_POST
@@ -68,13 +68,13 @@ class CPTD_Ajax{
 	 * @param 	string 	$_POST['title']		The title to convert into a slug
 	 * @since 	2.0.0
 	 */
-	public static function cptd_slug_from_title() {
+	public static function bbd_slug_from_title() {
 		$title = sanitize_text_field( $_POST['title'] );
 		if( ! $title ) die();
 		
-		echo CPTD_Helper::clean_str_for_url( $title );
+		echo BBD_Helper::clean_str_for_url( $title );
 		die();
-	} # end: cptd_slug_from_title()
+	} # end: bbd_slug_from_title()
 
 	/**
 	 * Print a checkbox group of fields for the selected field group
@@ -84,7 +84,7 @@ class CPTD_Ajax{
 	 * @param 	string 	$_POST['view_type'] 			(single|archive) The section for the selected field group
 	 * @since 	2.0.0
 	 */
-	public static function cptd_select_field_group() {
+	public static function bbd_select_field_group() {
 
 		# make sure we have a view type ('single' or 'archive')
 		if( empty( $_POST['view_type'] ) ) die();
@@ -118,7 +118,7 @@ class CPTD_Ajax{
 
 		ob_start();
 		?>
-		<div class="cptd-field-select">
+		<div class="bbd-field-select">
 		<?php
 
 			# if no fields were found
@@ -132,7 +132,7 @@ class CPTD_Ajax{
 				# get the saved fields, if any, so we can pre-check them
 				$saved_fields = array();
 				if( $post_id ) {
-					$saved_fields = (array) get_post_meta( $post_id, '_cptd_meta_'. $_POST['view_type'] .'_fields', true );
+					$saved_fields = (array) get_post_meta( $post_id, '_bbd_meta_'. $_POST['view_type'] .'_fields', true );
 				}
 
 				# loop through the fields for this field group and generate checkboxes
@@ -144,7 +144,7 @@ class CPTD_Ajax{
 					<label>
 						<input 
 							type='checkbox' 
-							name="_cptd_meta_<?php echo $_POST['view_type']; ?>_fields[]"
+							name="_bbd_meta_<?php echo $_POST['view_type']; ?>_fields[]"
 							value="<?php echo  $value['key']; ?>" 
 							<?php checked( true, in_array( $value['key'], $saved_fields ) ); ?>
 						/> <?php echo $value['label']; ?>
@@ -162,7 +162,7 @@ class CPTD_Ajax{
 		echo $html;
 		die();
 	
-	} # end: cptd_select_field_group()
+	} # end: bbd_select_field_group()
 	
 
 	/**
@@ -178,7 +178,7 @@ class CPTD_Ajax{
 	 */
 	public static function add_actions(){
 		foreach(self::$actions as $action){
-			add_action('wp_ajax_'.$action, array('CPTD_Ajax', $action));			
+			add_action('wp_ajax_'.$action, array('BBD_Ajax', $action));			
 		}
 	}
 	
@@ -205,7 +205,7 @@ class CPTD_Ajax{
 				'class' => '',
 				'description' => '',
 				'instructions' => '',
-			), $args, 'cptd_action_button'
+			), $args, 'bbd_action_button'
 		);
 		extract($args);
 
@@ -233,4 +233,4 @@ class CPTD_Ajax{
 	</div>
 	<?php
 	} # end: action_button()
-} # end class: CPTD_Ajax
+} # end class: BBD_Ajax

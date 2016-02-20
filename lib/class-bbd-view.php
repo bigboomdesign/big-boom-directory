@@ -4,10 +4,10 @@
  *
  * @since 	2.0.0
  */
-class CPTD_View {
+class BBD_View {
 
 	/** 
-	 * The current front end view type (initialized as CPTD::$view_type)
+	 * The current front end view type (initialized as BBD::$view_type)
 	 *
 	 * @param 	string 
 	 * @since 	2.0.0
@@ -17,7 +17,7 @@ class CPTD_View {
 	/**
 	 * The current post type being viewed on the front end
 	 *
-	 * @param 	CPTD_PT
+	 * @param 	BBD_PT
 	 * @since 	2.0.0
 	 */
 	var $post_type;
@@ -39,9 +39,9 @@ class CPTD_View {
 	var $field_keys = array();
 
 	/**
-	 * The field objects to display for the current view (CPTD_Field objects)
+	 * The field objects to display for the current view (BBD_Field objects)
 	 * Typically used for views other than single or archive, where ACF fields may not be saved
-	 * (e.g. if the view is 'cptd-search-results')
+	 * (e.g. if the view is 'bbd-search-results')
 	 *
 	 * @param 	array
 	 * @since 	2.0.0
@@ -49,7 +49,7 @@ class CPTD_View {
 	var $fields = array();
 
 	/**
-	 * The saved ACF fields to display for the current view, if any (CPTD_Field objects)
+	 * The saved ACF fields to display for the current view, if any (BBD_Field objects)
 	 *
 	 * @param 	array
 	 * @since 	2.0.0
@@ -118,15 +118,15 @@ class CPTD_View {
 	public function __construct() {
 
 		# make sure we have a valid view
-		if( empty( CPTD::$view_type ) ) return;
+		if( empty( BBD::$view_type ) ) return;
 
-		$this->view_type = CPTD::$view_type;
+		$this->view_type = BBD::$view_type;
 
 		# check if there is a valid queried post type for the current screen
-		if( ! empty( CPTD::$current_post_type ) && in_array( CPTD::$current_post_type, CPTD::$post_type_ids ) ) {
+		if( ! empty( BBD::$current_post_type ) && in_array( BBD::$current_post_type, BBD::$post_type_ids ) ) {
 
 			# load the post type object
-			$this->post_type = new CPTD_PT( CPTD::$current_post_type );
+			$this->post_type = new BBD_PT( BBD::$current_post_type );
 
 			/**
 			 * Load ACF fields
@@ -144,7 +144,7 @@ class CPTD_View {
 				# loop through the field keys (e.g. field_abc123) and store the field data
 				foreach( $fields as $field ) {
 
-					$field = new CPTD_Field( $field );
+					$field = new BBD_Field( $field );
 
 					# store the field into the ACF fields array, indexed by order number
 					$this->acf_fields[ $field->acf_field['order_no'] ] = $field;
@@ -186,22 +186,22 @@ class CPTD_View {
 		} # end if: current post type is set
 
 		# for search widget results
-		if( 'cptd-search-results' == $this->view_type ) {
+		if( 'bbd-search-results' == $this->view_type ) {
 
 			# image size: use main options setting as default
-			$this->image_size = ! empty( CPTD_Options::$options['image_size_archive'] ) ? 
-				CPTD_Options::$options['image_size_archive'] : 
+			$this->image_size = ! empty( BBD_Options::$options['image_size_archive'] ) ? 
+				BBD_Options::$options['image_size_archive'] : 
 				'thumbnail';
 
-			$this->image_alignment = ! empty( CPTD_Options::$options['image_alignment'] ) ?
-				CPTD_Options::$options['image_alignment'] :
+			$this->image_alignment = ! empty( BBD_Options::$options['image_alignment'] ) ?
+				BBD_Options::$options['image_alignment'] :
 				'none';
 
 			# auto-detect URLs
-			$this->auto_detect_url = ! empty( CPTD_Options::$options['auto_detect_url_yes'] );
+			$this->auto_detect_url = ! empty( BBD_Options::$options['auto_detect_url_yes'] );
 
 			# auto-detect social links
-			$this->auto_detect_social = ! empty( CPTD_Options::$options['auto_detect_social_yes'] );
+			$this->auto_detect_social = ! empty( BBD_Options::$options['auto_detect_social_yes'] );
 
 		} # end if: doing search widget results
 
@@ -250,19 +250,19 @@ class CPTD_View {
 
 		ob_start();
 		?>
-		<div class="cptd-fields-wrap">
+		<div class="bbd-fields-wrap">
 		<?php
 			# loop through fields for this view
 			foreach( $this->acf_fields as $field ) {
 
 				# hookable pre-render action specific to this field name
-				do_action( 'cptd_pre_render_field_' . $field->key, $field );
+				do_action( 'bbd_pre_render_field_' . $field->key, $field );
 
 				# print the field HTML
 				$field->get_html( true );
 
 				# hookable post-render action specific to this field name
-				do_action( 'cptd_post_render_field_' . $field->key, $field );
+				do_action( 'bbd_post_render_field_' . $field->key, $field );
 
 			} # end foreach: fields
 		?>
@@ -277,4 +277,4 @@ class CPTD_View {
 
 	} # end get_acf_html()	
 
-} # end class: CPTD_View
+} # end class: BBD_View

@@ -2,12 +2,12 @@
 /**
  * An object for taxonomies created by the plugin
  *
- * Extension of CPTD_Post.  Contains data necessary for registering and handling custom taxonomies
+ * Extension of BBD_Post.  Contains data necessary for registering and handling custom taxonomies
  *
  * @since 2.0.0
  */
 
-class CPTD_Tax extends CPTD_Post{
+class BBD_Tax extends BBD_Post{
 
 	/**
 	 * The taxonomy name to be registered
@@ -113,12 +113,12 @@ class CPTD_Tax extends CPTD_Post{
 	/**
 	 * Register the taxonomy associated with this post
 	 *
-	 * The input array is filtered by `cptd_register_tax` and then passed to `register_extended_taxonomy()`
+	 * The input array is filtered by `bbd_register_tax` and then passed to `register_extended_taxonomy()`
 	 *
 	 * variable of interest:
 	 *
 	 * @type  array 	$args{
-	 *		The arguments that will be filtered by `cptd_register_tax`
+	 *		The arguments that will be filtered by `bbd_register_tax`
 	 *
 	 *   	@type string 		$taxonomy 	 	The taxonomy name to register
 	 * 		@type string|array 	$object_type	The post types to associate with this taxonomy
@@ -142,8 +142,8 @@ class CPTD_Tax extends CPTD_Post{
 		foreach( $this->post_types as $post_id){
 
 			# make sure we have an acceptable post type
-			if( ! in_array( $post_id, CPTD::$post_type_ids ) ) return;
-			$pt = new CPTD_PT( $post_id );
+			if( ! in_array( $post_id, BBD::$post_type_ids ) ) return;
+			$pt = new BBD_PT( $post_id );
 
 			# add the post type name to the list for registration
 			$object_type[] = $pt->handle;
@@ -186,7 +186,7 @@ class CPTD_Tax extends CPTD_Post{
 		}
 
 		# apply filter that user can hook into
-		$args = apply_filters('cptd_register_tax', $args);
+		$args = apply_filters('bbd_register_tax', $args);
 
 		# register the taxonomy using Extended Taxonomies
 		register_extended_taxonomy( $args['taxonomy'], $args['object_type'], $args['args'], $args['names'] );
@@ -198,15 +198,15 @@ class CPTD_Tax extends CPTD_Post{
 	 * Note this does not support taxonomies that may share labels, it returns the first valid match
 	 *
 	 * @param 	string 		$search_text 	The handle or label for a taxonomy
-	 * @return	CPTD_Tax
+	 * @return	BBD_Tax
 	 * @since 	2.0.0
 	 */
 	public static function get_by_text( $search_text ) {
 
-		# loop through post IDs for CPTD posts
-		foreach( CPTD::$taxonomy_ids as $id ) {
+		# loop through post IDs for BBD posts
+		foreach( BBD::$taxonomy_ids as $id ) {
 
-			$tax = new CPTD_Tax( $id );
+			$tax = new BBD_Tax( $id );
 
 			# see if we match the handle, labels, or post title
 			if( 
@@ -246,12 +246,12 @@ class CPTD_Tax extends CPTD_Post{
 		}
 		$setting['choices'] = $choices;
 
-		$setting = CPTD_Helper::get_field_array( $setting );
+		$setting = BBD_Helper::get_field_array( $setting );
 		?>
 		<label for='<?php echo $setting['id']; ?>' ><?php echo $this->plural; ?>
-			<?php CPTD_Options::do_settings_field( $setting, $option, $_POST ); ?>
+			<?php BBD_Options::do_settings_field( $setting, $option, $_POST ); ?>
 		</label>
 		<?php
 	} # end: get_form_element_html()
 
-} # end class: CPTD_Tax
+} # end class: BBD_Tax

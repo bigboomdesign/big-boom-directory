@@ -1,5 +1,5 @@
 
-# Custom Post Type Directory
+# Big Directory
 
 Directory management plugin for WordPress, based on Custom Post Types, Taxonomies, and Fields
 
@@ -43,7 +43,7 @@ Directory management plugin for WordPress, based on Custom Post Types, Taxonomie
 
 * Without ACF, one could still take advantage of plugin hooks that are already set to fire on directory views only, and use this as a starting point for manually inserting post meta fields for the different view types.
 
-* By default, using a field a key equal `web`, `website`, or `url`; OR a key containing `_website` or `_url` will cause the field value to autolink on front end CPTD views. The link texts are editable from the corresponding post type edit screen.  This setting may be deactivated.
+* By default, using a field a key equal `web`, `website`, or `url`; OR a key containing `_website` or `_url` will cause the field value to autolink on front end BBD views. The link texts are editable from the corresponding post type edit screen.  This setting may be deactivated.
 
 * By default, when using a field key like facebook, twitter, youtube, googleplus, pinterest, instagram, or linkedin, the plugin matches various versions of these field names to try and convert them into social icons.  It's best to group all of these fields together when utilizing this feature.  This setting may be deactivated.
 
@@ -61,7 +61,7 @@ Directory management plugin for WordPress, based on Custom Post Types, Taxonomie
 
 ## Shortcodes
 
-### [cptd-a-z-listing]
+### [bbd-a-z-listing]
 
  * Displays an A-Z listing of all posts for one or more custom post types
 
@@ -73,7 +73,7 @@ Directory management plugin for WordPress, based on Custom Post Types, Taxonomie
 
 ---
 
-### [cptd-terms]
+### [bbd-terms]
 
 * Displays a term list for one or more taxonomies
 
@@ -85,9 +85,9 @@ Directory management plugin for WordPress, based on Custom Post Types, Taxonomie
 
 ---
 
-### [cptd-search]
+### [bbd-search]
 
-* Displays an existing CPTD Search widget 
+* Displays an existing BBD Search widget 
 
 * **Attributes:**
 
@@ -97,9 +97,9 @@ Directory management plugin for WordPress, based on Custom Post Types, Taxonomie
 
 ## Filters
 
-### ````cptd_register_pt````
+### ````bbd_register_pt````
 
-Use this filter to access the post type data before CPTD post types are registered.  The filtered object is an array containing the arguments for [register\_extended\_post\_type](https://github.com/johnbillion/extended-cpts/wiki/Basic-usage), which is a wrapper for [register\_post\_type](https://codex.wordpress.org/Function_Reference/register_post_type).
+Use this filter to access the post type data before BBD post types are registered.  The filtered object is an array containing the arguments for [register\_extended\_post\_type](https://github.com/johnbillion/extended-cpts/wiki/Basic-usage), which is a wrapper for [register\_post\_type](https://codex.wordpress.org/Function_Reference/register_post_type).
 
 
 #### Parameters
@@ -113,27 +113,27 @@ Use this filter to access the post type data before CPTD post types are register
   
 #### Example
 
-    add_filter( 'cptd_register_pt', 'my_register_pt' );
+    add_filter( 'bbd_register_pt', 'my_register_pt' );
     function my_register_pt( $args ) {
     
-        if( $cpt['post_type'] == 'my_post_type' ) {
-            $cpt['args']['labels']['menu_name'] = 'Custom Menu Name';
+        if( $args['post_type'] == 'my_post_type' ) {
+            $args['args']['labels']['menu_name'] = 'Custom Menu Name';
         }
     	
-        return $cpt;
+        return $args;
     }
 
 ---
 
-### ````cptd_register_tax````
+### ````bbd_register_tax````
 
-Similar to `cptd_register_pt`, but for taxonomies.
+Similar to `bbd_register_pt`, but for taxonomies.
 
 ---
 
-### ````cptd_the_content````
+### ````bbd_the_content````
 
-Use this filter to modify the post content for CPTD views.  Does not fire for non-CPTD page views.
+Use this filter to modify the post content for BBD views.  Does not fire for non-BBD page views.
 
 #### Parameters
 
@@ -147,7 +147,7 @@ Use this filter to modify the post content for CPTD views.  Does not fire for no
 
 Below, we're appending an additional field called `phone` below the default fields and post content.
 
-    add_filter( 'cptd_the_content', 'my_the_content' );
+    add_filter( 'bbd_the_content', 'my_the_content' );
     function my_the_content( $content ) {
 
         global $post;
@@ -160,7 +160,7 @@ Below, we're appending an additional field called `phone` below the default fiel
 
 ---
 
-### ````cptd_field_value_{$field_name}````
+### ````bbd_field_value_{$field_name}````
 
 Use this to filter a field value before it is displayed on the front end. Use your own field name (meta key) in place of `{$field_name}`.  Note that the filter fires whether or not the field has a value, as long as the field is selected for this view.
 
@@ -168,7 +168,7 @@ Use this to filter a field value before it is displayed on the front end. Use yo
 
     (string) $value: The field value to be displayed
 
-    (CPTD_Field) $field: The field object that is being displayed
+    (BBD_Field) $field: The field object that is being displayed
 
 
 #### Return
@@ -179,7 +179,7 @@ Use this to filter a field value before it is displayed on the front end. Use yo
 
 Below, we are filtering the value of a field called `email` and adding a mailto link.
 
-    add_filter( 'cptd_field_value_email', 'my_email_value_filter' );
+    add_filter( 'bbd_field_value_email', 'my_email_value_filter' );
     function my_email_value_filter( $value ){
 
         $value = "<a href='mailto:". $value . "' >" . $value . "</a>";
@@ -189,7 +189,7 @@ Below, we are filtering the value of a field called `email` and adding a mailto 
 
 ---
 
-### ````cptd_field_label_{$field_name}````
+### ````bbd_field_label_{$field_name}````
 
 Use this filter to edit a filed's label and label wrap before it is displayed on the front end. Use your own field name (meta key) in place of `{$field_name}`. Note that the filter fires whether or not the field has a value, as long as the field is selected for this view.
 
@@ -201,7 +201,7 @@ Use this filter to edit a filed's label and label wrap before it is displayed on
         'after'  => (string)   // HTML that comes after the label (Default: ": &nbsp; </label>")
     }
 
-    (CPTD_Field) $field: The field object that is being displayed
+    (BBD_Field) $field: The field object that is being displayed
 
 
 #### Return
@@ -212,13 +212,13 @@ Use this filter to edit a filed's label and label wrap before it is displayed on
 
 Below, we are setting the `first_name` field's label text to "First" and the `last_name` field's label text to "Last"
 
-    add_filter( 'cptd_field_label_first_name', 'my_first_name_label' );
+    add_filter( 'bbd_field_label_first_name', 'my_first_name_label' );
     function my_first_name_label( $label ) {
         $label['text'] = 'First';
         return $label;
     }
 
-    add_filter( 'cptd_field_label_last_name', 'my_last_name_label' );
+    add_filter( 'bbd_field_label_last_name', 'my_last_name_label' );
     function my_last_name_label( $label ) {
         $label['text'] = 'Last';
         return $label;
@@ -226,9 +226,9 @@ Below, we are setting the `first_name` field's label text to "First" and the `la
 
 ---
 
-### ````cptd_field_wrap_{$field_name}````
+### ````bbd_field_wrap_{$field_name}````
 
-Similar to `cptd_field_label_{$field_name}`, except we are altering the entire wrapping element for a field.  This can be particularly useful whenever two fields need to share the same parent wrapper, or when a particular class or id needs to be added to the HTML.
+Similar to `bbd_field_label_{$field_name}`, except we are altering the entire wrapping element for a field.  This can be particularly useful whenever two fields need to share the same parent wrapper, or when a particular class or id needs to be added to the HTML.
 
 #### Parameters
 
@@ -239,7 +239,7 @@ Similar to `cptd_field_label_{$field_name}`, except we are altering the entire w
         'id'            => (string),
     }
 
-    (CPTD_Field) $field: The field being displayed
+    (BBD_Field) $field: The field being displayed
 
 #### Return
 
@@ -247,7 +247,7 @@ Similar to `cptd_field_label_{$field_name}`, except we are altering the entire w
 
 #### Example
 
-Below is a fairly involved example that uses the `cptd_field_wrap` filter along with `cptd_field_value` and `cptd_field_label` to do the following:
+Below is a fairly involved example that uses the `bbd_field_wrap` filter along with `bbd_field_value` and `bbd_field_label` to do the following:
 
 * Append a space to the `first_name` field
 * Remove individual labels for the `first_name` and `last_name` fields
@@ -255,23 +255,23 @@ Below is a fairly involved example that uses the `cptd_field_wrap` filter along 
 
 First, append a space to the first name
 
-    add_filter( 'cptd_field_value_first_name', 'my_first_name_value' );
+    add_filter( 'bbd_field_value_first_name', 'my_first_name_value' );
     function my_first_name_value( $value ) {
         return $value . ' ';
     }
 
 Then, empty out the labels for first and last name fields
 
-    add_filter( 'cptd_field_label_first_name', 'my_name_label' );
-    add_filter( 'cptd_field_label_last_name', 'my_name_label' );
+    add_filter( 'bbd_field_label_first_name', 'my_name_label' );
+    add_filter( 'bbd_field_label_last_name', 'my_name_label' );
     function my_name_label( $label ) {
         return array('before' => '', 'after' => '', 'text' => '');
     }
 
 Finally, add a `<p>` wrapper around the first and last name fields 
 
-    add_filter( 'cptd_field_wrap_first_name', 'my_name_wrap', 10, 2 );
-    add_filter( 'cptd_field_wrap_last_name', 'my_name_wrap', 10, 2 );
+    add_filter( 'bbd_field_wrap_first_name', 'my_name_wrap', 10, 2 );
+    add_filter( 'bbd_field_wrap_last_name', 'my_name_wrap', 10, 2 );
     function my_name_wrap( $wrap, $field ) {
 
         // for the first name field
@@ -294,14 +294,14 @@ Finally, add a `<p>` wrapper around the first and last name fields
  
 ---
 
-### ````cptd_link_text````
+### ````bbd_link_text````
 
 Use to change the default "View Website" link text for auto detected URL fields (`web`, `website`, `url`, or matching `_website` or `_url`)
 
 #### Parameters
 
     (string)        $text      The link text currently set for display (default: "View Website")
-    (CPTD_Field)    $field    The field object currently being displayed
+    (BBD_Field)    $field    The field object currently being displayed
 
 #### Return
 
@@ -311,7 +311,7 @@ Use to change the default "View Website" link text for auto detected URL fields 
 
 Below, we're changing the link text to 'Visit Webpage'
 
-    add_filter( 'cptd_link_text', 'my_link_text' );
+    add_filter( 'bbd_link_text', 'my_link_text' );
     function my_link_text() {
         return 'Visit Webpage';
     }
@@ -319,7 +319,7 @@ Below, we're changing the link text to 'Visit Webpage'
 
 For a more complex example, we can get the post currently being displayed and incorporate a custom field with the link text.  In this example, for an author named John we would have the link text "View John's Website". Note that we are checking first that the post has a specific post type, `author`.  We also check that the user has a value for the custom field `first_name`.
 
-    add_filter( 'cptd_link_text', 'my_variable_link_text', 10, 2 );
+    add_filter( 'bbd_link_text', 'my_variable_link_text', 10, 2 );
     function my_variable_link_text( $text, $field ) {
         
         # get the current post in the loop
@@ -341,11 +341,11 @@ For a more complex example, we can get the post currently being displayed and in
 
 ---
 
-### ````cptd_pt_description_wrap````
+### ````bbd_pt_description_wrap````
 
 This hook allows the customization of the containers for the post type descriptions that show on each post type archive page.  The post type description can be created by using the post content area for any post type.
 
-Also, see the actions `cptd_before_pt_description` and `cptd_after_pt_description` which give more general control that may be needed for complex post type descriptions.
+Also, see the actions `bbd_before_pt_description` and `bbd_after_pt_description` which give more general control that may be needed for complex post type descriptions.
 
 We assume that the description should have the same HTML structure as a single loop item, in order to integrate best with the theme being used.  Since the loop item HTML will be different for each theme, we take the approach of displaying a more-or-less unstyled description above the loop. This hook is then provided to allow the wrapper to be altered to match the theme.
 
@@ -363,24 +363,24 @@ We assume that the description should have the same HTML structure as a single l
 
 ## Actions
 
-### ````cptd_pre_get_posts````
+### ````bbd_pre_get_posts````
 
-Use this action to alter the global `$wp_query` for CPTD views.  It's essentially the same as `pre_get_posts`, except CPTD defaults are in place.  Also, there is no need to check whether we're viewing a page for a CPTD object or whether the query is the main query object, as this has been verified before the filter fires.  
+Use this action to alter the global `$wp_query` for BBD views.  It's essentially the same as `pre_get_posts`, except BBD defaults are in place.  Also, there is no need to check whether we're viewing a page for a BBD object or whether the query is the main query object, as this has been verified before the filter fires.  
 
-Below are the default query arguments for a CPTD view:
+Below are the default query arguments for a BBD view:
 
 * `order_by`: post_title
 * `order`: ASC
 
 #### Parameters
 
-    $query: The same value passed by WP's `pre_get_posts` action, with the CPTD defaults in place
+    $query: The same value passed by WP's `pre_get_posts` action, with the BBD defaults in place
 
 #### Example
 
-Below, we are using the `cptd_pre_get_posts` filter to order CPTD posts by a field called `last_name`
+Below, we are using the `bbd_pre_get_posts` filter to order BBD posts by a field called `last_name`
 
-    add_action( 'cptd_pre_get_posts', 'my_pre_get_posts' );
+    add_action( 'bbd_pre_get_posts', 'my_pre_get_posts' );
     function my_pre_get_posts( $query ) {
 
         $query->query_vars['orderby'] = 'meta_value';
@@ -389,31 +389,31 @@ Below, we are using the `cptd_pre_get_posts` filter to order CPTD posts by a fie
 
 ---
 
-### ````cptd_wp````
+### ````bbd_wp````
 
-Fires on the `wp` hook, but only for CPTD views
+Fires on the `wp` hook, but only for BBD views
 
-### ````cptd_enqueue_scripts````
+### ````bbd_enqueue_scripts````
 
-Fires on the `wp_enqueue_scripts` hook, but only for CPTD views
+Fires on the `wp_enqueue_scripts` hook, but only for BBD views
 
 ---
 
-### ````cptd_pre_render_field_{$field_name}````
-### ````cptd_post_render_field_{$field_name}````
+### ````bbd_pre_render_field_{$field_name}````
+### ````bbd_post_render_field_{$field_name}````
 
 These actions allow users to insert their own HTML before (*pre*) or after (*post*) a field is rendered.  Use your own field name (meta key) in place of `{$field_name}`.  Note that the filter fires whether or not the field has a value, as long as the field is selected for this view.
 
 ### Parameters
 
-````$field```` (CPTD_Field) The field object being displayed
+````$field```` (BBD_Field) The field object being displayed
 
 ### Example
 
 Below is an example to wrap a field called `email` in a div. Note the example doesn't use the `$field` object, although it is available inside the function.
 
-    add_action('cptd_pre_render_field_email', 'my_pre_email');
-    add_action('cptd_post_render_field_email', 'my_post_email');
+    add_action('bbd_pre_render_field_email', 'my_pre_email');
+    add_action('bbd_post_render_field_email', 'my_post_email');
 
     function my_pre_email( $field ){
     ?>
@@ -430,25 +430,25 @@ Below is an example to wrap a field called `email` in a div. Note the example do
 
 ---
 
-### ````cptd_before_pt_description````
-### ````cptd_after_pt_description````
+### ````bbd_before_pt_description````
+### ````bbd_after_pt_description````
 
 These actions are used to insert HTML (or perform other tasks) before and after the post type description for post type archive pages. The post type description can be created by using the post content area for any post type.
 
-As mentioned above for the `cptd_pt_description_wrap` filter, these actions are mainly intended to let users match the post type description to their specific theme.
+As mentioned above for the `bbd_pt_description_wrap` filter, these actions are mainly intended to let users match the post type description to their specific theme.
 
 #### Example
 
 This example gives the post type description the same layout as a single loop item for the Twentyfifteen theme.
 
-    add_action( 'cptd_before_pt_description', 'my_before_description' );
+    add_action( 'bbd_before_pt_description', 'my_before_description' );
     function my_before_description() {
     ?>
         <article class='hentry'><div class='entry-content'>
     <?php
     }
     
-    add_action( 'cptd_after_pt_description', 'my_after_description' );
+    add_action( 'bbd_after_pt_description', 'my_after_description' );
     function my_after_description() {
     ?>
         </div></article>
@@ -457,8 +457,8 @@ This example gives the post type description the same layout as a single loop it
 
 ---
 
-### ````cptd_before_search_result````
-### ````cptd_after_search_result````
+### ````bbd_before_search_result````
+### ````bbd_after_search_result````
 
 These actions allow users to insert content before or after the search results rendered by the search widget. Note that the widget uses the post excerpt if defined, or truncates the post content to the specified length otherwise.
 
@@ -470,13 +470,13 @@ These actions allow users to insert content before or after the search results r
 
 The following example will display a field called `email` before the result's excerpt and then show a list of term links for the post from a taxonomy called `movie_genre` after the excerpt
 
-    add_action( 'cptd_before_search_result', 'my_cptd_before_search_result' );
-    function my_cptd_before_search_result( $post_id ) {
-        cptd_field( $post_id, 'email' );
+    add_action( 'bbd_before_search_result', 'my_bbd_before_search_result' );
+    function my_bbd_before_search_result( $post_id ) {
+        bbd_field( $post_id, 'email' );
     }
     
-    add_action( 'cptd_after_search_result', 'my_cptd_after_search_result' );
-    function my_cptd_after_search_result( $post_id ) {
+    add_action( 'bbd_after_search_result', 'my_bbd_after_search_result' );
+    function my_bbd_after_search_result( $post_id ) {
     
         $terms = wp_get_post_terms( $post_id, 'movie_genres' );
         $term_links = array();
@@ -496,18 +496,18 @@ The following example will display a field called `email` before the result's ex
 
 Here are some helper functions that you can call within your child theme
 
-### ````is_cptd_view()````
+### ````is_bbd_view()````
 
-Returns `true` if we are viewing a CPTD object (single post, post archive, or term archive) and `false` otherwise.
+Returns `true` if we are viewing a BBD object (single post, post archive, or term archive) and `false` otherwise.
 
 ---
 
-### ````cptd_field( $post_id, $field_key )````
+### ````bbd_field( $post_id, $field_key )````
 
 Renders HTML for a single field for the given post ID.  Any custom hooks registered for the field wrap, label, or value will be executed.
 
 ---
 
-### ````cptd_get_field_html( $post_id, $field_key )````
+### ````bbd_get_field_html( $post_id, $field_key )````
 
 Returns an HTML string for a single field for the given post ID.  Any custom hooks registered for the field wrap, label, or value will fire.

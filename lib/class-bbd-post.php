@@ -6,7 +6,7 @@
  *
  * @since 	2.0.0
  */ 
-class CPTD_Post{
+class BBD_Post{
 
 	/**
 	 * Class parameters
@@ -72,7 +72,7 @@ class CPTD_Post{
 	 * Class methods
 	 * 
 	 * - __construct()
-	 * - load_cptd_meta()
+	 * - load_bbd_meta()
 	 */
 
 	/**
@@ -128,14 +128,14 @@ class CPTD_Post{
 
 
 	/**
-	 * Methods specific to CPTD_PT and CPTD_Tax and common to both
+	 * Methods specific to BBD_PT and BBD_Tax and common to both
 	 * 
 	 * - load_post_data()
 	 * - load_post_meta()
 	 */
 
 	/**
-	 * Use $this->ID to load post data for this instance from CPTD::$post_types and CPTD::$taxonomies
+	 * Use $this->ID to load post data for this instance from BBD::$post_types and BBD::$taxonomies
 	 * 
 	 * @since 	2.0.0
 	 */
@@ -145,16 +145,16 @@ class CPTD_Post{
 
 		# get the post data 
 
-		## first check CPTD::$post_types
-		if( array_key_exists( $this->ID, CPTD::$post_types ) ) {
+		## first check BBD::$post_types
+		if( array_key_exists( $this->ID, BBD::$post_types ) ) {
 
-			$post = CPTD::$post_types[ $this->ID ];
+			$post = BBD::$post_types[ $this->ID ];
 		
 		} # end if: post is a post type
 
-		## then check CPTD::$taxonomies
-		elseif( array_key_exists( $this->ID, CPTD::$taxonomies ) ) {
-			$post = CPTD::$taxonomies[ $this->ID ];
+		## then check BBD::$taxonomies
+		elseif( array_key_exists( $this->ID, BBD::$taxonomies ) ) {
+			$post = BBD::$taxonomies[ $this->ID ];
 		}
 
 		else return;
@@ -168,16 +168,16 @@ class CPTD_Post{
 	} # end: load_post_data()
 
 	/**
-	 * Use $this->ID to load CPTD meta values for this instance from CPTD::$meta
+	 * Use $this->ID to load BBD meta values for this instance from BBD::$meta
 	 *
 	 * @since 	2.0.0
 	 */
 	public function load_post_meta() {
 
-		# get the field data from CPTD::$meta
-		if( array_key_exists( $this->ID, CPTD::$meta ) ) {
+		# get the field data from BBD::$meta
+		if( array_key_exists( $this->ID, BBD::$meta ) ) {
 
-			$meta = CPTD::$meta[ $this->ID ];
+			$meta = BBD::$meta[ $this->ID ];
 
 			foreach( get_object_vars( $meta ) as $key => $value ) {
 				$this->$key = maybe_unserialize( $value );
@@ -192,4 +192,4 @@ class CPTD_Post{
 		}
 	} # end: load_post_meta()
 
-} # end class: CPTD_Post
+} # end class: BBD_Post

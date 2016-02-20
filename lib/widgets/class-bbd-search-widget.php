@@ -1,14 +1,14 @@
 <?php
 /**
- * The CPTD Search Widget class
+ * The BBD Search Widget class
  *
  * Handles the backend widget settings form
  * Handles the front end display of the widget and widget search results
- * Handles the shortcode implementation for `cptd-search`
+ * Handles the shortcode implementation for `bbd-search`
  *
  * @since 	2.0.0
  */
-class CPTD_Search_Widget extends WP_Widget {
+class BBD_Search_Widget extends WP_Widget {
 
 	/**
 	 * An instance array as passed by $this->form()
@@ -41,10 +41,10 @@ class CPTD_Search_Widget extends WP_Widget {
 		// customize text for submit button
 		'submit_text',
 
-		// array of post IDs for CPTD post types to be searched through
+		// array of post IDs for BBD post types to be searched through
 		'post_types',
 
-		// array of post IDs for CPTD taxonomies to use as search filters
+		// array of post IDs for BBD taxonomies to use as search filters
 		'taxonomies',
 
 		// array of field keys to use as search filters
@@ -62,7 +62,7 @@ class CPTD_Search_Widget extends WP_Widget {
 	); # end: $instance_keys
 
 	/**
-	 * The existing meta keys for all CPTD posts, in alphabetical order
+	 * The existing meta keys for all BBD posts, in alphabetical order
 	 * These are the available search filters for the widget
 	 *
 	 * @param 	array
@@ -99,21 +99,21 @@ class CPTD_Search_Widget extends WP_Widget {
 	public function __construct(){
 
 		$widget_options = array(
-			"classname" => "cptd-search-widget",
-			"description" => "Advanced search widget for CPT Directory listings"
+			"classname" => "bbd-search-widget",
+			"description" => "Advanced search widget for Big Boom Directory listings"
 		);
 
-		parent::__construct("cptd_search_widget", "CPT Directory Search", $widget_options);
-		$this->field_keys = CPTD_Helper::get_all_field_keys();
+		parent::__construct("bbd_search_widget", "Big Boom Directory Search", $widget_options);
+		$this->field_keys = BBD_Helper::get_all_field_keys();
 
 		# if we are viewing widget search results, add filter for the_content
 		# note we don't have a widget_id at this point, so we need to do a test in the callback function
 		# to match the posted widget_id
-		if( isset( $_POST['cptd_search'] ) ) {
+		if( isset( $_POST['bbd_search'] ) ) {
 			add_filter('the_content', array( $this, 'get_search_results_html' ) );
 		}
 
-		add_shortcode( 'cptd-search', array( $this, 'get_shortcode_html' ) );
+		add_shortcode( 'bbd-search', array( $this, 'get_shortcode_html' ) );
 
 	} # end: __construct()
 
@@ -125,11 +125,11 @@ class CPTD_Search_Widget extends WP_Widget {
 	 */
 	public function form( $instance ) {
 	?>
-	<div id='cptd-search-form' class='cptd-widget-form'>
+	<div id='bbd-search-form' class='bbd-widget-form'>
 		<?php
 		# show the shortcode for this widget
 		if( ! empty( $this->number ) && -1 != $this->number && '__i__' != $this->number ) {
-			echo '<p><b>Shortcode:</b><br /><code>[cptd-search widget_id="' . $this->number . '"]</code></p>';
+			echo '<p><b>Shortcode:</b><br /><code>[bbd-search widget_id="' . $this->number . '"]</code></p>';
 		}
 
 		# the widget title 
@@ -170,8 +170,8 @@ class CPTD_Search_Widget extends WP_Widget {
 			$search_page = ! empty( $instance['search_page'] )  ? 
 				$instance['search_page'] :
 				(
-					! empty( CPTD_Options::$options['search_page'] ) ?
-						CPTD_Options::$options['search_page'] : 
+					! empty( BBD_Options::$options['search_page'] ) ?
+						BBD_Options::$options['search_page'] : 
 						''
 				);
 
@@ -206,7 +206,7 @@ class CPTD_Search_Widget extends WP_Widget {
 		<h4>Post Types</h4>
 		<p>Choose which post types should be searched by the widget</p>
 		<?php
-		echo CPTD_Helper::checkboxes_for_post_types( $post_type_args );
+		echo BBD_Helper::checkboxes_for_post_types( $post_type_args );
 
 		# Checkboxes to select taxonomies
 		$tax_args = array(
@@ -219,7 +219,7 @@ class CPTD_Search_Widget extends WP_Widget {
 		<h4>Taxonomy Filters</h4>
 		<p>Select the taxonomies to be offered to the user as search filters</p>
 		<?php
-		echo CPTD_Helper::checkboxes_for_taxonomies( $tax_args );
+		echo BBD_Helper::checkboxes_for_taxonomies( $tax_args );
 
 		# If we have field keys to use for additional options
 		if( ! empty( $this->field_keys ) ) {
@@ -234,26 +234,26 @@ class CPTD_Search_Widget extends WP_Widget {
 				'label_class' 	=> 'meta-keys-select',
 				'field_id' 		=> $this->get_field_id( 'meta_keys' ),
 				'field_name' 	=> $this->get_field_name( 'meta_keys' ),
-				'field_class' 	=> 'cptd-search-widget-field',
+				'field_class' 	=> 'bbd-search-widget-field',
 			);
 
 			# set the instance parameters for use in helper functions
 			$this->instance = $instance;
 
 			# hook into the action after each field checkbox to add filter details
-			add_action( 'cptd_after_field_checkbox', array( $this, 'field_type_details' ), 10, 1 );
+			add_action( 'bbd_after_field_checkbox', array( $this, 'field_type_details' ), 10, 1 );
 
 			# do checkboxes for field filters
 			?>
 			<h4>Custom Field Filters</h4>
 			<p>Select the fields to be offered to the user as search filters</p>
-			<div class='cptd-search-field-filter-select'>
-				<?php CPTD_Helper::checkboxes_for_fields( $search_filter_meta_keys_args ); ?>
+			<div class='bbd-search-field-filter-select'>
+				<?php BBD_Helper::checkboxes_for_fields( $search_filter_meta_keys_args ); ?>
 			</div>
 			<?php
 
 			# remove the action that fires after each field
-			remove_action( 'cptd_after_field_checkbox', array( $this, 'field_type_details' ) );
+			remove_action( 'bbd_after_field_checkbox', array( $this, 'field_type_details' ) );
 
 			/**
 			 * Draggable fields to show on search results page
@@ -269,7 +269,7 @@ class CPTD_Search_Widget extends WP_Widget {
 				'label_class' 	=> 'search-results-fields-select',
 				'field_id'		=> $this->get_field_id( 'search_results_fields' ),
 				'field_name'	=> $this->get_field_name( 'search_results_fields' ),
-				'field_class'	=> 'cptd-search-widget-field'
+				'field_class'	=> 'bbd-search-widget-field'
 			);
 
 			?>
@@ -278,14 +278,14 @@ class CPTD_Search_Widget extends WP_Widget {
 			<?php 
 
 			# draggable fields area
-			CPTD_Helper::draggable_fields( $search_results_fields_args );
+			BBD_Helper::draggable_fields( $search_results_fields_args );
 			
 		} # end if: field keys exist
 
 		# initilize the main widget JS routines after save
 	?>
 		<script type='text/javascript'>initSearchWidget( jQuery )</script>
-	</div><?php // .cptd-widget-form ?>
+	</div><?php // .bbd-widget-form ?>
 	<?php
 	} # end: form()
 
@@ -293,7 +293,7 @@ class CPTD_Search_Widget extends WP_Widget {
 	/**
 	 * Add field detail settings for each field type
 	 *
-	 * @param 	CPTD_Field		The field whose checkbox is active in the loop
+	 * @param 	BBD_Field		The field whose checkbox is active in the loop
 	 * @since 	2.0.0
 	 */
 	public function field_type_details( $field ) {
@@ -365,8 +365,8 @@ class CPTD_Search_Widget extends WP_Widget {
 		$search_page = ! empty( $instance['search_page'] ) ?
 			$instance['search_page'] :
 			(
-				! empty( CPTD_Options::$options['search_page'] ) ?
-					CPTD_Options::$options['search_page'] :
+				! empty( BBD_Options::$options['search_page'] ) ?
+					BBD_Options::$options['search_page'] :
 					''
 			);
 
@@ -379,8 +379,8 @@ class CPTD_Search_Widget extends WP_Widget {
 		# The 'View All' URL
 		$view_all_link = ( ! empty( $instance['view_all_link'] ) ? 
 			$instance['view_all_link'] : 
-			( ! empty( CPTD_Options::$options['search_page'] ) ? 
-				get_permalink( CPTD_Options::$options['search_page'] ) : 
+			( ! empty( BBD_Options::$options['search_page'] ) ? 
+				get_permalink( BBD_Options::$options['search_page'] ) : 
 				""
 			)
 		);
@@ -405,19 +405,19 @@ class CPTD_Search_Widget extends WP_Widget {
 		
 		if( $title ) echo $before_title . $title . $after_title; 
 
-		if( $view_all && $view_all_link ) echo "<p class='cptd-view-all'><a href='" . $view_all_link . "'>" . $view_all . "</a></p>";
+		if( $view_all && $view_all_link ) echo "<p class='bbd-view-all'><a href='" . $view_all_link . "'>" . $view_all . "</a></p>";
 		if( $description ) echo"<p>". $description . "</p>";		
 		?>
-			<div class='cptd-search-widget-container'>
+			<div class='bbd-search-widget-container'>
 			<form method="post" 
-				id="cptd-search-form" 
+				id="bbd-search-form" 
 				action="<?php if( ! empty( $search_page ) ) echo get_permalink( $search_page ); ?>"
 			><?php
 
 				# Taxonomy filters 
 				foreach( $taxonomies as $tax_id ) {
 
-					$tax = new CPTD_Tax( $tax_id );
+					$tax = new BBD_Tax( $tax_id );
 
 					$setting = array(
 						'id' => 'taxonomy_' . $tax_id,
@@ -425,8 +425,8 @@ class CPTD_Search_Widget extends WP_Widget {
 						'type' => 'select',
 					);
 					?>
-					<div class='cptd-search-filter'>
-						<?php $tax->get_form_element_html( $setting, 'cptd_search', $_POST ); ?>
+					<div class='bbd-search-filter'>
+						<?php $tax->get_form_element_html( $setting, 'bbd_search', $_POST ); ?>
 					</div>
 					<?php
 
@@ -436,7 +436,7 @@ class CPTD_Search_Widget extends WP_Widget {
 				if( ! empty( $meta_keys ) ) 
 				foreach( $meta_keys as $meta_key ) {
 
-					$field = new CPTD_Field( $meta_key );
+					$field = new BBD_Field( $meta_key );
 
 					# get the field type, using text as default
 					$field_type = ! empty( $instance[ $meta_key . '_field_type' ] ) ?
@@ -449,7 +449,7 @@ class CPTD_Search_Widget extends WP_Widget {
 						'type' => $field_type,
 					);
 					?>
-					<div class='cptd-search-filter'>
+					<div class='bbd-search-filter'>
 						<?php $field->get_form_element_html( $setting ); ?>
 					</div>
 					<?php
@@ -459,29 +459,29 @@ class CPTD_Search_Widget extends WP_Widget {
 				# Add hidden input to keep track of Widget ID
 				?>
 				<input type="hidden" 
-					name="cptd_search[widget_id]" 
+					name="bbd_search[widget_id]" 
 					value="<?php echo isset( $widget_id ) ? 
 						$widget_id : 
-						( isset( $_POST['cptd_search']['widget_id'] ) ? 
-							sanitize_text_field( $_POST['cptd_search']['widget_id'] ) :
+						( isset( $_POST['bbd_search']['widget_id'] ) ? 
+							sanitize_text_field( $_POST['bbd_search']['widget_id'] ) :
 							''
 						); ?>" 
 				>
 				<input type="hidden" 
-					name="cptd_search[widget_number]" 
+					name="bbd_search[widget_number]" 
 					value="<?php echo isset( $this->number ) ? 
 						$this->number : 
-						( isset( $_POST['cptd_search']['widget_number'] ) ? 
-							sanitize_text_field( $_POST['cptd_search']['widget_number'] ) :
+						( isset( $_POST['bbd_search']['widget_number'] ) ? 
+							sanitize_text_field( $_POST['bbd_search']['widget_number'] ) :
 							''
 						); ?>" 
 				>
-				<input class="cptd-search-submit" type="submit" value="<?php echo $submit_text; ?>"/>
+				<input class="bbd-search-submit" type="submit" value="<?php echo $submit_text; ?>"/>
 			</form>
-			</div><!-- .cptd-search-widget-container -->
+			</div><!-- .bbd-search-widget-container -->
 		<?php
 		echo $after_widget;
-		wp_enqueue_style( 'cptd', cptd_url('/css/cptd.css'), null, true );
+		wp_enqueue_style( 'bbd', bbd_url('/css/bbd.css'), null, true );
 
 	} # end: widget()
 
@@ -512,30 +512,22 @@ class CPTD_Search_Widget extends WP_Widget {
 	} # end: get_instance()
 
 	/**
-	 *
-	 */
-	public function init_search_results_view() {
-		global $cptd_view;
-
-	}
-
-	/**
 	 * Generate the HTML for the widget search results
 	 *
-	 * @param 	array 	$_POST['cptd_search'] 	The user-submitted search parameters
+	 * @param 	array 	$_POST['bbd_search'] 	The user-submitted search parameters
 	 * @return 	string
 	 * @since 	2.0.0
 	 */
 	public function get_search_results_html( $content ) {
 
-		global $cptd_view;
+		global $bbd_view;
 
 		# make sure we don't recurse when doing search results excerpts
 		if( $this->doing_search_results ) return $content;
 
 		# get the settings for this widget instance (or the posted instance if different)
-		$widget_number = isset( $_POST['cptd_search']['widget_number'] ) ?
-			$_POST['cptd_search']['widget_number'] : 
+		$widget_number = isset( $_POST['bbd_search']['widget_number'] ) ?
+			$_POST['bbd_search']['widget_number'] : 
 			$this->number;
 
 		$instance = $this->get_instance( $widget_number );
@@ -546,23 +538,23 @@ class CPTD_Search_Widget extends WP_Widget {
 		if( ! empty( $instance['search_results_fields'] ) ) {
 
 			# set up the view for this set of search results
-			$cptd_view->field_keys = $instance['search_results_fields'];
-			foreach( $cptd_view->field_keys as $field_key ) {
+			$bbd_view->field_keys = $instance['search_results_fields'];
+			foreach( $bbd_view->field_keys as $field_key ) {
 
-				$field = new CPTD_Field( $field_key );
+				$field = new BBD_Field( $field_key );
 				
 				# try and load ACF info 
 				$field->get_acf_by_key();
 
 				# load social fields into the view object
-				if( $cptd_view->auto_detect_social ) {
+				if( $bbd_view->auto_detect_social ) {
 					if( $field->is_social_field ) {
-						$cptd_view->social_fields_to_check[] = $field->key;
+						$bbd_view->social_fields_to_check[] = $field->key;
 					}
 				}
 
 				# add the field object to the view object
-				$cptd_view->fields[] = $field;
+				$bbd_view->fields[] = $field;
 
 			} # end foreach: field keys
 
@@ -572,14 +564,14 @@ class CPTD_Search_Widget extends WP_Widget {
 		$excerpt_length = ! empty( $instance['excerpt_length'] ) ? $instance['excerpt_length'] : 250;
 
 		# get the post type names from the widget settings
-		if( empty( $instance['post_types'] ) ) $post_type_ids = CPTD::$post_type_ids;
+		if( empty( $instance['post_types'] ) ) $post_type_ids = BBD::$post_type_ids;
 		else $post_type_ids = $instance[ 'post_types' ];
 
 		$post_type_names = array();
 
 		foreach( $post_type_ids as $pt_id ) {
 
-			$pt = new CPTD_PT( $pt_id );
+			$pt = new BBD_PT( $pt_id );
 			$post_type_names[] = $pt->handle;
 		}
 
@@ -589,7 +581,7 @@ class CPTD_Search_Widget extends WP_Widget {
 
 
 		# get the sanitized search form input
-		$raw_input = $_POST['cptd_search'];
+		$raw_input = $_POST['bbd_search'];
 		$form_input = array();
 
 		foreach( $raw_input as $k => $v ) {
@@ -615,11 +607,11 @@ class CPTD_Search_Widget extends WP_Widget {
 			# load taxonomies into $tax_query
 			if( false !== strpos( $k, 'taxonomy_' ) ) {
 				
-				# get the post ID for this taxonomy (post type is `cptd_tax`)
+				# get the post ID for this taxonomy (post type is `bbd_tax`)
 				$tax_id = str_replace( 'taxonomy_', '', $k );
 
 				# get the taxonomy object
-				$tax = new CPTD_Tax( $tax_id );
+				$tax = new BBD_Tax( $tax_id );
 				if( empty( $tax->handle ) ) continue;
 
 				$tax_query[] = array(
@@ -660,7 +652,7 @@ class CPTD_Search_Widget extends WP_Widget {
 				foreach( $meta_keys as $test_key ) {
 
 					# the key which will trigger a positive match for checkboxes
-					$match_key = $test_key . '_' . CPTD_Helper::clean_str_for_field( $v );
+					$match_key = $test_key . '_' . BBD_Helper::clean_str_for_field( $v );
 
 					if( $match_key == $k ) {
 						$meta_query[] = array(
@@ -690,7 +682,7 @@ class CPTD_Search_Widget extends WP_Widget {
 
 		ob_start();
 		?>
-		<div id='cptd-search-results' class='<?php echo $this->id; ?>'>
+		<div id='bbd-search-results' class='<?php echo $this->id; ?>'>
 		<?php
 			# if posts were found
 			if( $search_query->have_posts() ) {
@@ -704,23 +696,23 @@ class CPTD_Search_Widget extends WP_Widget {
 
 					# post title header
 					?>
-					<div class='cptd-search-result-item'>
+					<div class='bbd-search-result-item'>
 					<h2><a href='<?php echo get_the_permalink( $post->ID ); ?>'><?php echo $post->post_title; ?></a></h2>
 					<?php
 					
 					# execute an action that the user can hook into
-					do_action( 'cptd_before_search_result', $post->ID );
+					do_action( 'bbd_before_search_result', $post->ID );
 
 					# show any fields for this post if applicable
-					if( ! empty( $cptd_view->fields ) ) {
+					if( ! empty( $bbd_view->fields ) ) {
 					?>
 						<div class='search-results-fields'>
 						<?php
 														
-							foreach( $cptd_view->fields as $field ) {
-								do_action( 'cptd_pre_render_field_' . $field->key, $field );
-								cptd_field( $post->ID, $field );
-								do_action( 'cptd_post_render_field_' . $field->key, $field );
+							foreach( $bbd_view->fields as $field ) {
+								do_action( 'bbd_pre_render_field_' . $field->key, $field );
+								bbd_field( $post->ID, $field );
+								do_action( 'bbd_post_render_field_' . $field->key, $field );
 							}
 						?>
 						</div>
@@ -735,14 +727,14 @@ class CPTD_Search_Widget extends WP_Widget {
 					}
 					else{
 						$excerpt = apply_filters( 'the_content', $post->post_content );
-						$excerpt = CPTD_Helper::make_excerpt( $excerpt, $excerpt_length );
+						$excerpt = BBD_Helper::make_excerpt( $excerpt, $excerpt_length );
 					}
 					?>
 					<div class='search-results-excerpt'><?php echo $excerpt; ?></div>
 					<?php
-					do_action( 'cptd_after_search_result', $post->ID );
+					do_action( 'bbd_after_search_result', $post->ID );
 					?>
-					</div><!-- .cptd-search-result-item -->
+					</div><!-- .bbd-search-result-item -->
 					<?php
 				}
 				wp_reset_query();
@@ -762,12 +754,12 @@ class CPTD_Search_Widget extends WP_Widget {
 		$html = ob_get_contents();
 		ob_end_clean();
 
-		wp_enqueue_style( 'cptd', cptd_url('/css/cptd.css'), null, true );
+		wp_enqueue_style( 'bbd', bbd_url('/css/bbd.css'), null, true );
 		return $html;
 	} # end: get_search_results_html()
 
 	/**
-	 * Handler for the `cptd-search` shortcode
+	 * Handler for the `bbd-search` shortcode
 	 *
 	 * @param 	array 	$atts 	The shortcode attributes submitted by the user
 	 * @return 	string
@@ -777,7 +769,7 @@ class CPTD_Search_Widget extends WP_Widget {
 
 		$atts = shortcode_atts( array(
 			'widget_id' => '',
-		), $atts, 'cptd-search');
+		), $atts, 'bbd-search');
 
 		$instance = $this->get_instance( $atts['widget_id'] );
 
@@ -796,4 +788,4 @@ class CPTD_Search_Widget extends WP_Widget {
 
 	} # end: get_shortcode_html()
 
-} # end class: CPTD_Search_Widget
+} # end class: BBD_Search_Widget

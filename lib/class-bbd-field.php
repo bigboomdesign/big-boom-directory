@@ -5,7 +5,7 @@
  * @since 	2.0.0
  */
 
-class CPTD_Field {
+class BBD_Field {
 
 	/**
 	 * The field key (e.g. `email` or `field_abc123`)
@@ -114,7 +114,7 @@ class CPTD_Field {
 		$this->is_acf();
 
 		# is this a social field?
-		$social_fields = CPTD_Helper::$auto_social_field_keys;
+		$social_fields = BBD_Helper::$auto_social_field_keys;
 		foreach( $social_fields as $social_key ) {
 			if( false === strpos( $this->key, $social_key ) ) continue;
 			
@@ -165,17 +165,17 @@ class CPTD_Field {
 		}
 		if( empty( $post_id ) ) return '';
 
-		global $cptd_view;
-		if( empty( $cptd_view ) ) $cptd_view = new CPTD_View();
+		global $bbd_view;
+		if( empty( $bbd_view ) ) $bbd_view = new BBD_View();
 
 		$value = '';
 
-		if( isset( $cptd_view->post_meta[ $post_id ][ $this->key ] ) )
-			$value = $cptd_view->post_meta[ $post_id ][ $this->key ];
+		if( isset( $bbd_view->post_meta[ $post_id ][ $this->key ] ) )
+			$value = $bbd_view->post_meta[ $post_id ][ $this->key ];
 		else $value = get_post_meta( $post_id, $this->key, true );
 
 		# apply filter to value so users can edit it
-		$value = apply_filters( 'cptd_field_value_' . $this->key, $value, $this );
+		$value = apply_filters( 'bbd_field_value_' . $this->key, $value, $this );
 
 		# apply filter to the label so users can edit it
 		$label = array(
@@ -183,16 +183,16 @@ class CPTD_Field {
 			'before' => '<label>',
 			'after' => ': &nbsp;</label>'
 		);
-		$label = apply_filters( 'cptd_field_label_' . $this->key, $label, $this );
+		$label = apply_filters( 'bbd_field_label_' . $this->key, $label, $this );
 
 		# apply filter to the field wrap so users can hook in and edit
 		$field_wrap = array(
-			'classes' 		=> array( 'cptd-field', $this->type, $this->key ),
+			'classes' 		=> array( 'bbd-field', $this->type, $this->key ),
 			'id'			=> '',
 			'before_tag' 	=> 'div',
 			'after_tag' 	=> 'div',
 		);
-		$field_wrap = apply_filters( 'cptd_field_wrap_' . $this->key, $field_wrap, $this );
+		$field_wrap = apply_filters( 'bbd_field_wrap_' . $this->key, $field_wrap, $this );
 
 		# start the output buffer
 		ob_start();
@@ -211,15 +211,15 @@ class CPTD_Field {
 		/**
 		 * Auto detect social media fields
 		 */
-		if( $cptd_view->auto_detect_social ) {
+		if( $bbd_view->auto_detect_social ) {
 
 			# see if we have a social media field key
 			if( $this->is_social_field ) {
 
 				# if this is the first social media field, set the indicator and open up a wrapping div for the icons				
-				if( 0 == count( $cptd_view->completed_social_fields ) ) {
+				if( 0 == count( $bbd_view->completed_social_fields ) ) {
 					?>
-					<div class='cptd-social-icons'>
+					<div class='bbd-social-icons'>
 					<?php
 				}
 
@@ -241,14 +241,14 @@ class CPTD_Field {
 				}
 
 				# load this fields into the completed social fields array
-				$cptd_view->completed_social_fields[] = $this->key;
+				$bbd_view->completed_social_fields[] = $this->key;
 
 				# check if this is the last social media field and close the wrapping div if so
-				if( count( $cptd_view->completed_social_fields ) >= count( $cptd_view->social_fields_to_check ) ) {
+				if( count( $bbd_view->completed_social_fields ) >= count( $bbd_view->social_fields_to_check ) ) {
 					
-					$cptd_view->completed_social_fields = array(); 
+					$bbd_view->completed_social_fields = array(); 
 					?>
-					</div><!-- .cptd-social-icons -->
+					</div><!-- .bbd-social-icons -->
 					<?php
 				}
 
@@ -273,21 +273,21 @@ class CPTD_Field {
 		/**
 		 * Auto-detect URL fields
 		 */
-		if( $cptd_view->auto_detect_url ) {
+		if( $bbd_view->auto_detect_url ) {
 
 			# see if we have a website field key
 			if( $this->is_url_field ) {
 
 				# get the link text
-				if( empty( $cptd_view->post_type->url_link_texts[ $this->key ] ) ) $link_text = 'View Website';
-				else $link_text = $cptd_view->post_type->url_link_texts[ $this->key ];
+				if( empty( $bbd_view->post_type->url_link_texts[ $this->key ] ) ) $link_text = 'View Website';
+				else $link_text = $bbd_view->post_type->url_link_texts[ $this->key ];
 
 				# do our best to make sure we have a valid URL
 				if( 'http' != substr( $value, 0, 4 ) ) $value = 'http://' . $value;
 			?>
-				<div class="cptd-field text <?php echo $this->key; ?>">
-						<a target="_blank" class='cptd-website-link' href="<?php echo $value; ?>" >
-							<?php echo apply_filters('cptd_link_text', $link_text, $this ); ?>
+				<div class="bbd-field text <?php echo $this->key; ?>">
+						<a target="_blank" class='bbd-website-link' href="<?php echo $value; ?>" >
+							<?php echo apply_filters('bbd_link_text', $link_text, $this ); ?>
 						</a>
 				</div>
 			<?php
@@ -313,9 +313,9 @@ class CPTD_Field {
 			$src = '';
 
 			# get the appropriate size, falling back on thumbnail for archive and medium for single
-			$size = ( isset( $cptd_view->image_size ) ? 
-				$cptd_view->image_size :
-				( 'archive' == $cptd_view->view_type  ? 
+			$size = ( isset( $bbd_view->image_size ) ? 
+				$bbd_view->image_size :
+				( 'archive' == $bbd_view->view_type  ? 
 					'thumbnail' :
 					'medium'
 				)
@@ -354,18 +354,18 @@ class CPTD_Field {
 				# make the image link to the listing page if we are on an archive page or search results view
 				$link = '';
 
-				if( 'archive' == $cptd_view->view_type ) {
+				if( 'archive' == $bbd_view->view_type ) {
 
 					global $post;
 					$link = get_permalink( $post->id );
 				}
 
 				# set the class for the image wrapper
-				$wrapper_class = 'cptd-field image ' . $this->key;
+				$wrapper_class = 'bbd-field image ' . $this->key;
 
 				# add image alignment to the class
-				if( 'left' == $cptd_view->image_alignment || 'right' == $cptd_view->image_alignment ) {
-					$wrapper_class .= ' ' . $cptd_view->image_alignment;
+				if( 'left' == $bbd_view->image_alignment || 'right' == $bbd_view->image_alignment ) {
+					$wrapper_class .= ' ' . $bbd_view->image_alignment;
 				}
 			?>
 				<div class="<?php echo $wrapper_class; ?>" >
@@ -466,7 +466,7 @@ class CPTD_Field {
 			# display the gallery
 			$image_num = 0;
 		?>
-			<div class="cptd-gallery <?php echo $this->key; ?>">
+			<div class="bbd-gallery <?php echo $this->key; ?>">
 			<?php
 				foreach( $image_results as $row ) {
 
@@ -483,11 +483,11 @@ class CPTD_Field {
 					$full_size_url = $uploads_url . '/' . $full_size_file;
 				?>
 					<a 
-						class="cptd-gallery-thumb <?php echo $image_num; ?>" 
+						class="bbd-gallery-thumb <?php echo $image_num; ?>" 
 						href="<?php echo $full_size_url; ?>" 
 						data-lightbox="gallery-<?php echo $this->key; ?>"
 					>
-						<img class="cptd-image <?php echo $this->key . " " . $image_num; ?>" src="<?php echo $thumbnail_url; ?>" />
+						<img class="bbd-image <?php echo $this->key . " " . $image_num; ?>" src="<?php echo $thumbnail_url; ?>" />
 					</a>
 				<?php
 				} #end foreach: gallery image
@@ -563,7 +563,7 @@ class CPTD_Field {
 
 				# all other values should be strings
 				$setting['choices'][] = array( 
-					'id' => $setting['id'] . '_' . CPTD_Helper::clean_str_for_field( $value ),
+					'id' => $setting['id'] . '_' . BBD_Helper::clean_str_for_field( $value ),
 					'value' => $value,
 					'label' => $value,
 				);
@@ -571,10 +571,10 @@ class CPTD_Field {
 		}
 
 		# load the auto-completed field array
-		$setting = CPTD_Helper::get_field_array( $setting );
+		$setting = BBD_Helper::get_field_array( $setting );
 	?>
 		<label for='<?php echo $setting[ 'id' ]; ?>'><?php echo $this->label; ?><br />
-			<?php CPTD_Options::do_settings_field( $setting, 'cptd_search', $_POST ); ?>
+			<?php BBD_Options::do_settings_field( $setting, 'bbd_search', $_POST ); ?>
 		</label>
 	<?php
 	} # end: get_form_element_html()
@@ -725,4 +725,4 @@ class CPTD_Field {
 
 	 } # end: get_all_values()
 
-} # end class: CPTD_Field
+} # end class: BBD_Field

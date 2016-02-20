@@ -4,7 +4,7 @@
  *
  * @since 	2.0.0
  */
-class CPTD_Helper{
+class BBD_Helper{
 
 	/**
 	 * The social media keys that can be auto detected
@@ -261,25 +261,25 @@ class CPTD_Helper{
 	 * Register all post types and taxonomies
 	 * 
 	 * Post types to register include:
-	 *   - cptd_pt post type
-	 *   - cptd_tax post type
-	 *   - user-defined post types (cptd_pt posts)
-	 *   - user-defined taxonomies (cptd_tax posts)
+	 *   - bbd_pt post type
+	 *   - bbd_tax post type
+	 *   - user-defined post types (bbd_pt posts)
+	 *   - user-defined taxonomies (bbd_tax posts)
 	 * 
 	 * @since 	2.0.0
 	 */
 
 	public static function register(){
 
-		# Main CPTD post type
-		register_extended_post_type('cptd_pt', 
+		# Main BBD post type
+		register_extended_post_type('bbd_pt', 
 			array(
 				'public' => false,
 				'show_ui' => true,
 				'menu_icon' => 'dashicons-list-view',
 				'menu_position' => '30',
 				'labels' => array(
-					'menu_name' => 'CPT Directory',
+					'menu_name' => 'Directory',
 					'all_items' => 'Post Types',
 				),
 			), 
@@ -289,12 +289,12 @@ class CPTD_Helper{
 			)
 		);
 
-		# CPTD Taxonomies
-		register_extended_post_type('cptd_tax',
+		# BBD Taxonomies
+		register_extended_post_type('bbd_tax',
 			array(
 				'public' => false,
 				'show_ui' => true,
-				'show_in_menu' => 'edit.php?post_type=cptd_pt',
+				'show_in_menu' => 'edit.php?post_type=bbd_pt',
 				'labels' => array(
 					'all_items' => 'Taxonomies'
 				)
@@ -306,9 +306,9 @@ class CPTD_Helper{
 		);
 		
 		# User-defined post types
-		foreach( CPTD::$post_type_ids as $pt_id){
+		foreach( BBD::$post_type_ids as $pt_id){
 
-			$pt = new CPTD_PT( $pt_id );
+			$pt = new BBD_PT( $pt_id );
 
 			# make sure that the post for this post type is published
 			if( empty( $pt->post_status ) || 'publish' != $pt->post_status ) continue;
@@ -318,9 +318,9 @@ class CPTD_Helper{
 		}
 
 		# User-defined taxonomies
-		foreach( CPTD::$taxonomy_ids as $tax_id ){
+		foreach( BBD::$taxonomy_ids as $tax_id ){
 
-			$tax = new CPTD_Tax( $tax_id );
+			$tax = new BBD_Tax( $tax_id );
 
 			# make sure that the post for this taxonomy is published
 			if( empty( $tax->post_status ) || 'publish' != $tax->post_status  ) continue;
@@ -339,12 +339,12 @@ class CPTD_Helper{
 	 */
 	public static function get_all_post_ids() {
 
-		if( is_array( CPTD::$all_post_ids ) ) return CPTD::$all_post_ids;
+		if( is_array( BBD::$all_post_ids ) ) return BBD::$all_post_ids;
 
 		# the indicator that we've checked this and don't need to query the DB
-		CPTD::$all_post_ids = array();
+		BBD::$all_post_ids = array();
 
-		$pt_names = CPTD::get_post_type_names();
+		$pt_names = BBD::get_post_type_names();
 
 		if( ! $pt_names ) return array();
 
@@ -362,7 +362,7 @@ class CPTD_Helper{
 			$post_ids[] = $r->ID;
 		}
 
-		CPTD::$all_post_ids = $post_ids;
+		BBD::$all_post_ids = $post_ids;
 
 		return $post_ids;
 
@@ -379,32 +379,32 @@ class CPTD_Helper{
 	 */
 	public static function get_all_post_ids_for_post_types( $post_types, $published = true ) {
 
-		$cptd_post_type_handles = array();
+		$bbd_post_type_handles = array();
 		$post_ids = array();
 
 		# loop through the given post types and store objects into array
 		foreach( $post_types as $post_type ) {
-			foreach( CPTD::$post_type_ids as $id ) {
+			foreach( BBD::$post_type_ids as $id ) {
 
-				$pt = new CPTD_PT( $id );
+				$pt = new BBD_PT( $id );
 				if( empty( $pt->ID ) ) continue;
 
 				if( in_array( 
 					$post_type, 
 					array( $pt->handle, $pt->singular, $pt->plural, strval( $pt->ID ) ) 
 				) ) {
-					$cptd_post_type_handles[] = $pt->handle;
+					$bbd_post_type_handles[] = $pt->handle;
 				}
-			} # end foreach: CPTD post type IDs
+			} # end foreach: BBD post type IDs
 		} # end foreach: given post types
 
-		if( empty( $cptd_post_type_handles ) ) return array();
+		if( empty( $bbd_post_type_handles ) ) return array();
 
 		# get post IDS based on the post types we found
 		global $wpdb;
 		$post_ids_query = "SELECT DISTINCT ID FROM " . $wpdb->posts . 
 			" WHERE post_type IN ( '" .
-				implode( "', '", $cptd_post_type_handles ) .
+				implode( "', '", $bbd_post_type_handles ) .
 			"' ) ";
 		
 		# if we're only getting published posts
@@ -450,7 +450,7 @@ class CPTD_Helper{
 		else {
 
 			# make sure we can find a valid taxonomy based on the given value
-			$tax = CPTD_Tax::get_by_text( $taxonomy );
+			$tax = BBD_Tax::get_by_text( $taxonomy );
 			if( empty( $tax->ID ) ) return array();
 
 			# get terms for the taxonomy
@@ -605,20 +605,20 @@ class CPTD_Helper{
 	} # end: get_all_post_ids_for_fields()
 
 	/**
-	 * Get an alphabetical list of unique field keys for CPTD user-created posts
+	 * Get an alphabetical list of unique field keys for BBD user-created posts
 	 * Fields starting with _ are ignored
 	 *
 	 * @since 	2.0.0
 	 */
 	public static function get_all_field_keys() {
 
-		if( is_array( CPTD::$all_field_keys ) ) return CPTD::$all_field_keys;
+		if( is_array( BBD::$all_field_keys ) ) return BBD::$all_field_keys;
 
 		# indicator that the value has been initialized so we don't have to run this function again
-		CPTD::$all_field_keys = array();
+		BBD::$all_field_keys = array();
 
 		# if we have no post types, do nothing further
-		if( CPTD::$no_post_types ) {
+		if( BBD::$no_post_types ) {
 			return array();
 		}
 
@@ -654,7 +654,7 @@ class CPTD_Helper{
 			$field_keys[] = $r->meta_key;
 		}
 
-		CPTD::$all_field_keys = $field_keys;
+		BBD::$all_field_keys = $field_keys;
 		return $field_keys;
 
 	} # end: get_all_field_keys()
@@ -730,7 +730,7 @@ class CPTD_Helper{
 	 */
 	public static function checkboxes_for_post_types( $args = array() ) {
 		
-		if( empty( CPTD::$post_types ) ) return '';
+		if( empty( BBD::$post_types ) ) return '';
 
 		ob_start();
 		
@@ -750,9 +750,9 @@ class CPTD_Helper{
 		if( ! empty( $args['description'] ) ) echo $args['description'];
 
 		# loop through post types and display checkboxes
-		foreach( CPTD::$post_types as $post_type ) {
+		foreach( BBD::$post_types as $post_type ) {
 
-			$pt = new CPTD_PT( $post_type->ID );
+			$pt = new BBD_PT( $post_type->ID );
 		?>
 			<label for="<?php echo $args['field_id'] . '_'  . $pt->ID ; ?>" class="<?php echo $args['label_class']; ?>">
 				<input id="<?php echo $args['field_id'] . '_'  . $pt->ID; ?>"
@@ -790,7 +790,7 @@ class CPTD_Helper{
 	 */
 	public static function checkboxes_for_taxonomies( $args = array() ) {
 		
-		if( empty( CPTD::$taxonomies ) ) return '';
+		if( empty( BBD::$taxonomies ) ) return '';
 		
 		ob_start();
 
@@ -804,9 +804,9 @@ class CPTD_Helper{
 		$args = wp_parse_args( $args, $defaults );
 
 		# loop through taxonomies and display checkboxes
-		foreach( CPTD::$taxonomies as $taxonomy ) {
+		foreach( BBD::$taxonomies as $taxonomy ) {
 
-			$tax = new CPTD_Tax( $taxonomy->ID );
+			$tax = new BBD_Tax( $taxonomy->ID );
 		?>
 			<label for="<?php echo $args['field_id'] . '_'  . $tax->ID ; ?>" class="<?php echo $args['label_class']; ?>">
 				<input id="<?php echo $args['field_id']. '_'  . $tax->ID; ?>"
@@ -839,14 +839,14 @@ class CPTD_Helper{
 	 * 		@type 	string	$field_name		The name attribute for individual checkboxes (we add [] to store as an array)
 	 * 		@type 	string 	$label_class	The class to attach to each checkbox label
 	 * }
-	 * @param 	int 	$tax_id 	The post ID for the CPTD taxonomy
+	 * @param 	int 	$tax_id 	The post ID for the BBD taxonomy
 	 * @return 	string
 	 * @since 	2.0.0
 	 */
 	public static function checkboxes_for_terms( $args, $tax_id ) {
 		
 		# get the taxonomy
-		$tax = new CPTD_Tax( $tax_id );
+		$tax = new BBD_Tax( $tax_id );
 		if( ! $tax->ID ) return '';
 
 		# get the terms for the taxonomy
@@ -920,13 +920,13 @@ class CPTD_Helper{
 		?>
 		<!-- Show/Hide Fields link -->
 		<a data-field-id='<?php echo $args['field_id']; ?>' class='show-hide-fields-area'>Show Fields</a>
-		<div class='cptd-fields-area'>
+		<div class='bbd-fields-area'>
 		<?php
 
 			# loop through custom fields and display checkboxes and options area for each field
 			foreach( self::get_all_field_keys() as $field ) {
 
-				$field = new CPTD_Field( $field );
+				$field = new BBD_Field( $field );
 			?>
 			<div class='<?php echo $args['field_class']; ?>'>
 
@@ -947,14 +947,14 @@ class CPTD_Helper{
 				<?php 
 				# execute an action after each checkbox that we can hook into for different purposes
 				# for example, to show filter options in the search widget
-				do_action( 'cptd_after_field_checkbox', $field ); ?>
+				do_action( 'bbd_after_field_checkbox', $field ); ?>
 
 			</div><!-- .{field_class}  -->
 			<?php
 
 			} # end foreach: $widget->field_keys
 		?>
-		</div><!-- .cptd-fields-area -->
+		</div><!-- .bbd-fields-area -->
 		<?php
 
 	} # end: checkboxes_for_fields()
@@ -971,13 +971,13 @@ class CPTD_Helper{
 		);
 		$args = wp_parse_args( $args, $defaults );
 		?>
-		<div class='cptd-draggable-fields-container' >
+		<div class='bbd-draggable-fields-container' >
 
 		<!-- Show/Hide Fields link -->
 		<a data-field-id='<?php echo $args['field_id']; ?>' class='show-hide-fields-area'>Show Fields</a>
 		
 		<!-- Droppable area for the fields -->
-		<div class='cptd-fields-drop'><span class='placeholder-text'>Drop fields here</span>
+		<div class='bbd-fields-drop'><span class='placeholder-text'>Drop fields here</span>
 			<?php
 
 			# Add any saved fields to the droppable area
@@ -995,7 +995,7 @@ class CPTD_Helper{
 					$fields_done[] = $key;
 
 					# get the field object
-					$field = new CPTD_Field( $key );
+					$field = new BBD_Field( $key );
 					?>
 					<div class='<?php echo $args['field_class']; ?>'>
 
@@ -1008,7 +1008,7 @@ class CPTD_Helper{
 							echo $field->label;
 						?>
 						</label>
-						<div class='dashicons dashicons-no-alt cptd-remove-field'></div>
+						<div class='dashicons dashicons-no-alt bbd-remove-field'></div>
 						<input type="hidden" name="<?php echo $args['field_name']; ?>[]" value="<?php echo $field->key; ?>"/>
 					</div><!-- .{field_class}  -->
 					<?php
@@ -1018,16 +1018,16 @@ class CPTD_Helper{
 			} # end if: $args['selected'] not empty
 			?>
 			<div id='droppable-helper-<?php echo $args['field_id']; ?>'
-				data-field-name='<?php echo $args['field_name']; ?>' class='cptd-droppable-helper'>
+				data-field-name='<?php echo $args['field_name']; ?>' class='bbd-droppable-helper'>
 			</div>
 		</div>
-		<div class='cptd-fields-area'>
+		<div class='bbd-fields-area'>
 		<?php
 
 			# loop through custom fields and display checkboxes and options area for each field
 			foreach( self::get_all_field_keys() as $field ) {
 
-				$field = new CPTD_Field( $field );
+				$field = new BBD_Field( $field );
 			?>
 			<div class='<?php echo $args['field_class']; ?>'>
 
@@ -1044,9 +1044,9 @@ class CPTD_Helper{
 
 			} # end foreach: $widget->field_keys
 		?>
-		</div><!-- .cptd-fields-area -->
-		</div><!-- .cptd-draggable-fields-container -->
+		</div><!-- .bbd-fields-area -->
+		</div><!-- .bbd-draggable-fields-container -->
 		<?php
 	} # end: draggable_fields()
 
-} # end class CPTD_Helper
+} # end class BBD_Helper

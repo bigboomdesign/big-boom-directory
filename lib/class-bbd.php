@@ -7,14 +7,14 @@
  *
  * @since 2.0.0
  */
-class CPTD {
+class BBD {
 
 	/**
 	 * Class parameters 
 	 */
 
 	/**
-	 * List of post IDs for CPTD post types
+	 * List of post IDs for BBD post types
 	 *
 	 * @param 	array 	
 	 * @since 	2.0.0
@@ -22,7 +22,7 @@ class CPTD {
 	public static $post_type_ids = array();
 
 	/**
-	 * List of post types created by CPTD user (stdClass objects retrieved from DB) 
+	 * List of post types created by BBD user (stdClass objects retrieved from DB) 
 	 *
 	 * @param 	array 	
 	 * @since 	2.0.0
@@ -38,7 +38,7 @@ class CPTD {
 	public static $no_post_types = false;
 
 	/**
-	 * List of post IDs for CPTD taxonomies
+	 * List of post IDs for BBD taxonomies
 	 *
 	 * @param 	array 	
 	 * @since 	2.0.0
@@ -46,7 +46,7 @@ class CPTD {
 	public static $taxonomy_ids = array();
 
 	/**
-	 * List of taxonomies created by CPTD (stdClass objects retrieved from DB)
+	 * List of taxonomies created by BBD (stdClass objects retrieved from DB)
 	 * 
 	 * @param 	array
 	 * @since 	2.0.0
@@ -62,7 +62,7 @@ class CPTD {
 	public static $no_taxonomies = false;
 
 	/**
-	 * The meta data for all `cptd_pt` and `cptd_tax` post types, indexed by post ID
+	 * The meta data for all `bbd_pt` and `bbd_tax` post types, indexed by post ID
 	 *
 	 * This static variable holds data directly from the database and won't necessarily reflect the 
 	 * state of any objects that use the data for instantiation. For example, field values that are 
@@ -73,7 +73,7 @@ class CPTD {
 	 *		@type 	(int) $post_id => (stdClass) $field {
 	 *	
 	 *			@type 	int 	$post_id
-	 * 			@type 	string	$meta_key		A `_cptd_meta_` field key, with the `_cptd_meta_` part removed
+	 * 			@type 	string	$meta_key		A `_bbd_meta_` field key, with the `_bbd_meta_` part removed
 	 *			@type 	string	$meta_value	
 	 * 		}
 	 * }
@@ -90,7 +90,7 @@ class CPTD {
 	public static $all_post_ids = null;
 
 	/**
-	 * An alphabetical list of unique field keys for all CPTD user-created posts
+	 * An alphabetical list of unique field keys for all BBD user-created posts
 	 *
 	 * @param 	array
 	 * @since 	2.0.0
@@ -114,17 +114,17 @@ class CPTD {
 	public static $no_acf_field_groups = false;
 
 	/**
-	 * Whether we're viewing a CPTD object on the front end
+	 * Whether we're viewing a BBD object on the front end
 	 * 
 	 * @param 	bool
 	 * @since 	2.0.0
 	 */
-	public static $is_cptd = null;
+	public static $is_bbd = null;
 
 	/**
-	 * The current front end view type (null if ! self::$is_cptd )
+	 * The current front end view type (null if ! self::$is_bbd )
 	 *
-	 * @param 	string 		(null|archive|single|cptd-search-results)
+	 * @param 	string 		(null|archive|single|bbd-search-results)
 	 * @since 	2.0.0
 	 */
 	public static $view_type = null;
@@ -178,14 +178,14 @@ class CPTD {
 	public static function init() {
 		
 		# load the data necessary to register post types and taxonomies
-		CPTD::load_cptd_post_data();
+		BBD::load_bbd_post_data();
 
 		# register post types and taxonomies
-		CPTD_Helper::register();
+		BBD_Helper::register();
 
 		# shortcodes
-		add_shortcode( 'cptd-a-z-listing', array('CPTD', 'a_to_z_html') );
-		add_shortcode( 'cptd-terms', array('CPTD', 'terms_html') );
+		add_shortcode( 'bbd-a-z-listing', array('BBD', 'a_to_z_html') );
+		add_shortcode( 'bbd-terms', array('BBD', 'terms_html') );
 
 	} # end: init()
 
@@ -195,19 +195,19 @@ class CPTD {
 	 * @since 	2.0.0
 	 */
 	public static function widgets_init() {
-		register_widget("CPTD_Search_Widget");
+		register_widget("BBD_Search_Widget");
 	} # end: widgets_init()
 
 	/**
 	 * Callback for 'pre_get_posts' action
 	 *
-	 * Executes a custom action 'cptd_pre_get_posts' after validating the view as CPTD
+	 * Executes a custom action 'bbd_pre_get_posts' after validating the view as BBD
 	 *
 	 * Initializes the following static variables
 	 *
-	 * - CPTD::$is_cptd
-	 * - CPTD::$current_post_type
-	 * - CPTD::$current_taxonomy
+	 * - BBD::$is_bbd
+	 * - BBD::$current_post_type
+	 * - BBD::$current_taxonomy
 	 *
 	 * @param 	WP_Query 	$query 		The query object that is getting posts
 	 * @since 	2.0.0
@@ -217,13 +217,13 @@ class CPTD {
 		# make sure we have the main query
 		if( ! $query->is_main_query() ) return;
 
-		# the value of CPTD::$is_cptd hasn't been set when this hook fires
-		self::$is_cptd = false;
+		# the value of BBD::$is_bbd hasn't been set when this hook fires
+		self::$is_bbd = false;
 
-		# The CPTD_PT object for the current view
+		# The BBD_PT object for the current view
 		$current_post_type = '';
 
-		# The CPTD_Tax object for the current view
+		# The BBD_Tax object for the current view
 		$current_taxonomy = '';
 
 		$post_order = '';
@@ -234,13 +234,13 @@ class CPTD {
 			# get the post type name for the query
 			$queried_post_type = $query->query['post_type'];
 
-			# loop through CPTD post types and see if any of them match the current query
-			foreach( CPTD::$post_type_ids  as $post_id ) {
+			# loop through BBD post types and see if any of them match the current query
+			foreach( BBD::$post_type_ids  as $post_id ) {
 
-				$pt = new CPTD_PT( $post_id );
+				$pt = new BBD_PT( $post_id );
 
 				if( $queried_post_type == $pt->handle ) {
-					self::$is_cptd = true;
+					self::$is_bbd = true;
 					$current_post_type = $pt;
 					self::$current_post_type = $pt->ID;
 				}
@@ -252,25 +252,25 @@ class CPTD {
 
 			$tax_queries = $query->tax_query->queries;
 
-			# make sure we have exactly one taxonomy set, otherwise we won't consider this a CPTD view
+			# make sure we have exactly one taxonomy set, otherwise we won't consider this a BBD view
 			if( 1 != count( $tax_queries ) ) return;
 			
 			# get the taxonomy name for the query
 			$queried_taxonomy = $tax_queries[0]['taxonomy'];
 
-			foreach( CPTD::$taxonomy_ids as $tax_id ) {
+			foreach( BBD::$taxonomy_ids as $tax_id ) {
 
-				$tax = new CPTD_Tax( $tax_id );
+				$tax = new BBD_Tax( $tax_id );
 				if( $tax->handle == $queried_taxonomy ) {
 
-					self::$is_cptd = true;
+					self::$is_bbd = true;
 					$current_taxonomy = $tax;
 					self::$current_taxonomy = $tax->ID;
 
 					# if the current post type isn't set, use the first post type tied to the current taxonomy
 					if( ! $current_post_type ) {
 
-						$current_post_type = new CPTD_PT( $current_taxonomy->post_types[0] );
+						$current_post_type = new BBD_PT( $current_taxonomy->post_types[0] );
 						self::$current_post_type = $current_post_type->ID;
 					}
 				}
@@ -278,11 +278,11 @@ class CPTD {
 		} # end if: query has a taxonomy set
 
 		# if we are doing search widget results
-		if( ! empty( $_POST['cptd_search'] ) ) {
-			self::$is_cptd = true;
+		if( ! empty( $_POST['bbd_search'] ) ) {
+			self::$is_bbd = true;
 		}
 
-		if( ! CPTD::$is_cptd ) return;
+		if( ! BBD::$is_bbd ) return;
 		if( empty( $current_post_type ) ) return;
 
 		# get the post orderby parameter
@@ -315,7 +315,7 @@ class CPTD {
 		} # end if: ordering by custom field
 
 		# action that users can hook into to edit the query further
-		do_action( 'cptd_pre_get_posts', $query );
+		do_action( 'bbd_pre_get_posts', $query );
 
 	} # end: pre_get_posts()
 
@@ -326,26 +326,26 @@ class CPTD {
 	 */
 	public static function wp() {
 
-		global $cptd_view;
+		global $bbd_view;
 
 		self::load_view_info();
 
-		# if we're not viewing a CPTD object
-		if( ! is_cptd_view() ) return;
+		# if we're not viewing a BBD object
+		if( ! is_bbd_view() ) return;
 
-		add_action( 'wp_enqueue_scripts', array( 'CPTD', 'enqueue_scripts' ) );
+		add_action( 'wp_enqueue_scripts', array( 'BBD', 'enqueue_scripts' ) );
 
-		$cptd_view = new CPTD_View();
+		$bbd_view = new BBD_View();
 
 		# load the post meta that we'll need for this view
-		$cptd_view->load_post_meta();
+		$bbd_view->load_post_meta();
 
-		add_filter( 'loop_start', array( 'CPTD', 'loop_start' ) );
+		add_filter( 'loop_start', array( 'BBD', 'loop_start' ) );
 		
-		add_filter( 'the_content', array( 'CPTD', 'the_content' ) );
-		add_filter( 'the_excerpt', array( 'CPTD', 'the_content' ) );
+		add_filter( 'the_content', array( 'BBD', 'the_content' ) );
+		add_filter( 'the_excerpt', array( 'BBD', 'the_content' ) );
 
-		do_action( 'cptd_wp' );
+		do_action( 'bbd_wp' );
 	
 	} # end: wp()
 
@@ -356,16 +356,16 @@ class CPTD {
 	 */
 	public static function enqueue_scripts() {
 
-		wp_enqueue_style( 'cptd', cptd_url( '/css/cptd.css' ) );
+		wp_enqueue_style( 'bbd', bbd_url( '/css/bbd.css' ) );
 
 		# font awesome
-		wp_enqueue_style( 'cptd-fa', '//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css');
+		wp_enqueue_style( 'bbd-fa', '//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css');
 
 		# lightbox
-		wp_enqueue_script('cptd-lightbox', cptd_url('/assets/lightbox/lightbox.min.js'), array('jquery'));
-		wp_enqueue_style('cptd-lightbox', cptd_url('/assets/lightbox/lightbox.css'));
+		wp_enqueue_script('bbd-lightbox', bbd_url('/assets/lightbox/lightbox.min.js'), array('jquery'));
+		wp_enqueue_style('bbd-lightbox', bbd_url('/assets/lightbox/lightbox.css'));
 
-		do_action( 'cptd_enqueue_scripts' );
+		do_action( 'bbd_enqueue_scripts' );
 
 	} # end: enqueue_scripts()
 
@@ -381,12 +381,12 @@ class CPTD {
 		if( ! $query->is_main_query() ) return;
 
 		# we're only wanting to hook on post type archive pages
-		if( ! is_post_type_archive() || empty( CPTD::$current_post_type ) ) return;
+		if( ! is_post_type_archive() || empty( BBD::$current_post_type ) ) return;
 
-		do_action( 'cptd_before_pt_description' );
+		do_action( 'bbd_before_pt_description' );
 
 		# get the current post type object
-		$pt = new CPTD_PT( CPTD::$current_post_type );
+		$pt = new BBD_PT( BBD::$current_post_type );
 
 		# get the post content for the current post type
 		$post_type_description = get_post_field( 'post_content', $pt->ID );
@@ -398,11 +398,11 @@ class CPTD {
 		$wrap = array(
 			'before_tag' 	=> 'div',
 			'after_tag' 	=> 'div',
-			'classes'		=> array('cptd-post-type-description'),
+			'classes'		=> array('bbd-post-type-description'),
 			'id'			=> '',
 		);
 		# apply a hookable filter for the wrapper
-		$wrap = apply_filters( 'cptd_pt_description_wrap', $wrap );
+		$wrap = apply_filters( 'bbd_pt_description_wrap', $wrap );
 
 		# show the post type description
 		if( ! empty( $wrap['before_tag'] ) ) {
@@ -423,7 +423,7 @@ class CPTD {
 		<?php
 		}
 
-		do_action( 'cptd_after_pt_description' );
+		do_action( 'bbd_after_pt_description' );
 
 	} # end: loop_start()
 
@@ -439,22 +439,22 @@ class CPTD {
 		# if we're doing the loop_start action, we don't want to append fields
 		if( doing_action('loop_start') ) return $content;
 
-		global $cptd_view;
+		global $bbd_view;
 
 		$html = '';
 
 		# check if we have HTML to display based on ACF field data
-		if( ! empty( $cptd_view->acf_fields ) ) {
+		if( ! empty( $bbd_view->acf_fields ) ) {
 
-			$html .= $cptd_view->get_acf_html();
+			$html .= $bbd_view->get_acf_html();
 
 		} # end if: ACF fields are set for the current view
 
-		# prepend the CPTD HTML to the content
+		# prepend the BBD HTML to the content
 		$output = $html . $content;
 
 		# apply a filter the user can hook into and return the modified content
-		$output = apply_filters( 'cptd_the_content', $output );
+		$output = apply_filters( 'bbd_the_content', $output );
 
 		return $output;
 
@@ -468,7 +468,7 @@ class CPTD {
 	 */
 
 	/**
-	 * Generate HTML for the `cptd-a-z-listing` shortcode
+	 * Generate HTML for the `bbd-a-z-listing` shortcode
 	 *
 	 * @return 	string
 	 * @since 	2.0.0
@@ -479,7 +479,7 @@ class CPTD {
 		$atts = shortcode_atts( array(
 			'post_types' => '',
 			'list_style' => '',
-		), $atts, 'cptd-a-z-listing');
+		), $atts, 'bbd-a-z-listing');
 
 		# validate the list style
 		$list_style = $atts['list_style'];
@@ -495,7 +495,7 @@ class CPTD {
 			$post_types =  array_map( 'trim' , explode(  ',', $post_types ) );
 		}
 
-		# if no post types are given, use all CPTD post types
+		# if no post types are given, use all BBD post types
 		if( empty( $post_types ) ) {
 			$post_types = self::get_post_type_names();
 		}
@@ -512,13 +512,13 @@ class CPTD {
 
 		if( empty( $posts ) ) return '';
 
-		# if we have posts, enqueue the CPTD stylesheet in the footer
-		wp_enqueue_style( 'cptd', cptd_url( '/css/cptd.css' ), true );
+		# if we have posts, enqueue the BBD stylesheet in the footer
+		wp_enqueue_style( 'bbd', bbd_url( '/css/bbd.css' ), true );
 
 		# generate the HTML
 		ob_start();
 	?>
-		<div id='cptd-a-z-listing'>
+		<div id='bbd-a-z-listing'>
 			<ul>
 				<?php foreach( $posts as $post ) { ?>
 					<li
@@ -538,7 +538,7 @@ class CPTD {
 	} # end: a_to_z_html()
 
 	/**
-	 * Generate HTML for `cptd-terms` shortcode
+	 * Generate HTML for `bbd-terms` shortcode
 	 *
 	 * @return 	string
 	 * @since 	2.0.0
@@ -549,7 +549,7 @@ class CPTD {
 		$atts = shortcode_atts( array(
 			'taxonomies' => '',
 			'list_style' => '',
-		), $atts, 'cptd-terms');
+		), $atts, 'bbd-terms');
 
 		# validate the list style
 		$list_style = $atts['list_style'];
@@ -557,7 +557,7 @@ class CPTD {
 			$list_style = '';
 
 		# get the taxonomy names
-		# if none are given, we'll use all CPTD taxonomies
+		# if none are given, we'll use all BBD taxonomies
 		$taxonomy_names = array();
 
 		# if we are passed taxonomies
@@ -567,10 +567,10 @@ class CPTD {
 
 		} # end if: taxonomies were given
 
-		# if no taxonomies were given or found, try to use all CPTD taxonomies
+		# if no taxonomies were given or found, try to use all BBD taxonomies
 		if( empty( $taxonomy_names ) ) {
 			
-			$taxonomy_names = CPTD::get_taxonomy_names();
+			$taxonomy_names = BBD::get_taxonomy_names();
 
 			# do nothing if no taxonomies are registered and none are given to us
 			if( empty( $taxonomy_names ) ) return '';
@@ -586,7 +586,7 @@ class CPTD {
 		# generate HTML for list
 		ob_start();
 		?>
-		<div id="cptd-terms">
+		<div id="bbd-terms">
 			<ul>
 				<?php
 				foreach($terms as $term){
@@ -603,8 +603,8 @@ class CPTD {
 		</div>
 		<?php
 
-		# enqueue the CPTD stylesheet in the footer
-		wp_enqueue_style( 'cptd', cptd_url('/css/cptd.css'), true );
+		# enqueue the BBD stylesheet in the footer
+		wp_enqueue_style( 'bbd', bbd_url('/css/bbd.css'), true );
 
 		$html = ob_get_contents();
 		ob_end_clean();
@@ -616,7 +616,7 @@ class CPTD {
 	/**
 	 * Store and retrieve and store static information about post types and taxonomies
 	 *
-	 * - load_cptd_post_data()
+	 * - load_bbd_post_data()
 	 * - get_post_types()
 	 * - get_taxonomies()
 	 * - get_post_type_objects()
@@ -632,17 +632,17 @@ class CPTD {
 	 *
 	 * @since 	2.0.0
 	 */ 
-	public static function load_cptd_post_data() {
+	public static function load_bbd_post_data() {
 
 		# make sure we only call the function one time
 		if( self::$no_post_types || ! empty( self::$post_type_ids ) ) return;
 
-		# query the database for post type 'cptd_pt' and 'cptd_tax'
+		# query the database for post type 'bbd_pt' and 'bbd_tax'
 		global $wpdb;
 
 		# build the posts query
 		$posts_query = "SELECT ID, post_title, post_type, post_status FROM " . $wpdb->posts .
-			" WHERE post_type IN ( 'cptd_pt', 'cptd_tax' ) " .
+			" WHERE post_type IN ( 'bbd_pt', 'bbd_tax' ) " .
 			" AND post_status IN ( 'publish', 'draft' ) " .
 			" ORDER BY post_title ASC";
 		$posts_result = $wpdb->get_results( $posts_query );
@@ -662,14 +662,14 @@ class CPTD {
 		foreach( $posts_result as  $post ) {
 
 			# for post types
-			if( 'cptd_pt' == $post->post_type ) {
+			if( 'bbd_pt' == $post->post_type ) {
 				$has_post_type = true;
 				self::$post_type_ids[] = $post->ID;
 				self::$post_types[ $post->ID ] = $post;
 			}
 
 			# for taxonomies
-			elseif( 'cptd_tax' == $post->post_type ){
+			elseif( 'bbd_tax' == $post->post_type ){
 				$has_taxonomy = true;
 				self::$taxonomy_ids[] = $post->ID;
 				 self::$taxonomies[ $post->ID ] = $post;
@@ -682,14 +682,14 @@ class CPTD {
 
 		# get the post meta that makes the post types and taxonomies work
 		$post_meta_query = "SELECT post_id, meta_key, meta_value FROM " . $wpdb->postmeta . 
-			" WHERE meta_key LIKE '_cptd_meta_%'";
+			" WHERE meta_key LIKE '_bbd_meta_%'";
 		$post_meta = $wpdb->get_results( $post_meta_query );
 
 		# parse the post meta data rows
 		foreach( $post_meta as $field ) {
 
-			# get the simplified key (e.g. `handle` instead of `_cptd_meta_handle`)
-			$key = str_replace( '_cptd_meta_', '', $field->meta_key );
+			# get the simplified key (e.g. `handle` instead of `_bbd_meta_handle`)
+			$key = str_replace( '_bbd_meta_', '', $field->meta_key );
 
 			if( ! $key  ) continue;
 
@@ -701,11 +701,11 @@ class CPTD {
 
 		} # end foreach: $post_meta
 
-	} # end: load_cptd_post_data()
+	} # end: load_bbd_post_data()
 
 
 	/**
-	 * Return and/or populate self::$post_types array. Executes self::load_cptd_post_data if necessary
+	 * Return and/or populate self::$post_types array. Executes self::load_bbd_post_data if necessary
 	 *
 	 * @return 	array 	May be empty.
 	 * @since 	2.0.0
@@ -719,7 +719,7 @@ class CPTD {
 		elseif( self::$no_post_types ) return array();
 
 		# load the post data and return
-		self::load_cptd_post_data();
+		self::load_bbd_post_data();
 		return self::$post_types;
 		
 	} # end: get_post_types()
@@ -736,14 +736,14 @@ class CPTD {
 		if( self::$taxonomies ) return self::$taxonomies;
 		elseif( self::$no_taxonomies ) return array();
 
-		self::load_cptd_post_data();
+		self::load_bbd_post_data();
 		return self::$taxonomies;
 
 	} # end: get_taxonomies()
 
 
 	/**
-	 * Return an array of CPTD_PT objects for the registered post types
+	 * Return an array of BBD_PT objects for the registered post types
 	 *
 	 * @return 	array 	May be empty.
 	 * @since 	2.0.0
@@ -756,7 +756,7 @@ class CPTD {
 		$post_types = self::get_post_types();
 		foreach( $post_types as $post_type ) {
 			
-			$pt = new CPTD_PT( $post_type->ID );
+			$pt = new BBD_PT( $post_type->ID );
 			$post_type_objects[] = $pt;
 		}
 
@@ -765,7 +765,7 @@ class CPTD {
 	} # end: get_post_type_objects()
 
 	/**
-	 * Return a list of CPTD post type names
+	 * Return a list of BBD post type names
 	 *
 	 * @return 	array 	May be empty.
 	 * @since 	2.0.0
@@ -784,7 +784,7 @@ class CPTD {
 	} # end: get_post_type_names()
 
 	/**
-	 * Return an array of CPTD_Tax objects for CPTD taxonomies
+	 * Return an array of BBD_Tax objects for BBD taxonomies
 	 *
 	 * @return 	array 	May be empty.
 	 * @since 	2.0.0
@@ -797,7 +797,7 @@ class CPTD {
 		$taxonomies = self::get_taxonomies();
 		foreach( $taxonomies as $taxonomy ) {
 			
-			$tax = new CPTD_Tax( $taxonomy->ID );
+			$tax = new BBD_Tax( $taxonomy->ID );
 			$taxonomy_objects[] = $tax;
 		}
 
@@ -806,7 +806,7 @@ class CPTD {
 	} # end: get_taxonomy_objects
 
 	/**
-	 * Return an array of CPTD taxonomy names
+	 * Return an array of BBD taxonomy names
 	 *
 	 * @param	array 	May be empty.
 	 * @since 	2.0.0
@@ -844,8 +844,8 @@ class CPTD {
 			self::$no_acf_field_groups = true;
 		}
 		
-		CPTD::$acf_field_groups = $field_groups;
-		return CPTD::$acf_field_groups;
+		BBD::$acf_field_groups = $field_groups;
+		return BBD::$acf_field_groups;
 
 	} # end: get_acf_field_groups()
 
@@ -854,29 +854,29 @@ class CPTD {
 	 *
 	 * Initializes the following static variables
 	 *
-	 * - CPTD::$view_type
-	 * - CPTD::$is_cptd (if is_search() is true)
+	 * - BBD::$view_type
+	 * - BBD::$is_bbd (if is_search() is true)
 	 * 
 	 * @since 	2.0.0
 	 */
 	public static function load_view_info() {
 
 		# reduce weight for non-plugin views
-		if( ! is_search() && ! is_cptd_view() ) return;
+		if( ! is_search() && ! is_bbd_view() ) return;
 		# if we are doing a wp search
 		if( is_search() ) { 
-			self::$is_cptd = true;
+			self::$is_bbd = true;
 			self::$view_type = 'archive';
 			return;
 		}
 
-		# if we are doing CPTD Search Widget results
-		if( ! empty( $_POST['cptd_search'] ) ) {
-			self::$view_type = 'cptd-search-results';
+		# if we are doing BBD Search Widget results
+		if( ! empty( $_POST['bbd_search'] ) ) {
+			self::$view_type = 'bbd-search-results';
 		}
 
-		# make sure the CPTD post data is loaded
-		if( empty( self::$post_type_ids ) || empty( self::$taxonomy_ids ) ) self::load_cptd_post_data();
+		# make sure the BBD post data is loaded
+		if( empty( self::$post_type_ids ) || empty( self::$taxonomy_ids ) ) self::load_bbd_post_data();
 
 		# see if there is a queried post type for this view
 		if( self::$current_post_type ) {
@@ -899,20 +899,20 @@ class CPTD {
 	 */ 
 	public static function load_classes() {
 
-		# CPTD classes
-		require_once cptd_dir('/lib/class-cptd-ajax.php');
-		require_once cptd_dir('/lib/class-cptd-helper.php');
-		require_once cptd_dir('/lib/class-cptd-options.php');
-		require_once cptd_dir('/lib/class-cptd-post.php');
-		require_once cptd_dir('/lib/class-cptd-pt.php');
-		require_once cptd_dir('/lib/class-cptd-tax.php');
-		require_once cptd_dir('/lib/class-cptd-field.php');
-		require_once cptd_dir('/lib/widgets/class-cptd-search-widget.php');
+		# BBD classes
+		require_once bbd_dir('/lib/class-bbd-ajax.php');
+		require_once bbd_dir('/lib/class-bbd-helper.php');
+		require_once bbd_dir('/lib/class-bbd-options.php');
+		require_once bbd_dir('/lib/class-bbd-post.php');
+		require_once bbd_dir('/lib/class-bbd-pt.php');
+		require_once bbd_dir('/lib/class-bbd-tax.php');
+		require_once bbd_dir('/lib/class-bbd-field.php');
+		require_once bbd_dir('/lib/widgets/class-bbd-search-widget.php');
 
 		# Extended Post Types & Taxonomies
-		if( ! function_exists( 'register_extended_post_type' ) ) require_once cptd_dir( '/assets/extended-cpts/extended-cpts.php' );
-		if( ! function_exists( 'register_extended_taxonomy' ) ) require_once cptd_dir( '/assets/extended-taxos/extended-taxos.php' );
+		if( ! function_exists( 'register_extended_post_type' ) ) require_once bbd_dir( '/assets/extended-cpts/extended-cpts.php' );
+		if( ! function_exists( 'register_extended_taxonomy' ) ) require_once bbd_dir( '/assets/extended-taxos/extended-taxos.php' );
 
 	} # end: load_classes()
 
-} # end class: CPTD
+} # end class: BBD

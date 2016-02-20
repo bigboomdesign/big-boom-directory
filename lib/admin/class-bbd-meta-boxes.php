@@ -4,7 +4,7 @@
  *
  * @since 	2.0.0
  */
-class CPTD_Meta_Boxes {
+class BBD_Meta_Boxes {
 
 	/**
 	 * Set up the meta boxes for the plugin using CMB2
@@ -14,9 +14,9 @@ class CPTD_Meta_Boxes {
 	public static function cmb2_meta_boxes() {
 
 		# initialize the settings (they depend on WP data are are not loaded before cmb2_admin_init)
-		CPTD_Options::initialize_settings();
+		BBD_Options::initialize_settings();
 
-		$prefix = '_cptd_meta_';
+		$prefix = '_bbd_meta_';
 
 		/**
 		 * Post type meta boxes
@@ -42,9 +42,9 @@ class CPTD_Meta_Boxes {
 
 		# Meta box
 		$pt_settings = new_cmb2_box( array(
-			'id' 			=> 'cptd_post_type_settings',
+			'id' 			=> 'bbd_post_type_settings',
 			'title'			=> __( 'Post Type Settings', 'cmb2' ),
-			'object_types' 	=> array( 'cptd_pt' ),
+			'object_types' 	=> array( 'bbd_pt' ),
 			'context' 		=> 'normal',
 			'priority' 		=> 'high',
 		));
@@ -56,7 +56,7 @@ class CPTD_Meta_Boxes {
 			'name'	=> 'Singular Label',
 			'id'	=> $prefix.'singular',
 			'type' 	=> 'text',
-			'before' => array( 'CPTD_Meta_Boxes', 'before_label' ),
+			'before' => array( 'BBD_Meta_Boxes', 'before_label' ),
 		));
 
 		## Plural label
@@ -64,7 +64,7 @@ class CPTD_Meta_Boxes {
 			'name' 	=> 'Plural Label',
 			'id' 	=> $prefix.'plural',
 			'type'	=> 'text',
-			'before' => array( 'CPTD_Meta_Boxes', 'before_label' ),
+			'before' => array( 'BBD_Meta_Boxes', 'before_label' ),
 		));
 
 		## Order posts by
@@ -79,7 +79,7 @@ class CPTD_Meta_Boxes {
 				'date' 				=> 'Publish Date',
 				'rand' 				=> 'Random',
 			),
-			'default' 	=> CPTD_Options::$options['post_orderby'],
+			'default' 	=> BBD_Options::$options['post_orderby'],
 		));
 
 		## Meta key to order by, if 'post_orderby' = ( 'meta_value' | 'meta_value_num' )
@@ -88,7 +88,7 @@ class CPTD_Meta_Boxes {
 			'id' 	=> $prefix.'meta_key_orderby',
 			'type' 	=> 'text',
 			'description' 	=> 'Use a field key like <code>last_name</code>. Posts with no value for the field will not appear in results.',
-			'default'		=> CPTD_Options::$options['meta_key_orderby'],
+			'default'		=> BBD_Options::$options['meta_key_orderby'],
 		));
 
 		## Post order
@@ -100,7 +100,7 @@ class CPTD_Meta_Boxes {
 				'ASC'		=> 'Ascending',
 				'DESC'		=> 'Descending',
 			),
-			'default' 	=> CPTD_Options::$options['post_order'],
+			'default' 	=> BBD_Options::$options['post_order'],
 		));
 
 
@@ -110,9 +110,9 @@ class CPTD_Meta_Boxes {
 
 		# Meta box
 		$advanced_pt_settings = new_cmb2_box( array(
-			'id' 			=> 'cptd_advanced_post_type_settings',
+			'id' 			=> 'bbd_advanced_post_type_settings',
 			'title'			=> __( 'Advanced Post Type Settings', 'cmb2' ),
-			'object_types' 	=> array( 'cptd_pt' ),
+			'object_types' 	=> array( 'bbd_pt' ),
 			'context' 		=> 'normal',
 			'priority' 		=> 'high',
 			'closed'		=> true
@@ -128,8 +128,8 @@ class CPTD_Meta_Boxes {
 			'attributes' 	=> array(
 				'readonly' => 'readonly'
 			),
-			'before' => array( 'CPTD_Meta_Boxes', 'before_handle' ),
-			'sanitization_cb' => array( 'CPTD_Meta_Boxes', 'sanitize_handle' ),
+			'before' => array( 'BBD_Meta_Boxes', 'before_handle' ),
+			'sanitization_cb' => array( 'BBD_Meta_Boxes', 'sanitize_handle' ),
 			'description' 	=> 
 				"<div id='handle-container'>
 					<a id='change-name'>Change</a>
@@ -152,8 +152,8 @@ class CPTD_Meta_Boxes {
 			'attributes'	=> array(
 				'readonly' 	=> 'readonly'
 			),
-			'before'		=> array( 'CPTD_Meta_Boxes', 'before_slug' ),
-			'sanitize_cb' 	=> array( 'CPTD_Meta_Boxes', 'sanitize_slug' ),
+			'before'		=> array( 'BBD_Meta_Boxes', 'before_slug' ),
+			'sanitize_cb' 	=> array( 'BBD_Meta_Boxes', 'sanitize_slug' ),
 			'description'	=> 
 				"<p></p>
 				<div id='slug-container'>
@@ -217,9 +217,9 @@ class CPTD_Meta_Boxes {
 
 		# Meta box
 		$pt_fields_select = new_cmb2_box( array(
-			'id' 			=> 'cptd_pt_fields_settings',
+			'id' 			=> 'bbd_pt_fields_settings',
 			'title'			=> __( 'Fields Setup', 'cmb2' ),
-			'object_types' 	=> array( 'cptd_pt' ),
+			'object_types' 	=> array( 'bbd_pt' ),
 			'context' 		=> 'normal',
 			'priority' 		=> 'high',
 		));
@@ -230,13 +230,13 @@ class CPTD_Meta_Boxes {
 			'id' => $prefix.'pt_archive_fields',
 			'type' => 'multicheck',
 			'attributes' => array( 
-				'class' => 'cptd_field_group_select',
+				'class' => 'bbd_field_group_select',
 				'autocomplete' => 'off'
 			),
 			'description' => "Select which fields show for your posts on the post type archive page.",
-			'before' 	=> array( 'CPTD_Meta_Boxes', 'before_fields_select'),
+			'before' 	=> array( 'BBD_Meta_Boxes', 'before_fields_select'),
 			'select_all_button' => false,
-			'sanitization_cb' => array( 'CPTD_Meta_Boxes', 'sanitize_archive_fields' )
+			'sanitization_cb' => array( 'BBD_Meta_Boxes', 'sanitize_archive_fields' )
 		));
 
 		# Post type single fields
@@ -245,25 +245,25 @@ class CPTD_Meta_Boxes {
 			'id' => $prefix.'pt_single_fields',
 			'type' => 'multicheck',
 			'attributes' => array( 
-				'class' => 'cptd_field_group_select',
+				'class' => 'bbd_field_group_select',
 				'autocomplete' => 'off'
 			),
 			'description' => 'Select which fields show on the single post view for your post type.',
-			'before' 	=> array( 'CPTD_Meta_Boxes', 'before_fields_select'),
+			'before' 	=> array( 'BBD_Meta_Boxes', 'before_fields_select'),
 			'select_all_button' => false
 		));
 
 		$advanced_fields_setup = new_cmb2_box( array(
-			'id' 			=> 'cptd_pt_advanced_fields_setup',
+			'id' 			=> 'bbd_pt_advanced_fields_setup',
 			'title'			=> __( 'Advanced Fields Setup', 'cmb2' ),
-			'object_types' 	=> array( 'cptd_pt' ),
+			'object_types' 	=> array( 'bbd_pt' ),
 			'context' 		=> 'normal',
 			'priority' 		=> 'high',
 		));
 
 		/**
 		 * Advanced fields setup
-		 * Settings from CPTD core that can be overriden for this post type
+		 * Settings from BBD core that can be overriden for this post type
 		 */
 
 		# Auto detect website field
@@ -271,9 +271,9 @@ class CPTD_Meta_Boxes {
 			'id' => $prefix . 'auto_detect_url',
 			'type' => 'checkbox',
 			'name' => 'Auto detect URL fields',
-			'after' => array( 'CPTD_Meta_Boxes', 'after_auto_detect_url' ),
+			'after' => array( 'BBD_Meta_Boxes', 'after_auto_detect_url' ),
 		);
-		if( isset( CPTD_Options::$options['auto_detect_url_yes'] ) ) {
+		if( isset( BBD_Options::$options['auto_detect_url_yes'] ) ) {
 			$website_field['default'] = self::default_for_checkbox('on');
 		}
 		$advanced_fields_setup->add_field( $website_field );
@@ -294,7 +294,7 @@ class CPTD_Meta_Boxes {
 		);
 
 		# default for social media field
-		if( isset( CPTD_Options::$options['auto_detect_social_yes'] ) ) {
+		if( isset( BBD_Options::$options['auto_detect_social_yes'] ) ) {
 			$social_field['default'] = self::default_for_checkbox('on');
 		}
 
@@ -304,25 +304,25 @@ class CPTD_Meta_Boxes {
 		$advanced_fields_setup->add_field( array(
 			'id' => $prefix.'image_size_archive',
 			'type' => 'select',
-			'default' => CPTD_Options::$options['image_size_archive'],
+			'default' => BBD_Options::$options['image_size_archive'],
 			'name' => 'Image size for archive views',
-			'before' => array('CPTD_Meta_Boxes', 'before_image_size')
+			'before' => array('BBD_Meta_Boxes', 'before_image_size')
 		));
 
 		# Image size for single
 		$advanced_fields_setup->add_field( array(
 			'id' => $prefix.'image_size_single',
 			'type' => 'select',
-			'default' => CPTD_Options::$options['image_size_single'],
+			'default' => BBD_Options::$options['image_size_single'],
 			'name' => 'Image size for single views',
-			'before' => array('CPTD_Meta_Boxes', 'before_image_size')
+			'before' => array('BBD_Meta_Boxes', 'before_image_size')
 		));
 
 		# Image alignment
 		$advanced_fields_setup->add_field( array(
 			'id' => $prefix.'image_alignment',
 			'type' => 'select',
-			'default' => CPTD_Options::$options['image_alignment'],
+			'default' => BBD_Options::$options['image_alignment'],
 			'name' => 'Image alignment',
 			'options' => array(
 				'none' => 'None', 
@@ -352,9 +352,9 @@ class CPTD_Meta_Boxes {
 
 		# Meta box
 		$tax_settings = new_cmb2_box( array(
-			'id' 			=> 'cptd_tax_settings',
+			'id' 			=> 'bbd_tax_settings',
 			'title'			=> __( 'Taxonomy Settings', 'cmb2' ),
-			'object_types' 	=> array( 'cptd_tax' ),
+			'object_types' 	=> array( 'bbd_tax' ),
 			'context' 		=> 'normal',
 			'priority' 		=> 'high',
 		));
@@ -369,8 +369,8 @@ class CPTD_Meta_Boxes {
 			'attributes' 	=> array(
 				'readonly' => 'readonly'
 			),
-			'before' => array( 'CPTD_Meta_Boxes', 'before_handle' ),
-			'sanitization_cb' => array( 'CPTD_Meta_Boxes', 'sanitize_handle' ),
+			'before' => array( 'BBD_Meta_Boxes', 'before_handle' ),
+			'sanitization_cb' => array( 'BBD_Meta_Boxes', 'sanitize_handle' ),
 			'description' 	=> 
 				"<div id='handle-container'>
 					<a id='change-name'>Change</a>
@@ -390,7 +390,7 @@ class CPTD_Meta_Boxes {
 			'name'	=> 'Singular Label',
 			'id'	=> $prefix.'singular',
 			'type' 	=> 'text',
-			'before' => array( 'CPTD_Meta_Boxes', 'before_label' ),
+			'before' => array( 'BBD_Meta_Boxes', 'before_label' ),
 		));
 
 		## Plural label
@@ -398,7 +398,7 @@ class CPTD_Meta_Boxes {
 			'name' 	=> 'Plural Label',
 			'id' 	=> $prefix.'plural',
 			'type'	=> 'text',
-			'before' => array( 'CPTD_Meta_Boxes', 'before_label' ),
+			'before' => array( 'BBD_Meta_Boxes', 'before_label' ),
 		));
 
 		## Hierarchical
@@ -417,7 +417,7 @@ class CPTD_Meta_Boxes {
 			'id'	=> $prefix.'post_types',
 			'type' 	=> 'multicheck',
 			'select_all_button' => false,
-			'before'	=> array( 'CPTD_Meta_Boxes', 'before_tax_post_types' ),
+			'before'	=> array( 'BBD_Meta_Boxes', 'before_tax_post_types' ),
 			'description' => "<div id='tax-assign-tip'>
 					<p class='description'>It's usually best to assign only <b>one post type per taxonomy</b>. Otherwise, the terms you create will appear under all post types checked.</p>
 					<p class='description'>For example, if you have <code>Books</code> and <code>Movies</code> as post types and <code>Genres</code> as a single taxonomy for both post types, you may end up with the term 'Non-Fiction' as an option for both Books and Movies.  In this case, it would probably be best to create two taxonomies, one called <code>Book Genres</code> and another called <code>Movie Genres</code></p>
@@ -430,9 +430,9 @@ class CPTD_Meta_Boxes {
 
 		# Meta box
 		$advanced_tax_settings = new_cmb2_box( array(
-			'id' 			=> 'cptd_advanced_tax_settings',
+			'id' 			=> 'bbd_advanced_tax_settings',
 			'title'			=> __( 'Advanced Taxonomy Settings', 'cmb2' ),
-			'object_types' 	=> array( 'cptd_tax' ),
+			'object_types' 	=> array( 'bbd_tax' ),
 			'context' 		=> 'normal',
 			'priority' 		=> 'high',
 			'closed' 		=> true
@@ -448,8 +448,8 @@ class CPTD_Meta_Boxes {
 			'attributes'	=> array(
 				'readonly' 	=> 'readonly'
 			),
-			'before'		=> array( 'CPTD_Meta_Boxes', 'before_slug' ),
-			'sanitize_cb' 	=> array( 'CPTD_Meta_Boxes', 'sanitize_slug' ),
+			'before'		=> array( 'BBD_Meta_Boxes', 'before_slug' ),
+			'sanitize_cb' 	=> array( 'BBD_Meta_Boxes', 'sanitize_slug' ),
 			'description'	=> 
 				"<p></p>
 				<div id='slug-container'>
@@ -509,7 +509,7 @@ class CPTD_Meta_Boxes {
 	 * @since 	2.0.0
 	 */
 	public static function sanitize_handle( $value ) {
-		return CPTD_Helper::clean_str_for_field( $value );
+		return BBD_Helper::clean_str_for_field( $value );
 	}
 
 	/**
@@ -526,13 +526,13 @@ class CPTD_Meta_Boxes {
 		if( ! empty( $field->value ) ) return;
 
 		# whether this is a post type (true) or taxonomy (false)
-		$bPT = ( 'cptd_pt' == $post->post_type )  ? true : false;
+		$bPT = ( 'bbd_pt' == $post->post_type )  ? true : false;
 
 		# the extension for the handle (pt or tax)
 		$handle_extension = $bPT ? "pt" : "tax";
 
 		# add the default value
-		$field->args['default'] = 'cptd_'. $handle_extension . '_'.$field->object_id;
+		$field->args['default'] = 'bbd_'. $handle_extension . '_'.$field->object_id;
 	}
 
 	/**
@@ -550,10 +550,10 @@ class CPTD_Meta_Boxes {
 		if( ! empty( $field->value ) ) return;
 
 		# whether this is a post type (true) or taxonomy (false)
-		$bPT = ( 'cptd_pt' == $post->post_type )  ? true : false;
+		$bPT = ( 'bbd_pt' == $post->post_type )  ? true : false;
 		$text = $bPT ? "Book Review" : "Genre";
 
-		$field->args['description'] = 'ex: <code>' . $text .  ( '_cptd_meta_plural' == $args['id'] ? 's' : '') . '</code>';
+		$field->args['description'] = 'ex: <code>' . $text .  ( '_bbd_meta_plural' == $args['id'] ? 's' : '') . '</code>';
 	
 	} # end: before_label()
 
@@ -566,7 +566,7 @@ class CPTD_Meta_Boxes {
 	 */
 	public static function before_image_size( $args, $field ) {
 
-		$keys = CPTD_Helper::get_image_sizes();
+		$keys = BBD_Helper::get_image_sizes();
 
 		foreach( $keys as $key ) {
 			$field->args['options'][ $key ] = $key;
@@ -582,7 +582,7 @@ class CPTD_Meta_Boxes {
 	 */
 	public static function before_slug( $args, $field ) {
 		global $post;
-		$field->args['default'] = CPTD_Helper::clean_str_for_url( $post->post_title );
+		$field->args['default'] = BBD_Helper::clean_str_for_url( $post->post_title );
 	}
 
 	/**
@@ -592,7 +592,7 @@ class CPTD_Meta_Boxes {
 	 * @since 	2.0.0
 	 */
 	public static function sanitize_slug( $value ) {
-		return CPTD_Helper::clean_str_for_url( $value );
+		return BBD_Helper::clean_str_for_url( $value );
 	}
 
 	/**
@@ -605,14 +605,14 @@ class CPTD_Meta_Boxes {
 	public static function before_tax_post_types( $args, $field ) {
 
 		# get all post types		
-		$post_types = CPTD::get_post_types();
+		$post_types = BBD::get_post_types();
 
 		# filter out drafts and add to options
 		foreach( $post_types as $pt ) {
 
 			if( 'publish' != $pt->post_status ) continue;
 
-			$pt = new CPTD_PT( $pt );
+			$pt = new BBD_PT( $pt );
 			$field->args['options'][ $pt->ID ] = $pt->plural;
 
 		}
@@ -620,7 +620,7 @@ class CPTD_Meta_Boxes {
 		# if no post types have been created yet
 		if( empty( $field->args['options'] ) ){
 
-			$field->args['description'] = "<p>You don't have any published post types yet.  You'll need to <a href='". admin_url('edit.php?post_type=cptd_pt') . "'>create a post type</a> before creating taxonomies.</p>";
+			$field->args['description'] = "<p>You don't have any published post types yet.  You'll need to <a href='". admin_url('edit.php?post_type=bbd_pt') . "'>create a post type</a> before creating taxonomies.</p>";
 			return;
 		
 		} # end if: no post types
@@ -637,7 +637,7 @@ class CPTD_Meta_Boxes {
  	public static function before_fields_select($args, $field) {
 
  		# get the field groups
- 		$field_groups = CPTD::get_acf_field_groups();
+ 		$field_groups = BBD::get_acf_field_groups();
 
  		# loop through ACF field groups
  		if( $field_groups ) {
@@ -696,18 +696,18 @@ class CPTD_Meta_Boxes {
  	public static function sanitize_archive_fields( $value ) {
 
  		# see if the archive fields are set
- 		if( isset( $_POST['_cptd_meta_acf_archive_fields'] ) ) {
- 			update_post_meta( $_POST['ID'], '_cptd_meta_acf_archive_fields', $_POST['_cptd_meta_acf_archive_fields'] );
+ 		if( isset( $_POST['_bbd_meta_acf_archive_fields'] ) ) {
+ 			update_post_meta( $_POST['ID'], '_bbd_meta_acf_archive_fields', $_POST['_bbd_meta_acf_archive_fields'] );
  		}
  		# if not, clear out the archive fields post meta
- 		else update_post_meta( $_POST['ID'], '_cptd_meta_acf_archive_fields', '' );
+ 		else update_post_meta( $_POST['ID'], '_bbd_meta_acf_archive_fields', '' );
 
  		# see if the single fields are set
- 		if( isset( $_POST['_cptd_meta_acf_single_fields'] ) ) {
- 			update_post_meta( $_POST['ID'], '_cptd_meta_acf_single_fields', $_POST['_cptd_meta_acf_single_fields'] );
+ 		if( isset( $_POST['_bbd_meta_acf_single_fields'] ) ) {
+ 			update_post_meta( $_POST['ID'], '_bbd_meta_acf_single_fields', $_POST['_bbd_meta_acf_single_fields'] );
  		}
  		# if not, clear out the single fields post meta
- 		else update_post_meta( $_POST['ID'], '_cptd_meta_acf_single_fields', '' );
+ 		else update_post_meta( $_POST['ID'], '_bbd_meta_acf_single_fields', '' );
 
  		return $value;
 
@@ -725,7 +725,7 @@ class CPTD_Meta_Boxes {
 		// the current post being edited
 		global $post;
 
-		$pt = new CPTD_PT( $post->ID );
+		$pt = new BBD_PT( $post->ID );
 		if( empty( $pt->handle ) ) return;
 
 		# make sure we have at least one field group
@@ -746,7 +746,7 @@ class CPTD_Meta_Boxes {
 
 		foreach( $fields as $field ) {
 			
-			$field = new CPTD_Field( $field );
+			$field = new BBD_Field( $field );
 
 			if( ! $field->is_url_field ) continue;
 
@@ -765,7 +765,7 @@ class CPTD_Meta_Boxes {
 
 	    $value = wp_parse_args( $value, $default_values );
 	    ?>
-	    <div id='cptd-url-link-texts'>
+	    <div id='bbd-url-link-texts'>
 	    <?php 
 	   	foreach( $url_fields as $field ) {
 	   	?>
@@ -780,11 +780,11 @@ class CPTD_Meta_Boxes {
 	    <?php
 		}
 	    ?>
-		</div><!-- #cptd-url-link-texts -->
+		</div><!-- #bbd-url-link-texts -->
 	    <br class="clear">
 	    <?php
 	    echo $field_type->_desc( true );
 
-	}
+	} # end: cmb2_render_url_link_texts_callback()
 
-}
+} # end class: BBD_Meta_Boxes

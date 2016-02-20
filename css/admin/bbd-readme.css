@@ -1,4 +1,18 @@
-/* cptd */
+/**
+ * The following file contains GitHub-like markdown styles that are applied to the plugins' information screen,
+ * which contains HTML that is generated from the plugin's README.md
+ *
+ * @link   https://github.com/sindresorhus/github-markdown-css/blob/gh-pages/github-markdown.css
+ *
+ * Contents:
+ *
+ *    - BBD styles
+ *    - GitHub Markdown CSS
+ */
+
+/**
+ * BBD styles
+ */
 .wrap .markdown-body {
   font-size: 1em;
 }
@@ -29,9 +43,12 @@
 	padding-bottom: 0.1em;
 }
 
-/*
-https://github.com/sindresorhus/github-markdown-css/blob/gh-pages/github-markdown.css
-*/
+/**
+ * GitHub Markdown CSS
+ *
+ * Note that we have de-activated the font styling, so that the page looks more like a typical
+ * WP backend screen
+ */
 
 /*
 @font-face {

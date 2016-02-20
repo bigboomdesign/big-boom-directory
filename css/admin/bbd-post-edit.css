@@ -37,13 +37,13 @@ div#slug-info p{
 	padding-top: 1em;
 }
 
-div.cptd-field-select{
+div.bbd-field-select{
 	border-top: solid 1px #ddd;
 	margin-top: 1em;
 	padding-top: 1em;
 }
 
-div.cptd-field-select label{
+div.bbd-field-select label{
 	display: block;
 }
 
@@ -65,10 +65,10 @@ div.cptd-field-select label{
  */
 
 /* link texts */
-.cmb2-id--cptd-meta-url-link-texts {
+.cmb2-id--bbd-meta-url-link-texts {
 	display: none;
 }
-#cptd-url-link-texts .link-text-field {
+#bbd-url-link-texts .link-text-field {
 	margin-bottom: 2em;
 }
 

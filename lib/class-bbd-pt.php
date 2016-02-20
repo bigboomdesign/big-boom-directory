@@ -2,11 +2,11 @@
 /**
  * An object for post types created by the plugin
  *
- * Extension of CPTD_Post.  Contains data necessary for registering and handling custom post types
+ * Extension of BBD_Post.  Contains data necessary for registering and handling custom post types
  *
  * @since 2.0.0
  */
-class CPTD_PT extends CPTD_Post{
+class BBD_PT extends BBD_Post{
 	
 	/**
 	 * Class parameters
@@ -185,12 +185,12 @@ class CPTD_PT extends CPTD_Post{
 	/**
 	 * Register the post type associated with this post
 	 *
-	 * The input array is filtered by `cptd_register_pt` and then passed to `register_extended_post_type()`
+	 * The input array is filtered by `bbd_register_pt` and then passed to `register_extended_post_type()`
 	 *
 	 * variable of interest:
 	 *
 	 * @type  array 	$args{
-	 *		The arguments that will be filtered by `cptd_register_pt`
+	 *		The arguments that will be filtered by `bbd_register_pt`
 	 *
 	 *   	@type string 	$post_type 	 	The post type name to register
 	 *   	@type array 	$args 			The WP $args array for register_post_type()
@@ -204,7 +204,7 @@ class CPTD_PT extends CPTD_Post{
 
 		# make sure we have the handle set
 		if( empty( $this->handle ) && empty( $this->post_title ) ) return;
-		if( empty( $this->handle ) ) $this->handle = CPTD_Helper::clean_str_for_field( $this->post_title );
+		if( empty( $this->handle ) ) $this->handle = BBD_Helper::clean_str_for_field( $this->post_title );
 		
 		$args = array(
 			'post_type' => $this->handle,
@@ -218,7 +218,7 @@ class CPTD_PT extends CPTD_Post{
 		);
 
 		if( empty( $this->slug ) ) {
-			$this->slug = CPTD_Helper::clean_str_for_url( $this->post_title );
+			$this->slug = BBD_Helper::clean_str_for_url( $this->post_title );
 		}
 		$args['names']['slug'] = $this->slug;
 
@@ -252,8 +252,8 @@ class CPTD_PT extends CPTD_Post{
 		# add featured image support for all post types if the theme does
 		if( current_theme_supports('post-thumbnails') ) $args['args']['supports'][] = 'thumbnail';
 
-		$args = apply_filters('cptd_register_pt', $args );
+		$args = apply_filters('bbd_register_pt', $args );
 		register_extended_post_type($args['post_type'], $args['args'], $args['names']);
 	} # end: register()
 
-} # end class: CPTD_PT
+} # end class: BBD_PT

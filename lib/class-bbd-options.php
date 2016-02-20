@@ -6,7 +6,7 @@
  *
  * @since 2.0.0
  */
-class CPTD_Options{
+class BBD_Options{
 
 	/**
 	 * Class parameters
@@ -56,7 +56,7 @@ class CPTD_Options{
 	 * @param 	string
 	 * @since 	2.0.0
 	 */
-	static $default_section = 'cptd_main';
+	static $default_section = 'bbd_main';
 
 	/**
 	 * Whether or not the defaults have been loaded
@@ -73,7 +73,7 @@ class CPTD_Options{
 	 * @param 	string|array 	$setting{
 	 *
 	 *		Use a string for simple fields. Use an array to pass detailed information about the
-	 *		setting.  Optional types will be auto-completed via `CPTD::get_field_array()`
+	 *		setting.  Optional types will be auto-completed via `BBD::get_field_array()`
 	 *
 	 *		@type 	string 			$label 			Required. The label for the form element	 
 	 * 		@type 	string 			$name 			Optional. The HTML name attribute. Will be auto-generated from label if empty
@@ -87,16 +87,16 @@ class CPTD_Options{
 	 * 		@type 	array 			$data 			Optional. An array of data attributes to add to the form element (see `self::data_atts()`)
 	 * }
 	 *
-	 * @param	string			$option 		Optional (Default: 'cptd_options'). By default, an HTML input element whose name is `form_field`
-	 *											will actually have a name attribute of `cptd_options[form_field]`. Pass in a string to 
+	 * @param	string			$option 		Optional (Default: 'bbd_options'). By default, an HTML input element whose name is `form_field`
+	 *											will actually have a name attribute of `bbd_options[form_field]`. Pass in a string to 
 	 *											change the default parent field name, or pass an empty string to use a regular input name without a parent
 	 *
-	 * @param 	(null|array) 	$prepopulate 	Array to use for prepopulation (default: CPTD_Options::$options)
+	 * @param 	(null|array) 	$prepopulate 	Array to use for prepopulation (default: BBD_Options::$options)
 	 * @since 	2.0.0
 	 */
-	public static function do_settings_field( $setting, $option = 'cptd_options', $prepopulate = null ){
+	public static function do_settings_field( $setting, $option = 'bbd_options', $prepopulate = null ){
 
-		# the option `cptd_options` can be replaced on the fly and will be passed to handler functions
+		# the option `bbd_options` can be replaced on the fly and will be passed to handler functions
 		$setting['option'] = $option;
 
 		# set the checked/selected status if necessary
@@ -106,9 +106,9 @@ class CPTD_Options{
 		}
 		
 		# fill out missing attributes for this option and its choices
-		$setting = CPTD_Helper::get_field_array($setting);
+		$setting = BBD_Helper::get_field_array($setting);
 
-		# the arrayed name of this setting, such as `cptd_options[my_setting]`
+		# the arrayed name of this setting, such as `bbd_options[my_setting]`
 		$setting['option_name'] = (
 			$option ? $option.'['.$setting['name'].']' : $setting['name']
 		);
@@ -185,7 +185,7 @@ class CPTD_Options{
 	/**
 	 * Display a text input element
 	 *
-	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `BBD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
 	public static function text_field($setting){
@@ -202,7 +202,7 @@ class CPTD_Options{
 	
 	/**
 	 * Display a textarea element
-	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `BBD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
 	public static function textarea_field($setting){
@@ -219,7 +219,7 @@ class CPTD_Options{
 	
 	/**
 	 * Display one or more checkboxes
-	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `BBD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
 	public static function checkbox_field( $setting ) {
@@ -250,7 +250,7 @@ class CPTD_Options{
 	
 	/**
 	 * Display a group of radio buttons
-	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `BBD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
 	public static function radio_field( $setting ) {
@@ -279,7 +279,7 @@ class CPTD_Options{
 	
 	/**
 	 * Display a <select> dropdown element
-	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `BBD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
 	public static function select_field( $setting ) {		
@@ -296,12 +296,12 @@ class CPTD_Options{
 			# if $choice is a string
 			if(is_string($choice)){
 				$label = $choice;
-				$value = CPTD_Helper::clean_str_for_field($choice);
+				$value = BBD_Helper::clean_str_for_field($choice);
 			}
 			# if $choice is an array
 			elseif(is_array($choice)){
 				$label = $choice['label'];
-				$value = isset($choice['value']) ? $choice['value'] : CPTD_Helper::clean_str_for_field($choice['label']);
+				$value = isset($choice['value']) ? $choice['value'] : BBD_Helper::clean_str_for_field($choice['label']);
 			}
 		?>
 			<option 
@@ -322,7 +322,7 @@ class CPTD_Options{
 	
 	/**
 	 * Display an image upload element that uses the WP Media browser
-	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `BBD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
 	public static function image_field($setting){
@@ -342,7 +342,7 @@ class CPTD_Options{
 			value='Choose/Upload image'
 			class=	'button button-primary open-media-button single'
 		/>
-		<div id="<?php echo $name; ?>-thumb-preview" class="cptd-thumb-preview">
+		<div id="<?php echo $name; ?>-thumb-preview" class="bbd-thumb-preview">
 			<?php if($val){ ?><img src="<?php echo $val; ?>" /><?php } ?>
 		</div>
 		<?php
@@ -356,7 +356,7 @@ class CPTD_Options{
 	 * The main benefit is that no special case needs to be added in the main switch 
 	 * statement in `self::do_settings_field()`
 	 * 
-	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `CPTD_Helper::get_field_array()`
+	 * @param 	array 	$setting 	See `do_settings_field()`. Has been filtered through `BBD_Helper::get_field_array()`
 	 * @since 	2.0.0
 	 */
 	public static function on_the_fly($setting){
@@ -425,16 +425,16 @@ class CPTD_Options{
 		self::initialize_settings();
 
 		# main option for this plugin
-		register_setting( 'cptd_options', 'cptd_options', array('CPTD_Options', 'validate_options') );
+		register_setting( 'bbd_options', 'bbd_options', array('BBD_Options', 'validate_options') );
 		# add sections
 		foreach(self::$sections as $section){
 			add_settings_section(
-				$section['name'], $section['title'], array('CPTD_Options', 'section_description'), 'cptd_settings'
+				$section['name'], $section['title'], array('BBD_Options', 'section_description'), 'bbd_settings'
 			);
 		}
 		# add fields
 		foreach(self::$settings as $setting){
-			add_settings_field($setting['name'], $setting['label'], array('CPTD_Options','do_settings_field'), 'cptd_settings', ( array_key_exists('section', $setting) ? $setting['section'] : self::$default_section), $setting);
+			add_settings_field($setting['name'], $setting['label'], array('BBD_Options','do_settings_field'), 'bbd_settings', ( array_key_exists('section', $setting) ? $setting['section'] : self::$default_section), $setting);
 		}
 
 	} # end: register_settings()
@@ -458,39 +458,39 @@ class CPTD_Options{
 		 * Image sizes for archive and single views
 		 */
 
-		$image_sizes = CPTD_Helper::get_image_sizes();
+		$image_sizes = BBD_Helper::get_image_sizes();
 
 		# archive image size option
-		CPTD_Options::$settings[] = array(
+		BBD_Options::$settings[] = array(
 			'name' => 'image_size_archive',
 			'label' => 'Image size for archive view',
 			'type' => 'select',
 			'choices' => $image_sizes,
 			'default' => 'thumbnail',
 			'description' => 'Applies to ACF fields with type `image`',
-			'section' 	=> 'cptd_post_type_defaults',
+			'section' 	=> 'bbd_post_type_defaults',
 		);
 
 		# single image size option
-		CPTD_Options::$settings[] = array(
+		BBD_Options::$settings[] = array(
 			'name' => 'image_size_single',
 			'label' => 'Image size for single view',
 			'type' => 'select',
 			'choices' => $image_sizes,
 			'default' => 'medium',
 			'description' => 'Applies to ACF fields with type `image`',
-			'section' 	=> 'cptd_post_type_defaults',			
+			'section' 	=> 'bbd_post_type_defaults',			
 		);
 
 		# image alignment
-		CPTD_Options::$settings[] = array(
+		BBD_Options::$settings[] = array(
 			'name' => 'image_alignment',
 			'label' => 'Image alignment',
 			'type' => 'select',
 			'choices' => array('None', 'Right', 'Left'),
 			'default' => 'none',
 			'description' => 'Applies to ACF fields with type `image`',
-			'section' 	=> 'cptd_post_type_defaults',
+			'section' 	=> 'bbd_post_type_defaults',
 		);
 		
 		self::load_default_settings();
@@ -507,9 +507,9 @@ class CPTD_Options{
 		# only allow defaults for checkboxes if we truly have no saved options
 		$allow_for_checkboxes = false;
 
-		if( empty( CPTD_Options::$options ) ) $allow_for_checkboxes = true;
+		if( empty( BBD_Options::$options ) ) $allow_for_checkboxes = true;
 
-		foreach( CPTD_Options::$settings as $setting ) {
+		foreach( BBD_Options::$settings as $setting ) {
 
 			$default = '';
 			if( ! empty( $setting['default'] ) ) $default = $setting['default'];
@@ -520,17 +520,17 @@ class CPTD_Options{
 				if( ! $allow_for_checkboxes ) continue;
 
 				# checkboxes have on large key in the form `setting_name`_`setting_value`
-				if( $default )  CPTD_Options::$options[ $setting['name'].'_'.$default ] = $default;
+				if( $default )  BBD_Options::$options[ $setting['name'].'_'.$default ] = $default;
 
 				continue;
 				
 			} # end: checkbox fields
 
 			# all other fields
-			if( ! isset ( CPTD_Options::$options[ $setting['name'] ] ) ) CPTD_Options::$options[ $setting['name'] ] = $default;
+			if( ! isset ( BBD_Options::$options[ $setting['name'] ] ) ) BBD_Options::$options[ $setting['name'] ] = $default;
 		}
 
-		#CPTD_Options::$options['image_size_single'] = 'medium';
+		#BBD_Options::$options['image_size_single'] = 'medium';
 	} # end: load_default_settings()
 	
 	/**
@@ -576,11 +576,11 @@ class CPTD_Options{
 	 */	
 	public static function get_option_value( $setting, $choice = '' ) {
 
-		# see if an option has been passed in (e.g. `cptd_options`)
+		# see if an option has been passed in (e.g. `bbd_options`)
 		if( $setting['option'] ) {
 
 			# if we're dealing with the default 
-			if('cptd_options' == $setting['option']){
+			if('bbd_options' == $setting['option']){
 				$option = self::$options;
 			}
 			
@@ -618,7 +618,7 @@ class CPTD_Options{
 		} // end if: $setting has an option key
 
 		# if no option is passed in, check post
-		return CPTD_Helper::get_post_field( $setting['name'] );
+		return BBD_Helper::get_post_field( $setting['name'] );
 
 	} # end: get_option_value()
 
@@ -635,29 +635,29 @@ class CPTD_Options{
 		return $setting['option'].'['.$choice['id'] . ']';
 	}
 }
-# end class: CPTD_Options
+# end class: BBD_Options
 
 /**
  * Initialize static variables
  *
  * - Settings sections for plugin options page
- * - Settings for plugin options page (these serve as defaults for new CPTD post types)
+ * - Settings for plugin options page (these serve as defaults for new BBD post types)
  */
 
 # Settings sections for plugin options page
-CPTD_Options::$sections = array(
+BBD_Options::$sections = array(
 	array(
-		'name' => 'cptd_main', 'title' => 'Basic Settings',
+		'name' => 'bbd_main', 'title' => 'Basic Settings',
 		'description' => '',
 	),
 	array(
-		'name' => 'cptd_post_type_defaults', 'title' => 'Post type defaults',
+		'name' => 'bbd_post_type_defaults', 'title' => 'Post type defaults',
 		'description' => '<p>These options serve as the default settings for new post types you create using this plugin.</p>'
 	),
 );
 
 /**
- * Settings for plugin options page (these serve as defaults for new CPTD post types)
+ * Settings for plugin options page (these serve as defaults for new BBD post types)
  * 
  * - Default post orderby
  * - Default post order
@@ -666,7 +666,7 @@ CPTD_Options::$sections = array(
  * - Auto detect social media fields
  * - Additional settings that depend on WP data are called via self::register_settings, which fires on admin_init
  */
-CPTD_Options::$settings = array(
+BBD_Options::$settings = array(
 
 	/**
 	 * Basic settings
@@ -695,7 +695,7 @@ CPTD_Options::$settings = array(
 			array( 'value' => 'rand', 'label' => 'Random' ),
 		),
 		'default' 	=> 'title',
-		'section' 	=> 'cptd_post_type_defaults',
+		'section' 	=> 'bbd_post_type_defaults',
 	),
 
 	# Meta key to order by, if 'post_orderby' = ( 'meta_value' | 'meta_value_num' )
@@ -705,7 +705,7 @@ CPTD_Options::$settings = array(
 		'type'		=> 'text',
 		'description' 	=> 'Use a field key like <code>last_name</code>. Posts with no value for the field will not appear in results.',
 		'default'		=> 'title',
-		'section' 	=> 'cptd_post_type_defaults',
+		'section' 	=> 'bbd_post_type_defaults',
 	),
 
 	# Default post order
@@ -718,7 +718,7 @@ CPTD_Options::$settings = array(
 			array( 'value' => 'DESC', 'label' => 'Descending' ),
 		),
 		'default' => 'ASC',
-		'section' 	=> 'cptd_post_type_defaults',
+		'section' 	=> 'bbd_post_type_defaults',
 	),
 
 	# Auto detect website field
@@ -729,7 +729,7 @@ CPTD_Options::$settings = array(
 		'choices' => 'Yes',
 		'default' => 'yes',
 		'description' => 'Displays "View Website" or custom link text for `web`, `website`, and `url` fields, or fields keys containing `_website` or `_url`',
-		'section' 	=> 'cptd_post_type_defaults',
+		'section' 	=> 'bbd_post_type_defaults',
 	),
 
 	# Auto detect social media fields
@@ -740,9 +740,9 @@ CPTD_Options::$settings = array(
 		'choices' => 'Yes',
 		'default' => 'yes',
 		'description' => 'Uses icons for `facebook`, `twitter`, `linkedin`, `instagram`, `pinterest`, `google_plus` fields',
-		'section' 	=> 'cptd_post_type_defaults',
+		'section' 	=> 'bbd_post_type_defaults',
 	),
 );
 
 # get saved options
-CPTD_Options::$options = ( $option = get_option('cptd_options' ) ) ? $option : array();
+BBD_Options::$options = ( $option = get_option('bbd_options' ) ) ? $option : array();

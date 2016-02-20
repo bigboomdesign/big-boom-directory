@@ -1,5 +1,5 @@
 // localized variables
-var postId = cptdData.postId
+var postId = bbdData.postId
 
 // post title input
 var $title;
@@ -40,11 +40,11 @@ jQuery( document ).ready( function( $ ) {
 	 * Post type name/handle-related elements
 	 */
 
-	$orderby = $('#_cptd_meta_post_orderby');
-	$metaKeyOrderbyContainer = $( '.cmb2-id--cptd-meta-meta-key-orderby' );
+	$orderby = $('#_bbd_meta_post_orderby');
+	$metaKeyOrderbyContainer = $( '.cmb2-id--bbd-meta-meta-key-orderby' );
 
 	// post type name/handle input
-	$handle = $('#_cptd_meta_handle');
+	$handle = $('#_bbd_meta_handle');
 
 	// the original post type name 
 	ptName = $handle.val();
@@ -105,7 +105,7 @@ jQuery( document ).ready( function( $ ) {
 	 */ 
 
 	// slug input
-	$slug = $('#_cptd_meta_slug');
+	$slug = $('#_bbd_meta_slug');
 
 	// container div for slug change dialog
 	$slugContainer = $('#slug-container');
@@ -159,11 +159,11 @@ jQuery( document ).ready( function( $ ) {
 	/**
 	 * Archive fields
 	 */
-	$archiveFieldsContainer = $('.cmb2-id--cptd-meta-pt-archive-fields');
+	$archiveFieldsContainer = $('.cmb2-id--bbd-meta-pt-archive-fields');
 
 	// onclick for archive field group checkbox
 	$archiveFieldsContainer
-		.find('input[type=checkbox].cptd_field_group_select')
+		.find('input[type=checkbox].bbd_field_group_select')
 		.on( 'click', function() {
 			fieldGroupChange( $(this), 'acf_archive', $ );
 		}
@@ -171,17 +171,17 @@ jQuery( document ).ready( function( $ ) {
 
 	// trigger any archive field group checkboxes that are already checked on page load
 	$archiveFieldsContainer
-		.find('input[type=checkbox].cptd_field_group_select:checked')
+		.find('input[type=checkbox].bbd_field_group_select:checked')
 		.each( function() { fieldGroupChange( $(this), 'acf_archive', $ ); } );
 
 	/**
 	 * Single fields
 	 */
-	$singleFieldsContainer = $('.cmb2-id--cptd-meta-pt-single-fields');
+	$singleFieldsContainer = $('.cmb2-id--bbd-meta-pt-single-fields');
 
 	// onclick for single field group checkbox
 	$singleFieldsContainer
-		.find('input[type=checkbox].cptd_field_group_select')
+		.find('input[type=checkbox].bbd_field_group_select')
 		.on( 'click', function() {
 			fieldGroupChange( $(this), 'acf_single', $ );
 		}
@@ -189,7 +189,7 @@ jQuery( document ).ready( function( $ ) {
 
 	// trigger any single field group checkboxes that are already checked on page load
 	$singleFieldsContainer
-		.find('input[type=checkbox].cptd_field_group_select:checked')
+		.find('input[type=checkbox].bbd_field_group_select:checked')
 		.each( function() { fieldGroupChange( $(this), 'acf_single', $ ); } );
 
 	/**
@@ -200,7 +200,7 @@ jQuery( document ).ready( function( $ ) {
 	$('#edit-link-texts a#init').on( 'click', function() {
 
 		// toggle the link texts metabox area
-		var $linkTextsRow = $('.cmb2-id--cptd-meta-url-link-texts');
+		var $linkTextsRow = $('.cmb2-id--bbd-meta-url-link-texts');
 		var display = ( $linkTextsRow.css('display') == 'none' ) ? 'block' : 'none';
 		$linkTextsRow.css( {'display': display } );
 	});
@@ -268,13 +268,13 @@ function triggerHandleInfo( $ ){
 		url: ajaxurl,
 		method: 'POST',
 		data: {
-			action: 'cptd_handle_from_title',
+			action: 'bbd_handle_from_title',
 			title: title
 		},
 		success: function( data ) {
 
 			// only autopopulate based on post title if the handle hasn't been edited yet by the user
-			if( '' == $handle.val() || $handle.val().indexOf( 'cptd_pt_' ) > -1 || $handle.val().indexOf( 'cptd_tax_' ) > -1) {
+			if( '' == $handle.val() || $handle.val().indexOf( 'bbd_pt_' ) > -1 || $handle.val().indexOf( 'bbd_tax_' ) > -1) {
 				$handle.val( data );
 			}
 			$handle.focus();
@@ -330,7 +330,7 @@ function triggerSlugInfo( $ ){
 		url: ajaxurl,
 		method: 'POST',
 		data: {
-			action: 'cptd_slug_from_title',
+			action: 'bbd_slug_from_title',
 			title: title,
 		},
 		success: function(data){
@@ -373,8 +373,8 @@ function hideSlugInfo( $ ) {
 
  	// the target for where our output is going to go
 	var target = ( 'acf_archive' == type ) ? 
-		$('#_cptd_meta_pt_archive_fields-field-results') : 
-		( 'acf_single' == type ? $('#_cptd_meta_pt_single_fields-field-results') : '');
+		$('#_bbd_meta_pt_archive_fields-field-results') : 
+		( 'acf_single' == type ? $('#_bbd_meta_pt_single_fields-field-results') : '');
 
  	// if we are turning the checkbox off
  	if( false == $checkbox.prop('checked') ) {
@@ -391,7 +391,7 @@ function hideSlugInfo( $ ) {
 	
 	// uncheck all other checkboxes in this meta box
 	$container
-	.find('input[type=checkbox].cptd_field_group_select')
+	.find('input[type=checkbox].bbd_field_group_select')
 	.each( function() {
 		if( $checkbox.attr('id') != $(this).attr('id') ) $(this).prop('checked', false);
 	});
@@ -401,7 +401,7 @@ function hideSlugInfo( $ ) {
 		url: ajaxurl,
 		method: 'POST',
 		data: {
-			action: 'cptd_select_field_group',
+			action: 'bbd_select_field_group',
 			post_id: postId,
 			field_group_post_id: $checkbox.val(),
 			view_type: type
