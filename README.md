@@ -1,5 +1,5 @@
 
-# Big Directory
+# Big Boom Directory
 
 Directory management plugin for WordPress, based on Custom Post Types, Taxonomies, and Fields
 
