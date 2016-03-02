@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Big Boom Directory
  * Description: Directory management system based on Custom Post Types, Taxonomies, and Fields
- * Version: 2.0.0.33.0
+ * Version: 2.0.0.33.1
  * Author: Big Boom Design
  * Author URI: https://bigboomdesign.com
  * Text Domain: bbd
@@ -54,8 +54,8 @@ if( is_admin() ) {
 	require_once bbd_dir( '/lib/admin/class-bbd-admin.php' );
 
 	# CMB2, which handles meta boxes for BBD post type post edit screen
-	require_once bbd_dir( '/lib/admin/class-bbd-meta-boxes.php' );
 	require_once bbd_dir( '/assets/cmb2/init.php' );
+	require_once bbd_dir( '/lib/admin/class-bbd-meta-boxes.php' );
 	
 	BBD_Admin::init();
 	BBD_Ajax::add_actions();

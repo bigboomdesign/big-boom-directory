@@ -36,7 +36,7 @@ class BBD_Admin{
 		add_filter( 'page_row_actions', array( 'BBD_Admin', 'post_row_actions' ), 10, 2 );
 
 		# CMB2 meta boxes
-		add_action( 'cmb2_admin_init', array( 'BBD_Meta_Boxes', 'cmb2_meta_boxes' ) );
+		add_filter( 'cmb2_meta_boxes', array( 'BBD_Meta_Boxes', 'cmb2_meta_boxes' ) );
 		add_filter( 'cmb2_render_url_link_texts', array( 'BBD_Meta_Boxes', 'cmb2_render_url_link_texts_callback' ), 10, 5 );
 		
 		# fix for the URL that cmb2 defines
@@ -134,13 +134,51 @@ class BBD_Admin{
 			'post' == $screen->base
 			&& ( $screen->post_type == 'bbd_pt' || $screen->post_type == 'bbd_tax')
 		){
+			wp_enqueue_style( 'bbd-admin' );
 			wp_enqueue_style('bbd-post-edit-css', bbd_url('/css/admin/bbd-post-edit.css'));
 			
 			wp_enqueue_script('bbd-post-edit-js', bbd_url('/js/admin/bbd-post-edit.js'), array('jquery'));
 
-			# pass the post ID to the post-edit-js
-			$post_id = isset( $_GET['post'] ) ? $_GET['post'] : 0;
-			wp_localize_script( 'bbd-post-edit-js', 'bbdData', array( 'postId' =>  $post_id ) );
+			/**
+			 * Pass data to the post-edit-js
+			 */
+
+			# post ID 
+			$post_id = isset( $_GET['post'] ) ? intval( $_GET['post'] ) : 0;
+
+			# reserved post types and taxonomy names are any that are already registered, except the 
+			# current post type or taxonomy being edited
+			$reserved_handles = array();
+
+			# the current post type or taxonomy being edited
+			$current_pt = new BBD_PT( $post_id );
+
+			# loop through existing post types and taxonomies, and load the reserved handles array
+			$reserved_candidates = array_merge( 
+				get_post_types( '', 'names' ),
+				get_taxonomies( '', 'names' )
+			);
+			$reserved_candidates[] = 'type';
+
+			foreach( $reserved_candidates as $handle_name ) {
+
+
+				# don't put the current PT name in the restricted list
+				if( 
+					! empty( $current_pt->handle ) &&
+					$current_pt->handle == $handle_name
+				) {
+					continue;
+				}
+
+				$reserved_handles[] = $handle_name;
+
+			} # end foreach: post types
+
+			wp_localize_script( 'bbd-post-edit-js', 'bbdData', array( 
+				'post_id' =>  $post_id,
+				'reserved_handles' => $reserved_handles,
+			) );
 		}
 			
 		# Information screen

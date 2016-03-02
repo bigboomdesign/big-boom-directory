@@ -1,5 +1,5 @@
 // localized variables
-var postId = bbdData.postId
+var postId = bbdData.post_id;
 
 // post title input
 var $title;
@@ -24,6 +24,9 @@ var ptName;
 
 // div that holds the input
 var $handleContainer;
+
+// the reserved handle names that we won't allow
+var reserved_handles = bbdData.reserved_handles;
 
 // the meta box that holds the archive fields
 var $archiveFieldsContainer;
@@ -78,24 +81,25 @@ jQuery( document ).ready( function( $ ) {
 	$('a#change-name').on('click', function(){
 
 		// whether the 'Change Name' dialog box is activated
-		var bOn = ($(this).data('active') == 'true') 
-			|| ( 'undefined' == typeof $(this).data('active') );
+		var bOn = ( $( this ).data('active') == 'true' ) 
+			|| ( 'undefined' == typeof $( this ).data('active') );
 		
 		// if dialog box has been activated
-		if(bOn){
+		if( bOn ) {
 			triggerHandleInfo( $ );
 		}
 
 		// if dialog box has been deactivated
 		else{
-			hideHandleInfo( $ );
+			hideHandleInfo( $, this );
 		}
 	});
 
 	/* onclick for Cancel link for post type handle */
 	$( 'div#cancel-name-change a' ).on( 'click', function() {
+
 		$handle.val( ptName );
-		hideHandleInfo($);
+		hideHandleInfo( $, this );
 
 	});
 
@@ -287,13 +291,27 @@ function triggerHandleInfo( $ ){
 
 /**
  * Hide the handle change dialog box
+ *
+ * @param 	jQuery 	$		The main jQuery object
+ * @param 	object	elem	The link being clicked
  */
-function hideHandleInfo( $ ) {
+function hideHandleInfo( $, elem ) {
 
 	// reset to previous post type name if handle is empty
 	if( '' == $handle.val() ) {
 		$handle.val( ptName );
 	}
+	
+	// don't allow predefined names
+	if( 'change-name' == $( elem ).attr('id') && reserved_handles.indexOf( $handle.val() ) >= 0 ) {
+
+		if( $( '#handle-info' ).find( '.bbd-fail' ).length == 0 ) {
+			$('#handle-info').prepend( '<p class="bbd-fail">Sorry, but that name already exists or is not allowed.</p>' );
+		}
+		return;
+	}
+
+
 	$handle.prop('readonly', true);
 	$changeName.html('Change');
 	$changeName.data('active', 'true');

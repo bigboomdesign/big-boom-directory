@@ -17,7 +17,6 @@ form > h3{
 }
 .form-table{ 
 	display: block;
-	border-bottom: solid 1px #777; 
 	padding-bottom: 1em; 
 }
 .form-table.indent th{ padding-left: 3em;  }
