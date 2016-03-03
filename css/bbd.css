@@ -1,6 +1,9 @@
 /**
  * Fields 
  */
+.bbd-fields-wrap {
+	margin-bottom: 1em;
+}
 .bbd-field label{ font-weight: bold; }
 .bbd-field.wysiwyg,
 .bbd-field.textarea{ margin: 1em 0; }
@@ -51,6 +54,7 @@ a.bbd-gallery-thumb:hover{
 }
 a.bbd-gallery-thumb img{
 	margin: 0;
+	display: block;
 }
 
 /**

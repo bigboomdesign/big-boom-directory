@@ -15,12 +15,27 @@ class BBD_View {
 	var $view_type;
 
 	/**
-	 * The current post type being viewed on the front end
+	 * The current post type being viewed on the front end (may not exist for views like search results)
 	 *
 	 * @param 	BBD_PT
 	 * @since 	2.0.0
 	 */
 	var $post_type;
+
+	/**
+	 * Keeps track of whether fields have been appended to the current post excerpt or content in the loop
+	 *
+	 * Resets to false on the_post, and then to true after $this->get_acf_html().  For potential future 
+	 * functions like a generalized $this->get_fields_html(), we need to make sure to reset the value to true
+	 * at the end of the function.
+	 *
+	 * We need this in order to prevent field sets showing up multiple times for themes that might use
+	 * both the_excerpt and the_content in the same view.
+	 *
+	 * @param 	bool
+	 * @since 	2.0.0
+	 */
+	var $did_post_fields = false;
 
 	/**
 	 * The post ID's for this view
@@ -108,6 +123,12 @@ class BBD_View {
 
 	/**
 	 * Object methods
+	 *
+	 * 		- __construct()
+	 *
+	 * 		- load_post_meta()
+	 * 		- get_acf_html()
+	 * 		- reset_did_post_fields()
 	 */
 
 	/**
@@ -259,7 +280,7 @@ class BBD_View {
 				do_action( 'bbd_pre_render_field_' . $field->key, $field );
 
 				# print the field HTML
-				$field->get_html( true );
+				$field->get_html();
 
 				# hookable post-render action specific to this field name
 				do_action( 'bbd_post_render_field_' . $field->key, $field );
@@ -273,8 +294,21 @@ class BBD_View {
 		$html = ob_get_contents();
 		ob_end_clean();
 
+		$this->did_post_fields = true;
+
 		return $html;
 
 	} # end get_acf_html()	
+
+	/**
+	 * Reset the 'did post fields' status for the current post in the loop
+	 *
+	 * Hooks on the_post
+	 *
+	 * @since 	2.0.0
+	 */
+	public function reset_did_post_fields() {
+		$this->did_post_fields = false;
+	}
 
 } # end class: BBD_View

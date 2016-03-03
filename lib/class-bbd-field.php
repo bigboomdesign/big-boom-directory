@@ -151,13 +151,12 @@ class BBD_Field {
 
 
 	/**
-	 * Display or get the HTML for this field (if $this->value is set)
+	 * Display the HTML for this field (if $this->value is set)
 	 *
-	 * @param 	bool			$echo 		(Default: false) Prints the field HTML if set to true
 	 * @param 	(int|string) 	$post_id 	The post ID we are displaying the field for (default: global $post)
 	 * @since 	2.0.0
 	 */
-	public function get_html( $echo = false, $post_id = '' ) {
+	public function get_html( $post_id = '' ) {
 
 		if( empty( $post_id ) ) {
 			global $post;
@@ -193,9 +192,6 @@ class BBD_Field {
 			'after_tag' 	=> 'div',
 		);
 		$field_wrap = apply_filters( 'bbd_field_wrap_' . $this->key, $field_wrap, $this );
-
-		# start the output buffer
-		ob_start();
 
 		/**
 		 * Special cases
@@ -252,13 +248,7 @@ class BBD_Field {
 					<?php
 				}
 
-				$html = ob_get_contents();
-				ob_end_clean();
-				if( $echo ) {
-					echo $html;
-					return;
-				}
-				return $html;
+				return;
 				
 			} # end if: field key is a social media field
 		
@@ -291,14 +281,8 @@ class BBD_Field {
 						</a>
 				</div>
 			<?php
-				$html = ob_get_contents();
-				ob_end_clean();
 
-				if( $echo ) {
-					echo $html;
-					return;
-				}
-				return $html;
+			return;
 			
 			} # end if: website field key
 
@@ -389,13 +373,8 @@ class BBD_Field {
 			} # end if: image source is set
 
 			# go to next field after showing the image
-			$html = ob_get_contents();
-			ob_end_clean();
-			if( $echo ) {
-				echo $html;
-				return;
-			}
-			return $html;
+			return;
+
 		} # endif: image field
 
 		/**
@@ -430,13 +409,7 @@ class BBD_Field {
 			# unserialize and make sure we have images
 			$image_ids = unserialize( $value );
 			if( ! $image_ids  ) {
-				$html = ob_get_contents();
-				ob_end_clean();
-				if( $echo ) {
-					echo $html;
-					return;
-				}
-				return $html;
+				return;
 			}
 
 			# query the DB for all attachment metadata (so we don't have to call a WP function multiple times
@@ -450,13 +423,7 @@ class BBD_Field {
 			$image_results = $wpdb->get_results( $image_query );
 
 			if( ! $image_results ) {
-				$html = ob_get_contents();
-				ob_end_clean();
-				if( $echo ) {
-					echo $html;
-					return;
-				}
-				return $html;
+				return;
 			}
 
 			# get the uploads directory URL
@@ -494,13 +461,8 @@ class BBD_Field {
 			?>
 			</div>
 		<?php
-			$html = ob_get_contents();
-			ob_end_clean();
-			if( $echo ) {
-				echo $html;
-				return;
-			}
-			return $html;
+
+			return;
 		} # end if: gallery field
 
 		/**
@@ -532,14 +494,6 @@ class BBD_Field {
 			</<?php echo $field_wrap['after_tag']; ?>>
 		<?php
 		} # end if: field wrap has a tag set
-
-		$html = ob_get_contents();
-		ob_end_clean();
-		if( $echo ) {
-			echo $html;
-			return;
-		}
-		return $html;
 
 	} # end: get_html()
 

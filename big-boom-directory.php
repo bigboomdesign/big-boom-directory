@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Big Boom Directory
  * Description: Directory management system based on Custom Post Types, Taxonomies, and Fields
- * Version: 2.0.0.33.1
+ * Version: 2.0.0.33.2
  * Author: Big Boom Design
  * Author URI: https://bigboomdesign.com
  * Text Domain: bbd
@@ -128,7 +128,7 @@ function is_bbd_view() {
 function bbd_field( $post_id, $field ) {
 
 	if( is_string( $field ) ) $field = new BBD_Field( $field );
-	$field->get_html( true, $post_id );
+	$field->get_html( $post_id );
 
 } # end: bbd_field()
 
@@ -150,7 +150,14 @@ function bbd_field( $post_id, $field ) {
 function bbd_get_field_html( $post_id, $field ) {
 
 	if( is_string( $field ) ) $field = new BBD_Field( $field );
-	return $field->get_html( false, $post_id );
+
+	ob_start();
+	$field->get_html( $post_id );
+
+	$html = ob_get_contents();
+	ob_end_clean();
+
+	return $html;
 
 } # end: bbd_get_field_html()
 
