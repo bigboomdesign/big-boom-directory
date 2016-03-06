@@ -381,7 +381,7 @@ class BBD_Options{
 		
 		$args = array(
 			"selected" => self::get_option_value( $setting ),
-			"name" => $name,
+			"name" => 'bbd_options[' . $name . ']',
 		);
 		
 		if( isset( $show_option_none ) ) $args['show_option_none'] = $show_option_none;
@@ -577,7 +577,7 @@ class BBD_Options{
 	public static function get_option_value( $setting, $choice = '' ) {
 
 		# see if an option has been passed in (e.g. `bbd_options`)
-		if( $setting['option'] ) {
+		if( ! empty( $setting['option'] ) ) {
 
 			# if we're dealing with the default 
 			if('bbd_options' == $setting['option']){
