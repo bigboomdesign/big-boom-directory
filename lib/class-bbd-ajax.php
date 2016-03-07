@@ -22,6 +22,7 @@ class BBD_Ajax{
 		/* post edit */
 		'bbd_handle_from_title', 
 		'bbd_slug_from_title',
+		'bbd_save_slug',
 		'bbd_select_field_group',
 	);
 
@@ -40,6 +41,7 @@ class BBD_Ajax{
 	 * Post edit AJAX callbacks
 	 * 		- bbd_handle_from_title()
 	 * 		- bbd_slug_from_title()
+	 * 		- bbd_save_slug()
 	 * 		- bbd_select_field_group()
 	 */
 
@@ -75,6 +77,47 @@ class BBD_Ajax{
 		echo BBD_Helper::clean_str_for_url( $title );
 		die();
 	} # end: bbd_slug_from_title()
+
+	/**
+	 * Callback for validating a post type or taxonomy slug when saving on the post edit screen
+	 *
+	 * @param 	string 	$_POST['slug'] 		The slug being saved
+	 */
+	public static function bbd_save_slug() {
+
+		# Make sure the slug is non-empty.  If an empty slug is saved, we default to slug formed by page title
+		if( empty( $_POST['slug'] ) ) {
+			echo 1;
+			die();
+		}
+
+		# get/sanitize the slug
+		$slug = sanitize_text_field( $_POST['slug'] );
+
+		# check if a or post or a page already has this slug
+		if( $page = get_page_by_path( $slug, 'object', 'page' ) ) {
+			
+			echo '<p class="bbd-fail">There is already a page (' . $page->post_title . ') with this slug</p>';
+			die();
+		}
+
+		# loop through post types and taxonomies and make sure the slug doesn't match
+		foreach( array_merge( BBD::$post_type_ids, BBD::$taxonomy_ids ) as $id ) {
+
+			$pt = new BBD_PT( $id );
+			if( empty( $pt->slug ) ) continue;
+			if( $slug == $pt->slug ) {
+				echo '<p class="bbd-fail">There is another post type or taxonomy (' . $pt->plural . ') with this slug.</p>';
+				die();
+			}
+		}
+
+		# if we didn't encounter any reserved names, send back 1 for our JS 
+		echo 1;
+
+		die();
+
+	} # end: bbd_save_slug()
 
 	/**
 	 * Print a checkbox group of fields for the selected field group

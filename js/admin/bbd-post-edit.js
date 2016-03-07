@@ -28,6 +28,9 @@ var $handleContainer;
 // the reserved handle names that we won't allow
 var reserved_handles = bbdData.reserved_handles;
 
+// the original slug for this page load
+var slug = '';
+
 // the meta box that holds the archive fields
 var $archiveFieldsContainer;
 
@@ -108,6 +111,8 @@ jQuery( document ).ready( function( $ ) {
 	 * Slug-related elements
 	 */ 
 
+	slug = $( '#_bbd_meta_slug' ).val();
+
 	// slug input
 	$slug = $('#_bbd_meta_slug');
 
@@ -128,29 +133,25 @@ jQuery( document ).ready( function( $ ) {
 	/* onclick for Change/Save link for post type handle */
 	$('a#change-slug').on('click', function(){
 
-		// get the current input value
-		$ptSlug = $slug.val();
-
 		// whether the 'Change Name' dialog box is activated
 		var bOn = ($(this).data('active') == 'true') 
 			|| ( 'undefined' == typeof $(this).data('active') );
 		
 		// if dialog box has been activated
-		if(bOn){
+		if( bOn ) {
 			triggerSlugInfo( $ );
 		}
 
 		// if dialog box has been deactivated
 		else{
-			hideSlugInfo( $ );
+			saveSlugInfo( $, this );
 		}
 	});
 	
 	/* onclick for Cancel link for post type handle */
 	$( 'div#cancel-slug-change a' ).on( 'click', function() {
-		$slug.val( $ptSlug );
-		hideSlugInfo($);
-
+		$slug.val( slug );
+		hideSlugInfo( $ );
 	});
 
 	/**
@@ -214,10 +215,10 @@ jQuery( document ).ready( function( $ ) {
 /**
  * Subroutines
  *
- * - Orderby change routines
- * - Name change routines
- * - Slug change routines
- * - Field group change routines
+ * 		- Orderby change routines
+ * 		- Name change routines
+ * 		- Slug change routines
+ * 		- Field group change routines
  */
 
 /**
@@ -267,7 +268,7 @@ function triggerHandleInfo( $ ){
 	$cancelNameChange.css('display', 'inline-block');
 
 
-	// for the handle
+	// autopopulate the post type or taxonomy handle
 	$.ajax({
 		url: ajaxurl,
 		method: 'POST',
@@ -302,7 +303,7 @@ function hideHandleInfo( $, elem ) {
 		$handle.val( ptName );
 	}
 	
-	// don't allow predefined names
+	// don't allow predefined post type or taxonomy names
 	if( 'change-name' == $( elem ).attr('id') && reserved_handles.indexOf( $handle.val() ) >= 0 ) {
 
 		if( $( '#handle-info' ).find( '.bbd-fail' ).length == 0 ) {
@@ -311,13 +312,15 @@ function hideHandleInfo( $, elem ) {
 		return;
 	}
 
-
 	$handle.prop('readonly', true);
 	$changeName.html('Change');
 	$changeName.data('active', 'true');
 	$handleContainer.removeClass('highlight');
 	$handleContainer.find('#handle-info').css('display', 'none');
 	$cancelNameChange.css('display', 'none');
+
+	$( '#handle-info' ).find('.bbd-fail').remove();
+
 } // end: hideHandleInfo()
 
 
@@ -325,6 +328,7 @@ function hideHandleInfo( $, elem ) {
  * Slug change subroutines
  * 
  * - triggerSlugInfo()
+ * - saveSlugInfo()
  * - hideSlugInfo()
  */
 
@@ -352,26 +356,67 @@ function triggerSlugInfo( $ ){
 			title: title,
 		},
 		success: function(data){
+
 			if( '' == $slug.val() ) $slug.val(data);
 			$slug.focus();
 			$slugContainer.addClass('highlight');
 			$slugContainer.find('#slug-info').css('display', 'block');
+
 		} // end: success
+
 	}); // end: ajax
 
 } // end: triggerSlugInfo()
 
 /**
- * Hide the slug change dialog box
+ * Save the slug (validating first), and close the dialog box 
+ */
+function saveSlugInfo( $, elem ) {
+
+	$.ajax( {
+
+		url: ajaxurl,
+		method: 'POST',
+		data: {
+			action: 'bbd_save_slug',
+			'slug': $slug.val()
+		},
+
+		success: function( data ) {
+
+			// if we got back a 1, hide the dialogue area
+			if( '1' == data ) {
+				hideSlugInfo( $ );
+			}
+
+			// if we did not get back a 1, display the response message
+			else {
+				$('#slug-info').find( '.bbd-fail' ).remove();
+				$('#slug-info').prepend( data );
+				$slug.val( slug );
+			}
+
+		} // end: success()
+	
+	}); // end: ajax()
+
+} // end: saveSlugInfo()
+
+/**
+ * Hide the slug information when saved or cancelled
  */
 function hideSlugInfo( $ ) {
+	
 	$slug.prop('readonly', true);
 	$changeSlug.html('Change');
 	$changeSlug.data('active', 'true');
 	$slugContainer.removeClass('highlight');
 	$slugContainer.find('#slug-info').css('display', 'none');
 	$cancelSlugChange.css('display', 'none');
-} // end: hideSlugInfo()
+
+	$( '#slug-info' ).find('.bbd-fail').remove();
+
+}
 
 
 /**
