@@ -441,12 +441,29 @@ class BBD_Field {
 					
 					$image_data = unserialize( $row->meta_value );
 
+					# make sure we have a thumbnail size
 					if( ! isset( $image_data['sizes']['thumbnail']['file'] ) ) continue;
+
+					/**
+					 * Check whether we need a date path within the uploads folder.
+					 *
+					 * We can't rely on the current value of 'uploads_use_yearmonth_folders', since this
+					 * may have changed since the images were uploaded.
+					 *
+					 * If the main image file starts with a date folder path, then we need to assume 
+					 * that the thumbnail is in the same folder.  Unfortunately, we don't have data about this 
+					 * tied to the thumbnail itself, so we have to pull the date path from the main image
+					 */
+					$date_string = '';
+					$date_match = array();
+					if( preg_match( "/\d\d\d\d\/\d\d\//", $image_data['file'], $date_match ) ) {
+						$date_string = $date_match[0];
+					}
 
 					$thumbnail_file = $image_data['sizes']['thumbnail']['file'];
 					$full_size_file = $image_data['file'];
 
-					$thumbnail_url = $uploads_url . '/' . $thumbnail_file;
+					$thumbnail_url = $uploads_url . '/' . $date_string . $thumbnail_file;
 					$full_size_url = $uploads_url . '/' . $full_size_file;
 				?>
 					<a 
