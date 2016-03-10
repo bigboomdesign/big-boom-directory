@@ -160,15 +160,33 @@ Below, we're appending an additional field called `phone` below the default fiel
 
 ---
 
+### ````bbd_field_value````
+
+Use this to filter values as they are retrieved by the plugin.  Note that this filter applies to all fields, while the `bbd_field_value_{$field_name}` filter can be used for more specific targeting.  Sequentially, this filter 
+always fires before `bbd_field_value_{$field_name}`.
+
+#### Parameters
+
+    (string)    $value     The field value before filtering
+    (BBD_Field) $field     The field object whose value we are getting
+    (int)       $post_id   The post ID we are getting the value for
+
+#### Return
+
+    (string) You must return the altered field value
+
+---
+
 ### ````bbd_field_value_{$field_name}````
 
 Use this to filter a field value before it is displayed on the front end. Use your own field name (meta key) in place of `{$field_name}`.  Note that the filter fires whether or not the field has a value, as long as the field is selected for this view.
 
 #### Parameters
 
-    (string) $value: The field value to be displayed
+    (string)    $value:     The field value to be displayed
+    (BBD_Field) $field:     The field object that is being displayed
+    (int)       $post_id    The post ID we are getting the value for
 
-    (BBD_Field) $field: The field object that is being displayed
 
 
 #### Return
@@ -499,6 +517,13 @@ Here are some helper functions that you can call within your child theme
 ### ````is_bbd_view()````
 
 Returns `true` if we are viewing a BBD object (single post, post archive, or term archive) and `false` otherwise.
+
+---
+
+### ````bbd_get_field_value````
+
+Returns a field value, applying plugins filters and searching for ACF field types.  The function inputs can be either a single string (like [`get_field`](http://www.advancedcustomfields.com/resources/get_field)) or a post ID and string (like [`get_post_meta`](https://developer.wordpress.org/reference/functions/get_post_meta)).
+
 
 ---
 

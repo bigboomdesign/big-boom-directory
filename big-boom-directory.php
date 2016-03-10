@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Big Boom Directory
  * Description: Directory management system based on Custom Post Types, Taxonomies, and Fields
- * Version: 2.0.0.33.6
+ * Version: 2.0.0.33.7
  * Author: Big Boom Design
  * Author URI: https://bigboomdesign.com
  * License:     GPLv2 or later
@@ -83,6 +83,7 @@ else{
  * Helper Functions
  * 
  * - is_bbd_view()
+ * - bbd_get_field_value()
  * - bbd_field()
  * - bbd_get_field_html()
  *
@@ -114,6 +115,76 @@ function is_bbd_view() {
 } # end: is_bbd_view()
 
 /**
+ * Get the value of a field.  Accepted inputs:
+ *
+ * 		- A single string as a field key while in the loop, similar to get_field()
+ *		- A post ID and a field key, similar to get_post_meta()
+ *
+ * @param 	(string | int) 		$__1 	See accepted inputs above
+ * @param 	(null | string)		$__2	See accepted inputs above
+ *
+ * @since 	2.0.0
+ */
+function bbd_get_field_value( $__1, $__2 = '' ) {
+
+	# the field object
+	$field = '';
+
+	# the value we'll return
+	$value = '';
+
+	/**
+	 * If we're calling the function using a single string while in the loop, we'll assume we need to get the value
+	 * from the database
+	 */
+	if( in_the_loop() && is_string( $__1 ) ) {
+
+		global $post;
+
+		# make sure post is valid
+		if( empty( $post->ID ) ) return '';
+		$post_id = $post->ID;
+
+		$field = new BBD_Field( $__1 );
+
+		# if ACF is active, attempt to get the ACF field and process the type
+		if( class_exists( 'acf' ) ) {
+
+			$field->load_acf_data();
+			if( ! $field->is_acf() ) $field->get_acf_by_key();
+		}
+
+		return $field->get_value( $post_id );
+
+	} # end if: in the loop and input is a single string
+
+	/**
+	 * If we're given an ID and field key, similar to get_post_meta
+	 */
+	elseif( intval( $__1 ) && is_string( $__2 ) ) {
+
+		# get the ID
+		$post_id = intval( $__1 );
+
+		# get the field object
+		$field = new BBD_Field( $__2 );
+
+		# if ACF is active, attempt to get the ACF field and process the type
+		if( class_exists( 'acf' ) ) {
+
+			$field->load_acf_data();
+			if( ! $field->is_acf() ) $field->get_acf_by_key();
+		}
+
+		return $field->get_value( $post_id );
+	
+	} # end if: input is an ID and field key like get_post_meta
+
+	return $value;
+
+} # end: bbd_get_field_value()
+
+/**
  * Render HTML for a single field for a single post. 
  * 
  * Filters through the following:
@@ -139,6 +210,7 @@ function bbd_field( $post_id, $field ) {
  *
  * Filters through the following:
  *
+ * 	- bbd_field_value
  * 	- bbd_field_value_{$field_key}
  * 	- bbd_field_label_{$field_key}
  * 	- bbd_field_wrap_{$field_key}

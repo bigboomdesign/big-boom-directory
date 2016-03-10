@@ -31,6 +31,14 @@ class BBD_Field {
 	var $type = '';
 
 	/**
+	 * The value of this field, if any
+	 *
+	 * @param 	mixed
+	 * @since 	2.0.0
+	 */
+	var $value = '';
+
+	/**
 	 * Whether this is an ACF field
 	 *
 	 * @param 	(bool|null)
@@ -149,6 +157,129 @@ class BBD_Field {
 
 	} # end: __construct()
 
+	/**
+	 * Get the value of this field, in end-usable format
+	 *
+	 * For example, if we have an ACF field that has type 'image', we'll return the URL no matter what 
+	 * format option is selected for the field.
+	 *
+	 * @param 	(int|string) 	$post_id 	The post ID we are displaying the field for (default: global $post)
+	 * @since 	2.0.0
+	 */
+	function get_value( $post_id = 0 ) {
+
+		$value = '';
+
+		global $bbd_view;
+		
+		# make sure we have a post ID
+		if( ! $post_id )  {
+			global $post;
+			$post_id = $post->ID;
+		}
+		if( empty( $post_id ) ) return '';
+
+		# check if the value is set within the view already
+		if( isset( $bbd_view->post_meta[ $post_id ][ $this->key ] ) ) {
+
+			$value = $bbd_view->post_meta[ $post_id ][ $this->key ];
+		}
+
+		# if not, get the value from the DB
+		else $value = get_post_meta( $post_id, $this->key, true );
+
+		# if we don't have a value, we're going to offer up some hooks and punt
+		if( empty( $value ) ) {
+
+			# apply filters to the value so users can edit it
+			$value = apply_filters( 'bbd_field_value', $value, $this, $post_id );
+			$value = apply_filters( 'bbd_field_value_' . $this->key, $value, $this, $post_id );
+			return $value;
+		}
+
+		/**
+		 * Special field types
+		 *
+		 * 		- Image
+		 * 		- Date Picker
+		 */
+
+		if( 'image' == $this->type ) {
+			
+			$src = '';
+
+			# get the appropriate size, falling back on thumbnail for archive and medium for single
+			$size = ( isset( $bbd_view->image_size ) ? 
+				$bbd_view->image_size :
+				( 'single' == $bbd_view->view_type  ? 
+					'thumbnail' :
+					'medium'
+				)
+			);
+				
+
+			# ACF gives the option of multiple save formats for images (object/url/id)
+			if( $this->is_acf ) {
+
+				switch( $this->acf_field['save_format'] ){
+
+					case 'object':
+					case 'url':
+						# if set to return an object, we'll have an array as the value
+						# otherwise we'll have the URL string
+						$src = is_array( $value ) ? $value['sizes'][ $size ] : '';
+					break;
+
+					case 'id';
+						$src = wp_get_attachment_image_src( $value, $size);
+						if( $src ) $src = $src[0];
+					break;
+				}
+
+				# If we still don't have a source try the ID again in case object/url is ignored 
+				# due to not using get_field
+				if( ! $src && intval( $value ) > 0  ) {
+					if( $src = wp_get_attachment_image_src( $value, $size) ) $src = $src[0];
+				}
+
+			} # end if: ACF field
+
+			$value = $src;
+
+		} # end if: image field
+
+		/**
+		 * Date picker field
+		 */
+		if( 'date_picker' == $this->type && $this->is_acf ) {
+
+			# the format saved in ACF
+			$format_in = $this->acf_field['date_format'];
+
+			# conversion from JS to PHP
+			$format_convert = array(
+				'yymmdd' => 'Ymd',
+				'dd/mm/yy' => 'd/m/Y',
+				'mm/dd/yy' => 'm/d/Y',
+				'yy_mm_dd' => 'Y_m_d'
+
+			);
+			# create the PHP date/time object
+			$date = DateTime::createFromFormat($format_convert[ $format_in ], $value );
+
+			# generate the value based on the ACF display type
+			$value = $date->format( $format_convert[ $this->acf_field['display_format'] ] );
+		
+		} # end: date picker field
+
+		# apply filters to the value so users can edit it
+		$value = apply_filters( 'bbd_field_value', $value, $this, $post_id );
+		$value = apply_filters( 'bbd_field_value_' . $this->key, $value, $this, $post_id );
+
+		return $value;
+	
+	} # end: get_value()
+
 
 	/**
 	 * Display the HTML for this field (if $this->value is set)
@@ -156,25 +287,14 @@ class BBD_Field {
 	 * @param 	(int|string) 	$post_id 	The post ID we are displaying the field for (default: global $post)
 	 * @since 	2.0.0
 	 */
-	public function get_html( $post_id = '' ) {
-
-		if( empty( $post_id ) ) {
-			global $post;
-			$post_id = $post->ID;
-		}
-		if( empty( $post_id ) ) return '';
+	public function get_html( $post_id = 0 ) {
 
 		global $bbd_view;
 		if( empty( $bbd_view ) ) $bbd_view = new BBD_View();
 
-		$value = '';
+		# get the field value
+		$value = $this->get_value( $post_id );
 
-		if( isset( $bbd_view->post_meta[ $post_id ][ $this->key ] ) )
-			$value = $bbd_view->post_meta[ $post_id ][ $this->key ];
-		else $value = get_post_meta( $post_id, $this->key, true );
-
-		# apply filter to value so users can edit it
-		$value = apply_filters( 'bbd_field_value_' . $this->key, $value, $this );
 
 		# apply filter to the label so users can edit it
 		$label = array(
@@ -200,7 +320,6 @@ class BBD_Field {
 		 * - return if no value is in place
 		 * - auto detect URL fields
 		 * - images
-		 * - date picker
 		 * - gallery
 		 */
 
@@ -276,7 +395,7 @@ class BBD_Field {
 				if( 'http' != substr( $value, 0, 4 ) ) $value = 'http://' . $value;
 			?>
 				<div class="bbd-field text <?php echo $this->key; ?>">
-						<a target="_blank" class='bbd-website-link' href="<?php echo $value; ?>" >
+						<a target="_blank" class='bbd-website-link' href="<?php echo esc_url( $value ); ?>" >
 							<?php echo apply_filters('bbd_link_text', $link_text, $this ); ?>
 						</a>
 				</div>
@@ -292,114 +411,48 @@ class BBD_Field {
 		/**
 		 * Image field
 		 */
-		if( 'image' == $this->type ){
-
-			$src = '';
-
-			# get the appropriate size, falling back on thumbnail for archive and medium for single
-			$size = ( isset( $bbd_view->image_size ) ? 
-				$bbd_view->image_size :
-				( 'archive' == $bbd_view->view_type  ? 
-					'thumbnail' :
-					'medium'
-				)
-			);
+		if( 'image' == $this->type && ! empty( $value ) ){
 				
+			# make the image link to the listing page if we are on an archive page or search results view
+			$link = '';
 
-			# ACF gives the option of multiple save formats for images (object/url/id)
-			if( $this->is_acf ) {
+			if( 'archive' == $bbd_view->view_type ) {
 
-				switch( $this->acf_field['save_format'] ){
+				global $post;
+				$link = get_permalink( $post->ID );
+			}
 
-					case 'object':
-					case 'url':
-						# if set to return an object, we'll have an array as the value
-						# otherwise we'll have the URL string
-						$src = is_array( $value ) ? $value['sizes'][ $size ] : '';
-					break;
+			# set the class for the image wrapper
+			$wrapper_class = 'bbd-field image ' . $this->key;
 
-					case 'id';
-						$src = wp_get_attachment_image_src( $value, $size);
-						if( $src ) $src = $src[0];
-					break;
+			# add image alignment to the class
+			if( 'left' == $bbd_view->image_alignment || 'right' == $bbd_view->image_alignment ) {
+				$wrapper_class .= ' ' . $bbd_view->image_alignment;
+			}
+			?>
+			<div class="<?php echo $wrapper_class; ?>" >
+			<?php
+				if( $link ) {
+				?>
+					<a href="<?php echo $link; ?>">
+				<?php
 				}
-
-				# If we still don't have a source try the ID again in case object/url is ignored 
-				# due to not using get_field
-				if( ! $src && intval( $value ) > 0  ) {
-					if( $src = wp_get_attachment_image_src( $value, $size) ) $src = $src[0];
-				}
-
-			} # end if: ACF field
-
-			# show image if we have a src
-			if( $src ) {
-				
-				# make the image link to the listing page if we are on an archive page or search results view
-				$link = '';
-
-				if( 'archive' == $bbd_view->view_type ) {
-
-					global $post;
-					$link = get_permalink( $post->id );
-				}
-
-				# set the class for the image wrapper
-				$wrapper_class = 'bbd-field image ' . $this->key;
-
-				# add image alignment to the class
-				if( 'left' == $bbd_view->image_alignment || 'right' == $bbd_view->image_alignment ) {
-					$wrapper_class .= ' ' . $bbd_view->image_alignment;
+				?>
+						<img src="<?php echo esc_url( $value ); ?>" />
+				<?php
+				if( $link ) {
+				?>
+					</a>
+				<?php
 				}
 			?>
-				<div class="<?php echo $wrapper_class; ?>" >
-				<?php
-					if( $link ) {
-					?>
-						<a href="<?php echo $link; ?>">
-					<?php
-					}
-					?>
-							<img src="<?php echo $src; ?>" />
-					<?php
-					if( $link ) {
-					?>
-						</a>
-					<?php
-					}
-				?>
-				</div>
+			</div>
 			<?php
-			} # end if: image source is set
 
 			# go to next field after showing the image
 			return;
 
 		} # endif: image field
-
-		/**
-		 * Date picker field
-		 */
-		if( 'date_picker' == $this->type ) {
-
-			# the format saved in ACF
-			$format_in = $this->acf_field['date_format'];
-
-			# conversion from JS to PHP
-			$format_convert = array(
-				'yymmdd' => 'Ymd',
-				'dd/mm/yy' => 'd/m/Y',
-				'mm/dd/yy' => 'm/d/Y',
-				'yy_mm_dd' => 'Y_m_d'
-
-			);
-			# create the PHP date/time object
-			$date = DateTime::createFromFormat($format_convert[ $format_in ], $value );
-
-			# generate the value based on the ACF display type
-			$value = $date->format( $format_convert[ $this->acf_field['display_format'] ] );
-		
-		} # end: date picker field
 
 		/** 
 		 * Gallery field
@@ -432,7 +485,7 @@ class BBD_Field {
 
 			# display the gallery
 			$image_num = 0;
-		?>
+			?>
 			<div class="bbd-gallery <?php echo $this->key; ?>">
 			<?php
 				foreach( $image_results as $row ) {
