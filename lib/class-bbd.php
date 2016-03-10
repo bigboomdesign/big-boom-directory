@@ -163,6 +163,7 @@ class BBD {
 	 * 		- widgets_init()
 	 * 		- pre_get_posts()
 	 * 		- wp()
+	 * 		- add_edit_post_type_to_admin_bar()
 	 * 		- enqueue_scripts()
 	 * 		- loop_start()
 	 *
@@ -341,7 +342,13 @@ class BBD {
 		# load the post meta that we'll need for this view
 		$bbd_view->load_post_meta();
 
+		# add the post type description (i.e. post content) above post archive loop
 		add_filter( 'loop_start', array( 'BBD', 'loop_start' ) );
+
+		// add link to the admin bar if we're viewing a post type archive
+		if( 'archive' == $bbd_view->view_type ) {
+			add_action( 'wp_before_admin_bar_render', array( 'BBD', 'add_edit_post_type_to_admin_bar' ) );
+		}
 
 		/**
 		 * Add post fields the the post content or excerpt
@@ -357,6 +364,28 @@ class BBD {
 		do_action( 'bbd_wp' );
 	
 	} # end: wp()
+
+	/**
+	 * Add the 'Edit Post Type' link in the WP Admin Bar when viewing a front end post type archive
+	 *
+	 * @since 	2.0.0
+	 */
+	public static function add_edit_post_type_to_admin_bar() {
+
+		# make sure we have a post type Post ID
+		if( empty( BBD::$current_post_type ) || ! intval( BBD::$current_post_type ) ) return;
+
+		$post_type_id = intval( BBD::$current_post_type );
+
+		global $wp_admin_bar;
+		$wp_admin_bar->add_menu( array(
+			'parent' => false,
+			'id' => 'edit',
+			'title' => __('Edit Post Type'),
+			'href' => admin_url( 'post.php?post=' . $post_type_id . '&action=edit' ),
+		));
+	
+	} # end: add_edit_post_type_to_admin_bar()
 
 	/**
 	 * Enqueue styles and javascripts

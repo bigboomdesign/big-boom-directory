@@ -17,9 +17,11 @@ class BBD_Admin{
 		# Admin init hook
 		add_action( 'admin_init', array( 'BBD_Admin', 'admin_init' ) );
 
-
 		# Admin menu items
 		add_action('admin_menu', array( 'BBD_Admin', 'admin_menu' ), 10 );
+
+		# Admin bar items
+		add_action( 'wp_before_admin_bar_render', array( 'BBD_Admin', 'add_view_post_type_to_admin_bar' ) );
 
 		# For add-ons, we want to allow them to go above the 'Information' page
 		add_action('admin_menu', array( 'BBD_Admin', 'admin_menu_information' ), 100 );
@@ -55,6 +57,7 @@ class BBD_Admin{
 	 * 
 	 * - admin_init()
 	 * - admin_menu()
+	 * - add_view_post_type_to_admin_bar()
 	 * - admin_menu_information()
 	 * - admin_enqueue()
 	 * - plugin_actions()
@@ -97,6 +100,40 @@ class BBD_Admin{
         unset($submenu['edit.php?post_type=bbd_pt'][10]);
 
 	} # end: admin_menu()
+
+	/**
+	 * Add the 'View Post Type' link in the WP Admin Bar when editing a post type 
+	 *
+	 * @since 	2.0.0
+	 */
+	public static function add_view_post_type_to_admin_bar() {
+
+		# make sure we only add the link when editing one of our post types
+		$screen = get_current_screen();
+
+		if( 'post' == $screen->base && ( $screen->post_type == 'bbd_pt' ) ) {
+
+			# the post being edited
+			global $post;
+
+			if( empty( $post->ID ) ) return;
+
+			# get the post type object
+			$pt = new BBD_PT( $post->ID );
+			if( empty( $pt->slug ) ) return;
+
+			# add item to the admin bar
+			global $wp_admin_bar;
+			$wp_admin_bar->add_menu( array(
+				'parent' => false,
+				'id' => 'edit',
+				'title' => __('View Post Type'),
+				'href' => esc_url( site_url( $pt->slug ) ),
+			));
+
+		} # end if: editing a BBD post type
+
+	} # end: add_view_post_type_to_admin_bar()
 
 	public static function admin_menu_information() {
 		add_submenu_page( 'edit.php?post_type=bbd_pt', 'Information | Big Boom Directory', 'Information', 'manage_options', 'bbd-information', array('BBD_Admin', 'information_page') );
