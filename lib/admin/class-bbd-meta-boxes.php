@@ -1,6 +1,6 @@
 <?php
 /**
- * Handles the display and updating of meta boxes for the backend using CMB2
+ * Handles the display and updating of meta boxes for the backend post edit screen using CMB2
  *
  * @since 	2.0.0
  */
@@ -30,6 +30,7 @@ class BBD_Meta_Boxes {
 		 * 		- Name/Handle
 		 * 		- Singular
 		 * 		- Plural
+		 *
 		 * - Advanced post type settings
 		 *		- Slug
 		 * 		- Public
@@ -349,6 +350,7 @@ class BBD_Meta_Boxes {
 		 * 		- Plural
 		 * 		- Hierarchical
 		 * 		- Post Types
+		 *
 		 * - Advanced taxonomy settings
 		 *		- Slug
 		 * 		- Public
@@ -504,6 +506,7 @@ class BBD_Meta_Boxes {
 
 	/**
 	 * Allows checkboxes to have a default value on new post screen
+	 *
 	 * @param 	string 	$default 	The default value to assign
 	 * @return 	string 	The default value for new posts, or empty string otherwise
 	 * @since 	2.0.0
@@ -513,17 +516,20 @@ class BBD_Meta_Boxes {
 	}
 
 	/**
-	 * Sanitize the user-submitted handle to make sure we only have lowercase and underscores
+	 * Sanitize the user-submitted handle to make sure we only have lowercase and underscores, and that 
+	 * we have a maximum of 20 characters
+	 *
 	 * @param 	string 	$value 	The user-submitted handle
 	 * @return	string 	The cleaned handle
 	 * @since 	2.0.0
 	 */
 	public static function sanitize_handle( $value ) {
-		return BBD_Helper::clean_str_for_field( $value );
+		return substr( BBD_Helper::clean_str_for_field( $value ), 0, 20 );
 	}
 
 	/**
 	 * Add the default value for post type or taxonomy handle
+	 *
 	 * @param	string	$args 	The arguments for the CMB2 field
 	 * @param	string 	$field	The CMB2 field object
 	 * @since 	2.0.0
@@ -700,6 +706,7 @@ class BBD_Meta_Boxes {
 
  	/**
  	 * Adds the fields selected for the chosen field group to the post meta
+ 	 *
 	 * @param	string	$value	The user-submitted field group ID
 	 * @since 	2.0.0
  	 */

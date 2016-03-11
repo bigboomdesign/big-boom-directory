@@ -260,33 +260,33 @@ function triggerHandleInfo( $ ){
 
 	// get the current value of the post title
 	var title = $title.val();
-	if('' == title) return;
 
 	$handle.prop('readonly', false);
 	$changeName.html('Save');
 	$changeName.data('active', 'false');
 	$cancelNameChange.css('display', 'inline-block');
 
+	// autopopulate the post type or taxonomy handle if the post title is non-empty and we have a new post type
+	if( '' != title &&  0 == postId ) {
 
-	// autopopulate the post type or taxonomy handle
-	$.ajax({
-		url: ajaxurl,
-		method: 'POST',
-		data: {
-			action: 'bbd_handle_from_title',
-			title: title
-		},
-		success: function( data ) {
-
-			// only autopopulate based on post title if the handle hasn't been edited yet by the user
-			if( '' == $handle.val() || $handle.val().indexOf( 'bbd_pt_' ) > -1 || $handle.val().indexOf( 'bbd_tax_' ) > -1) {
+		$.ajax({
+			url: ajaxurl,
+			method: 'POST',
+			data: {
+				action: 'bbd_handle_from_title',
+				title: title
+			},
+			success: function( data ) {
 				$handle.val( data );
-			}
-			$handle.focus();
-			$handleContainer.addClass('highlight');
-			$handleContainer.find('#handle-info').css('display', 'block');
-		} // end: success
-	}); // end: ajax
+			} 
+		}); // end: ajax
+
+	} // end if: autopopulating the handle
+
+	$handle.focus();
+	$handleContainer.addClass('highlight');
+	$handleContainer.find('#handle-info').css('display', 'block');
+
 
 } // end: triggerHandleInfo()
 
