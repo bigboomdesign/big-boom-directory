@@ -32,6 +32,7 @@ Directory management plugin for WordPress, based on Custom Post Types, Taxonomie
     * Map
     * Import/Export
     * Posts Widget
+    * Link Preview
 
 ---
 
@@ -510,6 +511,50 @@ The following example will display a field called `email` before the result's ex
 
 ---
 
+CMB2 Actions
+---
+
+Use these actions to alter the respective CMB2 meta box objects on the post type edit screen.  
+
+### ````bbd_cmb2_post_type_settings````
+### ````bbd_cmb2_advanced_post_type_settings````
+### ````bbd_cmb2_post_type_fields_select````
+### ````bbd_cmb2_post_type_advanced_fields_setup````
+
+### ````bbd_cmb2_taxonomy_settings````
+### ````bbd_cmb2_advanced_taxonomy_settings````
+
+If adding a new field called `my_field` to a meta box, apply the `$prefix` parameter to the field's `id` value, and then access the field value via `$post_type->my_field`, where `$post_type` is a `new BBD_PT( $post_id )`.  
+
+If the prefix is not applied, then `my_field` would be stored as a single post meta field for the post type being edited.  You could then access this as usual via `get_post_meta( $post_id, 'my_field', true )`.
+
+#### Parameters
+
+    (CMB2 object)   $meta_box        The CMB2 meta box object (depending on which of the above hooks is in use)
+    (string)        $prefix          The prefix currently used by the meta box fields (most likely `_bbd_meta_`)
+
+#### Example
+
+In the example below, we're adding a field called `my_field` to the "Advanced Post Type Settings" meta box
+
+    add_action( 'bbd_cmb2_advanced_post_type_settings', 'my_cmb2_advanced_post_type_settings', 10, 2 );
+    function my_cmb2_advanced_post_type_settings( $meta_box, $prefix ) {
+
+        $meta_box->add_field( array(
+            'name'  => 'My post type field',
+            'id'    => $prefix . 'my_field',
+            'type'  => 'select',
+            'options' => array(
+                'one'      => 'One',
+                'two'      => 'Two',
+                'three'     => 'Three',
+            ),
+            'default'   => 'one',
+        ));
+    }
+
+---
+
 ## Functions
 
 Here are some helper functions that you can call within your child theme
@@ -520,10 +565,11 @@ Returns `true` if we are viewing a BBD object (single post, post archive, or ter
 
 ---
 
-### ````bbd_get_field_value````
+### ````bbd_get_field_value( mixed, mixed )````
 
-Returns a field value, applying plugins filters and searching for ACF field types.  The function inputs can be either a single string (like [`get_field`](http://www.advancedcustomfields.com/resources/get_field)) or a post ID and string (like [`get_post_meta`](https://developer.wordpress.org/reference/functions/get_post_meta)).
+Returns an end-usable field value, applying the plugin's filters and handlers for ACF field types.  
 
+The function inputs can be either a single string if we're currently in the loop (similar to [`get_field`](http://www.advancedcustomfields.com/resources/get_field)), or a post ID and string (similar to [`get_post_meta`](https://developer.wordpress.org/reference/functions/get_post_meta)).
 
 ---
 

@@ -17,21 +17,21 @@
   font-size: 1em;
 }
 .wrap .markdown-body h1{
-	font-size: 1.5em;
+	font-size: 1.8em;
 }
 .wrap .markdown-body h2{
-	font-size: 1.3em;
+	font-size: 1.6em;
 }
 .wrap .markdown-body h3{
-  font-size: 1.2em;
+  font-size: 1.4em;
 }
 
 .wrap .markdown-body h4{
-  font-size: 1.1em;
+  font-size: 1.2em;
 }
 
 .wrap .markdown-body p code{
-	font-size: 1.2em;
+	font-size: 1em;
 }
 .wrap ul{
 	list-style-type: disc;
@@ -41,6 +41,9 @@
 	text-decoration: none;
 	border-bottom: solid 1px;
 	padding-bottom: 0.1em;
+}
+.wrap .markdown-body a:hover {
+  text-decoration: none;
 }
 
 /**

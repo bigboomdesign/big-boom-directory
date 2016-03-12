@@ -27,6 +27,7 @@
 <li>Map</li>
 <li>Import/Export</li>
 <li>Posts Widget</li>
+<li>Link Preview</li>
 </ul></li>
 </ul>
 
@@ -165,15 +166,34 @@ function my_the_content( $content ) {
 
 <hr />
 
+<h3><code>bbd_field_value</code></h3>
+
+<p>Use this to filter values as they are retrieved by the plugin.  Note that this filter applies to all fields, while the <code>bbd_field_value_{$field_name}</code> filter can be used for more specific targeting.  Sequentially, this filter 
+always fires before <code>bbd_field_value_{$field_name}</code>.</p>
+
+<h4>Parameters</h4>
+
+<pre><code>(string)    $value     The field value before filtering
+(BBD_Field) $field     The field object whose value we are getting
+(int)       $post_id   The post ID we are getting the value for
+</code></pre>
+
+<h4>Return</h4>
+
+<pre><code>(string) You must return the altered field value
+</code></pre>
+
+<hr />
+
 <h3><code>bbd_field_value_{$field_name}</code></h3>
 
 <p>Use this to filter a field value before it is displayed on the front end. Use your own field name (meta key) in place of <code>{$field_name}</code>.  Note that the filter fires whether or not the field has a value, as long as the field is selected for this view.</p>
 
 <h4>Parameters</h4>
 
-<pre><code>(string) $value: The field value to be displayed
-
-(BBD_Field) $field: The field object that is being displayed
+<pre><code>(string)    $value:     The field value to be displayed
+(BBD_Field) $field:     The field object that is being displayed
+(int)       $post_id    The post ID we are getting the value for
 </code></pre>
 
 <h4>Return</h4>
@@ -520,6 +540,55 @@ function my_bbd_after_search_result( $post_id ) {
 
 <hr />
 
+<h2>CMB2 Actions</h2>
+
+<p>Use these actions to alter the respective CMB2 meta box objects on the post type edit screen.  </p>
+
+<h3><code>bbd_cmb2_post_type_settings</code></h3>
+
+<h3><code>bbd_cmb2_advanced_post_type_settings</code></h3>
+
+<h3><code>bbd_cmb2_post_type_fields_select</code></h3>
+
+<h3><code>bbd_cmb2_post_type_advanced_fields_setup</code></h3>
+
+<h3><code>bbd_cmb2_taxonomy_settings</code></h3>
+
+<h3><code>bbd_cmb2_advanced_taxonomy_settings</code></h3>
+
+<p>If adding a new field called <code>my_field</code> to a meta box, apply the <code>$prefix</code> parameter to the field's <code>id</code> value, and then access the field value via <code>$post_type-&gt;my_field</code>, where <code>$post_type</code> is a <code>new BBD_PT( $post_id )</code>.  </p>
+
+<p>If the prefix is not applied, then <code>my_field</code> would be stored as a single post meta field for the post type being edited.  You could then access this as usual via <code>get_post_meta( $post_id, 'my_field', true )</code>.</p>
+
+<h4>Parameters</h4>
+
+<pre><code>(CMB2 object)   $meta_box        The CMB2 meta box object (depending on which of the above hooks is in use)
+(string)        $prefix          The prefix currently used by the meta box fields (most likely `_bbd_meta_`)
+</code></pre>
+
+<h4>Example</h4>
+
+<p>In the example below, we're adding a field called <code>my_field</code> to the "Advanced Post Type Settings" meta box</p>
+
+<pre><code>add_action( 'bbd_cmb2_advanced_post_type_settings', 'my_cmb2_advanced_post_type_settings', 10, 2 );
+function my_cmb2_advanced_post_type_settings( $meta_box, $prefix ) {
+
+    $meta_box-&gt;add_field( array(
+        'name'  =&gt; 'My post type field',
+        'id'    =&gt; $prefix . 'my_field',
+        'type'  =&gt; 'select',
+        'options' =&gt; array(
+            'one'      =&gt; 'One',
+            'two'      =&gt; 'Two',
+            'three'     =&gt; 'Three',
+        ),
+        'default'   =&gt; 'one',
+    ));
+}
+</code></pre>
+
+<hr />
+
 <h2>Functions</h2>
 
 <p>Here are some helper functions that you can call within your child theme</p>
@@ -527,6 +596,14 @@ function my_bbd_after_search_result( $post_id ) {
 <h3><code>is_bbd_view()</code></h3>
 
 <p>Returns <code>true</code> if we are viewing a BBD object (single post, post archive, or term archive) and <code>false</code> otherwise.</p>
+
+<hr />
+
+<h3><code>bbd_get_field_value( mixed, mixed )</code></h3>
+
+<p>Returns an end-usable field value, applying the plugin's filters and handlers for ACF field types.  </p>
+
+<p>The function inputs can be either a single string if we're currently in the loop (similar to <a href="http://www.advancedcustomfields.com/resources/get_field"><code>get_field</code></a>), or a post ID and string (similar to <a href="https://developer.wordpress.org/reference/functions/get_post_meta"><code>get_post_meta</code></a>).</p>
 
 <hr />
 

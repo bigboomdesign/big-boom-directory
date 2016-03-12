@@ -109,6 +109,9 @@ class BBD_Meta_Boxes {
 			'default' 	=> BBD_Options::$options['post_order'],
 		));
 
+		# Hook for further customization of the Post Type Settings meta box
+		do_action( 'bbd_cmb2_post_type_settings', $pt_settings, $prefix );
+
 
 		/**
 		 * Advanced post type settings meta box
@@ -220,14 +223,18 @@ class BBD_Meta_Boxes {
 			'description'	=> '<a target="_blank" href="https://developer.wordpress.org/resource/dashicons/#admin-post">Learn More</a>'
 		));
 
+		# Hook for further customization of the Advanced Post Type Settings meta box
+		do_action( 'bbd_cmb2_advanced_post_type_settings', $advanced_pt_settings, $prefix );
+
+
 		/**
 		 * Post Type `fields selection` meta box
 		 */
 
 		# Meta box
 		$pt_fields_select = new_cmb2_box( array(
-			'id' 			=> 'bbd_pt_fields_settings',
-			'title'			=> __( 'Fields Setup', 'cmb2' ),
+			'id' 			=> 'bbd_pt_fields_select',
+			'title'			=> __( 'Fields Select', 'cmb2' ),
 			'object_types' 	=> array( 'bbd_pt' ),
 			'context' 		=> 'normal',
 			'priority' 		=> 'high',
@@ -261,6 +268,9 @@ class BBD_Meta_Boxes {
 			'before' 	=> array( 'BBD_Meta_Boxes', 'before_fields_select'),
 			'select_all_button' => false
 		));
+
+		# Hook for further customization of the Fields Setup meta box
+		do_action( 'bbd_cmb2_post_type_fields_select' , $pt_fields_select, $prefix );
 
 		$advanced_fields_setup = new_cmb2_box( array(
 			'id' 			=> 'bbd_pt_advanced_fields_setup',
@@ -339,6 +349,9 @@ class BBD_Meta_Boxes {
 				'left' => 'Left'
 			),
 		));
+
+		# Hook for further customization of the Advanced Fields Setup meta box
+		do_action( 'bbd_cmb2_post_type_advanced_fields_setup' , $advanced_fields_setup, $prefix );
 
 
 		/**
@@ -436,6 +449,10 @@ class BBD_Meta_Boxes {
 				</div>"
 		));
 
+		# Hook for further customization of the Taxonomy Settings meta box
+		do_action( 'bbd_cmb2_taxonomy_settings' , $tax_settings, $prefix );
+
+
 		/**
 		 * Advanced taxonomy settings
 		 */
@@ -485,6 +502,9 @@ class BBD_Meta_Boxes {
 			'type' 	=> 'checkbox',
 			'default' => self::default_for_checkbox( 'on' )
 		));
+
+		# Hook for further customization of the Advanced Taxonomy Settings meta box
+		do_action( 'bbd_cmb2_advanced_taxonomy_settings' , $advanced_tax_settings, $prefix );
 
 	} # end: cmb2_meta_boxes()
 
