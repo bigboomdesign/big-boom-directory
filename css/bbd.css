@@ -76,23 +76,40 @@ a.bbd-gallery-thumb img{
 /**
  * Search Widget 
  */
-#bbd-search-form{ margin-top: 1em; }
-div.bbd-search-filter{ margin-bottom: 1.5em; padding-bottom: 0;}
+#bbd-search-form { margin-top: 1em; }
+div.bbd-search-filter { margin-bottom: 1.5em; padding-bottom: 0;}
 .bbd-search-filter label {
 	display: block;
+	margin-bottom: 0.3em;
 }
-
-.bbd-search-submit{ width: 100%; max-width: 250px; height: 3em; }
+.bbd-search-filter select {
+	width: 100%;
+	max-width: 350px;
+	height: 2em;
+}
+.bbd-search-filter input[type=text] {
+	height: 2em;
+	width: 100%; 
+	max-width: 350px;
+}
+.bbd-search-submit{ 
+	width: 100%; 
+	max-width: 350px; 
+	height: 3em; 
+}
 
 /**
  * Search Results Page 
  */
-.bbd-search-result-item{ margin-bottom: 2em; }
-#bbd-search-results .search-results-fields {
-	margin: 1em 0;
+#bbd-search-results .search-results-item { 
+	margin-bottom: 2em;
+
 }
-#bbd-search-results .search-results-fields::after {
+#bbd-search-results .search-results-item {
 	display: block;
 	content: '';
 	clear: both;	
+}
+#bbd-search-results .search-results-fields {
+	margin: 1em 0;
 }

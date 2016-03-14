@@ -696,7 +696,7 @@ class BBD_Search_Widget extends WP_Widget {
 
 					# post title header
 					?>
-					<div class='bbd-search-result-item'>
+					<div class='search-results-item'>
 					<h2><a href='<?php echo get_the_permalink( $post->ID ); ?>'><?php echo $post->post_title; ?></a></h2>
 					<?php
 					

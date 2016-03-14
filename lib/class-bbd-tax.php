@@ -248,10 +248,10 @@ class BBD_Tax extends BBD_Post{
 
 		$setting = BBD_Helper::get_field_array( $setting );
 		?>
-		<label for='<?php echo $setting['id']; ?>' ><?php echo $this->plural; ?>
-			<?php BBD_Options::do_settings_field( $setting, $option, $_POST ); ?>
-		</label>
-		<?php
+		<label for='<?php echo $setting['id']; ?>' ><?php echo $this->plural; ?></label>
+		<?php 
+		BBD_Options::do_settings_field( $setting, $option, $_POST );
+		
 	} # end: get_form_element_html()
 
 } # end class: BBD_Tax

@@ -416,7 +416,7 @@ class BBD_Field {
 			# make the image link to the listing page if we are on an archive page or search results view
 			$link = '';
 
-			if( 'archive' == $bbd_view->view_type ) {
+			if( 'archive' == $bbd_view->view_type || 'search-results' == $bbd_view->view_type ) {
 
 				global $post;
 				$link = get_permalink( $post->ID );
