@@ -211,7 +211,7 @@ class BBD_Field {
 			# get the appropriate size, falling back on thumbnail for archive and medium for single
 			$size = ( isset( $bbd_view->image_size ) ? 
 				$bbd_view->image_size :
-				( 'single' == $bbd_view->view_type  ? 
+				( isset( $bbd_view->view_type ) && 'single' == $bbd_view->view_type  ? 
 					'thumbnail' :
 					'medium'
 				)
