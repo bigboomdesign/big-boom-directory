@@ -1,17 +1,17 @@
-
 # Big Boom Directory
 
 Directory management plugin for WordPress, based on Custom Post Types, Taxonomies, and Fields
 
 ## Features
 
-* Create and manage custom post types and taxonomies from WP Admin.  Settings include:
+* Create and manage custom post types and taxonomies from WP Admin.  Post type settings include:
 
     * Post ordering
-    * Labels
+    * Post type labels
     * WP Admin menu icon and position
     * URL slug and post type name/handle
     * Basic settings like 'Public' and 'Has Archive', and 'Exclude From Search'
+    * Use hooks to add your own post type settings
 
 * Add content using the WYSIWYG to act as the post type description for archive pages
 
@@ -21,11 +21,11 @@ Directory management plugin for WordPress, based on Custom Post Types, Taxonomie
 
 * Automatically detect URL and social media fields, converting them into links
 
-* Support for ACF Gallery field with integration using Lightbox
+* Support for ACF field types like image, date, and gallery field with integration using Lightbox
 
-* Full-featured search widget with customizable search filters and field selection for the search results
+* Full-featured advanced search widget with customizable filters and field selection for the search results display
 
-* Use hooks to further customize post type registration and front end display
+* Use hooks to further customize core functionality like post type editing and registration, front end field display and value processing, and more
 
 * The following add-ons are available and/or currently under development:
 
@@ -56,7 +56,7 @@ Directory management plugin for WordPress, based on Custom Post Types, Taxonomie
 
 * Uses [Extended Custom Post Types](https://github.com/johnbillion/extended-cpts) and [Extended Taxonomies](https://github.com/johnbillion/extended-taxos) for registering post types and taxonomies.  Plugin hooks provide access to everything being registered.
 
-* Uses [CMB2](https://github.com/WebDevStudios/CMB2) for handling post meta boxes on the backend.
+* Uses [CMB2](https://github.com/WebDevStudios/CMB2) for handling post meta boxes on the backend.  Plugin hooks provide access to the meta boxes used in editing post types and taxonomies.
 
 ---
 
