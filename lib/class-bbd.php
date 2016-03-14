@@ -418,6 +418,9 @@ class BBD {
 		# make sure we have the main query
 		if( ! $query->is_main_query() ) return;
 
+		# make sure we don't execute this callback twice for themes that use loop_start more than once (e.g. twentyten)
+		if( did_action( 'loop_start' ) > 1 ) return;
+
 		# we're only wanting to hook on post type archive pages
 		if( ! is_post_type_archive() || empty( BBD::$current_post_type ) ) return;
 
@@ -490,7 +493,7 @@ class BBD {
 		
 		/**
 		 * If we're doing get_the_excerpt and the post has no excerpt, we shouldn't do anything, since WP will
-		 * strip out the tags and leave us with unformatted field.
+		 * strip out the tags and leave us with unformatted fields.
 		 *
 		 * Note we are not checking for the_excerpt here, since this returns false during the instance we care
 		 * about, which is when the_excerpt() calls get_the_excerpt() and the post content is potentially truncated
