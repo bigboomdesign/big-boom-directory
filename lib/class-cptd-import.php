@@ -350,7 +350,7 @@ class CPTD_import{
 					'post_title'     => $aRow["post_title"],
 					'post_status'    => 'publish', 
 					'post_type'      => $_POST['cptdir-import-post-type'],
-					'post_content'   => $aRow["post_content"],
+					'post_content'   => ! empty( $aRow["post_content"] ) ? $aRow['post_content'] : '',
 					'post_name'      => $aRow["post_name"],  
 				);
 				# Add ID to the arguments if post exists, so that an update is done instead of an insert
