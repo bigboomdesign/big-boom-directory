@@ -28,6 +28,9 @@ class BBD_Admin{
 		
 		# Admin scripts and styles
 		add_action('admin_enqueue_scripts', array('BBD_Admin', 'admin_enqueue'));
+		
+		# Inline CSS for all admin page views
+		add_action('admin_print_scripts', array('BBD_Admin', 'admin_print_scripts'));
 	
 		# Action links on main Plugins screen
 		$plugin = plugin_basename( bbd_dir( '/big-boom-directory.php' ) );
@@ -60,6 +63,7 @@ class BBD_Admin{
 	 * - add_view_post_type_to_admin_bar()
 	 * - admin_menu_information()
 	 * - admin_enqueue()
+	 * - admin_print_scripts()
 	 * - plugin_actions()
 	 * - post_row_actions()
 	 * - cmb2_meta_boxes()
@@ -145,6 +149,7 @@ class BBD_Admin{
 	 * @since	2.0.0
 	 */
 	public static function admin_enqueue(){
+
 		$screen = get_current_screen();
 		
 		wp_register_style( 'bbd-admin', bbd_url('/css/admin/bbd-admin.css') );
@@ -225,6 +230,27 @@ class BBD_Admin{
 		}
 
 	} # end: admin_enqueue()
+
+	/**
+	 *
+	 */
+	public static function admin_print_scripts() {
+	?>
+	<style>
+		.menu-icon-bbd_pt .wp-menu-image {
+		    background-image: url( 
+		    	<?php echo bbd_url( 'css/admin/big-boom-design-logo.png'); ?>
+		    );
+		    background-position: center center;
+		    background-repeat: no-repeat;
+		    background-size: 25px 25px;
+		}
+		.menu-icon-bbd_pt .wp-menu-image.dashicons-before.dashicons-list-view::before {
+			content: '';
+		}
+	</style>
+	<?php
+	} # end: admin_print_scripts()
 	
 	/**
 	 * Add action links for this plugin on main Plugins screen (under plugin name)
