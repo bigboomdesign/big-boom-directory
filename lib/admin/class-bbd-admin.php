@@ -159,8 +159,8 @@ class BBD_Admin{
 			wp_enqueue_style( 'bbd-admin' );
 		}
 
-		# Widgets Screen
-		if( 'widgets' == $screen->base ) {
+		# Widgets Screen / Theme Customizer
+		if( 'widgets' == $screen->base || is_customize_preview() ) {
 			
 			# css
 			wp_enqueue_style( 'bbd-admin' );
