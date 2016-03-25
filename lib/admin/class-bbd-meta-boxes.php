@@ -139,7 +139,7 @@ class BBD_Meta_Boxes {
 			),
 			'before' => array( 'BBD_Meta_Boxes', 'before_handle' ),
 			'sanitization_cb' => array( 'BBD_Meta_Boxes', 'sanitize_handle' ),
-			'description' 	=> 
+			'description' 	=>
 				"<div id='handle-container'>
 					<a id='change-name'>Change</a>
 					<div style='display: none;' id='cancel-name-change'>
@@ -358,13 +358,13 @@ class BBD_Meta_Boxes {
 		 * Taxonomy meta boxes
 		 * 
 		 * - Basic taxonomy settings
-		 * 		- Name/Handle
 		 * 		- Singular
 		 * 		- Plural
 		 * 		- Hierarchical
 		 * 		- Post Types
 		 *
 		 * - Advanced taxonomy settings
+		 * 		- Name/Handle
 		 *		- Slug
 		 * 		- Public
 		 */
@@ -383,32 +383,6 @@ class BBD_Meta_Boxes {
 		));
 
 		# Fields
-		
-		## Name/Handle
-		$tax_settings->add_field( array(
-			'name' 			=> 'Name <span class="required">*</span>',
-			'id'			=> $prefix.'handle',
-			'type' 			=> 'text',
-			'attributes' 	=> array(
-				'readonly' => 'readonly'
-			),
-			'before' => array( 'BBD_Meta_Boxes', 'before_handle' ),
-			'sanitization_cb' => array( 'BBD_Meta_Boxes', 'sanitize_handle' ),
-			'description' 	=> 
-				"<div id='handle-container'>
-					<a id='change-name'>Change</a>
-					<div style='display: none;' id='cancel-name-change'>
-						 | <a>Cancel</a>
-						 | <a target='_blank' href='https://codex.wordpress.org/Taxonomies#Registering_a_taxonomy'>More Info</a>
-					</div>
-					<div id='handle-info' style='display: none;'>
-						<p class='description'>The Taxonomy Name is the most important part of your taxonomy. This value should not be changed after you have created terms and assigned posts for your taxonomy, unless you are prepared to update the corresponding rows in your database.</p>
-						<p class='description'>If you are not positive you want to make this change, please click the above 'Cancel' link now.</p>
-						<p class='description'>We guessed the ideal Taxonomy Name based on your title.  If you edit this field, please use only lowercase letters and underscores, and use a singular name like <code>genre</code> instead of a plural name like <code>genres</code>.</p>
-						<p class='description'>For your reference, we'll always display the original taxonomy handle here: <code>bbd_tax_" . $post_id . "</code></p>
-					</div>
-				</div>"
-		));
 
 		## Singular label
 		$tax_settings->add_field( array(
@@ -468,6 +442,32 @@ class BBD_Meta_Boxes {
 		));
 
 		# Fields
+
+		## Name/Handle
+		$advanced_tax_settings->add_field( array(
+			'name' 			=> 'Name <span class="required">*</span>',
+			'id'			=> $prefix.'handle',
+			'type' 			=> 'text',
+			'attributes' 	=> array(
+				'readonly' => 'readonly'
+			),
+			'before' => array( 'BBD_Meta_Boxes', 'before_handle' ),
+			'sanitization_cb' => array( 'BBD_Meta_Boxes', 'sanitize_handle' ),
+			'description' 	=> 
+				"<div id='handle-container'>
+					<a id='change-name'>Change</a>
+					<div style='display: none;' id='cancel-name-change'>
+						 | <a>Cancel</a>
+						 | <a target='_blank' href='https://codex.wordpress.org/Taxonomies#Registering_a_taxonomy'>More Info</a>
+					</div>
+					<div id='handle-info' style='display: none;'>
+						<p class='description'>The Taxonomy Name is the most important part of your taxonomy. This value should not be changed after you have created terms and assigned posts for your taxonomy, unless you are prepared to update the corresponding rows in your database.</p>
+						<p class='description'>If you are not positive you want to make this change, please click the above 'Cancel' link now.</p>
+						<p class='description'>We guessed the ideal Taxonomy Name based on your title.  If you edit this field, please use only lowercase letters and underscores, and use a singular name like <code>genre</code> instead of a plural name like <code>genres</code>.</p>
+						<p class='description'>For your reference, we'll always display the original taxonomy handle here: <code>bbd_tax_" . $post_id . "</code></p>
+					</div>
+				</div>"
+		));
 
 		## Slug
 		$advanced_tax_settings->add_field( array(
