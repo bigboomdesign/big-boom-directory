@@ -56,6 +56,11 @@ None yet.
 
 == Changelog ==
 
+= Dev = 
+
+* Bug fix for search widget in WP Theme Customizer
+* Add Big Boom logo for Directory post type icon
+
 = 2.0.0 =
 
 Initial release
