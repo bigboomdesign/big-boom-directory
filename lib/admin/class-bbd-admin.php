@@ -127,6 +127,8 @@ class BBD_Admin{
 			$pt = new BBD_PT( $post->ID );
 			if( empty( $pt->slug ) ) return;
 
+			if( ! $pt->public || ! $pt->has_archive ) return;
+
 			# add item to the admin bar
 			global $wp_admin_bar;
 			$wp_admin_bar->add_menu( array(
@@ -302,7 +304,10 @@ class BBD_Admin{
 
 		$pt = new BBD_PT( $post->ID );
 
-		$actions['view_posts'] = '<a href="'. admin_url( 'edit.php?post_type='.$pt->handle ) .'">View Posts</a>';
+		# add a "View" link if the post type is public and has an archive
+		if( $pt->public && $pt->has_archive ) {
+			$actions['view_posts'] = '<a href="'. admin_url( 'edit.php?post_type='.$pt->handle ) .'">View</a>';
+		}
 
 		return $actions;
 	} # end: post_row_actions()
