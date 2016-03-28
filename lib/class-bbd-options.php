@@ -488,7 +488,7 @@ class BBD_Options{
 			'label' => 'Image alignment',
 			'type' => 'select',
 			'choices' => array('None', 'Right', 'Left'),
-			'default' => 'none',
+			'default' => 'right',
 			'description' => 'Applies to ACF fields with type `image`',
 			'section' 	=> 'bbd_post_type_defaults',
 		);
