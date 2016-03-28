@@ -32,9 +32,10 @@ class BBD_Admin{
 		# Inline CSS for all admin page views
 		add_action('admin_print_scripts', array('BBD_Admin', 'admin_print_scripts'));
 	
-		# Action links on main Plugins screen
+		# Action links on main Plugins screen and Network Admin plugins screen
 		$plugin = plugin_basename( bbd_dir( '/big-boom-directory.php' ) );
 		add_filter( "plugin_action_links_$plugin", array('BBD_Admin', 'plugin_actions') );
+		add_filter( "network_admin_plugin_action_links_$plugin", array('BBD_Admin', 'plugin_actions') );
 
 		# Row actions for custom post types
 		add_filter( 'post_row_actions', array( 'BBD_Admin', 'post_row_actions' ), 10, 2 );
@@ -259,20 +260,28 @@ class BBD_Admin{
 	 * @return 	array 	The altered $links array 
 	 * @since	2.0.0
 	 */
-	public static function plugin_actions($links){
+	public static function plugin_actions( $links ) {
 
-		# remove the `Edit` link
-		array_pop($links);
+		/**
+		 * Remove the `Edit` link (the last link) if we're on a single site install or on the Network Admin
+		 * plugins screen
+		 */
+		if( ! is_multisite() || is_network_admin() ) array_pop($links);
 
-		# Add 'Settings' link to the front
-		$settings_link = '<a href="admin.php?page=bbd-settings">Settings</a>';
-		array_unshift($links, $settings_link);
+		# add additional actions for non-network admin plugins screens
+		if( ! is_network_admin() ) {
 
-		# Add 'Instructions' link to the front
-		$instructions_link = '<a href="admin.php?page=bbd-information">Instructions</a>';
-		array_unshift($links, $instructions_link);
+			# Add 'Settings' link to the front
+			$settings_link = '<a href="admin.php?page=bbd-settings">Settings</a>';
+			array_unshift($links, $settings_link);
+
+			# Add 'Instructions' link to the front
+			$instructions_link = '<a href="admin.php?page=bbd-information">Instructions</a>';
+			array_unshift($links, $instructions_link);
+		}
 
 		return $links;
+		
 	} # end: plugin_actions()
 
 	/**
