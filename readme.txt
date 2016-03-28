@@ -58,8 +58,10 @@ None yet.
 
 = Dev = 
 
+* Added `bbd_the_excerpt` filter for archive views instead of using `bbd_the_content`
 * Bug fix for search widget in WP Theme Customizer
 * Add Big Boom logo for Directory post type icon
+* Moved taxonomy name/handle into the Advanced Taxonomy Settings meta box
 
 = 2.0.0 =
 

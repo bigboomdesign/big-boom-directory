@@ -510,9 +510,6 @@ class BBD {
 			return $content;
 		}
 
-
-		global $bbd_view;
-
 		$html = '';
 
 		# check if we have HTML to display based on ACF field data
@@ -525,8 +522,19 @@ class BBD {
 		# prepend the BBD HTML to the content
 		$output = $html . $content;
 
-		# apply a filter the user can hook into and return the modified content
-		$output = apply_filters( 'bbd_the_content', $output );
+		/**
+		 * Apply a filter the user can hook into and return the modified content
+		 */
+
+		# for single view
+		if( 'single' == $bbd_view->view_type ) {
+			$output = apply_filters( 'bbd_the_content', $output );
+		}
+
+		# for archive view
+		elseif( 'archive' == $bbd_view->view_type ) {
+			$output = apply_filters( 'bbd_the_excerpt', $output );
+		}
 
 		return $output;
 

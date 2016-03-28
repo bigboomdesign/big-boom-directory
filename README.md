@@ -134,7 +134,7 @@ Similar to `bbd_register_pt`, but for taxonomies.
 
 ### ````bbd_the_content````
 
-Use this filter to modify the post content for BBD views.  Does not fire for non-BBD page views.
+Use this filter to modify the post content for BBD single post views.  Does not fire for non-BBD page views.
 
 #### Parameters
 
@@ -158,6 +158,13 @@ Below, we're appending an additional field called `phone` below the default fiel
 
         return $content . $new_html;
     }
+
+---
+
+### ````bbd_the_excerpt````
+
+Use this filter to modify the post content for BBD archive views.  Does not fire for non-BBD page views.  Similar to
+`bbd_the_content`, except it fires for archive views instead of single post views.
 
 ---
 
