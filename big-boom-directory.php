@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Big Boom Directory
  * Description: Directory management system based on Custom Post Types, Taxonomies, and Fields
- * Version: 2.0.0
+ * Version: 2.1.0
  * Author: Big Boom Design
  * Author URI: https://bigboomdesign.com
  * License:     GPLv2 or later
@@ -46,6 +46,9 @@ BBD::load_classes();
 add_action( 'init', array( 'BBD', 'init' ) );
 add_action( 'pre_get_posts', array( 'BBD', 'pre_get_posts' ) );
 add_action( 'widgets_init', array( 'BBD', 'widgets_init' ) );
+
+# flush rewrite rules whenever a new slug is saved for a post type or taxonomy
+add_action( 'updated_postmeta', array( 'BBD', 'updated_postmeta' ), 10, 4 );
 
 /**
  * Admin Routines

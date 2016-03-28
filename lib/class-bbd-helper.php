@@ -268,7 +268,6 @@ class BBD_Helper{
 	 * 
 	 * @since 	2.0.0
 	 */
-
 	public static function register(){
 
 		# Main BBD post type
@@ -328,6 +327,8 @@ class BBD_Helper{
 			# register the taxonomy
 			$tax->register();
 		}
+
+		flush_rewrite_rules();
 
 	} # end: register()
 

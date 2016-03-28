@@ -166,6 +166,7 @@ class BBD {
 	 * 		- add_edit_post_type_to_admin_bar()
 	 * 		- enqueue_scripts()
 	 * 		- loop_start()
+	 * 		- updated_postmeta()
 	 *
 	 * - Filters
 	 * 		- the_content()
@@ -467,6 +468,47 @@ class BBD {
 		do_action( 'bbd_after_pt_description' );
 
 	} # end: loop_start()
+
+	/**
+	 * Flush the rewrite rules whenever we update the slug field for post types or taxonomies
+	 *
+	 * @link 	https://codex.wordpress.org/Function_Reference/flush_rewrite_rules
+	 *
+	 * @param 	int		$meta_id		The ID of the meta entry
+	 * @param 	int		$object_id		The post whose postmeta is being updated
+	 * @param 	string	$meta_key		The meta key whose value is being updated
+	 * @param 	mixed	$meta_value		The new meta value after the update
+	 *
+	 * @since 	2.1.0
+	 */
+	public static function updated_postmeta( $meta_id, $object_id, $meta_key, $meta_value ) {
+
+		# if a post type or taxonomy slug is being updated
+		if( '_bbd_meta_slug' == $meta_key ) {
+
+			# update the slug within our object, since we've already loaded the old one from the DB
+			BBD::$meta[ $object_id ]->slug = $meta_value;
+
+			/**
+			 * Construct and register the post type or taxonomy again
+			 */
+
+			# if we have a post type
+			if( in_array( $object_id, BBD::$post_type_ids ) ) {
+				$pt = new BBD_PT( $object_id );
+				$pt->register();
+			}
+
+			# if we have a taxonomy
+			elseif( in_array( $object_id, BBD::$taxonomy_ids ) ) {
+				$tax = new BBD_Tax( $object_id );
+				$tax->register();
+			}
+
+			# use WP's internal rewrite rule flush function
+			flush_rewrite_rules();
+		}
+	}
 
 	/**
 	 * Callback for 'the_content' and 'the_excerpt' action

@@ -56,8 +56,9 @@ None yet.
 
 == Changelog ==
 
-= Dev = 
+= 2.1.0 = 
 
+* Flush rewrite rules whenever a new slug is saved for a post type or taxonomy
 * Added `bbd_the_excerpt` filter for archive views instead of using `bbd_the_content`
 * Bug fix for search widget in WP Theme Customizer
 * Make 'right' the default image alignment image fields

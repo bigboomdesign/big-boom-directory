@@ -254,6 +254,7 @@ class BBD_PT extends BBD_Post{
 
 		$args = apply_filters('bbd_register_pt', $args );
 		register_extended_post_type($args['post_type'], $args['args'], $args['names']);
+		
 	} # end: register()
 
 } # end class: BBD_PT

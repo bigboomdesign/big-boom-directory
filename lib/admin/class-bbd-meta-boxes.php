@@ -196,7 +196,6 @@ class BBD_Meta_Boxes {
 			'id'		=> $prefix.'has_archive',
 			'type' 		=> 'checkbox',
 			'default' 	=> self::default_for_checkbox( 'on' ),
-			'description' => "<p class='description'>If you change this value, you may need to <a target='_blank' href='" . admin_url( 'options-permalink.php' ) . "'>save your permalink settings</a> before changes occur.</p>"
 		));
 
 		## Exclude From Search
