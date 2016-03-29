@@ -297,17 +297,58 @@ class BBD_Admin{
 	public static function post_row_actions( $actions, $post ){
 
 		# make sure we have the post type 'bbd_pt'
-		if ( ! ( 'bbd_pt' == $post->post_type ) ) return $actions;
+		if ( ! ( 'bbd_pt' == $post->post_type ) && ! ( 'bbd_tax' == $post->post_type ) ) return $actions;
+
+		/**
+		 * For post types
+		 */
+		if( 'bbd_pt' == $post->post_type ) {
+
+			# change the "Edit" link to "Edit Post Type"
+			$actions['edit'] = '<a href="' . admin_url( 'post.php?post=' . $post->ID . '&action=edit' ) . '">Edit Post Type</a>';
+			
+			# remove the `Quick Edit` link
+			unset( $actions['inline hide-if-no-js'] );
+
+			$pt = new BBD_PT( $post->ID );
+
+			# add a link to Manage Posts
+			$actions['manage_posts'] = '<a href="'. admin_url( 'edit.php?post_type='.$pt->handle ) .'">Manage Posts</a>';
+
+			# add a "View Posts" link if the post type is public and has an archive and a slug
+			if( $pt->public && $pt->has_archive && ! empty( $pt->slug ) ) {
+				$actions['view_posts'] = '<a href="' . site_url( $pt->slug ) . '">View Posts</a>';
+			}
 		
-		# remove the `Quick Edit` link
-		unset( $actions['inline hide-if-no-js'] );
+		} # end if: post type is `bbd_pt`
 
-		$pt = new BBD_PT( $post->ID );
+		/**
+		 * For taxonomies
+		 */
+		elseif( 'bbd_tax' == $post->post_type ) {
 
-		# add a "View" link if the post type is public and has an archive
-		if( $pt->public && $pt->has_archive ) {
-			$actions['view_posts'] = '<a href="'. admin_url( 'edit.php?post_type='.$pt->handle ) .'">View</a>';
-		}
+			# change the "Edit" link to "Edit Taxonomy"
+			$actions['edit'] = '<a href="' . admin_url( 'post.php?post=' . $post->ID . '&action=edit' ) . '">Edit Taxonomy</a>';
+
+			# remove the `Quick Edit` link
+			unset( $actions['inline hide-if-no-js'] );
+
+			# get the taxonomy object
+			$tax = new BBD_Tax( $post->ID );
+
+			# get the first post type assigned to this taxonomy, so we know where the "Manage Terms" link goes
+			if( ! empty( $tax->post_types[0] ) ) {
+
+				$pt = $tax->post_types[0];
+
+				$pt = new BBD_PT( $pt );
+
+				# add a link to Manage Terms
+				$actions['manage_terms'] = '<a href="'. admin_url( 'edit-tags.php?taxonomy='. $tax->handle . '&post_type=' . $pt->handle ) .'">Manage Terms</a>';
+
+			}
+
+		} # end if: post type is `bbd_tax`
 
 		return $actions;
 	} # end: post_row_actions()

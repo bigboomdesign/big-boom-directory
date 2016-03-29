@@ -60,10 +60,11 @@ None yet.
 
 * Flush rewrite rules whenever a slug is added/deleted/updated for a post type or taxonomy
 * Added `bbd_the_excerpt` filter for archive views instead of using `bbd_the_content`
-* Bug fix for search widget in WP Theme Customizer
+* Improve row links for post type and taxonomy backend listing screens
+* Limit the "View Post Type" link in the admin bar to those that are public and have an archive
 * Make 'right' the default image alignment image fields
-* Only show the "View Post Type" links for post types that are public and have an archive
 * Bug fix for multisite plugin action links
+* Bug fix for search widget in WP Theme Customizer
 * Add Big Boom logo for Directory post type icon
 * Moved taxonomy name/handle into the Advanced Taxonomy Settings meta box
 
