@@ -180,6 +180,11 @@ class BBD_PT extends BBD_Post{
 		$this->load_post_data();
 		$this->load_post_meta();
 
+		# set the slug if the post type is public and doesn't have a slug
+		if( $this->public && empty( $this->slug ) && ! empty( $this->post_title ) ) {
+			$this->slug = BBD_Helper::clean_str_for_url( $this->post_title );
+		}
+ 
 	} # end: __construct()
 
 	/**
@@ -217,10 +222,7 @@ class BBD_PT extends BBD_Post{
 			)
 		);
 
-		if( empty( $this->slug ) ) {
-			$this->slug = BBD_Helper::clean_str_for_url( $this->post_title );
-		}
-		$args['names']['slug'] = $this->slug;
+		if( ! empty( $this->slug ) ) $args['names']['slug'] = $this->slug;
 
 		# load in any settings from the backend
 		foreach( $this->args_settings as $key ) {

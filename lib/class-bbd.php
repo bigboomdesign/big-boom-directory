@@ -486,29 +486,50 @@ class BBD {
 		# if a post type or taxonomy slug is being updated
 		if( '_bbd_meta_slug' == $meta_key ) {
 
-			# update the slug within our object, since we've already loaded the old one from the DB
-			BBD::$meta[ $object_id ]->slug = $meta_value;
-
-			/**
-			 * Construct and register the post type or taxonomy again
-			 */
-
-			# if we have a post type
-			if( in_array( $object_id, BBD::$post_type_ids ) ) {
-				$pt = new BBD_PT( $object_id );
-				$pt->register();
-			}
-
-			# if we have a taxonomy
-			elseif( in_array( $object_id, BBD::$taxonomy_ids ) ) {
-				$tax = new BBD_Tax( $object_id );
-				$tax->register();
-			}
-
-			# use WP's internal rewrite rule flush function
-			flush_rewrite_rules();
+			set_transient( '_bbd_flush_rewrite_rules', 'true', 12 * HOUR_IN_SECONDS );
 		}
-	}
+	
+	} # end: updated_postmeta()
+
+	/**
+	 * Potentially flush the rewrite rules when saving a post
+	 *
+	 * This is needed since `updated_postmeta` doesn't fire when deleting or adding post meta
+	 *
+	 * @param 	int			$post_id	The post ID being saved
+	 * @param 	WP_Post		$post		The post being saved
+	 * @param 	bool		$update		Whether this is a post update (as opposed to a new post creation)
+	 *
+	 * @since 	2.1.0
+	 */
+	public static function save_post( $post_id, $post, $update ) {
+
+		# do nothing if we're not saving a post type or taxonomy
+		if( 'bbd_pt' != $post->post_type && 'bbd_tax' != $post->post_type ) return;
+
+		# this covers the case where we are emptying the slug and we need to re-form the slug from the title
+		if( empty( $_POST['_bbd_meta_slug'] ) ) {
+			
+			set_transient( '_bbd_flush_rewrite_rules', 'true', 12 * HOUR_IN_SECONDS );
+			return;
+		}
+
+		# this covers the case where we previously had no slug (and were thus relying on the title) and we are
+		# now adding the post meta for the slug
+		if( in_array( $post_id, array_merge( BBD::$post_type_ids, BBD::$taxonomy_ids ) ) ) {
+			
+			# we don't need to differentiate between post types and taxonomies here
+			$pt = new BBD_PT( $post_id );
+
+			# the $_POST value will be sanitized for URL, so we need to check against this value
+			if( $pt->slug != BBD_Helper::clean_str_for_url( $_POST['_bbd_meta_slug'] ) ) {
+
+				set_transient( '_bbd_flush_rewrite_rules', 'true', 12 * HOUR_IN_SECONDS );
+				return;
+			}
+		}
+	
+	} # end: save_post()
 
 	/**
 	 * Callback for 'the_content' and 'the_excerpt' action

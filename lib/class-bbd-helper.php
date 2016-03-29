@@ -328,7 +328,11 @@ class BBD_Helper{
 			$tax->register();
 		}
 
-		flush_rewrite_rules();
+		# flush the rewrite rules if necessary
+		if( 'true' == get_transient( '_bbd_flush_rewrite_rules' ) ) {
+			flush_rewrite_rules();
+			delete_transient( '_bbd_flush_rewrite_rules' );
+		}
 
 	} # end: register()
 

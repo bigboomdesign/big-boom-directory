@@ -49,6 +49,7 @@ add_action( 'widgets_init', array( 'BBD', 'widgets_init' ) );
 
 # flush rewrite rules whenever a new slug is saved for a post type or taxonomy
 add_action( 'updated_postmeta', array( 'BBD', 'updated_postmeta' ), 10, 4 );
+add_action( 'save_post', array( 'BBD', 'save_post' ), 10, 3 );
 
 /**
  * Admin Routines

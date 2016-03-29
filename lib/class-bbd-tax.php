@@ -108,6 +108,11 @@ class BBD_Tax extends BBD_Post{
 		if( empty( $this->hierarchical ) ) $this->hierarchical = false;
 		if( empty( $this->public ) ) $this->public = false;
 
+		# set the slug if the taxonomy is public and doesn't have a slug
+		if( $this->public && empty( $this->slug ) && ! empty( $this->post_title ) ) {
+			$this->slug = BBD_Helper::clean_str_for_url( $this->post_title );
+		}
+
 	} # end: __construct()
 
 	/**
@@ -161,7 +166,6 @@ class BBD_Tax extends BBD_Post{
 				'plural' 	=> $this->plural,
 			)
 		);
-
 
 		if( ! empty( $this->slug ) ) $args['names']['slug'] = $this->slug;
 
