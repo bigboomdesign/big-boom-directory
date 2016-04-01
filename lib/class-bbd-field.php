@@ -200,10 +200,22 @@ class BBD_Field {
 		/**
 		 * Special field types
 		 *
+		 *		- Checkbox
 		 * 		- Image
 		 * 		- Date Picker
 		 */
 
+		if( 'checkbox' == $this->type ) {
+			$value = $bbd_view->post_meta[ $post_id ][ $this->key ];
+			$value = unserialize($value);
+			
+			foreach( $value as &$v ) {
+				$v = $this->acf_field['choices'][$v];
+			}
+			
+			return implode(', ', $value);
+		}
+		 
 		if( 'image' == $this->type ) {
 			
 			$src = '';
