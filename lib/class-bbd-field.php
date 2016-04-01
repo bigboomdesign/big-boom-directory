@@ -206,18 +206,27 @@ class BBD_Field {
 		 */
 
 		if( 'checkbox' == $this->type ) {
+
 			$value = $bbd_view->post_meta[ $post_id ][ $this->key ];
-			$value = unserialize($value);
+			$value = maybe_unserialize($value);
 			
-			foreach( $value as &$v ) {
-				$v = $this->acf_field['choices'][$v];
+			# if we have an array, we'll return a comma-separated string of the array items
+			if( is_array( $value ) ) {
+
+				# loop through the values and store the ACF labels instead of the values
+				foreach( $value as &$v ) {
+					if( ! empty( $this->acf_field['choices'][ $v ] ) ) {
+						$v = $this->acf_field['choices'][ $v ];
+					}
+				}
+
+				$value = implode( ', ', $value );
 			}
-			
-			return implode(', ', $value);
-		}
+
+		} # end if: checkbox field
 		 
 		if( 'image' == $this->type ) {
-			
+
 			$src = '';
 
 			# get the appropriate size, falling back on thumbnail for archive and medium for single
@@ -228,7 +237,7 @@ class BBD_Field {
 					'medium'
 				)
 			);
-				
+
 
 			# ACF gives the option of multiple save formats for images (object/url/id)
 			if( $this->is_acf ) {
