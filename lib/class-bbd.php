@@ -286,7 +286,12 @@ class BBD {
 		}
 
 		if( ! BBD::$is_bbd ) return;
-		if( empty( $current_post_type ) ) return;
+		if( empty( $current_post_type ) ) {
+
+			# action that users can hook into to edit the query further
+			do_action( 'bbd_pre_get_posts', $query );
+			return;
+		}
 
 		# get the post orderby parameter
 		$orderby = $current_post_type->post_orderby;
