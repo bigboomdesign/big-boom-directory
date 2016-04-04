@@ -133,6 +133,22 @@ class BBD_PT extends BBD_Post{
 	var $has_archive;
 
 	/**
+	 * Whether to show the UI for post editing for this post type
+	 *
+	 * @param 	(bool)
+	 * @since 	2.1.0
+	 */
+	var $show_ui;
+
+	/**
+	 * Whether (and possibly where) the post type should be shown in the WP Admin menu
+	 *
+	 * @param 	(str) 		Possible values: inherit, show, hide
+	 * @since 	2.1.0
+	 */
+	var $show_in_menu;
+
+	/**
 	 * Whether to exclude the post type from WP search
 	 *
 	 * @param 	bool
@@ -184,6 +200,23 @@ class BBD_PT extends BBD_Post{
 		if( $this->public && empty( $this->slug ) && ! empty( $this->post_title ) ) {
 			$this->slug = BBD_Helper::clean_str_for_url( $this->post_title );
 		}
+
+		/**
+		 * The `show_in_menu` value may need to be set
+		 *
+		 * If not null, the pt register method will assert the value.  Otherwise, we leave the value
+		 * empty and let the default kick in based on `public` and `show_ui`
+		 */
+		if( 'show' == $this->show_in_menu ) {
+			$this->show_ui = true;
+			$this->show_in_menu = true;
+		}
+		elseif( 'hide' == $this->show_in_menu ) {
+			$this->show_in_menu = false;
+		}
+		elseif( 'inherit' == $this->show_in_menu ) {
+			$this->show_in_menu = null;
+		}
  
 	} # end: __construct()
 
@@ -223,6 +256,12 @@ class BBD_PT extends BBD_Post{
 		);
 
 		if( ! empty( $this->slug ) ) $args['names']['slug'] = $this->slug;
+
+		# show_ui
+		if( $this->show_ui ) $args['args']['show_ui'] = true;
+
+		# show_in_menu
+		if( null !== $this->show_in_menu ) $args['args']['show_in_menu'] = $this->show_in_menu;
 
 		# load in any settings from the backend
 		foreach( $this->args_settings as $key ) {

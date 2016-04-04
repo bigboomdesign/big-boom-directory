@@ -27,14 +27,18 @@ class BBD_Meta_Boxes {
 		 * Post type meta boxes
 		 * 
 		 * - Basic post type settings
-		 * 		- Name/Handle
 		 * 		- Singular
 		 * 		- Plural
+		 * 		- Order by
+		 *		- Meta key to order by
+		 * 		- Order
 		 *
 		 * - Advanced post type settings
+		 * 		- Name/Handle
 		 *		- Slug
 		 * 		- Public
 		 * 		- Has Archive
+		 * 		- Show In Admin Menu
 		 * 		- Menu Position
 		 * 		- Menu Icon
 		 *
@@ -196,6 +200,19 @@ class BBD_Meta_Boxes {
 			'id'		=> $prefix.'has_archive',
 			'type' 		=> 'checkbox',
 			'default' 	=> self::default_for_checkbox( 'on' ),
+		));
+
+		## Show In Admin Menu
+		$advanced_pt_settings->add_field( array(
+			'name' 		=> 'Show In WP Admin Menu',
+			'id' 		=> $prefix . 'show_in_menu',
+			'type' 		=> 'radio',
+			'default' 	=> 'show',
+			'options' 	=> array(
+				'show' 	=> 'Show',
+				'hide' 	=> 'Hide',
+				'inherit' 	=> 'Inherit',
+			)
 		));
 
 		## Exclude From Search
