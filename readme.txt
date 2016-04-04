@@ -60,6 +60,7 @@ None yet.
 
 * Flush rewrite rules whenever a slug is added/deleted/updated for a post type or taxonomy
 * Add support for ACF checkbox fields
+* Added option to show or hide post types in the WP Admin menu
 * Added `bbd_the_excerpt` filter for archive views instead of using `bbd_the_content`
 * Improve row links for post type and taxonomy backend listing screens
 * Limit the "View Post Type" link in the admin bar to those that are public and have an archive
