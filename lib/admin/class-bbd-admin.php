@@ -31,6 +31,10 @@ class BBD_Admin{
 		
 		# Inline CSS for all admin page views
 		add_action('admin_print_scripts', array('BBD_Admin', 'admin_print_scripts'));
+
+		# add Directory shortcodes to media buttons
+		add_action( 'media_buttons', array( 'BBD_Admin', 'media_buttons' ), 100 );
+		add_filter( 'mce_external_plugins', array( 'BBD_Admin', 'bbd_add_tinymce' ) );
 	
 		# Action links on main Plugins screen and Network Admin plugins screen
 		$plugin = plugin_basename( bbd_dir( '/big-boom-directory.php' ) );
@@ -65,6 +69,8 @@ class BBD_Admin{
 	 * - admin_menu_information()
 	 * - admin_enqueue()
 	 * - admin_print_scripts()
+	 * - media_buttons()
+	 * - bbd_add_tinymce()
 	 * - plugin_actions()
 	 * - post_row_actions()
 	 * - cmb2_meta_boxes()
@@ -235,25 +241,53 @@ class BBD_Admin{
 	} # end: admin_enqueue()
 
 	/**
+	 * Print inline CSS to each admin page
 	 *
+	 * @since	2.1.0
 	 */
 	public static function admin_print_scripts() {
 	?>
-	<style>
-		.menu-icon-bbd_pt .wp-menu-image {
-		    background-image: url( 
-		    	<?php echo bbd_url( 'css/admin/big-boom-design-logo.png'); ?>
-		    );
-		    background-position: center center;
-		    background-repeat: no-repeat;
-		    background-size: 25px 25px;
-		}
-		.menu-icon-bbd_pt .wp-menu-image.dashicons-before.dashicons-list-view::before {
-			content: '';
-		}
-	</style>
+		<style>
+			.menu-icon-bbd_pt .wp-menu-image {
+			    background-image: url( 
+			    	<?php echo bbd_url( 'css/admin/big-boom-design-logo.png'); ?>
+			    );
+			    background-position: center center;
+			    background-repeat: no-repeat;
+			    background-size: 25px 25px;
+			}
+			.menu-icon-bbd_pt .wp-menu-image.dashicons-before.dashicons-list-view::before {
+				content: '';
+			}
+		</style>
 	<?php
 	} # end: admin_print_scripts()
+
+	/**
+	 * Add the 'Directory' button above the WYSIWYG to allow shortcode insertion
+	 *
+	 * @since 	2.2.0
+	 */
+	public static function media_buttons() {
+
+		# the CSS to be applied to the <span> element below
+		$span_style = 'background-image: url( ' . bbd_url( 'css/admin/big-boom-design-logo.png') . ' );
+			background-size: 100% 100%;
+			width: 18px;
+			height: 18px;
+			display: inline-block;
+			vertical-align: text-top;';
+	?>
+		<button id="insert-bbd-shortcode-button" class="button insert-bbd-shortcode" data-editor="content" type="button">
+			<span style='<?php echo $span_style; ?>'></span> Directory
+		</button>
+	<?php
+	} # end: media_buttons()
+
+	public static function bbd_add_tinymce( $plugin_array ) {
+	    $plugin_array['bbd_shortcodes'] = bbd_url( '/js/admin/bbd-tinymce.js' );
+	    return $plugin_array;
+	} # end: bbd_add_tinymce()
 	
 	/**
 	 * Add action links for this plugin on main Plugins screen (under plugin name)
