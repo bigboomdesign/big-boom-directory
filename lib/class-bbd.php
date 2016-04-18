@@ -564,6 +564,11 @@ class BBD {
 	 * @since 	2.2.0
 	 */
 	public static function delete_post( $post_id ) {
+
+		# do nothing if we don't have a post type of bbd_pt or bbd_tax
+		global $post;
+		if( 'bbd_pt' != $post->post_type && 'bbd_tax' != $post->post_type ) return;
+
 		wp_cache_delete( 'bbd_post_types' );
 		wp_cache_delete( 'bbd_post_types_meta' );
 	}

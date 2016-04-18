@@ -47,7 +47,9 @@ add_action( 'init', array( 'BBD', 'init' ) );
 add_action( 'pre_get_posts', array( 'BBD', 'pre_get_posts' ) );
 add_action( 'widgets_init', array( 'BBD', 'widgets_init' ) );
 
-# flush rewrite rules whenever a new slug is saved for a post type or taxonomy
+# when updating certain posts, we may need to flush the rewrite rules (e.g. whenever a new slug is 
+# saved for a post type or taxonomy) or empty items from the object cache (e.g. whenever a post type 
+# is added/edited/deleted
 add_action( 'updated_postmeta', array( 'BBD', 'updated_postmeta' ), 10, 4 );
 add_action( 'save_post', array( 'BBD', 'save_post' ), 10, 3 );
 add_action( 'delete_post', array( 'BBD', 'delete_post' ), 10, 1 );
