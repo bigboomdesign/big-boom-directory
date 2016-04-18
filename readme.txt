@@ -56,6 +56,10 @@ None yet.
 
 == Changelog ==
 
+= 2.2.0 =
+
+* Cache around the database calls which get post type data from `wp_posts` and `wp_postmeta`
+
 = 2.1.0 = 
 
 * Flush rewrite rules whenever a slug is added/deleted/updated for a post type or taxonomy

@@ -493,13 +493,18 @@ class BBD {
 
 			set_transient( '_bbd_flush_rewrite_rules', 'true', 12 * HOUR_IN_SECONDS );
 		}
+
+		# delete the post type/taxonomy post meta from the object cache
+		wp_cache_delete( 'bbd_post_types_meta' );
 	
 	} # end: updated_postmeta()
 
 	/**
+	 * Delete the post type data from object cache when saving a post
 	 * Potentially flush the rewrite rules when saving a post
 	 *
-	 * This is needed since `updated_postmeta` doesn't fire when deleting or adding post meta
+	 * Flushing the rewrite rules is done here as well as on `updated_postmeta` because 
+	 * `updated_postmeta` doesn't fire when deleting or adding post meta
 	 *
 	 * @param 	int			$post_id	The post ID being saved
 	 * @param 	WP_Post		$post		The post being saved
@@ -509,8 +514,19 @@ class BBD {
 	 */
 	public static function save_post( $post_id, $post, $update ) {
 
+		# make sure we're not doing an autosave or post revision
+		if( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) return;
+
 		# do nothing if we're not saving a post type or taxonomy
 		if( 'bbd_pt' != $post->post_type && 'bbd_tax' != $post->post_type ) return;
+
+		# delete the post types/taxonomies and related post meta from the WP Object cache
+		wp_cache_delete( 'bbd_post_types' );
+		wp_cache_delete( 'bbd_post_types_meta' );
+
+		/**
+		 * Potentially flush the rewrite rules
+		 */
 
 		# this covers the case where we are emptying the slug and we need to re-form the slug from the title
 		if( empty( $_POST['_bbd_meta_slug'] ) ) {
@@ -535,6 +551,22 @@ class BBD {
 		}
 	
 	} # end: save_post()
+
+	/**
+	 * Delete the post type object cache whenever a post type or taxonomy is deleted
+	 * via the wp_delete_post function
+	 *
+	 * Note that this really only applies to instances where a post is for some reason deleted manually
+	 * using the wp_delete_post function.  Otherwise, when the post is trashed via the WP backend, the cache
+	 * items are already deleted because the `save_post` hook is triggered at that point.
+	 *
+	 * @param	int		$post_id		The post ID being deleted
+	 * @since 	2.2.0
+	 */
+	public static function delete_post( $post_id ) {
+		wp_cache_delete( 'bbd_post_types' );
+		wp_cache_delete( 'bbd_post_types_meta' );
+	}
 
 	/**
 	 * Callback for 'the_content' and 'the_excerpt' action
@@ -665,19 +697,20 @@ class BBD {
 
 		# generate the HTML
 		ob_start();
-	?>
+		?>
 		<div id='bbd-a-z-listing'>
 			<ul>
 				<?php foreach( $posts as $post ) { ?>
 					<li
-						<?php 
+					<?php 
 							if( ! empty( $list_style ) ) echo 'style="list-style: ' . $list_style .'"'; 
-						?>
+					?>
 					><a href="<?php echo get_permalink( $post->ID ); ?>"><?php echo $post->post_title; ?></a></li>
 				<?php } ?>
 			</ul>
 		</div>
-	<?php
+		<?php
+
 		$html = ob_get_contents();
 		ob_end_clean();
 
@@ -778,6 +811,9 @@ class BBD {
 	/**
 	 * Load all data necessary to bootstrap the custom post types and taxonomies
 	 *
+	 * Gets data from the WP Object cache, or from the database if caching is not enabled or
+	 * the cache items are not present
+	 *
 	 * @since 	2.0.0
 	 */ 
 	public static function load_bbd_post_data() {
@@ -785,21 +821,28 @@ class BBD {
 		# make sure we only call the function one time
 		if( self::$no_post_types || ! empty( self::$post_type_ids ) ) return;
 
-		# query the database for post type 'bbd_pt' and 'bbd_tax'
 		global $wpdb;
 
-		# build the posts query
-		$posts_query = "SELECT ID, post_title, post_type, post_status FROM " . $wpdb->posts .
-			" WHERE post_type IN ( 'bbd_pt', 'bbd_tax' ) " .
-			" AND post_status IN ( 'publish', 'draft' ) " .
-			" ORDER BY post_title ASC";
-		$posts_result = $wpdb->get_results( $posts_query );
-		
+		# try to get post type objects from the object cache
+		$post_type_objects = wp_cache_get( 'bbd_post_types' );
+
+		if( false === $post_type_objects ) {
+
+			# build the posts query
+			$posts_query = "SELECT ID, post_title, post_type, post_status FROM " . $wpdb->posts .
+				" WHERE post_type IN ( 'bbd_pt', 'bbd_tax' ) " .
+				" AND post_status IN ( 'publish', 'draft' ) " .
+				" ORDER BY post_title ASC";
+			$post_type_objects = $wpdb->get_results( $posts_query );
+
+			wp_cache_set( 'bbd_post_types', $post_type_objects );
+
+		} # end if: post type objects not found in cache
+
 		# if we don't have any post types or taxonomies, set the object values to indicate so
-		if( ! $posts_result || is_wp_error( $posts_result ) ) {
+		if( ! $post_type_objects ) {
 			self::$no_post_types = true;
 			self::$no_taxonomies = true;
-			return;
 		}
 
 		# whether we have each type of post
@@ -807,7 +850,7 @@ class BBD {
 		$has_taxonomy = false;
 
 		# loop through posts and load the IDs
-		foreach( $posts_result as  $post ) {
+		foreach( $post_type_objects as  $post ) {
 
 			# for post types
 			if( 'bbd_pt' == $post->post_type ) {
@@ -828,13 +871,33 @@ class BBD {
 		if( ! $has_post_type ) self::$no_post_types = true;
 		if( ! $has_taxonomy ) self::$no_taxonomies = true;
 
-		# get the post meta that makes the post types and taxonomies work
-		$post_meta_query = "SELECT post_id, meta_key, meta_value FROM " . $wpdb->postmeta . 
-			" WHERE meta_key LIKE '_bbd_meta_%'";
-		$post_meta = $wpdb->get_results( $post_meta_query );
+		# do nothing further if we don't have a post type or a taxonomy
+		if( ! $has_post_type && ! $has_taxonomy ) return;
+
+		/**
+		 * Get the post meta that makes the post types and taxonomies work
+		 */
+
+		# first, attempt to get the postmeta from the object cache
+		$post_meta_data = wp_cache_get( 'bbd_post_types_meta' );
+
+		# if the data wasn't found in the cache, get it from the database
+		if( false === $post_meta_data ) {
+
+			# get the relevant values from the database
+			$post_meta_query = "SELECT post_id, meta_key, meta_value FROM " . $wpdb->postmeta . 
+				" WHERE meta_key LIKE '_bbd_meta_%'";
+			$post_meta_data = $wpdb->get_results( $post_meta_query );
+
+			# store the values in the object cache
+			wp_cache_set( 'bbd_post_types_meta', $post_meta_data );
+		}
+
+		# do nothing further if we don't have any meta values for the post types or taxonomies
+		if( empty( $post_meta_data ) ) return;
 
 		# parse the post meta data rows
-		foreach( $post_meta as $field ) {
+		foreach( $post_meta_data as $field ) {
 
 			# get the simplified key (e.g. `handle` instead of `_bbd_meta_handle`)
 			$key = str_replace( '_bbd_meta_', '', $field->meta_key );
@@ -847,7 +910,7 @@ class BBD {
 			# store the field value in self::$meta
 			self::$meta[ $field->post_id ]->$key = $field->meta_value;
 
-		} # end foreach: $post_meta
+		} # end foreach: $post_meta_data
 
 	} # end: load_bbd_post_data()
 
