@@ -56,6 +56,10 @@ None yet.
 
 == Changelog ==
 
+= 2.2.0 =
+
+* Remove row actions when viewing post types in the trash
+
 = 2.1.0 = 
 
 * Flush rewrite rules whenever a slug is added/deleted/updated for a post type or taxonomy
