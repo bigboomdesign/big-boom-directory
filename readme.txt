@@ -59,6 +59,7 @@ None yet.
 = 2.2.0 =
 
 * Cache around the database calls which get post type data from `wp_posts` and `wp_postmeta`
+* Remove row actions when viewing post types in the trash
 
 = 2.1.0 = 
 

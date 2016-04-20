@@ -296,6 +296,11 @@ class BBD_Admin{
 	 */
 	public static function post_row_actions( $actions, $post ){
 
+		# don't do anything if we're viewing posts in the trash
+		if( ! empty( $_GET['post_status'] ) && 'trash' == $_GET['post_status'] ) {
+			return $actions;
+		}
+
 		# make sure we have the post type 'bbd_pt'
 		if ( ! ( 'bbd_pt' == $post->post_type ) && ! ( 'bbd_tax' == $post->post_type ) ) return $actions;
 
