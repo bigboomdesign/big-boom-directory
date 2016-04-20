@@ -127,6 +127,10 @@ class CPTD_import{
 						<p class='description'>Use the format <code>{column_name}</code> to specify a column value in the post title</p>
 						<p class='description'><b>Make sure that you assign each column below that you use in your pattern.</b></p>
 					</div>
+					<h3>If importing taxonomy (category) terms</h3>
+					<p>If we find a post in your spreadsheet that already exists, should we replace the existing terms, or add to them?</p>
+					<label for='terms_append'><input checked='checked' type='radio' value='append' id='terms_append' name='terms_method' > Add To</label><br />
+					<label for='terms_replace'><input type='radio' value='replace' id='terms_replace' name='terms_method' > Replace</label>
 					<hr />
 					<h3>We found the following column headers in your spreadsheet</h3>
 					<p>Please indicate how the data should be stored for each column.</p>
@@ -461,8 +465,15 @@ class CPTD_import{
 					$aTermIds[] = intval($term_id["term_id"]);
 				}
 			} # end foreach: found terms
-			# Insert terms if we have a non-empty array of term IDs
-			if(array() != $aTermIds) $tax_insert = wp_set_post_terms( $post_id, $aTermIds, $tax);
+			
+			/**
+			 * Insert terms if we have a non-empty array of term IDs
+			 */
+
+			# first check if we are replacing or appending
+			$bAppend = ( 'replace' ==  $_POST['terms_method'] ) ? false : true;
+
+			if(array() != $aTermIds) $tax_insert = wp_set_post_terms( $post_id, $aTermIds, $tax, $bAppend );
 			if(is_array($tax_insert)) echo "<p class='cptdir-success'>Successfully set " . count($tax_insert) . " terms.</p>";
 			else{ echo "<p>There was a problem inserting these terms.</p>"; }					
 		} # end foreach: column options		

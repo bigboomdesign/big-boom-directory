@@ -103,7 +103,7 @@ class CPTD{
 			'thumbnail', 'medium', 'large', 'full'
 		);
 		global $_wp_additional_image_sizes;
-		foreach( $_wp_additional_image_sizes as $size => $info ) {
+		if( ! empty( $_wp_additional_image_sizes ) ) foreach( $_wp_additional_image_sizes as $size => $info ) {
 			$image_sizes[] = $size;
 		}
 
