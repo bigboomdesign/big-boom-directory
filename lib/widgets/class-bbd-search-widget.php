@@ -104,6 +104,8 @@ class BBD_Search_Widget extends WP_Widget {
 		);
 
 		parent::__construct("bbd_search_widget", "Big Boom Directory Search", $widget_options);
+
+		# store the available field keys to use in the 'Field Filters' section
 		$this->field_keys = BBD_Helper::get_all_field_keys();
 
 		# if we are viewing widget search results, add filter for the_content
@@ -113,6 +115,7 @@ class BBD_Search_Widget extends WP_Widget {
 			add_filter('the_content', array( $this, 'get_search_results_html' ) );
 		}
 
+		# add a shortcode that invokes this instances callback function
 		add_shortcode( 'bbd-search', array( $this, 'get_shortcode_html' ) );
 
 	} # end: __construct()
@@ -195,6 +198,7 @@ class BBD_Search_Widget extends WP_Widget {
 			/>
 		</label></p>
 		<?php
+
 		# Checkboxes for post types
 		$post_type_args = array(
 			'selected' => ( ! empty( $instance['post_types'] ) ? $instance['post_types'] : array() ),
@@ -285,7 +289,10 @@ class BBD_Search_Widget extends WP_Widget {
 		# initilize the main widget JS routines after save
 	?>
 		<script type='text/javascript'>initSearchWidget( jQuery )</script>
-	</div><?php // .bbd-widget-form ?>
+	<?php
+		do_action( 'bbd_after_search_widget_form' );
+	?>
+	</div><?php # .bbd-widget-form ?>
 	<?php
 	} # end: form()
 
@@ -336,7 +343,11 @@ class BBD_Search_Widget extends WP_Widget {
 					<?php if( ! empty( $this->instance[ $field_type_key ] ) ) echo checked( $this->instance[ $field_type_key ], 'checkbox' ); ?>
 				/> Checkboxes
 			</label>
+			<?php
 
+			# do an action to allow addition of more field types
+			do_action( 'bbd_field_type_details', $this, $field );
+		?>
 		</div>
 		<?php
 	} # end: field_type_details()
@@ -677,6 +688,9 @@ class BBD_Search_Widget extends WP_Widget {
 			$meta_query['relation'] = 'OR';
 			$query_args['meta_query'] = $meta_query;
 		}
+
+		# apply a filter to the query args
+		$query_args = apply_filters( 'bbd_search_widget_query_args', $query_args, $this );
 
 		$search_query = new WP_Query( $query_args );
 

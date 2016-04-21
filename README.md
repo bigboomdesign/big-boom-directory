@@ -385,6 +385,25 @@ We assume that the description should have the same HTML structure as a single l
         'id'            => (string),
     }
 
+#### Return
+
+    (array)     You must return the altered $wrap array
+
+---
+
+### ````bbd_search_widget_query_args````
+
+Alters the arguments for the WP_Query instance used to get the search results when using the Search Widget
+
+#### Parameters
+
+    $query_args (array)                 The query args as processed by the plugin, based on form input
+    $widget     (BBD_Search_Widget)     The instance of the search widget which was submitted
+
+#### Return
+
+    (array)     You must return the altered $query_args array
+
 ---
 
 ## Actions
@@ -518,8 +537,24 @@ The following example will display a field called `email` before the result's ex
 
 ---
 
-CMB2 Actions
+### ````bbd_field_type_details````
+
+This action fires after the field type radio buttons for each field filter within the search widget. Use it to insert additional field types, and then use `bbd_search_widget_query_args` to edit the WP_Query as needed for the search results page
+
+#### Parameters
+
+    $widget (BBD_Search_Wiget)      An instance of the search widget object
+    $field  (BBD_Field)             The field object that we are adding a type for
+
 ---
+
+### ````bbd_after_search_widget_form````
+
+Perform an action (like executing an inline JS function) after the search widget form is rendered.  This helps with initializing parts of the widget after saving without doing a hard screen refresh
+
+---
+
+### CMB2 Actions
 
 Use these actions to alter the respective CMB2 meta box objects on the post type edit screen.  
 

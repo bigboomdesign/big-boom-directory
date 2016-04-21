@@ -5,22 +5,23 @@
 <h2>Features</h2>
 
 <ul>
-<li><p>Create and manage custom post types and taxonomies from WP Admin.  Settings include:</p>
+<li><p>Create and manage custom post types and taxonomies from WP Admin.  Post type settings include:</p>
 
 <ul>
 <li>Post ordering</li>
-<li>Labels</li>
+<li>Post type labels</li>
 <li>WP Admin menu icon and position</li>
 <li>URL slug and post type name/handle</li>
 <li>Basic settings like 'Public' and 'Has Archive', and 'Exclude From Search'</li>
+<li>Use hooks to add your own post type settings</li>
 </ul></li>
 <li><p>Add content using the WYSIWYG to act as the post type description for archive pages</p></li>
 <li><p>Pick and choose fields from Advanced Custom Fields groups to be displayed on single and archive views</p></li>
 <li><p>Choose image size and alignment for single and archive views with ACF image fields</p></li>
 <li><p>Automatically detect URL and social media fields, converting them into links</p></li>
-<li><p>Support for ACF Gallery field with integration using Lightbox</p></li>
-<li><p>Full-featured search widget with customizable search filters and field selection for the search results</p></li>
-<li><p>Use hooks to further customize post type registration and front end display</p></li>
+<li><p>Support for ACF field types like image, date, and gallery field with integration using Lightbox</p></li>
+<li><p>Full-featured advanced search widget with customizable filters and field selection for the search results display</p></li>
+<li><p>Use hooks to further customize core functionality like post type editing and registration, front end field display and value processing, and more</p></li>
 <li><p>The following add-ons are available and/or currently under development:</p>
 
 <ul>
@@ -50,7 +51,7 @@
 
 <ul>
 <li><p>Uses <a href="https://github.com/johnbillion/extended-cpts">Extended Custom Post Types</a> and <a href="https://github.com/johnbillion/extended-taxos">Extended Taxonomies</a> for registering post types and taxonomies.  Plugin hooks provide access to everything being registered.</p></li>
-<li><p>Uses <a href="https://github.com/WebDevStudios/CMB2">CMB2</a> for handling post meta boxes on the backend.</p></li>
+<li><p>Uses <a href="https://github.com/WebDevStudios/CMB2">CMB2</a> for handling post meta boxes on the backend.  Plugin hooks provide access to the meta boxes used in editing post types and taxonomies.</p></li>
 </ul>
 
 <hr />
@@ -136,7 +137,7 @@ function my_register_pt( $args ) {
 
 <h3><code>bbd_the_content</code></h3>
 
-<p>Use this filter to modify the post content for BBD views.  Does not fire for non-BBD page views.</p>
+<p>Use this filter to modify the post content for BBD single post views.  Does not fire for non-BBD page views.</p>
 
 <h4>Parameters</h4>
 
@@ -163,6 +164,13 @@ function my_the_content( $content ) {
     return $content . $new_html;
 }
 </code></pre>
+
+<hr />
+
+<h3><code>bbd_the_excerpt</code></h3>
+
+<p>Use this filter to modify the post content for BBD archive views.  Does not fire for non-BBD page views.  Similar to
+<code>bbd_the_content</code>, except it fires for archive views instead of single post views.</p>
 
 <hr />
 
@@ -398,6 +406,28 @@ function my_variable_link_text( $text, $field ) {
 }
 </code></pre>
 
+<h4>Return</h4>
+
+<pre><code>(array)     You must return the altered $wrap array
+</code></pre>
+
+<hr />
+
+<h3><code>bbd_search_widget_query_args</code></h3>
+
+<p>Alters the arguments for the WP_Query instance used to get the search results when using the Search Widget</p>
+
+<h4>Parameters</h4>
+
+<pre><code>$query_args (array)                 The query args as processed by the plugin, based on form input
+$widget     (BBD_Search_Widget)     The instance of the search widget which was submitted
+</code></pre>
+
+<h4>Return</h4>
+
+<pre><code>(array)     You must return the altered $query_args array
+</code></pre>
+
 <hr />
 
 <h2>Actions</h2>
@@ -540,7 +570,25 @@ function my_bbd_after_search_result( $post_id ) {
 
 <hr />
 
-<h2>CMB2 Actions</h2>
+<h3><code>bbd_field_type_details</code></h3>
+
+<p>This action fires after the field type radio buttons for each field filter within the search widget. Use it to insert additional field types, and then use <code>bbd_search_widget_query_args</code> to edit the WP_Query as needed for the search results page</p>
+
+<h4>Parameters</h4>
+
+<pre><code>$widget (BBD_Search_Wiget)      An instance of the search widget object
+$field  (BBD_Field)             The field object that we are adding a type for
+</code></pre>
+
+<hr />
+
+<h3><code>bbd_after_search_widget_form</code></h3>
+
+<p>Perform an action (like executing an inline JS function) after the search widget form is rendered.  This helps with initializing parts of the widget after saving without doing a hard screen refresh</p>
+
+<hr />
+
+<h3>CMB2 Actions</h3>
 
 <p>Use these actions to alter the respective CMB2 meta box objects on the post type edit screen.  </p>
 
@@ -615,4 +663,5 @@ function my_cmb2_advanced_post_type_settings( $meta_box, $prefix ) {
 
 <h3><code>bbd_get_field_html( $post_id, $field_key )</code></h3>
 
-<p>Returns an HTML string for a single field for the given post ID.  Any custom hooks registered for the field wrap, label, or value will fire.</p>
+<p>Returns an HTML string for a single field for the given post ID.  Any custom hooks registered for the field wrap, label, or value will fire.{
+}</p>
