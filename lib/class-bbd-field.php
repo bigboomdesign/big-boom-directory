@@ -86,6 +86,7 @@ class BBD_Field {
 	 * Class methods
 	 *
 	 * - __construct()
+	 * - get_value()
 	 * - get_html()
 	 * - get_form_element_html()
 	 *
