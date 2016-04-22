@@ -406,6 +406,21 @@ Alters the arguments for the WP_Query instance used to get the search results wh
 
 ---
 
+### ````bbd_search_widget_query````
+
+Alters the query response object for search widget results, after getting posts
+
+#### Parameters
+
+    $query      (WP_Query)              The WP_Query object for the search results
+    $widget     (BBD_Search_Widget)     The instance of the search widget which was submitted
+
+#### Return
+
+    (WP_Query)      You must return the altered WP_Query object
+
+---
+
 ## Actions
 
 ### ````bbd_pre_get_posts````
@@ -509,19 +524,20 @@ These actions allow users to insert content before or after the search results r
 
 #### Parameters
 
-````$post_id```` (int) The post ID for the current search result being displayed
+````$post_id```` (int)                  The post ID for the current search result being displayed
+````$widget````  (BBD_Search_Widget)    The widget instance that was submitted
 
 #### Example
 
 The following example will display a field called `email` before the result's excerpt and then show a list of term links for the post from a taxonomy called `movie_genre` after the excerpt
 
-    add_action( 'bbd_before_search_result', 'my_bbd_before_search_result' );
-    function my_bbd_before_search_result( $post_id ) {
+    add_action( 'bbd_before_search_result', 'my_bbd_before_search_result', 10, 2 );
+    function my_bbd_before_search_result( $post_id, $widget ) {
         bbd_field( $post_id, 'email' );
     }
     
-    add_action( 'bbd_after_search_result', 'my_bbd_after_search_result' );
-    function my_bbd_after_search_result( $post_id ) {
+    add_action( 'bbd_after_search_result', 'my_bbd_after_search_result', 10, 2 );
+    function my_bbd_after_search_result( $post_id, $widget ) {
     
         $terms = wp_get_post_terms( $post_id, 'movie_genres' );
         $term_links = array();
