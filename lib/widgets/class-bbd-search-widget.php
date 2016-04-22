@@ -292,6 +292,7 @@ class BBD_Search_Widget extends WP_Widget {
 	?>
 	</div><?php # .bbd-widget-form ?>
 	<?php
+
 	} # end: form()
 
 
@@ -358,6 +359,7 @@ class BBD_Search_Widget extends WP_Widget {
 	 * @since 	2.0.0
 	 */
 	public function widget( $args, $instance ) {
+
 		# the ID and number may need to be set if calling from a shortcode
 		if( empty( $args['widget_id'] ) ) {
 			if( ! empty( $instance['widget_id'] ) ) $args['widget_id'] = $this->id_base . '-' . $instance['widget_id'];
@@ -693,6 +695,8 @@ class BBD_Search_Widget extends WP_Widget {
 
 		$search_query = new WP_Query( $query_args );
 
+		$search_query = apply_filters( 'bbd_search_widget_query', $search_query, $this );
+
 		ob_start();
 		?>
 		<div id='bbd-search-results' class='<?php echo $this->id; ?>'>
@@ -714,7 +718,7 @@ class BBD_Search_Widget extends WP_Widget {
 					<?php
 					
 					# execute an action that the user can hook into
-					do_action( 'bbd_before_search_result', $post->ID );
+					do_action( 'bbd_before_search_result', $post->ID, $this );
 
 					# show any fields for this post if applicable
 					if( ! empty( $bbd_view->fields ) ) {
@@ -745,14 +749,15 @@ class BBD_Search_Widget extends WP_Widget {
 					?>
 					<div class='search-results-excerpt'><?php echo $excerpt; ?></div>
 					<?php
-					do_action( 'bbd_after_search_result', $post->ID );
+					do_action( 'bbd_after_search_result', $post->ID, $this );
 					?>
 					</div><!-- .bbd-search-result-item -->
 					<?php
 				}
-				wp_reset_query();
 
+				wp_reset_query();
 				$this->doing_search_results = false;
+
 			} # end if: posts were found
 
 			# if no posts were found
