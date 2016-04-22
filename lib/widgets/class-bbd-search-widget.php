@@ -105,9 +105,6 @@ class BBD_Search_Widget extends WP_Widget {
 
 		parent::__construct("bbd_search_widget", "Big Boom Directory Search", $widget_options);
 
-		# store the available field keys to use in the 'Field Filters' section
-		$this->field_keys = BBD_Helper::get_all_field_keys();
-
 		# if we are viewing widget search results, add filter for the_content
 		# note we don't have a widget_id at this point, so we need to do a test in the callback function
 		# to match the posted widget_id
@@ -225,7 +222,8 @@ class BBD_Search_Widget extends WP_Widget {
 		<?php
 		echo BBD_Helper::checkboxes_for_taxonomies( $tax_args );
 
-		# If we have field keys to use for additional options
+		# Check if we have field keys to use for additional options
+		$this->field_keys = BBD_Helper::get_all_field_keys();
 		if( ! empty( $this->field_keys ) ) {
 
 			/**
