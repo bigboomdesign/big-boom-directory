@@ -159,10 +159,12 @@ class BBD_Field {
 	} # end: __construct()
 
 	/**
-	 * Get the value of this field, in end-usable format
+	 * Get and the value of this field for a specific post, in end-usable format
 	 *
-	 * For example, if we have an ACF field that has type 'image', we'll return the URL no matter what 
-	 * format option is selected for the field.
+	 * If no post is given, we'll use the current post in the loop
+	 *
+	 * For example of 'end-usable format', suppose we have an ACF field that has type 'image'. We will return the 
+	 * image URL, no matter which return format is selected in the ACF settings.
 	 *
 	 * @param 	(int|string) 	$post_id 	The post ID we are displaying the field for (default: global $post)
 	 * @since 	2.0.0
@@ -304,7 +306,7 @@ class BBD_Field {
 
 
 	/**
-	 * Display the HTML for this field (if $this->value is set)
+	 * Output the HTML for this field for a specific post
 	 *
 	 * @param 	(int|string) 	$post_id 	The post ID we are displaying the field for (default: global $post)
 	 * @since 	2.0.0
@@ -589,6 +591,17 @@ class BBD_Field {
 
 	} # end: get_html()
 
+	/**
+	 * Generate form element HTML for this field (e.g. <select ... >...</select>
+	 *
+	 * Uses the same settings API as the main plugin settings in order to account for the field types, 
+	 * available choices, etc.
+	 *
+	 * @param 	array 	$setting 			The HTML element config
+	 * @see 	lib/class-bbd-options.php 	BBD_Options::do_settings_field()
+	 *
+	 * @since 	2.0.0
+	 */
 	public function get_form_element_html( $setting = array() ) {
 
 		# get choices for `select`, `checkbox`
