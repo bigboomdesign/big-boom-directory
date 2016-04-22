@@ -604,6 +604,7 @@ class BBD_Search_Widget extends WP_Widget {
 		# query pieces
 		$query_args = array( 
 			'post_type' => $post_type_names,
+			'posts_per_page' => -1,
 			'relation' => 'OR',
 			'orderby' => 'title',
 			'order' => 'ASC',
