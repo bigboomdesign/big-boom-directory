@@ -204,6 +204,7 @@ class BBD_Field {
 		 *		- Checkbox
 		 * 		- Image
 		 * 		- Date Picker
+		 *		- Google Map
 		 */
 
 		if( 'checkbox' == $this->type ) {
@@ -294,6 +295,15 @@ class BBD_Field {
 		
 		} # end: date picker field
 
+		/**
+		 * Google Map field
+		 */
+		if ( 'google_map' == $this->type && $this->is_acf ) {
+
+			$value = maybe_unserialize($value);
+
+		} # end: google map field
+		
 		# apply filters to the value so users can edit it
 		$value = apply_filters( 'bbd_field_value', $value, $this, $post_id );
 		$value = apply_filters( 'bbd_field_value_' . $this->key, $value, $this, $post_id );
@@ -343,6 +353,8 @@ class BBD_Field {
 		 * - auto detect URL fields
 		 * - images
 		 * - gallery
+		 * - google map
+		 *
 		 */
 
 		/**
@@ -556,6 +568,29 @@ class BBD_Field {
 
 			return;
 		} # end if: gallery field
+
+		/**
+		 * Google Map field
+		 */
+		if( 'google_map' == $this->type ) {
+			$height = ! empty( $this->acf_field['height'] ) ? $this->acf_field['height'] : 400;
+			$zoom = ! empty( $this->acf_field['zoom'] ) ? $this->acf_field['zoom'] : 14;
+
+		?>
+			<div class="bbd-field google_map <?php echo $this->key; ?>" style="height:<?php echo $height; ?>px;"
+				data-lat="<?php echo $value['lat']; ?>"
+				data-lng="<?php echo $value['lng']; ?>"
+				data-address="<?php echo $value['address']; ?>"
+				data-zoom="<?php echo $zoom; ?>"
+			></div>
+		<?php
+
+			wp_enqueue_script('bbd-gmaps', 'https://maps.googleapis.com/maps/api/js');
+			wp_enqueue_script('bbd-gmap-field', bbd_url('/js/bbd-google-map-field.js'), array('jquery', 'bbd-gmaps'));
+
+			return;
+
+		} # end if: google map field
 
 		/**
 		 * end: special cases

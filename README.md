@@ -21,7 +21,7 @@ Directory management plugin for WordPress, based on Custom Post Types, Taxonomie
 
 * Automatically detect URL and social media fields, converting them into links
 
-* Support for ACF field types like image, date, and gallery field with integration using Lightbox
+* Support for ACF field types like checkboxes, image, date, gallery field (with integration using Lightbox), and Google Map 
 
 * Full-featured advanced search widget with customizable filters and field selection for the search results display
 
