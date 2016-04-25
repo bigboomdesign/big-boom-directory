@@ -303,7 +303,7 @@ class BBD_Field {
 			$value = maybe_unserialize($value);
 
 		} # end: google map field
-		
+
 		# apply filters to the value so users can edit it
 		$value = apply_filters( 'bbd_field_value', $value, $this, $post_id );
 		$value = apply_filters( 'bbd_field_value_' . $this->key, $value, $this, $post_id );

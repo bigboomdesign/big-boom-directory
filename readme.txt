@@ -58,13 +58,14 @@ None yet.
 
 = 2.2.0 =
 
-* Added support for Google Map ACF Field
+* Added support for Google Map field type in ACF
 
 * Updates to search widget
 	* Add action for adding additional field types in search widget
 	* Add filter for the WP_Query arguments on the search results page
 	* Added action that executes after each search widget form instance is loaded in WP Admin
 	* Show all search results instead of the default of 10
+
 * Remove row actions when viewing post types in the trash
 
 = 2.1.0 = 
