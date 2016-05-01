@@ -459,6 +459,29 @@ Fires on the `wp_enqueue_scripts` hook, but only for BBD views
 
 ---
 
+### ````bbd_before_fields_wrap````
+### ````bbd_after_fields_wrap````
+
+Use these to insert content before or after the fields wrap container.  Note that the hooks fire on both archive pages and single pages.  
+
+The following example adds content before the fields wrap container and illustrates how the global `$bbd_view` object can be used to differentiate between archive and single views
+
+    add_action( 'bbd_before_fields_wrap', 'my_before_fields_wrap' );
+    function my_before_fields_wrap() {
+    
+        global $bbd_view;
+        if( 'archive' == $bbd_view->view_type ) {
+
+            // stuff to do on archive listings
+        }
+        elseif( 'single' == $bbd_view->view_type ) {
+
+            // stuff to do on single listings
+        }
+    }
+
+---
+
 ### ````bbd_pre_render_field_{$field_name}````
 ### ````bbd_post_render_field_{$field_name}````
 

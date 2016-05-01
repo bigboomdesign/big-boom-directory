@@ -63,6 +63,7 @@ None yet.
 	* Add filter for the WP_Query arguments on the search results page
 	* Added action that executes after each search widget form instance is loaded in WP Admin
 	* Show all search results instead of the default of 10
+* Add hookable actions before and after the fields wrap element
 * Remove row actions when viewing post types in the trash
 
 = 2.1.0 = 
