@@ -65,6 +65,7 @@ None yet.
 	* Show all search results instead of the default of 10
 * Add hookable actions before and after the fields wrap element
 * Remove row actions when viewing post types in the trash
+* Bug fix for plugin action links
 
 = 2.1.0 = 
 
