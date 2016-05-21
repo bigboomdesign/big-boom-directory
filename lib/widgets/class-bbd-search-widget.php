@@ -477,7 +477,7 @@ class BBD_Search_Widget extends WP_Widget {
 							sanitize_text_field( $_POST['bbd_search']['widget_id'] ) :
 							''
 						); ?>" 
-				>
+				/>
 				<input type="hidden" 
 					name="bbd_search[widget_number]" 
 					value="<?php echo isset( $this->number ) ? 
@@ -486,8 +486,8 @@ class BBD_Search_Widget extends WP_Widget {
 							sanitize_text_field( $_POST['bbd_search']['widget_number'] ) :
 							''
 						); ?>" 
-				>
-				<input class="bbd-search-submit" type="submit" value="<?php echo $submit_text; ?>"/>
+				/>
+				<input class="bbd-search-submit" type="submit" value="<?php echo $submit_text; ?>" />
 			</form>
 			</div><!-- .bbd-search-widget-container -->
 		<?php
