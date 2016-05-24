@@ -1,0 +1,37 @@
+.bbd-shortcode-modal-wrap{
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	background: rgba(0, 0, 0, .5);
+	z-index: 2000;
+}
+
+.bbd-shortcode-modal-wrap.active{
+	display: block;
+}
+
+.bbd-shortcode-modal-inner{
+	position: absolute;
+	top: 20%;
+	left: 50%;
+	margin-left: -300px;
+	width: 100%;
+	padding: 20px;
+	max-width: 600px;
+	height: auto;
+	min-height: 300px;
+	background-color: white;
+	z-index: 2000;
+}
+
+.bbd-shortcode-modal-inner textarea{
+	display: block;
+	width: 100%;
+}
+
+.bbd-shortcode-input-wrap{
+	margin-bottom: 20px;
+}

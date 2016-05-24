@@ -19,7 +19,7 @@ class BBD_Ajax{
 	 */
 	static $actions = array(
 
-		/* post edit */
+		/* post type edit */
 		'bbd_handle_from_title', 
 		'bbd_slug_from_title',
 		'bbd_save_slug',
@@ -31,14 +31,14 @@ class BBD_Ajax{
 	 * Class methods
 	 * 
 	 * - Ajax callback methods
-	 * 		- Post edit
+	 * 		- Post type edit
 	 *
 	 * - Helper methods
 	 */
 
-
 	/**
-	 * Post edit AJAX callbacks
+	 * Post type edit AJAX callbacks
+	 *
 	 * 		- bbd_handle_from_title()
 	 * 		- bbd_slug_from_title()
 	 * 		- bbd_save_slug()

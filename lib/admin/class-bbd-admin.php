@@ -32,9 +32,12 @@ class BBD_Admin{
 		# Inline CSS for all admin page views
 		add_action('admin_print_scripts', array('BBD_Admin', 'admin_print_scripts'));
 
-		# add Directory shortcodes to media buttons
+		# add Directory shortcodes to WYSIWYG media button row
+		/**
+		 * clip
 		add_action( 'media_buttons', array( 'BBD_Admin', 'media_buttons' ), 100 );
 		add_filter( 'mce_external_plugins', array( 'BBD_Admin', 'bbd_add_tinymce' ) );
+		*/
 	
 		# Action links on main Plugins screen and Network Admin plugins screen
 		$plugin = plugin_basename( bbd_dir( '/big-boom-directory.php' ) );
@@ -180,6 +183,42 @@ class BBD_Admin{
 			);
 		}
 
+		# Post edit screen (for any post type)
+		if( 'post' == $screen->base ) {
+
+			wp_enqueue_style( 'bbd-tinymce', bbd_url( '/css/admin/bbd-tinymce.css' ) );
+			wp_enqueue_script( 'bbd-tinymce', bbd_url( '/js/admin/bbd-tinymce.js' ), array( 'jquery' ) );
+
+			/**
+			 * Pass data to the TinyMCE modal for shortcodes
+			 */
+			$data = array();
+
+			# the post type information
+			$post_types = bbd_get_post_types();
+			foreach( $post_types as $pt ) {
+				$data['post_types'][] = array(
+					'handle' => $pt->handle,
+					'label' => $pt->plural
+				);
+			}
+
+			# taxonomy information
+			$taxonomies = bbd_get_taxonomies();
+			foreach( $taxonomies as $tax ) {
+				$data['taxonomies'][] = array(
+					'handle' => $tax->handle,
+					'label' => $tax->plural
+				);
+			}
+
+			wp_localize_script( 'bbd-tinymce', 'BBD_Shortcode_Data', array(
+				'icon_url' => bbd_url( '/css/admin/big-boom-design-logo.png'),
+				'post_types' => $post_types,
+				'taxonomies' => $taxonomies,
+			) );
+		}
+
 		# Post type edit screen
 		if(
 			'post' == $screen->base
@@ -264,10 +303,12 @@ class BBD_Admin{
 	} # end: admin_print_scripts()
 
 	/**
+	 * clip
+
 	 * Add the 'Directory' button above the WYSIWYG to allow shortcode insertion
 	 *
 	 * @since 	2.2.0
-	 */
+	 *
 	public static function media_buttons() {
 
 		# the CSS to be applied to the <span> element below
@@ -284,10 +325,19 @@ class BBD_Admin{
 	<?php
 	} # end: media_buttons()
 
+	/**
+	 * Add our JS file as a TinyMCE plugin to handle the modal interactions
+	 *
+	 * @param 	array 	$plugin_array 		The existing array of TinyMCE plugins that we are adding to
+	 * @since 	2.2.0
+	 *
 	public static function bbd_add_tinymce( $plugin_array ) {
+
 	    $plugin_array['bbd_shortcodes'] = bbd_url( '/js/admin/bbd-tinymce.js' );
 	    return $plugin_array;
+
 	} # end: bbd_add_tinymce()
+	*/
 	
 	/**
 	 * Add action links for this plugin on main Plugins screen (under plugin name)
