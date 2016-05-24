@@ -21,6 +21,7 @@
         button: document.createElement( 'button' ),
         icon: document.createElement( 'span' ),
         modal: document.createElement( 'div' ),
+        form: document.createElement( 'form' ),
 
         init: function() {
 
@@ -48,26 +49,77 @@
 
         ready: function() {
 
-            this.buttonParent = document.getElementById('wp-content-media-buttons');
-            this.buttonParent.appendChild( this.button );
+            var buttonParent = document.getElementById('wp-content-media-buttons');
+            buttonParent.appendChild( this.button );
 
             document.body.appendChild( this.modal );
 
             this.$button = $( this.button );
             this.$modal = $( this.modal );
+            this.$form = $( this.form );
 
-            this.$modal.on('click', function(event){
-
+            this.$modal.find('.modal-close').on('click', function(event){
                 $('.bbd-shortcode-modal-wrap').removeClass('active');
-
             });
+
+            this.$modal.on('submit', function(event){
+
+                event.preventDefault();
+
+                $(this).removeClass('active')
+
+                var selectedPostTypes = [];
+                shortcodeBuilder.$form.find('#post-types input').each( function() {
+                    if( true == $(this).prop('checked') ) {
+                        selectedPostTypes.push( this.name );
+                    }
+                } );
+
+                var isTinyActive = tinymce.activeEditor && 'content' == tinymce.activeEditor.id;
+
+                var shortcode = '[bbd-shortcode post_types="' + selectedPostTypes.join( ', ' ) + '"]';
+
+                if( isTinyActive ) {
+                    tinymce.activeEditor.execCommand('mceInsertContent', false, shortcode);
+                }
+                else {
+                
+                }
+            }); // end: on submit this.$modal
 
             this.$button.on('click', function(event){
                 event.preventDefault();
 
                 $('.bbd-shortcode-modal-wrap').addClass('active');
             });
-        }
+
+            this.addModalContent();
+        },
+
+        addModalContent: function() {
+
+            var $form = this.$form;
+
+            this.form.id = 'bbd-shortcode';
+            this.form.innerHTML = '<h1>Big Boom Directory Shortcode</h1><div id="post-types"><h2>Select Post Types</h2></div><div id="taxonomies"><h2>Select Taxonomies</h2></div>';
+
+            // add post types
+            $( postTypes ).each( function() {
+                $form.find( '#post-types' ).append( '<label><input type="checkbox" name="' + this.handle + '" /> ' + this.label + '</label>' );
+            });
+
+            // add taxonomies
+            $( taxonomies ).each( function() {
+                $form.find( '#taxonomies' ).append( '<label><input type="checkbox" name="' + this.handle + '" /> ' + this.label + '</label>' );
+            });
+
+            // submit button
+            this.$form.append( '<button class="button" type="submit">Submit</button>' );
+
+            // append form HTML to modal
+            this.$modal.find('.bbd-shortcode-modal-inner').append( this.form );
+
+        } // end: addModalContent()
 
     }; // end: shortcodeBuilder
 
@@ -76,6 +128,7 @@
     $(document).ready(function() {
         shortcodeBuilder.ready();
     });
+
 })( jQuery );
 
  /**

@@ -187,7 +187,7 @@ class BBD_Admin{
 		if( 'post' == $screen->base ) {
 
 			wp_enqueue_style( 'bbd-tinymce', bbd_url( '/css/admin/bbd-tinymce.css' ) );
-			wp_enqueue_script( 'bbd-tinymce', bbd_url( '/js/admin/bbd-tinymce.js' ), array( 'jquery' ) );
+			wp_enqueue_script( 'bbd-tinymce', bbd_url( '/js/admin/bbd-tinymce.js' ), array( 'jquery' ), time(), false );
 
 			/**
 			 * Pass data to the TinyMCE modal for shortcodes
@@ -214,8 +214,8 @@ class BBD_Admin{
 
 			wp_localize_script( 'bbd-tinymce', 'BBD_Shortcode_Data', array(
 				'icon_url' => bbd_url( '/css/admin/big-boom-design-logo.png'),
-				'post_types' => $post_types,
-				'taxonomies' => $taxonomies,
+				'post_types' => $data['post_types'],
+				'taxonomies' => $data['taxonomies'],
 			) );
 		}
 
