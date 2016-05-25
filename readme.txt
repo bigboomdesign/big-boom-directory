@@ -59,6 +59,7 @@ None yet.
 = 2.2.0 =
 
 * Updates to search widget
+    * Added option to show the widget on the search results page
 	* Add action for adding additional field types in search widget
 	* Add filter for the WP_Query arguments on the search results page
 	* Added action that executes after each search widget form instance is loaded in WP Admin
