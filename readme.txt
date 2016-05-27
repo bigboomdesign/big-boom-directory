@@ -60,7 +60,8 @@ None yet.
 
 * Updates to search widget
     * Added option to show the widget on the search results page
-	* Add action for adding additional field types in search widget
+	* Add action for adding additional field types in backend search widget form
+    * Add actions to insert content before and after front end search filters
 	* Add filter for the WP_Query arguments on the search results page
 	* Added action that executes after each search widget form instance is loaded in WP Admin
 	* Show all search results instead of the default of 10

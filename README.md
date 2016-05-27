@@ -540,6 +540,18 @@ This example gives the post type description the same layout as a single loop it
 
 ---
 
+### ````bbd_before_search_filter````
+### ````bbd_after_search_filter````
+
+Allow insertion of content before/after search filters inside the search widget
+
+#### Parameters
+
+````$setting````    (array)                 The current search filter whose HTML is being rendered
+````$widget````     (BBD_Search_Widget)     The current widget being rendered (use $widget->instance) to get the instance
+
+---
+
 ### ````bbd_before_search_result````
 ### ````bbd_after_search_result````
 
