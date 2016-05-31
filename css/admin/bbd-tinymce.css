@@ -15,7 +15,7 @@
 
 .bbd-shortcode-modal-inner{
 	position: absolute;
-	top: 20%;
+	top: 10%;
 	left: 50%;
 	margin-left: -300px;
 	width: 100%;
@@ -23,15 +23,30 @@
 	max-width: 600px;
 	height: auto;
 	min-height: 300px;
+	max-height: 80%;
+	overflow-y: scroll;
 	background-color: white;
 	z-index: 2000;
 }
 
-.bbd-shortcode-modal-inner textarea{
-	display: block;
-	width: 100%;
+.bbd-shortcode-modal-inner #post-types,
+.bbd-shortcode-modal-inner #taxonomies,
+.bbd-shortcode-modal-inner #list-styles,
+.bbd-shortcode-modal-inner #search-widgets {
+	display: none;
 }
 
-.bbd-shortcode-input-wrap{
-	margin-bottom: 20px;
+.bbd-shortcode-modal-wrap h2 {
+	margin-top: 1.5em;
+}
+.bbd-shortcode-modal-wrap label {
+	display: block;
+	margin-bottom: 0.5em;
+}
+.bbd-shortcode-modal-wrap select {
+	min-width: 250px;
+	max-width: 100%;
+}
+.bbd-shortcode-modal-wrap button.button {
+	margin: 2em 0.5em 2em 0;
 }
