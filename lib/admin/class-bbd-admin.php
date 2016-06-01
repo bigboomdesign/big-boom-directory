@@ -31,13 +31,6 @@ class BBD_Admin{
 		
 		# Inline CSS for all admin page views
 		add_action('admin_print_scripts', array('BBD_Admin', 'admin_print_scripts'));
-
-		# add Directory shortcodes to WYSIWYG media button row
-		/**
-		 * clip
-		add_action( 'media_buttons', array( 'BBD_Admin', 'media_buttons' ), 100 );
-		add_filter( 'mce_external_plugins', array( 'BBD_Admin', 'bbd_add_tinymce' ) );
-		*/
 	
 		# Action links on main Plugins screen and Network Admin plugins screen
 		$plugin = plugin_basename( bbd_dir( '/big-boom-directory.php' ) );
@@ -72,11 +65,8 @@ class BBD_Admin{
 	 * - admin_menu_information()
 	 * - admin_enqueue()
 	 * - admin_print_scripts()
-	 * - media_buttons()
-	 * - bbd_add_tinymce()
 	 * - plugin_actions()
 	 * - post_row_actions()
-	 * - cmb2_meta_boxes()
 	 * - acf_get_post_types()
 	 */
 
@@ -334,43 +324,6 @@ class BBD_Admin{
 		</style>
 	<?php
 	} # end: admin_print_scripts()
-
-	/**
-	 * clip
-
-	 * Add the 'Directory' button above the WYSIWYG to allow shortcode insertion
-	 *
-	 * @since 	2.2.0
-	 *
-	public static function media_buttons() {
-
-		# the CSS to be applied to the <span> element below
-		$span_style = 'background-image: url( ' . bbd_url( 'css/admin/big-boom-design-logo.png') . ' );
-			background-size: 100% 100%;
-			width: 18px;
-			height: 18px;
-			display: inline-block;
-			vertical-align: text-top;';
-	?>
-		<button id="insert-bbd-shortcode-button" class="button insert-bbd-shortcode" data-editor="content" type="button">
-			<span style='<?php echo $span_style; ?>'></span> Directory
-		</button>
-	<?php
-	} # end: media_buttons()
-
-	/**
-	 * Add our JS file as a TinyMCE plugin to handle the modal interactions
-	 *
-	 * @param 	array 	$plugin_array 		The existing array of TinyMCE plugins that we are adding to
-	 * @since 	2.2.0
-	 *
-	public static function bbd_add_tinymce( $plugin_array ) {
-
-	    $plugin_array['bbd_shortcodes'] = bbd_url( '/js/admin/bbd-tinymce.js' );
-	    return $plugin_array;
-
-	} # end: bbd_add_tinymce()
-	*/
 	
 	/**
 	 * Add action links for this plugin on main Plugins screen (under plugin name)
