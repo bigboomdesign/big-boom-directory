@@ -8,20 +8,35 @@
  */
 (function( $ ) {
 
+    /**
+     * Data passed via wp_localize_script
+     */
     var iconUrl = BBD_Shortcode_Data.icon_url,
         postTypes = BBD_Shortcode_Data.post_types,
         taxonomies = BBD_Shortcode_Data.taxonomies,
         shortcodes = BBD_Shortcode_Data.shortcodes,
         widgetIds = BBD_Shortcode_Data.widget_ids;
 
+    /**
+     * Main shortcode builder object
+     */
     var shortcodeBuilder = {
 
+        // main 'Directory' shortcode button that triggers the modal
         button: document.createElement( 'button' ),
-        icon: document.createElement( 'span' ),
-        modal: document.createElement( 'div' ),
-        form: document.createElement( 'form' ),
-        $shortcodeToggle: '',
 
+        // BBD icon for the main button
+        icon: document.createElement( 'span' ),
+
+        // the modal element
+        modal: document.createElement( 'div' ),
+
+        // the form element used to build the shortcode
+        form: document.createElement( 'form' ),
+
+        /**
+         * Initialize the object
+         */
         init: function() {
 
             this.initButton();
@@ -29,33 +44,46 @@
 
         }, // end: init()
 
+        /**
+         * Initialize parts of the object that depend on the document being loaded
+         */
         ready: function() {
 
+            // append the button element to the proper div
             var buttonParent = document.getElementById('wp-content-media-buttons');
             buttonParent.appendChild( this.button );
 
+            // append the modal to the document body
             document.body.appendChild( this.modal );
 
+            // initialize jQuery objects for key elements
             this.$button = $( this.button );
             this.$modal = $( this.modal );
             this.$form = $( this.form );
 
-            this.$modal.find('#modal-close').on('click', function(event){
-                $('.bbd-shortcode-modal-wrap').removeClass('active');
-            });
-
+            // create and append the modal content to the modal
             this.addModalContent();
+
+            // bind events for the shortcode builder
             this.bindEvents();
+
+            // make sure conditional logic is initialized in the modal
+            this.toggleShortcode();
 
         }, // end: ready()
 
+        /**
+         * Initialize the main 'Directory' button element
+         */
         initButton: function() {
 
+            // set attributes
             this.button.type = 'button';
             this.button.id = "insert-bbd-shortcode";
             this.button.className = 'button insert-bbd-shortcode';
             this.button.setAttribute('data-editor', 'content');
 
+            // add styling to the BBD icon within the main 'Directory' button
             $(this.icon).css( {
                 backgroundImage: 'url( ' + iconUrl + ' )',
                 backgroundSize: '100% 100%',
@@ -66,22 +94,34 @@
                 verticalAlign: 'text-top'
             });
 
+            // set the button inner HTML
             this.button.innerHTML = this.icon.outerHTML + 'Directory';
         },
 
+        /**
+         * Initialize the modal element
+         */
         initModal: function() {
             this.modal.className = 'bbd-shortcode-modal-wrap';
             this.modal.innerHTML = '<div class="bbd-shortcode-modal-inner"><button id="modal-close" type="button" class="button-link media-modal-close"><span class="media-modal-icon"><span class="screen-reader-text">Close shortcode builder panel</span></span></button></div>';
         },
 
+        /**
+         * Create the modal content and append to the modal element
+         */
         addModalContent: function() {
 
+            // placeholder reference that we can use within functions with different scope
             var $form = this.$form;
 
             this.form.id = 'bbd-shortcode';
             this.form.innerHTML = '<h1>Big Boom Directory Shortcode</h1>';
 
-            // select shortcode
+            /**
+             * Add elements to the modal form
+             */
+
+            // "Select Shortcode" container
             this.$form.$shortcodes = $( '<div id="shortcodes"><h2>Select Shortcode</h2></div>' );
             this.$form.append( this.$form.$shortcodes );
 
@@ -95,37 +135,44 @@
             });
 
 
-            // select post types
+            // "Select Post Types" container
             this.$form.$postTypes = $( '<div id="post-types"><h2>Select Post Types</h2></div>' );
             this.$form.append( this.$form.$postTypes );
 
+            // add post type checkboxes
             $( postTypes ).each( function() {
                 $form.$postTypes.append( '<label><input type="checkbox" name="post_types[]" value="' + this.handle + '" /> ' + this.label + '</label>' );
             });
 
-            // select taxonomies
+            // "Select Taxonomies" container
             this.$form.$taxonomies = $( '<div id="taxonomies"><h2>Select Taxonomies</h2></div>' );
             this.$form.append( this.$form.$taxonomies );
 
+            // add taxonomy checkboxes
             $( taxonomies ).each( function() {
                 $form.$taxonomies.append( '<label><input type="checkbox" name="taxonomies[]" value="' + this.handle + '" /> ' + this.label + '</label>' );
             });
 
-            // select list style type
+            // "Select list style type" container
             this.$form.$listStyles = $( '<div id="list-styles"><h2>Select List Style Type</h2></div>' );
             this.$form.append( this.$form.$listStyles );
 
+            // add list style <select>
             this.$form.$listStyles.append( '<select id="list-style" name="list-style"></select>' );
 
+            // add list style <option> elements
             $( [ 'inherit', 'none', 'disc', 'circle', 'square' ] ).each( function() {
                 $form.$listStyles.find('select').append( '<option value="' + this + '">' + this.charAt(0).toUpperCase() + this.slice(1) + '</option>' );
             });
 
-            // select Search Widget
+            // "Select Search Widget" container
             this.$form.$searchWidgets = $( '<div id="search-widgets"><h2>Select Search Widget</h2></div>' );
             this.$form.append( this.$form.$searchWidgets );
 
+            // add search widget <select>
             this.$form.$searchWidgets.append( '<select id="search-widget-id" name="search_widget_id"></select>' );
+            
+            // add search widget <option> elements
             $( widgetIds ).each( function() {
                 $form.$searchWidgets.find( 'select' ).append( '<option value="' + this.id + '">' + 
                     this.id + ': ' + this.title + ' ( ' + this.description + ' )' + '</option>' 
@@ -143,12 +190,30 @@
 
         }, // end: addModalContent()
 
+        /**
+         * Bind event listeners to shortcode builder elements
+         */
         bindEvents: function() {
 
             // onclick for main Directory shortcode button
             this.$button.on('click', function(event){
                 event.preventDefault();
                 $('.bbd-shortcode-modal-wrap').addClass('active');
+            });
+
+            // onclick for the modal close button
+            this.$modal.find('#modal-close').on('click', function(event){
+                $('.bbd-shortcode-modal-wrap').removeClass('active');
+            });
+            
+            // onchange for main shortcode <select> element
+            this.$shortcodeToggle.on( 'change', function() {
+                shortcodeBuilder.toggleShortcode();
+            });
+
+            // onclick for the "Cancel" button
+            this.$form.find( '#bbd-shortcode-cancel' ).on( 'click', function() {
+                shortcodeBuilder.$modal.removeClass( 'active' );
             });
 
             // on submit for the shortcode builder form
@@ -189,12 +254,12 @@
                  * Compile the selected shortcode and parameters into a string that we'll insert
                  * into the content area
                  */
-
                 var shortcodeContent = '';
 
                 // if inserting [bbd-search]
                 if( 'bbd-search' == shortcode ) {
-                    
+
+                    // make sure we have a widget selected
                     if( ! selectedSearchWidget ) {
                         shortcodeBuilder.addError( shortcodeBuilder.$form.$searchWidgets );
                         return;
@@ -204,6 +269,7 @@
                         shortcodeBuilder.removeError( shortcodeBuilder.$form.$searchWidgets );
                     }
 
+                    // build the shortcode string
                     shortcodeContent = '[bbd-search widget_id="' + selectedSearchWidget + '"]';
 
                 } // end if: [bbd-search]
@@ -211,6 +277,7 @@
                 // if inserting [bbd-terms]
                 if( 'bbd-terms' == shortcode ) {
 
+                    // make sure we have taxonomies selected
                     if( selectedTaxonomies.length == 0 ) {
                         shortcodeBuilder.addError( shortcodeBuilder.$form.$taxonomies );
                         return;
@@ -220,6 +287,7 @@
                         shortcodeBuilder.removeError( shortcodeBuilder.$form.$taxonomies );
                     }
 
+                    // build the shortcode string
                     shortcodeContent = '[bbd-terms taxonomies="' + selectedTaxonomies.join( ', ' ) + '" ';
                         if( selectedListStyle && 'inherit' != selectedListStyle ) {
                             shortcodeContent += 'list_style="' + selectedListStyle + '" ';
@@ -230,7 +298,8 @@
 
                 // if inserting [bbd-a-z-listing]
                 if( 'bbd-a-z-listing' == shortcode ) {
-                    
+
+                    // make sure we have post types selected
                     if( selectedPostTypes.length == 0 ) {
                         shortcodeBuilder.addError( shortcodeBuilder.$form.$postTypes );
                         return;
@@ -240,6 +309,7 @@
                         shortcodeBuilder.removeError( shortcodeBuilder.$form.$postTypes );
                     }
 
+                    // build the shortcode string
                     shortcodeContent = '[bbd-a-z-listing post_types="' + selectedPostTypes.join( ', ' ) + '" ';
                         if( selectedListStyle && 'inherit' != selectedListStyle ) {
                             shortcodeContent += 'list_style="' + selectedListStyle + '" ';
@@ -248,13 +318,20 @@
 
                 } // end if: [bbd-a-z-listing]
 
-                // close the modal if we made it this far
+                /**
+                 * Complete the handling of the event by closing the modal and inserting 
+                 * the shortcode
+                 *
+                 * Note that we will have executed a `return` above if any errors were present
+                 */
+
+                // close the modal
                 shortcodeBuilder.$modal.removeClass('active');
 
+                // does the TinyMCE content area have an active cursor
                 var isTinyActive = tinymce.activeEditor && 'content' == tinymce.activeEditor.id;
 
-                //var shortcodeContent = '[bbd-shortcode post_types="' + selectedPostTypes.join( ', ' ) + '"]';
-
+                // insert the shortcode into the editor
                 if( isTinyActive ) {
                     tinymce.activeEditor.execCommand('mceInsertContent', false, shortcodeContent );
                 }
@@ -263,19 +340,6 @@
                 }
 
             }); // end: on submit this.$modal
-
-            // onclick for the "Cancel" button
-            this.$form.find( '#bbd-shortcode-cancel' ).on( 'click', function() {
-                shortcodeBuilder.$modal.removeClass( 'active' );
-            });
-            
-            // onchange for main shortcode select
-            this.$shortcodeToggle.on( 'change', function() {
-                shortcodeBuilder.toggleShortcode();
-            });
-
-            // make sure conditional logic is initialized in the modal on page load
-            this.toggleShortcode();
 
         }, // end: bindEvents()
 
@@ -314,7 +378,7 @@
                 $elem.prepend( '<p class="error-message">This is a required field</p>' );
             }
 
-        }, // end: highlightError
+        },
 
         removeError: function( $elem ) {
 
@@ -324,148 +388,12 @@
 
     }; // end: shortcodeBuilder
 
+    // initialize the shortcode builder object
     shortcodeBuilder.init();
 
+    // document ready callback for shortcode builder object
     $(document).ready(function() {
         shortcodeBuilder.ready();
     });
 
 })( jQuery );
-
- /**
-  * clip
-  *
-jQuery( document ).ready( function( $ ) {
-
-    /**
-     * Collect the dynamic data we are being passed
-     *
-    var data = BBD_Shortcode_Data;
-    var post_types = data.post_types;
-    var taxonomies = data.taxonomies;
-
-    // onclick for "Directory" button above the TinyMCE editor
-    $('#insert-bbd-shortcode-button').on( 'click', function() {
-
-        // the main editor object for the post content
-        var editor = tinymce.editors.content;
-
-        /**
-         * Configure the form for users to complete and invoke the editor's open() method 
-         *
-
-        // arguments to pass to the open() method
-        var openArgs = {
-
-            // modal box title
-            title: 'Add a Directory Shortcode',
-
-            // modal box content
-            body: [
-
-                // Select a shortcode from list
-                {
-                    type: 'listbox',
-                    name: 'shortcode',
-                    label: 'Shortcode',
-                    id: 'select-shortcode',
-                    values: [
-                        { text: 'A to Z Listing', value: 'bbd-a-z-listing', id: 'a-z-listing' },
-                        { text: 'Terms List', value: 'bbd-terms', id: 'terms' },
-                        { text: 'Search Widget', value: 'bbd-search', id: 'search' }
-                    ],
-                    /**
-                     * Callback to invoke when the <select> element is changed
-                     *
-                     * Shows and hides the various fields based on which shortcode is selected
-                     *
-                     * @param   e       The event triggered on selection
-                     *
-                    onselect: function( e ) {
-                        
-                        var new_value =  this.value();
-
-                        /**
-                         * If selecting the A to Z Listing
-                         *
-                        if( 'bbd-a-z-listing' == new_value ) {
-
-                            $( 'h1.post-type' ).closest('.mce-container').show().css('position', 'absolute');
-                            $( '.mce-post-type' ).closest('.mce-container').show().css('position', 'absolute');
-
-                            editor.windowManager.open( openArgs );
-
-                            $( 'h1.taxonomy' ).closest('.mce-container').hide().css('position', 'static');
-                            $( '.mce-taxonomy' ).closest('.mce-container').hide().css('position', 'static');
-
-                            return;
-                        }
-
-                        if( 'bbd-terms' == new_value ) {
-
-                            $( 'h1.post-type' ).closest('.mce-container').hide().css('position', 'static');
-                            $( '.mce-post-type' ).closest('.mce-container').hide().css('position', 'static');
-
-                            $( 'h1.taxonomy' ).closest('.mce-container').show().css('position', 'absolute');
-                            $( '.mce-taxonomy' ).closest('.mce-container').show().css('position', 'absolute');
-
-                        }
-                    },
-                },
-
-            ], // end: body
-
-            /**
-             * Callback to invoke when the form is submitted
-             *
-             * Inserts the shortcode built by the user into the post content
-             *
-             * @param   e       The event triggered on submission
-             *
-            onsubmit: function( e ) {
-                editor.insertContent( '[' + e.data.shortcode + ']' );
-            }
-
-        }; // end: openArgs
-
-        /**
-         * Add additional items to the openArgs variable, which may depend on looping through 
-         * data passed by PHP
-         *
-
-        // add the post type header and checkboxes
-        openArgs.body.push( {
-            type: 'container',
-            html: '<h1 class="post-type" style="font-size: 1.1em; font-weight: bold;">Post Types</h1>',
-        });
-
-        $( post_types ).each( function() {
-            openArgs.body.push( {
-                type: 'checkbox',
-                label: this.label,
-                value: this.handle,
-                classes: 'post-type',
-            });
-        });
-
-        // add the taxonomy header and checkboxes
-        openArgs.body.push( {
-            type: 'container',
-            html: '<h1 class="taxonomy" style="font-size: 1.1em; font-weight: bold; margin-top: 0.5em;">Taxonomies</h1>',
-        });
-
-        $( taxonomies ).each( function() {
-            openArgs.body.push( {
-                type: 'checkbox',
-                label: this.label,
-                value: this.handle,
-                classes: 'taxonomy'
-            });
-        });
-
-        editor.windowManager.open( openArgs );
-
-    }); // end: Onclick for main Directory shortcode button
-
-}); // end: document ready
-*/
