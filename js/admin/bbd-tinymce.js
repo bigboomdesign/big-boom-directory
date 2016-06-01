@@ -44,38 +44,8 @@
                 $('.bbd-shortcode-modal-wrap').removeClass('active');
             });
 
-            this.$modal.on('submit', function(event){
-
-                event.preventDefault();
-
-                $(this).removeClass('active')
-
-                var selectedPostTypes = [];
-                shortcodeBuilder.$form.find('#post-types input').each( function() {
-                    if( true == $(this).prop('checked') ) {
-                        selectedPostTypes.push( this.name );
-                    }
-                } );
-
-                var isTinyActive = tinymce.activeEditor && 'content' == tinymce.activeEditor.id;
-
-                var shortcode = '[bbd-shortcode post_types="' + selectedPostTypes.join( ', ' ) + '"]';
-
-                if( isTinyActive ) {
-                    tinymce.activeEditor.execCommand('mceInsertContent', false, shortcode);
-                }
-                else {
-                
-                }
-            }); // end: on submit this.$modal
-
-            this.$button.on('click', function(event){
-                event.preventDefault();
-                $('.bbd-shortcode-modal-wrap').addClass('active');
-            });
-
             this.addModalContent();
-            this.bindFormEvents();
+            this.bindEvents();
 
         }, // end: ready()
 
@@ -148,7 +118,7 @@
             this.$form.$listStyles.append( '<select id="list-style" name="list-style"></select>' );
 
             $( [ 'inherit', 'none', 'disc', 'circle', 'square' ] ).each( function() {
-                $form.$listStyles.find('select').append( '<option value="' + this.replace( 'inherit', '' ) + '">' + this.charAt(0).toUpperCase() + this.slice(1) + '</option>' );
+                $form.$listStyles.find('select').append( '<option value="' + this + '">' + this.charAt(0).toUpperCase() + this.slice(1) + '</option>' );
             });
 
             // select Search Widget
@@ -163,25 +133,151 @@
             });
 
             // cancel button
-            this.$form.append( '<button id="bbd-shortcode-cancel" class="button button-secondary">Cancel</button>' );
+            this.$form.append( '<button type="button" id="bbd-shortcode-cancel" class="button button-secondary">Cancel</button>' );
 
             // submit button
-            this.$form.append( '<button class="button button-primary" type="submit">Submit</button>' );
+            this.$form.append( '<button type="submit" class="button button-primary">Submit</button>' );
 
             // append form HTML to modal
             this.$modal.find('.bbd-shortcode-modal-inner').append( this.form );
 
         }, // end: addModalContent()
 
-        bindFormEvents: function() {
+        bindEvents: function() {
+
+            // onclick for main Directory shortcode button
+            this.$button.on('click', function(event){
+                event.preventDefault();
+                $('.bbd-shortcode-modal-wrap').addClass('active');
+            });
+
+            // on submit for the shortcode builder form
+            this.$form.on('submit', function(event){
+
+                event.preventDefault();
+
+                // which shortcode the user selected
+                var shortcode = shortcodeBuilder.$shortcodeToggle.val();
+
+                /**
+                 * Gather the shortcode parameters submitted by the user
+                 */
+
+                // post types
+                var selectedPostTypes = [];
+                shortcodeBuilder.$form.$postTypes.find('input').each( function() {
+                    if( true == $( this ).prop('checked') ) {
+                        selectedPostTypes.push( this.value );
+                    }
+                } );
+
+                // taxonomies
+                var selectedTaxonomies = [];
+                shortcodeBuilder.$form.$taxonomies.find( 'input' ).each( function() {
+                    if( true == $( this ).prop('checked') ) {
+                        selectedTaxonomies.push( this.value );
+                    }
+                });
+
+                // search widget
+                var selectedSearchWidget = shortcodeBuilder.$form.$searchWidgets.find( 'select' ).val();
+
+                // list style
+                var selectedListStyle = shortcodeBuilder.$form.$listStyles.find('select').val();
+
+                /**
+                 * Compile the selected shortcode and parameters into a string that we'll insert
+                 * into the content area
+                 */
+
+                var shortcodeContent = '';
+
+                // if inserting [bbd-search]
+                if( 'bbd-search' == shortcode ) {
+                    
+                    if( ! selectedSearchWidget ) {
+                        shortcodeBuilder.addError( shortcodeBuilder.$form.$searchWidgets );
+                        return;
+                    }
+
+                    else {
+                        shortcodeBuilder.removeError( shortcodeBuilder.$form.$searchWidgets );
+                    }
+
+                    shortcodeContent = '[bbd-search widget_id="' + selectedSearchWidget + '"]';
+
+                } // end if: [bbd-search]
+
+                // if inserting [bbd-terms]
+                if( 'bbd-terms' == shortcode ) {
+
+                    if( selectedTaxonomies.length == 0 ) {
+                        shortcodeBuilder.addError( shortcodeBuilder.$form.$taxonomies );
+                        return;
+                    }
+
+                    else {
+                        shortcodeBuilder.removeError( shortcodeBuilder.$form.$taxonomies );
+                    }
+
+                    shortcodeContent = '[bbd-terms taxonomies="' + selectedTaxonomies.join( ', ' ) + '" ';
+                        if( selectedListStyle && 'inherit' != selectedListStyle ) {
+                            shortcodeContent += 'list_style="' + selectedListStyle + '" ';
+                        }
+                    shortcodeContent += ']';
+
+                } // end if: [bbd-terms]
+
+                // if inserting [bbd-a-z-listing]
+                if( 'bbd-a-z-listing' == shortcode ) {
+                    
+                    if( selectedPostTypes.length == 0 ) {
+                        shortcodeBuilder.addError( shortcodeBuilder.$form.$postTypes );
+                        return;
+                    }
+
+                    else {
+                        shortcodeBuilder.removeError( shortcodeBuilder.$form.$postTypes );
+                    }
+
+                    shortcodeContent = '[bbd-a-z-listing post_types="' + selectedPostTypes.join( ', ' ) + '" ';
+                        if( selectedListStyle && 'inherit' != selectedListStyle ) {
+                            shortcodeContent += 'list_style="' + selectedListStyle + '" ';
+                        }
+                    shortcodeContent += ']';
+
+                } // end if: [bbd-a-z-listing]
+
+                // close the modal if we made it this far
+                shortcodeBuilder.$modal.removeClass('active');
+
+                var isTinyActive = tinymce.activeEditor && 'content' == tinymce.activeEditor.id;
+
+                //var shortcodeContent = '[bbd-shortcode post_types="' + selectedPostTypes.join( ', ' ) + '"]';
+
+                if( isTinyActive ) {
+                    tinymce.activeEditor.execCommand('mceInsertContent', false, shortcodeContent );
+                }
+                else {
+                    tinymce.get( 'content' ).execCommand( 'mceInsertContent', false, shortcodeContent );
+                }
+
+            }); // end: on submit this.$modal
+
+            // onclick for the "Cancel" button
+            this.$form.find( '#bbd-shortcode-cancel' ).on( 'click', function() {
+                shortcodeBuilder.$modal.removeClass( 'active' );
+            });
             
             // onchange for main shortcode select
             this.$shortcodeToggle.on( 'change', function() {
                 shortcodeBuilder.toggleShortcode();
             });
 
+            // make sure conditional logic is initialized in the modal on page load
             this.toggleShortcode();
-        },
+
+        }, // end: bindEvents()
 
         toggleShortcode: function() {
 
@@ -209,7 +305,22 @@
                 this.$form.$listStyles.show();
             }
 
-        } // end: toggleShortcode()
+        }, // end: toggleShortcode()
+
+        addError: function( $elem ) {
+
+            $elem.addClass( 'error' );
+            if( $elem.find( 'p.error-message' ).length == 0 ) {
+                $elem.prepend( '<p class="error-message">This is a required field</p>' );
+            }
+
+        }, // end: highlightError
+
+        removeError: function( $elem ) {
+
+            $elem.removeClass( 'error' );
+            $elem.find('p.error-message').remove();
+        }
 
     }; // end: shortcodeBuilder
 

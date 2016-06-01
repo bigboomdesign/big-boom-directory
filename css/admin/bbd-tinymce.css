@@ -36,6 +36,15 @@
 	display: none;
 }
 
+.bbd-shortcode-modal-wrap div.error {
+	border: solid red 1px;
+	padding: 0 1em 1em;
+	margin: 1em 0 0;
+}
+.bbd-shortcode-modal-wrap p.error-message {
+	color: red;
+}
+
 .bbd-shortcode-modal-wrap h2 {
 	margin-top: 1.5em;
 }
