@@ -273,11 +273,11 @@ class BBD_Admin{
 		if( ! is_network_admin() ) {
 
 			# Add 'Settings' link to the front
-			$settings_link = '<a href="admin.php?page=bbd-settings">Settings</a>';
+			$settings_link = '<a href="' . admin_url( '/edit.php?post_type=bbd_pt&page=bbd-settings' ) . '">Settings</a>';
 			array_unshift($links, $settings_link);
 
 			# Add 'Instructions' link to the front
-			$instructions_link = '<a href="admin.php?page=bbd-information">Instructions</a>';
+			$instructions_link = '<a href="' . admin_url( '/edit.php?post_type=bbd_pt&page=bbd-information' ) . '">Instructions</a>';
 			array_unshift($links, $instructions_link);
 		}
 
