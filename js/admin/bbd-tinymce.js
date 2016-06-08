@@ -4,9 +4,12 @@
  * Handles interaction events for selecting shortcode parameters within the modal
  * Handles the response when shortcode parameters are submitted via the modal box
  *
+ * Makes the main bbdShortcodeBuilder object available in the global scope, so that add-ons
+ * can access it and add their own event handlers for shortcodes they may add.
+ *
  * @since   2.2.0
  */
-(function( $ ) {
+var bbdShortcodeBuilder = (function( $ ) {
 
     /**
      * Data passed via wp_localize_script
@@ -395,5 +398,7 @@
     $(document).ready(function() {
         shortcodeBuilder.ready();
     });
+
+    return shortcodeBuilder;
 
 })( jQuery );
