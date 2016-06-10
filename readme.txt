@@ -68,6 +68,9 @@ None yet.
 * Add hookable actions before and after the fields wrap element
 * Remove row actions when viewing post types in the trash
 * Bug fix for plugin action links
+* Updated dependencies
+    * CMB2 (2.2.1)
+    * Extended CPT's (3.0.1)
 
 = 2.1.0 = 
 
