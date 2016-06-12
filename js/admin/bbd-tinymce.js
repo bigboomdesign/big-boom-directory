@@ -194,6 +194,35 @@ var bbdShortcodeBuilder = (function( $ ) {
         }, // end: addModalContent()
 
         /**
+         * Close the modal box
+         */
+        close: function() {
+
+            // close the modal
+            this.$modal.removeClass('active');
+
+        },
+
+        /**
+         * Insert a given string into the TinyMCE content area
+         *
+         * @param   string      content     The string to insert
+         */
+        insertTinyContent: function( content ) {
+
+            // does the TinyMCE content area have an active cursor
+            var isTinyActive = tinymce.activeEditor && 'content' == tinymce.activeEditor.id;
+
+            // insert the shortcode into the editor
+            if( isTinyActive ) {
+                tinymce.activeEditor.execCommand('mceInsertContent', false, content );
+            }
+            else {
+                tinymce.get( 'content' ).execCommand( 'mceInsertContent', false, content );
+            }
+        },
+
+        /**
          * Bind event listeners to shortcode builder elements
          */
         bindEvents: function() {
@@ -329,17 +358,11 @@ var bbdShortcodeBuilder = (function( $ ) {
                  */
 
                 // close the modal
-                shortcodeBuilder.$modal.removeClass('active');
+                shortcodeBuilder.close();
 
-                // does the TinyMCE content area have an active cursor
-                var isTinyActive = tinymce.activeEditor && 'content' == tinymce.activeEditor.id;
-
-                // insert the shortcode into the editor
-                if( isTinyActive ) {
-                    tinymce.activeEditor.execCommand('mceInsertContent', false, shortcodeContent );
-                }
-                else {
-                    tinymce.get( 'content' ).execCommand( 'mceInsertContent', false, shortcodeContent );
+                // insert the content
+                if( '' !== shortcodeContent ) {
+                    shortcodeBuilder.insertTinyContent( shortcodeContent );
                 }
 
             }); // end: on submit this.$modal
