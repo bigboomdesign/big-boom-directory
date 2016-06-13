@@ -59,11 +59,18 @@ None yet.
 = 2.2.0 =
 
 * Updates to search widget
-	* Add action for adding additional field types in search widget
+    * Added option to show the widget on the search results page
+	* Add action for adding additional field types in backend search widget form
+    * Add actions to insert content before and after front end search filters
 	* Add filter for the WP_Query arguments on the search results page
 	* Added action that executes after each search widget form instance is loaded in WP Admin
 	* Show all search results instead of the default of 10
+* Add hookable actions before and after the fields wrap element
 * Remove row actions when viewing post types in the trash
+* Bug fix for plugin action links
+* Updated dependencies
+    * CMB2 (2.2.1)
+    * Extended CPT's (3.0.1)
 
 = 2.1.0 = 
 

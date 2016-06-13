@@ -334,21 +334,20 @@ class BBD_Admin{
 	 */
 	public static function plugin_actions( $links ) {
 
-		/**
-		 * Remove the `Edit` link (the last link) if we're on a single site install or on the Network Admin
-		 * plugins screen
-		 */
-		if( ! is_multisite() || is_network_admin() ) array_pop($links);
+		# unset the Edit link if it exists
+		if( array_key_exists( 'edit', $links ) ) {
+			unset( $links['edit'] );
+		}
 
 		# add additional actions for non-network admin plugins screens
 		if( ! is_network_admin() ) {
 
 			# Add 'Settings' link to the front
-			$settings_link = '<a href="admin.php?page=bbd-settings">Settings</a>';
+			$settings_link = '<a href="' . admin_url( '/edit.php?post_type=bbd_pt&page=bbd-settings' ) . '">Settings</a>';
 			array_unshift($links, $settings_link);
 
 			# Add 'Instructions' link to the front
-			$instructions_link = '<a href="admin.php?page=bbd-information">Instructions</a>';
+			$instructions_link = '<a href="' . admin_url( '/edit.php?post_type=bbd_pt&page=bbd-information' ) . '">Instructions</a>';
 			array_unshift($links, $instructions_link);
 		}
 

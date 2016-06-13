@@ -298,4 +298,34 @@ class BBD_PT extends BBD_Post{
 		
 	} # end: register()
 
+	/**
+	 * Get an instance by handle or label
+	 * Note this does not support post types that may share labels, it returns the first valid match
+	 *
+	 * @param 	string 		$search_text 	The handle or label for a post type
+	 *
+	 * @return	BBD_PT
+	 * @since 	2.2.0
+	 */
+	public static function get_by_text( $search_text ) {
+
+		# loop through post IDs for BBD posts
+		foreach( BBD::$post_type_ids as $id ) {
+
+			$pt = new BBD_PT( $id );
+
+			# see if we match the handle, labels, or post title
+			if( 
+				$search_text == $pt->handle || $search_text == $pt->plural || 
+				$search_text == $pt->singular || $search_text == $pt->post_title
+			) {
+				# if the post type is valid, return the object
+				if( post_type_exists( $pt->handle ) ) {
+					return $pt;
+				}
+			}
+		} # end foreach: post type IDs
+
+	} # end: get_by_text
+
 } # end class: BBD_PT
