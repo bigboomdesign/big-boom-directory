@@ -183,7 +183,8 @@ var bbdShortcodeBuilder = (function( $ ) {
             });
 
             // cancel button
-            this.$form.append( '<button type="button" id="bbd-shortcode-cancel" class="button button-secondary">Cancel</button>' );
+            this.$form.$cancel = $( '<button type="button" id="bbd-shortcode-cancel" class="button button-secondary">Cancel</button>' );
+            this.$form.append( this.$form.$cancel );
 
             // submit button
             this.$form.append( '<button type="submit" class="button button-primary">Submit</button>' );
