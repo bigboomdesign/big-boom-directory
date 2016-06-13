@@ -117,7 +117,8 @@ class BBD_Options{
 		
 		## see if a self method is defined having the same name as the setting type
 		if( isset( $setting['type'] ) && method_exists(get_class(), $setting['type'])) {
-			self::$setting['type']($setting);
+			$function = $setting['type'];;
+			self::$function( $setting );
 		}
 
 		## if we're using a built-in settings handler
