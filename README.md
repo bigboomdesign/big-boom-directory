@@ -50,6 +50,8 @@ Directory management plugin for WordPress, based on Custom Post Types, Taxonomie
 
 * Any time you update the options on the main plugin settings screen, the new values will be used as the default when creating a new post type.
 
+* Uses the WP Object Cache for storing data about your post types created with the plugin.  See `Directory` > `Cache` for available options.
+
 ---
 
 ## Dependencies
@@ -459,6 +461,29 @@ Fires on the `wp_enqueue_scripts` hook, but only for BBD views
 
 ---
 
+### ````bbd_before_fields_wrap````
+### ````bbd_after_fields_wrap````
+
+Use these to insert content before or after the fields wrap container.  Note that the hooks fire on both archive pages and single pages.  
+
+The following example adds content before the fields wrap container and illustrates how the global `$bbd_view` object can be used to differentiate between archive and single views
+
+    add_action( 'bbd_before_fields_wrap', 'my_before_fields_wrap' );
+    function my_before_fields_wrap() {
+    
+        global $bbd_view;
+        if( 'archive' == $bbd_view->view_type ) {
+
+            // stuff to do on archive listings
+        }
+        elseif( 'single' == $bbd_view->view_type ) {
+
+            // stuff to do on single listings
+        }
+    }
+
+---
+
 ### ````bbd_pre_render_field_{$field_name}````
 ### ````bbd_post_render_field_{$field_name}````
 
@@ -514,6 +539,18 @@ This example gives the post type description the same layout as a single loop it
         </div></article>
     <?php
     }
+
+---
+
+### ````bbd_before_search_filter````
+### ````bbd_after_search_filter````
+
+Allow insertion of content before/after search filters inside the search widget
+
+#### Parameters
+
+````$setting````    (array)                 The current search filter whose HTML is being rendered
+````$widget````     (BBD_Search_Widget)     The current widget being rendered (use $widget->instance) to get the instance
 
 ---
 

@@ -101,6 +101,9 @@ div.bbd-search-filter { margin-bottom: 1.5em; padding-bottom: 0;}
 /**
  * Search Results Page 
  */
+#bbd-search-results form#bbd-search-form{
+	margin-bottom: 2rem;
+}
 #bbd-search-results .search-results-item { 
 	margin-bottom: 2em;
 

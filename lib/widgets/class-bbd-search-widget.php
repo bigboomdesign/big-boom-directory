@@ -28,7 +28,8 @@ class BBD_Search_Widget extends WP_Widget {
 	var $instance_keys = array(
 		
 		// The widget title
-		'title', 
+		'title',
+
 		// The widget description
 		'description', 
 
@@ -52,6 +53,9 @@ class BBD_Search_Widget extends WP_Widget {
 
 		// page ID to post results to
 		'search_page',
+
+		// show the search widget on the search results page
+		'show_widget_on_search_results_page',
 
 		// excerpt length for the search results
 		'excerpt_length',
@@ -139,31 +143,46 @@ class BBD_Search_Widget extends WP_Widget {
 		<input type="text" class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" value="<?php if( ! empty( $instance['title'] ) ) echo esc_attr( $instance['title'] ); ?>"/>
 		</label></p>
 
-		<?php # The View All link ?>
+		<?php 
+
+		# The View All link 
+		?>
 		<p><label for="<?php echo $this->get_field_id('view_all_link'); ?>">
 		"View All" link:
 		<input type="text" class="widefat" id="<?php echo $this->get_field_id('view_all_link'); ?>" name="<?php echo $this->get_field_name('view_all_link'); ?>" value="<?php if( ! empty( $instance['view_all_link'] ) ) echo esc_attr($instance['view_all_link']); ?>"/>
 		</label></p>	
 
-		<?php # the View All link text ?>
+		<?php 
+
+		# the View All link text 
+		?>
 		<p><label for="<?php echo $this->get_field_id('view_all'); ?>">
 		Text for "View All" link:
 		<input type="text" class="widefat" id="<?php echo $this->get_field_id('view_all'); ?>" name="<?php echo $this->get_field_name('view_all'); ?>" value="<?php if( ! empty( $instance['view_all'] ) ) echo esc_attr($instance['view_all']); ?>"/>
 		</label></p>	
 
-		<?php # The description field ?>
+		<?php 
+
+		# The description field 
+		?>
 		<p><label for="<?php echo $this->get_field_id('description'); ?>"/>
 		Description: 
 		<textarea class="widefat" id="<?php echo $this->get_field_id('description'); ?>" name="<?php echo $this->get_field_name('description'); ?>"><?php if( ! empty( $instance['description'] ) ) echo esc_attr($instance['description']); ?></textarea>
 		</label></p>
 		
-		<?php # The `submit_text` option ?>
+		<?php 
+
+		# The `submit_text` option 
+		?>
 		<p><label for="<?php echo $this->get_field_id('submit_text'); ?>">
 			Text for Submit button:
 			<input type="text" class="widefat" id="<?php echo $this->get_field_id('submit_text'); ?>" name="<?php echo $this->get_field_name('submit_text'); ?>" value="<?php if( ! empty( $instance['submit_text'] ) ) echo esc_attr( $instance['submit_text'] ); ?>"/>
 		</label></p>
 
-		<?php # The search results page dropdown ?>
+		<?php 
+
+		# The search results page dropdown 
+		?>
 		<p><label for='<?php echo $this->get_field_id('search_page'); ?>'>
 		Search Results Page:<br />
 		<?php
@@ -182,6 +201,23 @@ class BBD_Search_Widget extends WP_Widget {
 		?>
 		</label></p>
 		<?php 
+
+		# Whether to show the search widget on the results page 
+		?>
+		<p><label for='<?php echo $this->get_field_id('show_widget_on_search_results_page'); ?>'>
+			<?php
+				$show_widget_on_search_results_page = ( '__i__' == $this->number ) ? true : (
+					! empty( $instance['show_widget_on_search_results_page'] ) ? true : false
+				);
+			?>
+			<input 
+				type='checkbox' 
+				name='<?php echo $this->get_field_name( 'show_widget_on_search_results_page' ); ?>' 
+				id='<?php echo $this->get_field_id( 'show_widget_on_search_results_page' ); ?>' 
+				<?php checked( true, $show_widget_on_search_results_page ); ?>
+			/> Show Widget On Search Results Page
+		</label></p>
+		<?php
 
 		# Excerpt length
 		?>
@@ -437,7 +473,12 @@ class BBD_Search_Widget extends WP_Widget {
 					);
 					?>
 					<div class='bbd-search-filter'>
-						<?php $tax->get_form_element_html( $setting, 'bbd_search', $_POST ); ?>
+					<?php 
+						do_action( 'bbd_before_search_filter', $setting, $this );
+						$tax->get_form_element_html( $setting, 'bbd_search', $_POST ); 
+						do_action( 'bbd_after_search_filter', $setting, $this );
+
+					?>
 					</div>
 					<?php
 
@@ -461,7 +502,11 @@ class BBD_Search_Widget extends WP_Widget {
 					);
 					?>
 					<div class='bbd-search-filter'>
-						<?php $field->get_form_element_html( $setting ); ?>
+					<?php 
+						do_action( 'bbd_before_search_filter', $setting, $this );
+						$field->get_form_element_html( $setting ); 
+						do_action( 'bbd_after_search_filter', $setting, $this );
+					?>
 					</div>
 					<?php
 
@@ -477,7 +522,7 @@ class BBD_Search_Widget extends WP_Widget {
 							sanitize_text_field( $_POST['bbd_search']['widget_id'] ) :
 							''
 						); ?>" 
-				>
+				/>
 				<input type="hidden" 
 					name="bbd_search[widget_number]" 
 					value="<?php echo isset( $this->number ) ? 
@@ -486,8 +531,8 @@ class BBD_Search_Widget extends WP_Widget {
 							sanitize_text_field( $_POST['bbd_search']['widget_number'] ) :
 							''
 						); ?>" 
-				>
-				<input class="bbd-search-submit" type="submit" value="<?php echo $submit_text; ?>"/>
+				/>
+				<input class="bbd-search-submit" type="submit" value="<?php echo $submit_text; ?>" />
 			</form>
 			</div><!-- .bbd-search-widget-container -->
 		<?php
@@ -698,9 +743,17 @@ class BBD_Search_Widget extends WP_Widget {
 		$search_query = apply_filters( 'bbd_search_widget_query', $search_query, $this );
 
 		ob_start();
+
 		?>
 		<div id='bbd-search-results' class='<?php echo $this->id; ?>'>
 		<?php
+			/**
+			 * Display the search widget if needed
+			 */
+			if( ! empty( $instance['show_widget_on_search_results_page'] ) ) {
+				echo do_shortcode( '[bbd-search widget_id="' . $widget_number . '"]' );
+			}
+
 			# if posts were found
 			if( $search_query->have_posts() ) {
 

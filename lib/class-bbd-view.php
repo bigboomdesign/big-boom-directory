@@ -270,6 +270,9 @@ class BBD_View {
 	public function get_acf_html() {
 
 		ob_start();
+
+		do_action( 'bbd_before_fields_wrap' );
+
 		?>
 		<div class="bbd-fields-wrap">
 		<?php
@@ -289,6 +292,8 @@ class BBD_View {
 		?>
 		</div>
 		<?php
+
+		do_action( 'bbd_after_fields_wrap' );
 
 		# get the buffer contents
 		$html = ob_get_contents();

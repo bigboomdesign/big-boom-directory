@@ -840,11 +840,11 @@ class BBD_Helper{
 	 * 		@type 	array 	$selected 		The term IDs to be pre-selected
 	 * 		@type	string 	$heading		HTML for heading to be displayed above the checkboxes
 	 * 		@type 	string 	$description	HTML for description to be displayed above the checkboxes
-	 * 		@type 	string	$field_id		The id attribute for individual checkboxes
+	 * 		@type 	string	$field_id		The id attribute for individual checkboxes (we append _{term_id} to each)
 	 * 		@type 	string	$field_name		The name attribute for individual checkboxes (we add [] to store as an array)
 	 * 		@type 	string 	$label_class	The class to attach to each checkbox label
 	 * }
-	 * @param 	int 	$tax_id 	The post ID for the BBD taxonomy
+	 * @param 	int|string 	$tax_id 		The post ID for the BBD taxonomy, or the taxonomy handle or label
 	 * @return 	string
 	 * @since 	2.0.0
 	 */
@@ -852,7 +852,14 @@ class BBD_Helper{
 		
 		# get the taxonomy
 		$tax = new BBD_Tax( $tax_id );
-		if( ! $tax->ID ) return '';
+		if( ! $tax->handle ) {
+
+			$tax = BBD_Tax::get_by_text( $tax_id );
+
+			if( ! $tax->handle ) {
+				return '';
+			}
+		}
 
 		# get the terms for the taxonomy
 		$terms_query_args = array(

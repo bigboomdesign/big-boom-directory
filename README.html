@@ -430,6 +430,23 @@ $widget     (BBD_Search_Widget)     The instance of the search widget which was 
 
 <hr />
 
+<h3><code>bbd_search_widget_query</code></h3>
+
+<p>Alters the query response object for search widget results, after getting posts</p>
+
+<h4>Parameters</h4>
+
+<pre><code>$query      (WP_Query)              The WP_Query object for the search results
+$widget     (BBD_Search_Widget)     The instance of the search widget which was submitted
+</code></pre>
+
+<h4>Return</h4>
+
+<pre><code>(WP_Query)      You must return the altered WP_Query object
+</code></pre>
+
+<hr />
+
 <h2>Actions</h2>
 
 <h3><code>bbd_pre_get_posts</code></h3>
@@ -469,6 +486,31 @@ function my_pre_get_posts( $query ) {
 <h3><code>bbd_enqueue_scripts</code></h3>
 
 <p>Fires on the <code>wp_enqueue_scripts</code> hook, but only for BBD views</p>
+
+<hr />
+
+<h3><code>bbd_before_fields_wrap</code></h3>
+
+<h3><code>bbd_after_fields_wrap</code></h3>
+
+<p>Use these to insert content before or after the fields wrap container.  Note that the hooks fire on both archive pages and single pages.  </p>
+
+<p>The following example adds content before the fields wrap container and illustrates how the global <code>$bbd_view</code> object can be used to differentiate between archive and single views</p>
+
+<pre><code>add_action( 'bbd_before_fields_wrap', 'my_before_fields_wrap' );
+function my_before_fields_wrap() {
+
+    global $bbd_view;
+    if( 'archive' == $bbd_view-&gt;view_type ) {
+
+        // stuff to do on archive listings
+    }
+    elseif( 'single' == $bbd_view-&gt;view_type ) {
+
+        // stuff to do on single listings
+    }
+}
+</code></pre>
 
 <hr />
 
@@ -541,19 +583,20 @@ function my_after_description() {
 
 <h4>Parameters</h4>
 
-<p><code>$post_id</code> (int) The post ID for the current search result being displayed</p>
+<p><code>$post_id</code> (int)                  The post ID for the current search result being displayed
+<code>$widget</code>  (BBD<em>Search</em>Widget)    The widget instance that was submitted</p>
 
 <h4>Example</h4>
 
 <p>The following example will display a field called <code>email</code> before the result's excerpt and then show a list of term links for the post from a taxonomy called <code>movie_genre</code> after the excerpt</p>
 
-<pre><code>add_action( 'bbd_before_search_result', 'my_bbd_before_search_result' );
-function my_bbd_before_search_result( $post_id ) {
+<pre><code>add_action( 'bbd_before_search_result', 'my_bbd_before_search_result', 10, 2 );
+function my_bbd_before_search_result( $post_id, $widget ) {
     bbd_field( $post_id, 'email' );
 }
 
-add_action( 'bbd_after_search_result', 'my_bbd_after_search_result' );
-function my_bbd_after_search_result( $post_id ) {
+add_action( 'bbd_after_search_result', 'my_bbd_after_search_result', 10, 2 );
+function my_bbd_after_search_result( $post_id, $widget ) {
 
     $terms = wp_get_post_terms( $post_id, 'movie_genres' );
     $term_links = array();

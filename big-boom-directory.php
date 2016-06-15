@@ -47,9 +47,12 @@ add_action( 'init', array( 'BBD', 'init' ) );
 add_action( 'pre_get_posts', array( 'BBD', 'pre_get_posts' ) );
 add_action( 'widgets_init', array( 'BBD', 'widgets_init' ) );
 
-# flush rewrite rules whenever a new slug is saved for a post type or taxonomy
+# when updating certain posts, we may need to flush the rewrite rules (e.g. whenever a new slug is 
+# saved for a post type or taxonomy) or empty items from the object cache (e.g. whenever a post type 
+# is added/edited/deleted
 add_action( 'updated_postmeta', array( 'BBD', 'updated_postmeta' ), 10, 4 );
 add_action( 'save_post', array( 'BBD', 'save_post' ), 10, 3 );
+add_action( 'delete_post', array( 'BBD', 'delete_post' ), 10, 1 );
 
 /**
  * Admin Routines
@@ -87,6 +90,8 @@ else{
  * Helper Functions
  * 
  * - is_bbd_view()
+ * - bbd_get_post_types()
+ * - bbd_get_taxonomies()
  * - bbd_get_field_value()
  * - bbd_field()
  * - bbd_get_field_html()
@@ -117,6 +122,54 @@ function is_bbd_view() {
 	return BBD::$is_bbd;
 
 } # end: is_bbd_view()
+
+/**
+ * Get all post type objects created by the plugin
+ *
+ * @return 	array 	List of BBD_PT objects
+ * @since 	2.2.0
+ */
+function bbd_get_post_types() {
+
+	# get the stdClass objects from the posts table
+	$post_ids = BBD::$post_type_ids;
+
+	if( empty( $post_ids ) ) return array();
+
+	$output = array();
+
+	# construct the post type object for each stdClass
+	foreach( $post_ids as $post_id ) {
+		$post_type = new BBD_PT( $post_id );
+		$output[] = $post_type;
+	}
+
+	return $output;
+}
+
+/**
+ * Get all taxonomy objects created by the plugin
+ *
+ * @return 	array 	List of BBD_Tax objects
+ * @since 	2.2.0
+ */
+function bbd_get_taxonomies() {
+
+	# get the stdClass objects from the posts table
+	$post_ids = BBD::$taxonomy_ids;
+
+	if( empty( $post_ids ) ) return array();
+
+	$output = array();
+
+	# construct the taxonomy object for each stdClass
+	foreach( $post_ids as $post_id ) {
+		$taxonomy = new BBD_Tax( $post_id );
+		$output[] = $taxonomy;
+	}
+
+	return $output;
+}
 
 /**
  * Get the value of a field.  Accepted inputs:
