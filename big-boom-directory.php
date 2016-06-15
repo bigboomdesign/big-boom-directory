@@ -90,6 +90,8 @@ else{
  * Helper Functions
  * 
  * - is_bbd_view()
+ * - bbd_get_post_types()
+ * - bbd_get_taxonomies()
  * - bbd_get_field_value()
  * - bbd_field()
  * - bbd_get_field_html()
@@ -120,6 +122,54 @@ function is_bbd_view() {
 	return BBD::$is_bbd;
 
 } # end: is_bbd_view()
+
+/**
+ * Get all post type objects created by the plugin
+ *
+ * @return 	array 	List of BBD_PT objects
+ * @since 	2.2.0
+ */
+function bbd_get_post_types() {
+
+	# get the stdClass objects from the posts table
+	$post_ids = BBD::$post_type_ids;
+
+	if( empty( $post_ids ) ) return array();
+
+	$output = array();
+
+	# construct the post type object for each stdClass
+	foreach( $post_ids as $post_id ) {
+		$post_type = new BBD_PT( $post_id );
+		$output[] = $post_type;
+	}
+
+	return $output;
+}
+
+/**
+ * Get all taxonomy objects created by the plugin
+ *
+ * @return 	array 	List of BBD_Tax objects
+ * @since 	2.2.0
+ */
+function bbd_get_taxonomies() {
+
+	# get the stdClass objects from the posts table
+	$post_ids = BBD::$taxonomy_ids;
+
+	if( empty( $post_ids ) ) return array();
+
+	$output = array();
+
+	# construct the taxonomy object for each stdClass
+	foreach( $post_ids as $post_id ) {
+		$taxonomy = new BBD_Tax( $post_id );
+		$output[] = $taxonomy;
+	}
+
+	return $output;
+}
 
 /**
  * Get the value of a field.  Accepted inputs:

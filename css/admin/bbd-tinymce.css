@@ -1,0 +1,61 @@
+.bbd-shortcode-modal-wrap{
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	background: rgba(0, 0, 0, .5);
+	z-index: 2000;
+}
+
+.bbd-shortcode-modal-wrap.active{
+	display: block;
+}
+
+.bbd-shortcode-modal-inner{
+	position: absolute;
+	top: 10%;
+	left: 50%;
+	margin-left: -300px;
+	width: 100%;
+	padding: 20px;
+	max-width: 600px;
+	height: auto;
+	min-height: 300px;
+	max-height: 80%;
+	overflow-y: scroll;
+	background-color: white;
+	z-index: 2000;
+}
+
+.bbd-shortcode-modal-inner #post-types,
+.bbd-shortcode-modal-inner #taxonomies,
+.bbd-shortcode-modal-inner #list-styles,
+.bbd-shortcode-modal-inner #search-widgets {
+	display: none;
+}
+
+.bbd-shortcode-modal-wrap div.error {
+	border: solid red 1px;
+	padding: 0 1em 1em;
+	margin: 1em 0 0;
+}
+.bbd-shortcode-modal-wrap p.error-message {
+	color: red;
+}
+
+.bbd-shortcode-modal-wrap h2 {
+	margin-top: 1.5em;
+}
+.bbd-shortcode-modal-wrap label {
+	display: block;
+	margin-bottom: 0.5em;
+}
+.bbd-shortcode-modal-wrap select {
+	min-width: 250px;
+	max-width: 100%;
+}
+.bbd-shortcode-modal-wrap button.button {
+	margin: 2em 0.5em 2em 0;
+}

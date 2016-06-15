@@ -174,6 +174,75 @@ class BBD_Admin{
 			);
 		}
 
+		# Post edit screen (for any post type)
+		if( 'post' == $screen->base ) {
+
+			wp_enqueue_style( 'bbd-tinymce', bbd_url( '/css/admin/bbd-tinymce.css' ) );
+			wp_enqueue_script( 'bbd-tinymce', bbd_url( '/js/admin/bbd-tinymce.js' ), array( 'jquery' ), time(), false );
+
+			/**
+			 * Pass data to the TinyMCE modal for shortcodes
+			 *
+			 * 		- Button icon URL
+			 * 		- Available shortcodes (hookable)
+			 * 		- Search widget data
+			 * 		- post type data
+			 * 		- taxonomy data
+			 */
+			$data = array();
+
+			# icon for Directory shortcode button
+			$data['icon_url'] = bbd_url( '/css/admin/big-boom-design-logo.png');
+
+			# available shortcodes
+			$data['shortcodes'] = array(
+				array( 'name' => 'bbd-search', 'label' => 'Search Widget' ),
+				array( 'name' => 'bbd-a-z-listing', 'label' => 'A-Z Listing' ),
+				array( 'name' => 'bbd-terms', 'label' => 'Terms List' ),
+			);
+
+			$data['shortcodes'] = apply_filters( 'bbd_shortcodes', $data['shortcodes'] );
+
+			# Search Widget data
+			$search_widgets = array();
+
+			$search_widgets_option = get_option( 'widget_bbd_search_widget', array() );
+			foreach( $search_widgets_option as $k => $widget_instance ) {
+
+				$k = intval( $k );
+				if( ! $k ) continue;
+
+				$search_widgets[] = array(
+					'id' => $k,
+					'title' => ! empty( $widget_instance['title'] ) ? $widget_instance['title'] : '(no title)',
+					'description' => ! empty( $widget_instance['description'] ) ? substr( $widget_instance['description'], 0, 10 ) . '...' : 'No description',
+				);
+			}
+
+			$data['widget_ids'] = $search_widgets;
+
+			# post type data
+			$post_types = bbd_get_post_types();
+			foreach( $post_types as $pt ) {
+				$data['post_types'][] = array(
+					'handle' => $pt->handle,
+					'label' => $pt->plural
+				);
+			}
+
+			# taxonomy data
+			$taxonomies = bbd_get_taxonomies();
+			foreach( $taxonomies as $tax ) {
+				$data['taxonomies'][] = array(
+					'handle' => $tax->handle,
+					'label' => $tax->plural
+				);
+			}
+
+			wp_localize_script( 'bbd-tinymce', 'BBD_Shortcode_Data', $data );
+
+		} # end if: post edit screen
+
 		# Post type edit screen
 		if(
 			'post' == $screen->base
