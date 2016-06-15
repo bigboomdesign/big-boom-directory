@@ -840,7 +840,9 @@ class BBD {
 				" ORDER BY post_title ASC";
 			$post_type_objects = $wpdb->get_results( $posts_query );
 
-			wp_cache_set( 'bbd_post_types', $post_type_objects );
+			if( empty( BBD_Options::$options['disable_cache'] ) ) {
+				wp_cache_set( 'bbd_post_types', $post_type_objects );
+			}
 
 		} # end if: post type objects not found in cache
 
@@ -895,7 +897,9 @@ class BBD {
 			$post_meta_data = $wpdb->get_results( $post_meta_query );
 
 			# store the values in the object cache
-			wp_cache_set( 'bbd_post_types_meta', $post_meta_data );
+			if( empty( BBD_Options::$options['disable_cache'] ) ) {
+				wp_cache_set( 'bbd_post_types_meta', $post_meta_data );
+			}
 		}
 
 		# do nothing further if we don't have any meta values for the post types or taxonomies

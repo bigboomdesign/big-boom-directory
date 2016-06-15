@@ -117,7 +117,8 @@ class BBD_Options{
 		
 		## see if a self method is defined having the same name as the setting type
 		if( isset( $setting['type'] ) && method_exists(get_class(), $setting['type'])) {
-			self::$setting['type']($setting);
+			$function = $setting['type'];
+			self::$function( $setting );
 		}
 
 		## if we're using a built-in settings handler
@@ -554,9 +555,18 @@ class BBD_Options{
 
 	/**
 	 * Validate fields when saved (callback for WP's `register_setting`)
+	 *
 	 * @since 	2.0.0
 	 */
-	public static function validate_options($input) { return $input; }
+	public static function validate_options($input) { 
+
+		# make sure that we pass along the 'disable_cache' option, which is not on the main Settings screen
+		if( isset( BBD_Options::$options['disable_cache'] ) && ! isset( $input['disable_cache'] ) ) {
+
+			$input['disable_cache'] = BBD_Options::$options['disable_cache'];
+		}
+		return $input; 
+	}
 
 	/**
 	 * Helper Functions

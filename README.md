@@ -50,6 +50,8 @@ Directory management plugin for WordPress, based on Custom Post Types, Taxonomie
 
 * Any time you update the options on the main plugin settings screen, the new values will be used as the default when creating a new post type.
 
+* Uses the WP Object Cache for storing data about your post types created with the plugin.  See `Directory` > `Cache` for available options.
+
 ---
 
 ## Dependencies
