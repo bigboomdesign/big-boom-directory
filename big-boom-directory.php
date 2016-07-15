@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Big Boom Directory
  * Description: Directory management system based on Custom Post Types, Taxonomies, and Fields
- * Version: 2.2.0
+ * Version: 2.2.1
  * Author: Big Boom Design
  * Author URI: https://bigboomdesign.com
  * License:     GPLv2 or later
@@ -95,6 +95,9 @@ else{
  * - bbd_get_field_value()
  * - bbd_field()
  * - bbd_get_field_html()
+ *
+ * - bbd_has_acf()
+ * - bbd_has_acf_pro()
  *
  * - bbd_url()
  * - bbd_dir()
@@ -291,6 +294,26 @@ function bbd_get_field_html( $post_id, $field ) {
 	return $html;
 
 } # end: bbd_get_field_html()
+
+/**
+ * Whether the ACF plugin is active
+ *
+ * Note this returns true if ACF Pro is active
+ *
+ * @since 	2.2.1
+ */
+function bbd_has_acf() {
+	return class_exists( 'acf' );
+}
+
+/**
+ * Whether the ACF Pro plugin is active
+ *
+ * @since 	2.2.1
+ */
+function bbd_has_acf_pro() {
+	return class_exists( 'acf_pro' );
+}
 
 /**
  * Return the URL (bbd_url) or folder path (bbd_dir) for this plugin
