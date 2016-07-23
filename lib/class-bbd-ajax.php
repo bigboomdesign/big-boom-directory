@@ -185,12 +185,14 @@ class BBD_Ajax{
 
 				$field = unserialize( $row->meta_value );
 
-				if( empty( $field[ 'order_no' ] ) ) {
+				if( ! isset( $field[ 'order_no' ] ) ) {
 					continue;
 				}
 
-				$sorted_fields[ $field['order_no'] ] = $field;
+				$sorted_fields[ intval( $field['order_no'] ) ] = $field;
 			}
+
+			ksort( $sorted_fields );
 
 		} # end if: ACF is active but not Pro
 
@@ -206,7 +208,7 @@ class BBD_Ajax{
 		 */
 		if( ! $r && bbd_has_acf_pro() ) {
 
-			$fields_query = "SELECT post_content, post_title, post_excerpt FROM " . $wpdb->posts .
+			$fields_query = "SELECT post_content, post_title, post_name FROM " . $wpdb->posts .
 				" WHERE post_parent=" . $field_group_post_id .
 				" AND post_type='acf-field' " .
 				" ORDER BY menu_order";
@@ -230,7 +232,7 @@ class BBD_Ajax{
 				$field[ 'label' ] = $row->post_title;
 
 				# the field key is in the excerpt
-				$field['key'] = $row->post_excerpt;
+				$field['key'] = $row->post_name;
 
 				# note we already have the field in order here from the DB
 				$sorted_fields[] = $field;

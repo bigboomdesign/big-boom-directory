@@ -167,11 +167,15 @@ class BBD_View {
 
 					$field = new BBD_Field( $field );
 
-					# store the field into the ACF fields array, indexed by order number
-					$this->acf_fields[ $field->acf_field['order_no'] ] = $field;
+					if( null === $field->position ) {
+						continue;
+					}
+
+					# store the field into the ACF fields array, indexed by position
+					$this->acf_fields[ $field->position ] = $field;
 
 					# store the field key, indexed by the order number
-					$this->field_keys[ $field->acf_field['order_no'] ] = $field->key;
+					$this->field_keys[ $field->position ] = $field->key;
 
 					# add field key to social media fields to check, if applicable
 					if( $field->is_social_field ) {

@@ -120,10 +120,11 @@ else{
 function is_bbd_view() {
 
 	# load view info if it hasn't been done already
-	if( null === BBD::$is_bbd ) BBD::load_view_info();
+	if( null === BBD::$is_bbd ) {
+		BBD::load_view_info();
+	}
 
 	return BBD::$is_bbd;
-
 } # end: is_bbd_view()
 
 /**
@@ -148,7 +149,7 @@ function bbd_get_post_types() {
 	}
 
 	return $output;
-}
+} # end: bbd_get_post_types()
 
 /**
  * Get all taxonomy objects created by the plugin
@@ -172,7 +173,7 @@ function bbd_get_taxonomies() {
 	}
 
 	return $output;
-}
+} # end: bbd_get_taxonomies()
 
 /**
  * Get the value of a field.  Accepted inputs:
@@ -241,7 +242,6 @@ function bbd_get_field_value( $__1, $__2 = '' ) {
 	} # end if: input is an ID and field key like get_post_meta
 
 	return $value;
-
 } # end: bbd_get_field_value()
 
 /**
@@ -262,7 +262,6 @@ function bbd_field( $post_id, $field ) {
 
 	if( is_string( $field ) ) $field = new BBD_Field( $field );
 	$field->get_html( $post_id );
-
 } # end: bbd_field()
 
 /**
@@ -292,7 +291,6 @@ function bbd_get_field_html( $post_id, $field ) {
 	ob_end_clean();
 
 	return $html;
-
 } # end: bbd_get_field_html()
 
 /**

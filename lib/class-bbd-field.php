@@ -31,6 +31,16 @@ class BBD_Field {
 	var $type = '';
 
 	/**
+	 * The position of the field within its parent field set
+	 *
+	 * For ACF, this is `order_no` and for ACF Pro it's `menu_order`
+	 *
+	 * @param 	int
+	 * @since 	2.2.1
+	 */
+	var $position = null;
+
+	/**
 	 * The value of this field, if any
 	 *
 	 * @param 	mixed
@@ -243,10 +253,24 @@ class BBD_Field {
 			);
 
 
-			# ACF gives the option of multiple save formats for images (object/url/id)
+			/**
+			 * ACF gives the option of multiple save formats for images (object/url/id)
+			 *
+			 * For the array key that specifies the format, ACF uses `save_format` 
+			 * and ACF Pro uses `return_format`
+			 */
 			if( $this->is_acf ) {
 
-				switch( $this->acf_field['save_format'] ){
+				$format = '';
+
+				if( ! empty( $this->acf_field['save_format'] ) ) {
+					$format = $this->acf_field['save_format'];
+				}
+				elseif( ! empty( $this->acf_field['return_format'] ) ) {
+					$format = $this->acf_field['return_format'];
+				}
+
+				switch( $format ){
 
 					case 'object':
 					case 'url':
@@ -757,13 +781,25 @@ class BBD_Field {
 				# set the object property
 				$this->is_acf = true;
 
-				# load the ACF data
+				/**
+				 * Load the ACF data
+				 */
 
-				## set the key with the 'normal' field key (e.g. `email` replaces `field_abc123`)
+				# set the key with the 'normal' field key (e.g. `email` replaces `field_abc123`)
 				$this->key = $acf_field['name'];
 
+				# set the position
+				if( isset( $acf_field['order_no'] ) ) {
+					$this->position = $acf_field['order_no'];
+				}
+				elseif( isset( $acf_field['menu_order'] ) ) {
+					$this->position = $acf_field['menu_order'];
+				}
+
+				# set the label
 				$this->label = $acf_field['label'];
 
+				# set the field type
 				$this->type = $acf_field['type'];
 
 				## load the ACF array 
