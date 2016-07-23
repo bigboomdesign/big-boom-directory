@@ -16,10 +16,10 @@
 <li>Use hooks to add your own post type settings</li>
 </ul></li>
 <li><p>Add content using the WYSIWYG to act as the post type description for archive pages</p></li>
-<li><p>Pick and choose fields from Advanced Custom Fields groups to be displayed on single and archive views</p></li>
+<li><p>Pick and choose fields from Advanced Custom Fields groups to be displayed on single and archive views.  Compatible with both ACF and ACF Pro.</p></li>
 <li><p>Choose image size and alignment for single and archive views with ACF image fields</p></li>
 <li><p>Automatically detect URL and social media fields, converting them into links</p></li>
-<li><p>Support for ACF field types like image, date, and gallery field with integration using Lightbox</p></li>
+<li><p>Support for ACF field types like checkboxes, image, date, gallery field (with integration using Lightbox), and Google Map </p></li>
 <li><p>Full-featured advanced search widget with customizable filters and field selection for the search results display</p></li>
 <li><p>Use hooks to further customize core functionality like post type editing and registration, front end field display and value processing, and more</p></li>
 <li><p>The following add-ons are available and/or currently under development:</p>
@@ -43,6 +43,7 @@
 <li><p>By default, using a field a key equal <code>web</code>, <code>website</code>, or <code>url</code>; OR a key containing <code>_website</code> or <code>_url</code> will cause the field value to autolink on front end BBD views. The link texts are editable from the corresponding post type edit screen.  This setting may be deactivated.</p></li>
 <li><p>By default, when using a field key like facebook, twitter, youtube, googleplus, pinterest, instagram, or linkedin, the plugin matches various versions of these field names to try and convert them into social icons.  It's best to group all of these fields together when utilizing this feature.  This setting may be deactivated.</p></li>
 <li><p>Any time you update the options on the main plugin settings screen, the new values will be used as the default when creating a new post type.</p></li>
+<li><p>Uses the WP Object Cache for storing data about your post types created with the plugin.  See <code>Directory</code> > <code>Cache</code> for available options.</p></li>
 </ul>
 
 <hr />
@@ -575,6 +576,19 @@ function my_after_description() {
 
 <hr />
 
+<h3><code>bbd_before_search_filter</code></h3>
+
+<h3><code>bbd_after_search_filter</code></h3>
+
+<p>Allow insertion of content before/after search filters inside the search widget</p>
+
+<h4>Parameters</h4>
+
+<p><code>$setting</code>    (array)                 The current search filter whose HTML is being rendered
+<code>$widget</code>     (BBD<em>Search</em>Widget)     The current widget being rendered (use $widget->instance) to get the instance</p>
+
+<hr />
+
 <h3><code>bbd_before_search_result</code></h3>
 
 <h3><code>bbd_after_search_result</code></h3>
@@ -706,5 +720,4 @@ function my_cmb2_advanced_post_type_settings( $meta_box, $prefix ) {
 
 <h3><code>bbd_get_field_html( $post_id, $field_key )</code></h3>
 
-<p>Returns an HTML string for a single field for the given post ID.  Any custom hooks registered for the field wrap, label, or value will fire.{
-}</p>
+<p>Returns an HTML string for a single field for the given post ID.  Any custom hooks registered for the field wrap, label, or value will fire.</p>
