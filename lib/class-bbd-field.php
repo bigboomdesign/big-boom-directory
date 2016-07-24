@@ -329,7 +329,6 @@ class BBD_Field {
 		# get the field value
 		$value = $this->get_value( $post_id );
 
-
 		# apply filter to the label so users can edit it
 		$label = array(
 			'text' => $this->label,

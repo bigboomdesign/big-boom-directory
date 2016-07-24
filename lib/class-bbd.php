@@ -803,6 +803,7 @@ class BBD {
 	 * Store and retrieve and store static information about post types and taxonomies
 	 *
 	 * - load_bbd_post_data()
+	 * - load_view_info()
 	 * - get_post_types()
 	 * - get_taxonomies()
 	 * - get_post_type_objects()
@@ -810,7 +811,6 @@ class BBD {
 	 * - get_taxonomy_objects()
 	 * - get_taxonomy_names()
 	 * - get_acf_field_groups()
-	 * - load_view_info()
 	 */
 
 	/**
@@ -923,6 +923,59 @@ class BBD {
 
 	} # end: load_bbd_post_data()
 
+	/**
+	 * Load info about the current front end view
+	 *
+	 * Initializes the following static variables
+	 *
+	 * - BBD::$view_type
+	 * - BBD::$is_bbd (if is_search() is true)
+	 * 
+	 * @since 	2.0.0
+	 */
+	public static function load_view_info() {
+
+		/**
+		 * Potentially reduce weight for non-plugin views and offer a hook for setting the
+		 * view type
+		 */
+		if( ! is_search() && ! is_bbd_view() ) {
+
+			$view_type = apply_filters( 'bbd_view_type', '' );
+			if( '' != $view_type ) {
+				self::$is_bbd = true;
+				self::$view_type = (string) $view_type;
+			}
+
+			return;
+		}
+
+		# if we are doing a wp search
+		if( is_search() ) {
+
+			self::$is_bbd = true;
+			self::$view_type = 'archive';
+			return;
+		}
+
+		# if we are doing BBD Search Widget results
+		if( ! empty( $_POST['bbd_search'] ) ) {
+			self::$view_type = 'bbd-search-results';
+		}
+
+		# make sure the BBD post data is loaded
+		if( empty( self::$post_type_ids ) || empty( self::$taxonomy_ids ) ) self::load_bbd_post_data();
+
+		# see if there is a queried post type for this view
+		if( self::$current_post_type ) {
+			if( is_singular() ) self::$view_type = 'single';
+			else self::$view_type = 'archive';
+		}
+
+		# apply a filter to the view type
+		self::$view_type = apply_filters( 'bbd_view_type', self::$view_type );
+
+	} # end: load_view_info()
 
 	/**
 	 * Return and/or populate self::$post_types array. Executes self::load_bbd_post_data if necessary
@@ -1068,43 +1121,6 @@ class BBD {
 		return BBD::$acf_field_groups;
 
 	} # end: get_acf_field_groups()
-
-	/**
-	 * Load info about the current front end view
-	 *
-	 * Initializes the following static variables
-	 *
-	 * - BBD::$view_type
-	 * - BBD::$is_bbd (if is_search() is true)
-	 * 
-	 * @since 	2.0.0
-	 */
-	public static function load_view_info() {
-
-		# reduce weight for non-plugin views
-		if( ! is_search() && ! is_bbd_view() ) return;
-		# if we are doing a wp search
-		if( is_search() ) { 
-			self::$is_bbd = true;
-			self::$view_type = 'archive';
-			return;
-		}
-
-		# if we are doing BBD Search Widget results
-		if( ! empty( $_POST['bbd_search'] ) ) {
-			self::$view_type = 'bbd-search-results';
-		}
-
-		# make sure the BBD post data is loaded
-		if( empty( self::$post_type_ids ) || empty( self::$taxonomy_ids ) ) self::load_bbd_post_data();
-
-		# see if there is a queried post type for this view
-		if( self::$current_post_type ) {
-			if( is_singular() ) self::$view_type = 'single';
-			else self::$view_type = 'archive';
-		}
-
-	} # end: load_view_info()
 
 	/**
 	 * Helper Functions
