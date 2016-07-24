@@ -52,8 +52,18 @@ var bbdShortcodeBuilder = (function( $ ) {
          */
         ready: function() {
 
-            // append the button element to the proper div
+            /**
+             * Append the button element to the proper div
+             *
+             * Note that if users can't `upload_files`, then the Media Buttons parent
+             * doesn't exists.  Currently we are bailing on the Directory button in 
+             * this case.
+             */
             var buttonParent = document.getElementById('wp-content-media-buttons');
+            if( ! buttonParent ) {
+                return;
+            }
+
             buttonParent.appendChild( this.button );
 
             // append the modal to the document body

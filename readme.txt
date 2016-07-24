@@ -13,6 +13,8 @@ Directory management system based on Custom Post Types, Taxonomies, and Fields
 
 Big Boom Directory is a directory management plugin for WordPress that utilizes Custom Post Types, Taxonomies, and Fields.  The plugin allows you to create a powerful ecosystem within your WordPress site to showcase your listings and the data associated with them.
 
+## Features
+
 * Create and manage custom post types and taxonomies from WP Admin.  Post type settings include:
 
     * Post ordering
@@ -24,13 +26,13 @@ Big Boom Directory is a directory management plugin for WordPress that utilizes 
 
 * Add content using the WYSIWYG to act as the post type description for archive pages
 
-* Pick and choose fields from Advanced Custom Fields groups to be displayed on single and archive views
+* Pick and choose fields from Advanced Custom Fields groups to be displayed on single and archive views.  Compatible with both ACF and ACF Pro.
 
 * Choose image size and alignment for single and archive views with ACF image fields
 
 * Automatically detect URL and social media fields, converting them into links
 
-* Support for ACF field types like image, date, and gallery field with integration using Lightbox
+* Support for ACF field types like checkboxes, image, date, gallery field (with integration using Lightbox), and Google Map 
 
 * Full-featured advanced search widget with customizable filters and field selection for the search results display
 
@@ -55,6 +57,11 @@ None yet.
 None yet.
 
 == Changelog ==
+
+= 2.2.1 =
+
+* Improved support for ACF Pro
+* Bug fix for TinyMCE shortcode builder
 
 = 2.2.0 =
 

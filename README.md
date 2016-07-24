@@ -15,7 +15,7 @@ Directory management plugin for WordPress, based on Custom Post Types, Taxonomie
 
 * Add content using the WYSIWYG to act as the post type description for archive pages
 
-* Pick and choose fields from Advanced Custom Fields groups to be displayed on single and archive views
+* Pick and choose fields from Advanced Custom Fields groups to be displayed on single and archive views.  Compatible with both ACF and ACF Pro.
 
 * Choose image size and alignment for single and archive views with ACF image fields
 

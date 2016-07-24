@@ -707,9 +707,9 @@ class BBD_Meta_Boxes {
 		else {
 
 			# check if ACF is active and prompt to add field groups if so
-			if( class_exists( 'acf' ) ) {
+			if( bbd_has_acf() ) {
 
-				$link = class_exists( 'acf_pro' ) ? 
+				$link = bbd_has_acf_pro() ? 
 					admin_url('edit.php?post_type=acf-field-group') : 
 					admin_url('edit.php?post_type=acf');
 
