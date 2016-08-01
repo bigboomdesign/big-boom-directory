@@ -330,8 +330,23 @@ class BBD_Field {
 
 		} # end: google map field
 
-		# apply filters to the value so users can edit it
+		/**
+		 * oEmbed field
+		 */
+		if( 'oembed' == $this->type ) {
+			$width = $this->acf_field['width'];
+			$height = $this->acf_field['height'];
+			$value = wp_oembed_get( $value, array( 'width' => $width, 'height' => $height ) );
+		}
+
+		/**
+		 * Post-processing for the field value
+		 */
+
+		# apply a general filter to the value
 		$value = apply_filters( 'bbd_field_value', $value, $this, $post_id );
+
+		# apply a specific filter to the value, for this particular field key
 		$value = apply_filters( 'bbd_field_value_' . $this->key, $value, $this, $post_id );
 
 		return $value;
