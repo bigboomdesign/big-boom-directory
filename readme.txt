@@ -32,7 +32,7 @@ Big Boom Directory is a directory management plugin for WordPress that utilizes 
 
 * Automatically detect URL and social media fields, converting them into links
 
-* Support for ACF and ACF Pro field types like checkboxes, image, date, gallery field (with integration using Lightbox), Google Map, oEmbed
+* Support for ACF and ACF Pro field types like checkboxes, image, date picker, gallery field (with integration using Lightbox), Google Map, oEmbed
 
 * Full-featured advanced search widget with customizable filters and field selection for the search results display
 
