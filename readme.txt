@@ -60,7 +60,8 @@ None yet.
 
 = 2.2.1 =
 
-* Improved support for ACF Pro
+* Improve support for ACF Pro
+* Nest hierarchical terms in search widget
 * Bug fix for 404 on single view when missing `orderby` field value
 * Bug fix for TinyMCE shortcode builder
 
