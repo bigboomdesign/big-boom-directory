@@ -689,7 +689,7 @@ class BBD_Helper{
 
 	/**
 	 * Sort an array of taxonomy terms hierarchically. Child categories will be
-	 * placed under a 'children' member of their parent term.
+	 * placed under a 'children' property of their parent term.
 	 *
 	 * @param array 	$terms     		List of WP_Term objects
 	 * @param int		$parent_id 		The parent ID for the terms
