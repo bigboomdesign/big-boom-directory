@@ -293,34 +293,42 @@ class BBD {
 			return;
 		}
 
-		# get the post orderby parameter
-		$orderby = $current_post_type->post_orderby;
-		if( ! $orderby ) $orderby = 'title';
+		/**
+		 * Ordering parameters
+		 *
+		 * Note that forcing an order in single views can result in 404's for single listings,
+		 * in the event that a post is missing a value for the orderby key
+		 */
+		if( ! is_singular() ) {
+			# get the post orderby parameter
+			$orderby = $current_post_type->post_orderby;
+			if( ! $orderby ) $orderby = 'title';
 
-		# the order parameter
-		$order = $current_post_type->post_order;
+			# the order parameter
+			$order = $current_post_type->post_order;
 
-		# the meta key for ordering
-		$meta_key = $current_post_type->meta_key_orderby;
+			# the meta key for ordering
+			$meta_key = $current_post_type->meta_key_orderby;
 
-		$query->query_vars['orderby'] = $orderby;
-		$query->query_vars['order'] = $order;
+			$query->query_vars['orderby'] = $orderby;
+			$query->query_vars['order'] = $order;
 
-		# when ordering by meta value
-		if( $meta_key && ( 'meta_value' == $orderby || 'meta_value_num' == $orderby ) ) {
+			# when ordering by meta value
+			if( $meta_key && ( 'meta_value' == $orderby || 'meta_value_num' == $orderby ) ) {
 
-			# set the meta key argument
-			$query->query_vars['meta_key'] = $meta_key;
+				# set the meta key argument
+				$query->query_vars['meta_key'] = $meta_key;
 
-			# make sure that we filter out posts with the meta value saved as an empty string
-			# these posts appear at the top otherwise
-			$query->query_vars['meta_query'][] = array(
-				'key' => $meta_key,
-				'value' => '',
-				'compare' => '!=',
-			);
+				# make sure that we filter out posts with the meta value saved as an empty string
+				# these posts appear at the top otherwise
+				$query->query_vars['meta_query'][] = array(
+					'key' => $meta_key,
+					'value' => '',
+					'compare' => '!=',
+				);
 
-		} # end if: ordering by custom field
+			} # end if: ordering by custom field
+		}
 
 		# action that users can hook into to edit the query further
 		do_action( 'bbd_pre_get_posts', $query );

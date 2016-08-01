@@ -61,6 +61,7 @@ None yet.
 = 2.2.1 =
 
 * Improved support for ACF Pro
+* Bug fix for 404 on single view when missing `orderby` field value
 * Bug fix for TinyMCE shortcode builder
 
 = 2.2.0 =
