@@ -160,6 +160,7 @@ class BBD_Admin{
 		# Plugin Settings
 		if( 'bbd_pt_page_bbd-settings' == $screen->base ) {
 			wp_enqueue_style( 'bbd-admin' );
+			wp_enqueue_script( 'bbd-settings', bbd_url( '/js/admin/bbd-settings.js' ), array( 'jquery' ) );
 		}
 
 		# Widgets Screen / Theme Customizer

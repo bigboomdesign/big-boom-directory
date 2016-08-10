@@ -1,3 +1,10 @@
+/**
+ * JavaScript for the BBD post type edit screen
+ *
+ * @see 	js/admin/bbd-settings.js
+ * @since 	2.0.0
+ */
+
 // localized variables
 var postId = bbdData.post_id;
 
