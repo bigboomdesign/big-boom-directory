@@ -58,6 +58,10 @@ None yet.
 
 == Changelog ==
 
+= 2.2.2 = 
+
+* Bug fix for settings page: hide custom field key when not applicable
+
 = 2.2.1 =
 
 * Improve support for ACF Pro
