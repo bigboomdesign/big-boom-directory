@@ -24,7 +24,7 @@ Big Boom Directory is a directory management plugin for WordPress that utilizes 
     * Basic settings like 'Public' and 'Has Archive', and 'Exclude From Search'
     * Use hooks to add your own post type settings
 
-* Add content using the WYSIWYG to act as the post type description for archive pages
+* Add content using the WYSIWYG to act as the post type description for archive pages, and provide an option to show taxonomy term descriptions on term archive pages (for themes that don't do this by default).
 
 * Pick and choose fields from Advanced Custom Fields groups to be displayed on single and archive views.  Compatible with both ACF and ACF Pro.
 
@@ -57,6 +57,10 @@ None yet.
 None yet.
 
 == Changelog ==
+
+= 2.2.2 =
+
+* Add option to insert term descriptions on term archive pages
 
 = 2.2.1 =
 
