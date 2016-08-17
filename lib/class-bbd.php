@@ -510,6 +510,7 @@ class BBD {
 				'classes'		=> array('bbd-term-description'),
 				'id'			=> '',
 			);
+
 			# apply a hookable filter for the wrapper
 			$wrap = apply_filters( 'bbd_term_description_wrap', $wrap );
 

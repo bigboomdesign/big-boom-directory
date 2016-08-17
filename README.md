@@ -393,6 +393,14 @@ We assume that the description should have the same HTML structure as a single l
 
 ---
 
+### ````bbd_term_description_wrap````
+
+This filter is similar to the `bbd_pt_description_wrap`, except it applies to term archive pages instead of post type archive pages.  See above for examples, as it works just the same if you substitute `term` for `pt`.
+
+Unlike the descriptions for post type archives, term archive descriptions are something that many themes already utilize.  For this reason, we do not place term descriptions on term archive pages by default.  You must check the `Show term descriptions on term archive pages` checkbox when creating or editing your taxonomy on the backend.
+
+---
+
 ### ````bbd_search_widget_query_args````
 
 Alters the arguments for the WP_Query instance used to get the search results when using the Search Widget
@@ -545,7 +553,7 @@ This example gives the post type description the same layout as a single loop it
 ### ````bbd_before_term_description````
 ### ````bbd_after_term_description````
 
-These action hooks are similar to `bbd_before_pt_description` and `bbd_after_pt_description`, in that they are intended to let users match the descriptions on term archive pages to their particular theme.  See the above for examples, as they work just the same if you substitute `term` for `pt`.
+These action hooks are similar to `bbd_before_pt_description` and `bbd_after_pt_description`, in that they are intended to let users match the descriptions on term archive pages to their particular theme.  See above for examples, as they work just the same if you substitute `term` for `pt`.
 
 Unlike the descriptions for post type archives, term archive descriptions are something that many themes already utilize.  For this reason, we do not place term descriptions on term archive pages by default.  You must check the `Show term descriptions on term archive pages` checkbox when creating or editing your taxonomy on the backend.
 
