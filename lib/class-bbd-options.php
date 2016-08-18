@@ -664,23 +664,36 @@ BBD_Options::$sections = array(
 		'name' => 'bbd_post_type_defaults', 'title' => 'Post type defaults',
 		'description' => '<p>These options serve as the default settings for new post types you create using this plugin.</p>'
 	),
+	array(
+		'name' => 'bbd_taxonomy_defaults', 'title' => 'Taxonomy defaults',
+		'description' => '<p>These options serve as the default settings for new taxonomies you create using this plugin.</p>',
+	),
 );
 
 /**
  * Settings for plugin options page (these serve as defaults for new BBD post types)
  * 
- * - Default post orderby
- * - Default post order
- * - Meta key to order by
- * - Auto detect website field
- * - Auto detect social media fields
- * - Additional settings that depend on WP data are called via self::register_settings, which fires on admin_init
+ * - Basic settings
+ * 		- Search results page
+ *
+ * - Post type default settings
+ * 		- Default post orderby
+ * 		- Meta key to order by
+ * 		- Default post order
+ * 		- Auto detect website field
+ * 		- Auto detect social media fields
+ * 		- Additional settings that depend on WP data are called via self::register_settings, which fires on admin_init
+ *
+ * - Taxonomy default settings
+ * 		- Show term descriptions
  */
 BBD_Options::$settings = array(
 
 	/**
 	 * Basic settings
 	 */
+
+	# Search results page
 	array(
 		'name' => 'search_page',
 		'label' => 'Search results page',
@@ -689,7 +702,7 @@ BBD_Options::$settings = array(
 	),
 
 	/**
-	 * Post type defaults
+	 * Post type default settings
 	 */
 
 	# Default post orderby
@@ -752,6 +765,24 @@ BBD_Options::$settings = array(
 		'description' => 'Uses icons for `facebook`, `twitter`, `linkedin`, `instagram`, `pinterest`, `google_plus` fields',
 		'section' 	=> 'bbd_post_type_defaults',
 	),
+
+	/**
+	 * Taxonomy default settings
+	 */
+	array(
+		'name' => 'show_term_descriptions',
+		'label' => 'Show term descriptions on term archive pages',
+		'type' => 'checkbox',
+		'choices' => 'Yes',
+		'description' => '<p>Check this if you want the term descriptions to show on their respective archive pages ' .
+			'and your theme does not provide this functionality already.</p>',
+		'section' => 'bbd_taxonomy_defaults',
+	),
+
+	/**
+	 * Additional settings that depend on WP data are called via self::register_settings, 
+	 * which fires on the admin_init hook
+	 */
 );
 
 # get saved options

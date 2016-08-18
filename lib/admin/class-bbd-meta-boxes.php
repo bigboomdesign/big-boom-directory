@@ -378,6 +378,7 @@ class BBD_Meta_Boxes {
 		 * 		- Plural
 		 * 		- Hierarchical
 		 * 		- Post Types
+		 * 		- Show term descriptions
 		 *
 		 * - Advanced taxonomy settings
 		 * 		- Name/Handle
@@ -421,8 +422,8 @@ class BBD_Meta_Boxes {
 			'name' 	=> 'Hierarchical',
 			'id' 	=> $prefix.'hierarchical',
 			'type'	=> 'checkbox',
-			'description' => '<p>Leave checked if you want your taxonomy to behave like categories, or uncheck if you want 
-				the taxonomy to behave like tags</p>',
+			'description' => '<p>Leave checked if you want your taxonomy to behave like categories, or uncheck if you want ' .
+				'the taxonomy to behave like tags</p>',
 			'default' => self::default_for_checkbox( 'on' )
 		));
 
@@ -433,11 +434,27 @@ class BBD_Meta_Boxes {
 			'type' 	=> 'multicheck',
 			'select_all_button' => false,
 			'before'	=> array( 'BBD_Meta_Boxes', 'before_tax_post_types' ),
-			'description' => "<div id='tax-assign-tip'>
-					<p class='description'>It's usually best to assign only <b>one post type per taxonomy</b>. Otherwise, the terms you create will appear under all post types checked.</p>
-					<p class='description'>For example, if you have <code>Books</code> and <code>Movies</code> as post types and <code>Genres</code> as a single taxonomy for both post types, you may end up with the term 'Non-Fiction' as an option for both Books and Movies.  In this case, it would probably be best to create two taxonomies, one called <code>Book Genres</code> and another called <code>Movie Genres</code></p>
-				</div>"
+			'description' => "<div id='tax-assign-tip'>" .
+					"<p class='description'>It's usually best to assign only <b>one post type per taxonomy</b>. Otherwise, the terms you create will appear under all post types checked.</p>" .
+					"<p class='description'>For example, if you have <code>Books</code> and <code>Movies</code> as post types and <code>Genres</code> as a single taxonomy for both post types, you may end up with the term 'Non-Fiction' as an option for both Books and Movies.  In this case, it would probably be best to create two taxonomies, one called <code>Book Genres</code> and another called <code>Movie Genres</code></p>" .
+				"</div>"
 		));
+
+		## Show term descriptions
+		$term_descriptions_field = array(
+			'name' 	=> 'Show term descriptions on term archive pages',
+			'id'	=> $prefix.'show_term_descriptions',
+			'type' 	=> 'checkbox',
+			'description' => '<p>Check this if you want the term descriptions to show on their respective archive pages ' .
+			'and your theme does not provide this functionality already.</p>',
+		);
+
+		# default value for `show term descriptions`
+		if( isset( BBD_Options::$options['show_term_descriptions_yes'] ) ) {
+			$term_descriptions_field['default'] = self::default_for_checkbox( 'on' );
+		}
+
+		$tax_settings->add_field( $term_descriptions_field );
 
 		# Hook for further customization of the Taxonomy Settings meta box
 		do_action( 'bbd_cmb2_taxonomy_settings' , $tax_settings, $prefix );
