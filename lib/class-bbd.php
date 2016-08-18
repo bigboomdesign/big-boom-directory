@@ -441,9 +441,10 @@ class BBD {
 		 * For post type archive views
 		 */
 		if( is_post_type_archive() ) {
+
 			do_action( 'bbd_before_pt_description' );
 
-			# get the current post type object
+			# get the current post type object (note this is known to be defined at this point)
 			$pt = new BBD_PT( BBD::$current_post_type );
 
 			# get the post content for the current post type
@@ -462,6 +463,7 @@ class BBD {
 				'classes'		=> array('bbd-post-type-description'),
 				'id'			=> '',
 			);
+
 			# apply a hookable filter for the wrapper
 			$wrap = apply_filters( 'bbd_pt_description_wrap', $wrap );
 
@@ -495,45 +497,53 @@ class BBD {
 		 */
 		if( is_tax() ) {
 
-			do_action( 'bbd_before_term_description' );
+			# get the current taxonomy object (note this is known to be defined at this point)
+			$tax = new BBD_Tax( BBD::$current_taxonomy );
 
-			$term_description = category_description();
-			if( empty( $term_description ) ) {
+			# if the user has selected to show term descriptions for this taxonomy
+			if( isset( $tax->show_term_descriptions ) ) {
+
+				do_action( 'bbd_before_term_description' );
+
+				$term_description = category_description();
+				if( empty( $term_description ) ) {
+					do_action( 'bbd_after_term_description' );
+					return;
+				}
+
+				# the wrapper for the term description 
+				$wrap = array(
+					'before_tag' 	=> 'div',
+					'after_tag' 	=> 'div',
+					'classes'		=> array('bbd-term-description'),
+					'id'			=> '',
+				);
+
+				# apply a hookable filter for the wrapper
+				$wrap = apply_filters( 'bbd_term_description_wrap', $wrap );
+
+				# show the term description
+				if( ! empty( $wrap['before_tag'] ) ) {
+				?>
+					<<?php 
+						echo $wrap['before_tag'] . ' ';
+						if( ! empty( $wrap['classes'] ) ) echo 'class="' . implode( ' ', $wrap['classes'] ) . '" ';
+						if( ! empty( $wrap['id'] ) ) echo 'id="' . $wrap['id'] . '"';
+					?>>
+				<?php
+				} # end if: wrap has an opening tag
+
+				echo apply_filters( 'the_content', $term_description );
+
+				if( ! empty( $wrap['after_tag'] ) ) {
+				?>
+					</<?php echo $wrap['after_tag']; ?>>
+				<?php
+				}
+
 				do_action( 'bbd_after_term_description' );
-				return;
-			}
 
-			# the wrapper for the term description 
-			$wrap = array(
-				'before_tag' 	=> 'div',
-				'after_tag' 	=> 'div',
-				'classes'		=> array('bbd-term-description'),
-				'id'			=> '',
-			);
-
-			# apply a hookable filter for the wrapper
-			$wrap = apply_filters( 'bbd_term_description_wrap', $wrap );
-
-			# show the term description
-			if( ! empty( $wrap['before_tag'] ) ) {
-			?>
-				<<?php 
-					echo $wrap['before_tag'] . ' ';
-					if( ! empty( $wrap['classes'] ) ) echo 'class="' . implode( ' ', $wrap['classes'] ) . '" ';
-					if( ! empty( $wrap['id'] ) ) echo 'id="' . $wrap['id'] . '"';
-				?>>
-			<?php
-			} # end if: wrap has an opening tag
-
-			echo apply_filters( 'the_content', $term_description );
-
-			if( ! empty( $wrap['after_tag'] ) ) {
-			?>
-				</<?php echo $wrap['after_tag']; ?>>
-			<?php
-			}
-
-			do_action( 'bbd_after_term_description' );
+			} # end if: show term descriptions for this taxonomy
 
 		} # end if: is term archive
 
