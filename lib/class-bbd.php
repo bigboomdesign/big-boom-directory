@@ -671,19 +671,30 @@ class BBD {
 	 */
 	public static function the_content( $content ) {
 
-		# make sure we haven't done fields for this post yet
+		/**
+		 * Make sure we haven't done fields for this post yet
+		 *
+		 * Note that we are performing an additional check to make sure that the theme has
+		 * not called `the_excerpt` and then discarded the result (*cough* Divi)
+		 */
 		global $bbd_view;
-		if( $bbd_view->did_post_fields ) return $content;
+		if( $bbd_view->did_post_fields && false !== strpos( $content, 'bbd-field' ) ) {
+			return $content;
+		}
 
 		# if we're doing the loop_start action, we don't want to append fields
-		if( doing_action('loop_start') ) return $content;
+		if( doing_action('loop_start') ) {
+			return $content;
+		}
 
 		/**
 		 * If we're doing the_excerpt on a single post, do nothing. Lots of themes (like 2016) are placing
 		 * the excerpt at the top of single posts as a preview/callout section
 		 */
-		if( doing_action( 'the_excerpt' ) && is_singular() ) return $content;
-		
+		if( doing_action( 'the_excerpt' ) && is_singular() ) {
+			return $content;
+		}
+
 		/**
 		 * If we're doing get_the_excerpt and the post has no excerpt, we shouldn't do anything, since WP will
 		 * strip out the tags and leave us with unformatted fields.
@@ -693,7 +704,9 @@ class BBD {
 		 * and stripped of HTML tags if no excerpt exists.
 		 */
 		global $post;
-		if( doing_action( 'get_the_excerpt' ) && empty( $post->post_excerpt ) ) return $content;
+		if( doing_action( 'get_the_excerpt' ) && empty( $post->post_excerpt ) ) {
+			return $content;
+		}
 
 		/**
 		 * If the content contains the string 'bbd-field', we'll treat this as a quasi-catch-all bail out,
