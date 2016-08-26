@@ -92,16 +92,35 @@ class BBD_Admin{
 		# sub-pages
 		add_submenu_page( 'edit.php?post_type=bbd_pt', 'Settings | Big Boom Directory', 'Settings', 'manage_options', 'bbd-settings', array('BBD_Admin', 'settings_page') );
 
-		# Add "Edit Post Type" submenu item for each post type
+		# Add "Edit Post Type" and "View Post Type" submenu items for each post type
 		foreach( BBD::$post_type_ids as $id ) {
 
 			$pt = new BBD_PT( $id );
-			add_submenu_page( 'edit.php?post_type=' . $pt->handle, '', 'Edit Post Type', 'manage_options', 'post.php?post=' . $id .'&action=edit' );
-		}
+			$pt_menu_slug = 'edit.php?post_type=' . $pt->handle;
+
+			// Edit Post Type
+			add_submenu_page( $pt_menu_slug, '', 'Edit Post Type', 'manage_options', 'post.php?post=' . $id .'&action=edit' );
+
+			// View Post Type
+			if( $pt->has_archive && $pt_archive_url = get_post_type_archive_link( $pt->handle ) ) {
+
+				/**
+				 * Begging forgiveness, but there's no way to add a front end link using the menu API
+				 * So, we are going to access the global variable directly.
+				 */
+				global $submenu;
+				if( ! empty( $submenu[ $pt_menu_slug ] ) ) {
+					$submenu[ $pt_menu_slug ][] = array( 'View Post Type', 'read', $pt_archive_url );
+				}
+			}
+
+		} # end foreach: BBD post type IDs
 		
-		# remove the 'Add New' for post types
-		global $submenu;
-        unset($submenu['edit.php?post_type=bbd_pt'][10]);
+		/**
+		 * Remove the 'Add New' link under the main Directory menu item, because adding a new post type
+		 * should require a little more intention than just guess-clicking "What does this do?"
+		 */
+		remove_submenu_page( 'edit.php?post_type=bbd_pt', 'post-new.php?post_type=bbd_pt' );
 
 	} # end: admin_menu()
 
