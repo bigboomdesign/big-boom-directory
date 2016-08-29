@@ -450,8 +450,6 @@ class BBD {
 		 */
 		if( is_post_type_archive() ) {
 
-			do_action( 'bbd_before_pt_description' );
-
 			# get the current post type object (note this is known to be defined at this point)
 			$pt = new BBD_PT( BBD::$current_post_type );
 
@@ -460,9 +458,10 @@ class BBD {
 
 			# make sure we have content to display
 			if( empty( $post_type_description ) ) {
-				do_action( 'bbd_after_pt_description' );
 				return;
 			}
+
+			do_action( 'bbd_before_pt_description' );
 
 			# the wrapper for the post type description 
 			$wrap = array(
@@ -511,13 +510,12 @@ class BBD {
 			# if the user has selected to show term descriptions for this taxonomy
 			if( isset( $tax->show_term_descriptions ) ) {
 
-				do_action( 'bbd_before_term_description' );
-
 				$term_description = category_description();
 				if( empty( $term_description ) ) {
-					do_action( 'bbd_after_term_description' );
 					return;
 				}
+
+				do_action( 'bbd_before_term_description' );
 
 				# the wrapper for the term description 
 				$wrap = array(
