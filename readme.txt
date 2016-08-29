@@ -63,6 +63,7 @@ None yet.
 * Add option to insert term descriptions on term archive pages
 * Quick link to view post type archive from within WP Admin menu
 * Bug fix for settings page: hide custom field key when not applicable
+* Bug fix: custom images sizes now show up in plugin settings and post type settings
 
 = 2.2.1 =
 
