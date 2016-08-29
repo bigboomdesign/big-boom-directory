@@ -38,7 +38,9 @@ class BBD_Meta_Boxes {
 		 *		- Slug
 		 * 		- Public
 		 * 		- Has Archive
+		 * 		- Supports
 		 * 		- Show In Admin Menu
+		 * 		- Exclude from search
 		 * 		- Menu Position
 		 * 		- Menu Icon
 		 *
@@ -200,6 +202,23 @@ class BBD_Meta_Boxes {
 			'id'		=> $prefix.'has_archive',
 			'type' 		=> 'checkbox',
 			'default' 	=> self::default_for_checkbox( 'on' ),
+		));
+
+		## Supports
+		$advanced_pt_settings->add_field( array(
+			'name' 		=> 'Supports',
+			'id' 		=> $prefix.'post_type_supports',
+			'type' 		=> 'multicheck',
+			'before' 	=> array( 'BBD_Meta_Boxes', 'before_post_type_supports' ),
+			'select_all_button' => false,
+			'default'	=> self::default_for_checkbox( 
+				array( 'title', 'editor' ) 
+			),
+			'description' => '<p class="description">
+				<a href="https://codex.wordpress.org/Function_Reference/register_post_type#supports" 
+					target="_blank">Learn More
+				</a>
+			</p>',
 		));
 
 		## Show In Admin Menu
@@ -553,6 +572,7 @@ class BBD_Meta_Boxes {
 	 * - before_slug()
 	 * - sanitize_slug()
 	 * - before_tax_post_types()
+	 * - before_post_type_supports()
 	 * - before_fields_select()
 	 * - sanitize_archive_fields()
 	 */
@@ -565,7 +585,29 @@ class BBD_Meta_Boxes {
 	 * @since 	2.0.0
 	 */
 	public static function default_for_checkbox( $default ) {
-    	return isset( $_GET['post'] ) ? '' : ( $default ? (string) $default : '' );
+
+		# if we are editing an existing post type, do nothing
+		if( isset( $_GET['post'] ) ) {
+			return '';
+		}
+
+		# make sure we have a default value
+		if( ! $default ) {
+			return '';
+		}
+
+		# for strings/integers
+		if( is_string( $default ) || is_int( $default ) ) {
+			return (string) $default;
+		}
+
+		if( is_array( $default ) ) {
+			foreach( $default as &$value ) {
+				$value = (string) $value;
+			}
+
+			return $default;
+		}
 	}
 
 	/**
@@ -695,6 +737,23 @@ class BBD_Meta_Boxes {
 		} # end if: no post types
 	
 	} # end: before_tax_post_types()
+
+	public static function before_post_type_supports( $args, $field ) {
+
+		$field->args['options'] = array(
+			'title' => 'Title',
+			'editor' => 'Editor',
+			'author' => 'Author',
+			'thumbnail' => 'Thumbnail',
+			'excerpt' => 'Excerpt',
+			'trackbacks' => 'Trackbacks',
+			'custom-fields' => 'Native WP custom fields metabox',
+			'comments' => 'Comments',
+			'revisions' => 'Revisions',
+			'page-attributes' => 'Page Attributes',
+			'post-formats' => 'Post Formats',
+		);
+	}
 
 	/**
 	 * Load post type ACF field group choices
