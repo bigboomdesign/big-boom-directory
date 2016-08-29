@@ -530,6 +530,8 @@ These actions are used to insert HTML (or perform other tasks) before and after 
 
 As mentioned above for the `bbd_pt_description_wrap` filter, these actions are mainly intended to let users match the post type description to their specific theme.
 
+These filters do not fire for post types whose description is empty.
+
 #### Example
 
 This example gives the post type description the same layout as a single loop item for the Twentyfifteen theme.

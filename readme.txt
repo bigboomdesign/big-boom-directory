@@ -62,6 +62,7 @@ None yet.
 
 * Add option to insert term descriptions on term archive pages
 * Quick link to view post type archive from within WP Admin menu
+* Bug fix: supress the before/after description hooks for post types and terms with no description
 * Bug fix for settings page: hide custom field key when not applicable
 
 = 2.2.1 =
