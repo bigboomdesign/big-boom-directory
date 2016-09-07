@@ -579,7 +579,14 @@ class BBD_Search_Widget extends WP_Widget {
 		global $bbd_view;
 
 		# make sure we don't recurse when doing search results excerpts
-		if( $this->doing_search_results ) return $content;
+		if( $this->doing_search_results ) {
+			return $content;
+		}
+
+		# make sure that we are not hooking into the_content from outside the main loop
+		if( ! in_the_loop() || ! is_main_query() ) {
+			return $content;
+		}
 
 		# get the settings for this widget instance (or the posted instance if different)
 		$widget_number = isset( $_POST['bbd_search']['widget_number'] ) ?
@@ -595,6 +602,7 @@ class BBD_Search_Widget extends WP_Widget {
 
 			# set up the view for this set of search results
 			$bbd_view->field_keys = $instance['search_results_fields'];
+
 			foreach( $bbd_view->field_keys as $field_key ) {
 
 				$field = new BBD_Field( $field_key );

@@ -64,6 +64,7 @@ None yet.
 * Quick link to view post type archive from within WP Admin menu
 * Bug fix for settings page: hide custom field key when not applicable
 * Bug fix: custom images sizes now show up in plugin settings and post type settings
+* Bug fix: search widget results would previously display fields multiple times in certain cases
 
 = 2.2.1 =
 
