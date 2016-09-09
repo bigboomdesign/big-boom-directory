@@ -62,6 +62,7 @@ None yet.
 
 * Add option to insert term descriptions on term archive pages
 * Quick link to view post type archive from within WP Admin menu
+* Add actions to insert content before and after the search widget container
 * Bug fix for settings page: hide custom field key when not applicable
 * Bug fix: custom images sizes now show up in plugin settings and post type settings
 * Bug fix: search widget results would previously display fields multiple times in certain cases

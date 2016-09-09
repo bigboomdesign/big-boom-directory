@@ -559,6 +559,17 @@ Unlike the descriptions for post type archives, term archive descriptions are so
 
 ---
 
+### ````bbd_before_search_widget_container````
+### ````bbd_after_search_widget_container````
+
+Allow insertion of content before/after the main search widget container
+
+#### Parameters
+
+````$widget````     (BBD_Search_Widget)     The current widget being rendered (use $widget->instance to get the instance)
+
+---
+
 ### ````bbd_before_search_filter````
 ### ````bbd_after_search_filter````
 
