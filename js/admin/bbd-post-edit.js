@@ -254,6 +254,12 @@ jQuery( document ).ready( function( $ ) {
  * - orderbyCustomField()
  * - orderbyOther()
  */
+
+/**
+ * On change for the post type orderby parameter
+ *
+ * @since 	2.0.0
+ */
 function orderbyChange() {
 
 	// if we're selecting the "Custom Field" option
@@ -264,10 +270,21 @@ function orderbyChange() {
 		orderbyOther();
 	}
 }
+
+/**
+ * Show meta key input when ordering by custom field
+ *
+ * @since 	2.0.0
+ */
 function orderbyCustomField() {
 	$metaKeyOrderbyContainer.css( 'display', 'block' );
 } // end: orderbyCustomField()
 
+/**
+ * Hide meta key input when not ordering by custom field
+ *
+ * @since 	2.0.0
+ */
 function orderbyOther() {
 	$metaKeyOrderbyContainer.css( 'display', 'none' );
 } // end: orderbyOther()
@@ -279,9 +296,11 @@ function orderbyOther() {
   * - hideHandleInfo()
   */
 
- /**
-  *  Enables the post type name input to be changed and pre-populates using post title if necessary
-  */
+/**
+ * Enables the post type name input to be changed and pre-populates using post title if necessary
+ *
+ * @since 2.0.0
+ */
 function triggerHandleInfo( $ ){
 
 	// get the current value of the post title
@@ -321,6 +340,8 @@ function triggerHandleInfo( $ ){
  *
  * @param 	jQuery 	$		The main jQuery object
  * @param 	object	elem	The link being clicked
+ *
+ * @since 	2.0.0
  */
 function hideHandleInfo( $, elem ) {
 
@@ -360,6 +381,8 @@ function hideHandleInfo( $, elem ) {
 
 /**
  * Enables the slug input to be changed
+ *
+ * @since 	2.0.0
  */
 function triggerSlugInfo( $ ){
 
@@ -395,7 +418,9 @@ function triggerSlugInfo( $ ){
 } // end: triggerSlugInfo()
 
 /**
- * Save the slug (validating first), and close the dialog box 
+ * Save the slug (validating first), and close the dialog box
+ *
+ * @since 	2.0.0
  */
 function saveSlugInfo( $, elem ) {
 
@@ -430,6 +455,8 @@ function saveSlugInfo( $, elem ) {
 
 /**
  * Hide the slug information when saved or cancelled
+ *
+ * @since 	2.0.0
  */
 function hideSlugInfo( $ ) {
 	
@@ -475,6 +502,7 @@ function togglePostTypeSupports( $ ) {
 /**
  * Field group change routines
  *
+ * 	- fieldGroupChange()
  */
 
 /**
