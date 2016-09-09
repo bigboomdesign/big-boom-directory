@@ -38,6 +38,12 @@ var reserved_handles = bbdData.reserved_handles;
 // the original slug for this page load
 var slug = '';
 
+// the checkbox for 'customize supported features'
+var $enableSupportCheckbox;
+
+// checkboxes for supported post type features
+var $postTypeSupportCheckboxes;
+
 // the meta box that holds the archive fields
 var $archiveFieldsContainer;
 
@@ -155,11 +161,23 @@ jQuery( document ).ready( function( $ ) {
 		}
 	});
 	
-	/* onclick for Cancel link for post type handle */
+	/* onclick for Cancel link for post type slug */
 	$( 'div#cancel-slug-change a' ).on( 'click', function() {
 		$slug.val( slug );
 		hideSlugInfo( $ );
 	});
+
+	/**
+	 * 'Post type supports' interactions
+	 */
+	$enableSupportCheckbox = $( 'input[value="enable_post_type_support"]' );
+	$postTypeSupportCheckboxes = $( 'div.cmb2-id--bbd-meta-post-type-supports' )
+		.find( 'input[value!="enable_post_type_support"]' );
+
+	$enableSupportCheckbox.on( 'click', function() {
+		togglePostTypeSupports( $ );
+	} );
+	togglePostTypeSupports( $ );
 
 	/**
 	 * Field group selection
@@ -225,6 +243,7 @@ jQuery( document ).ready( function( $ ) {
  * 		- Orderby change routines
  * 		- Name change routines
  * 		- Slug change routines
+ * 		- Post type supports routines
  * 		- Field group change routines
  */
 
@@ -425,6 +444,33 @@ function hideSlugInfo( $ ) {
 
 }
 
+/**
+ * Post type supports routines
+ *
+ * 	- togglePostTypeSupports()
+ */
+
+/**
+ * Toggle the 'Customize supported features' checkbox
+ *
+ * Shows the potential supported features if checked, or hides them if unchecked. We need
+ * the master checkbox because we can't activate the feature on existing post type without
+ * altering the existing supported features.
+ *
+ * @since 	2.2.2
+ */
+function togglePostTypeSupports( $ ) {
+	if( $enableSupportCheckbox.prop( 'checked' ) ) {
+		$postTypeSupportCheckboxes.each( function() {
+			$( this ).closest('li').css('display', 'block');
+		});
+	}
+	else {
+		$postTypeSupportCheckboxes.each( function() {
+			$( this ).closest('li').css('display', 'none');
+		});
+	}
+}
 
 /**
  * Field group change routines

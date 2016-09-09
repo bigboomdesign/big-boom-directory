@@ -741,6 +741,7 @@ class BBD_Meta_Boxes {
 	public static function before_post_type_supports( $args, $field ) {
 
 		$field->args['options'] = array(
+			'enable_post_type_support' => 'Customize supported features',
 			'title' => 'Title',
 			'editor' => 'Editor',
 			'author' => 'Author',
