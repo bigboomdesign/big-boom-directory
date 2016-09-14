@@ -170,6 +170,34 @@ Use this filter to modify the post content for BBD archive views.  Does not fire
 
 ---
 
+### ````bbd_make_excerpt````
+
+Unlike the `bbd_the_content` and `bbd_the_excerpt`, which are essentially wrappers for `the_content` and `the_excerpt` that fire only on the built-in WP single and archive views, the `bbd_make_excerpt` filter fires whenever the plugin is generating its own custom view (like search results from the search widget).  You can use this filter to alter the excerpts shown for the posts in these cases.
+
+#### Parameters
+
+    (string) $excerpt: The auto-generated excerpt 
+
+#### Return
+
+    (string) You must return the new excerpt that you wish to be displayed
+
+#### Examples
+
+    # This example strips all HTML tags from the excerpt
+    add_filter( 'bbd_make_excerpt', 'my_make_excerpt' );
+    function my_make_excerpt( $excerpt ) {
+        return strip_tags( $excerpt );
+    }
+
+    # This example gets rid of the excerpt altogether
+    add_filter( 'bbd_make_excerpt', 'my_make_excerpt' );
+    function my_make_excerpt( $excerpt ) {
+        return '';
+    }
+
+---
+
 ### ````bbd_field_value````
 
 Use this to filter values as they are retrieved by the plugin.  Note that this filter applies to all fields, while the `bbd_field_value_{$field_name}` filter can be used for more specific targeting.  Sequentially, this filter 
