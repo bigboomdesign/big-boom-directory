@@ -19,7 +19,7 @@
 <li><p>Pick and choose fields from Advanced Custom Fields groups to be displayed on single and archive views.  Compatible with both ACF and ACF Pro.</p></li>
 <li><p>Choose image size and alignment for single and archive views with ACF image fields</p></li>
 <li><p>Automatically detect URL and social media fields, converting them into links</p></li>
-<li><p>Support for ACF field types like checkboxes, image, date, gallery field (with integration using Lightbox), and Google Map </p></li>
+<li><p>Support for ACF and ACF Pro field types like checkboxes, image, date picker, gallery field (with integration using Lightbox), Google Map, oEmbed</p></li>
 <li><p>Full-featured advanced search widget with customizable filters and field selection for the search results display</p></li>
 <li><p>Use hooks to further customize core functionality like post type editing and registration, front end field display and value processing, and more</p></li>
 <li><p>The following add-ons are available and/or currently under development:</p>
@@ -172,6 +172,37 @@ function my_the_content( $content ) {
 
 <p>Use this filter to modify the post content for BBD archive views.  Does not fire for non-BBD page views.  Similar to
 <code>bbd_the_content</code>, except it fires for archive views instead of single post views.</p>
+
+<hr />
+
+<h3><code>bbd_make_excerpt</code></h3>
+
+<p>Unlike the <code>bbd_the_content</code> and <code>bbd_the_excerpt</code>, which are essentially wrappers for <code>the_content</code> and <code>the_excerpt</code> that fire only on the built-in WP single and archive views, the <code>bbd_make_excerpt</code> filter fires whenever the plugin is generating its own custom view (like search results from the search widget).  You can use this filter to alter the excerpts shown for the posts in these cases.</p>
+
+<h4>Parameters</h4>
+
+<pre><code>(string) $excerpt: The auto-generated excerpt
+</code></pre>
+
+<h4>Return</h4>
+
+<pre><code>(string) You must return the new excerpt that you wish to be displayed
+</code></pre>
+
+<h4>Examples</h4>
+
+<pre><code># This example strips all HTML tags from the excerpt
+add_filter( 'bbd_make_excerpt', 'my_make_excerpt' );
+function my_make_excerpt( $excerpt ) {
+    return strip_tags( $excerpt );
+}
+
+# This example gets rid of the excerpt altogether
+add_filter( 'bbd_make_excerpt', 'my_make_excerpt' );
+function my_make_excerpt( $excerpt ) {
+    return '';
+}
+</code></pre>
 
 <hr />
 
@@ -414,6 +445,14 @@ function my_variable_link_text( $text, $field ) {
 
 <hr />
 
+<h3><code>bbd_term_description_wrap</code></h3>
+
+<p>This filter is similar to the <code>bbd_pt_description_wrap</code>, except it applies to term archive pages instead of post type archive pages.  See above for examples, as it works just the same if you substitute <code>term</code> for <code>pt</code>.</p>
+
+<p>Unlike the descriptions for post type archives, term archive descriptions are something that many themes already utilize.  For this reason, we do not place term descriptions on term archive pages by default.  You must check the <code>Show term descriptions on term archive pages</code> checkbox when creating or editing your taxonomy on the backend.</p>
+
+<hr />
+
 <h3><code>bbd_search_widget_query_args</code></h3>
 
 <p>Alters the arguments for the WP_Query instance used to get the search results when using the Search Widget</p>
@@ -555,6 +594,8 @@ function my_post_email( $field ){
 
 <p>As mentioned above for the <code>bbd_pt_description_wrap</code> filter, these actions are mainly intended to let users match the post type description to their specific theme.</p>
 
+<p>These filters do not fire for post types whose description is empty.</p>
+
 <h4>Example</h4>
 
 <p>This example gives the post type description the same layout as a single loop item for the Twentyfifteen theme.</p>
@@ -573,6 +614,28 @@ function my_after_description() {
 &lt;?php
 }
 </code></pre>
+
+<hr />
+
+<h3><code>bbd_before_term_description</code></h3>
+
+<h3><code>bbd_after_term_description</code></h3>
+
+<p>These action hooks are similar to <code>bbd_before_pt_description</code> and <code>bbd_after_pt_description</code>, in that they are intended to let users match the descriptions on term archive pages to their particular theme.  See above for examples, as they work just the same if you substitute <code>term</code> for <code>pt</code>.</p>
+
+<p>Unlike the descriptions for post type archives, term archive descriptions are something that many themes already utilize.  For this reason, we do not place term descriptions on term archive pages by default.  You must check the <code>Show term descriptions on term archive pages</code> checkbox when creating or editing your taxonomy on the backend.</p>
+
+<hr />
+
+<h3><code>bbd_before_search_widget_container</code></h3>
+
+<h3><code>bbd_after_search_widget_container</code></h3>
+
+<p>Allow insertion of content before/after the main search widget container</p>
+
+<h4>Parameters</h4>
+
+<p><code>$widget</code>     (BBD<em>Search</em>Widget)     The current widget being rendered (use $widget->instance to get the instance)</p>
 
 <hr />
 

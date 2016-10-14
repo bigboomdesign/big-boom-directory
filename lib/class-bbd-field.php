@@ -303,21 +303,48 @@ class BBD_Field {
 		if( 'date_picker' == $this->type && $this->is_acf ) {
 
 			# the format saved in ACF
-			$format_in = $this->acf_field['date_format'];
+			$format_in = '';
 
-			# conversion from JS to PHP
-			$format_convert = array(
-				'yymmdd' => 'Ymd',
-				'dd/mm/yy' => 'd/m/Y',
-				'mm/dd/yy' => 'm/d/Y',
-				'yy_mm_dd' => 'Y_m_d'
+			# for ACF non-pro
+			if( ! empty( $this->acf_field['date_format'] ) ) {
+				$format_in = $this->acf_field['date_format'];
+				$format_out = $this->acf_field['display_format'];
 
-			);
-			# create the PHP date/time object
-			$date = DateTime::createFromFormat($format_convert[ $format_in ], $value );
+				# conversion from JS to PHP
+				$format_convert = array(
+					'yymmdd' => 'Ymd',
+					'dd/mm/yy' => 'd/m/Y',
+					'mm/dd/yy' => 'm/d/Y',
+					'yy_mm_dd' => 'Y_m_d'
+				);
 
-			# generate the value based on the ACF display type
-			$value = $date->format( $format_convert[ $this->acf_field['display_format'] ] );
+				$format_in = $format_convert[ $format_in ];
+				$format_out = $format_convert[ $format_out ];
+			}
+
+			# for ACF pro
+			elseif( ! empty( $this->acf_field['return_format'] ) ) {
+
+				# ACF pro went with a fixed save format
+				$format_in = 'Ymd';
+
+				# but the user can still specify the display format so we need to support this
+				$format_out = $this->acf_field['display_format'];
+
+				# note that the actual `return_format` is insignificant to us, since we are
+				# grabbing the value straight from the DB
+			}
+
+			if( ! empty( $format_in ) ) {
+
+				# create the PHP date/time object
+				$date = DateTime::createFromFormat( $format_in, $value );
+
+				# generate the value based on the ACF display type
+				if( $date ) {
+					$value = $date->format( $format_out );
+				}
+			}
 		
 		} # end: date picker field
 
@@ -330,8 +357,23 @@ class BBD_Field {
 
 		} # end: google map field
 
-		# apply filters to the value so users can edit it
+		/**
+		 * oEmbed field
+		 */
+		if( 'oembed' == $this->type ) {
+			$width = $this->acf_field['width'];
+			$height = $this->acf_field['height'];
+			$value = wp_oembed_get( $value, array( 'width' => $width, 'height' => $height ) );
+		}
+
+		/**
+		 * Post-processing for the field value
+		 */
+
+		# apply a general filter to the value
 		$value = apply_filters( 'bbd_field_value', $value, $this, $post_id );
+
+		# apply a specific filter to the value, for this particular field key
 		$value = apply_filters( 'bbd_field_value_' . $this->key, $value, $this, $post_id );
 
 		return $value;

@@ -404,6 +404,8 @@ class BBD_Search_Widget extends WP_Widget {
 			if( ! empty( $instance['widget_id'] ) ) $this->number = $instance['widget_id'];
 		}
 
+		$this->instance = $instance;
+
 		/**
 		 * Gather the widget arguments and settings
 		 */
@@ -453,89 +455,93 @@ class BBD_Search_Widget extends WP_Widget {
 		if( $title ) echo $before_title . $title . $after_title; 
 
 		if( $view_all && $view_all_link ) echo "<p class='bbd-view-all'><a href='" . $view_all_link . "'>" . $view_all . "</a></p>";
-		if( $description ) echo"<p>". $description . "</p>";		
+		if( $description ) echo"<p>". $description . "</p>";
+
+		do_action( 'bbd_before_search_widget_container', $this );
 		?>
-			<div class='bbd-search-widget-container'>
-			<form method="post" 
-				id="bbd-search-form" 
-				action="<?php if( ! empty( $search_page ) ) echo get_permalink( $search_page ); ?>"
-			><?php
+		<div class='bbd-search-widget-container'>
+		<form method="post" 
+			id="bbd-search-form" 
+			action="<?php if( ! empty( $search_page ) ) echo get_permalink( $search_page ); ?>"
+		><?php
 
-				# Taxonomy filters 
-				foreach( $taxonomies as $tax_id ) {
+			# Taxonomy filters 
+			foreach( $taxonomies as $tax_id ) {
 
-					$tax = new BBD_Tax( $tax_id );
+				$tax = new BBD_Tax( $tax_id );
 
-					$setting = array(
-						'id' => 'taxonomy_' . $tax_id,
-						'label' => $tax->singular,
-						'type' => 'select',
-					);
-					?>
-					<div class='bbd-search-filter'>
-					<?php 
-						do_action( 'bbd_before_search_filter', $setting, $this );
-						$tax->get_form_element_html( $setting, 'bbd_search', $_POST ); 
-						do_action( 'bbd_after_search_filter', $setting, $this );
-
-					?>
-					</div>
-					<?php
-
-				} # end foreach: $taxonomies
-
-				# Loop through selected filters
-				if( ! empty( $meta_keys ) ) 
-				foreach( $meta_keys as $meta_key ) {
-
-					$field = new BBD_Field( $meta_key );
-
-					# get the field type, using text as default
-					$field_type = ! empty( $instance[ $meta_key . '_field_type' ] ) ?
-						$instance[ $meta_key . '_field_type' ] :
-						'text';
-
-					# display the form field element
-					$setting = array(
-						'id' => $meta_key,
-						'type' => $field_type,
-					);
-					?>
-					<div class='bbd-search-filter'>
-					<?php 
-						do_action( 'bbd_before_search_filter', $setting, $this );
-						$field->get_form_element_html( $setting ); 
-						do_action( 'bbd_after_search_filter', $setting, $this );
-					?>
-					</div>
-					<?php
-
-				} # end foreach: $this->fields
-
-				# Add hidden input to keep track of Widget ID
+				$setting = array(
+					'id' => 'taxonomy_' . $tax_id,
+					'label' => $tax->singular,
+					'type' => 'select',
+				);
 				?>
-				<input type="hidden" 
-					name="bbd_search[widget_id]" 
-					value="<?php echo isset( $widget_id ) ? 
-						$widget_id : 
-						( isset( $_POST['bbd_search']['widget_id'] ) ? 
-							sanitize_text_field( $_POST['bbd_search']['widget_id'] ) :
-							''
-						); ?>" 
-				/>
-				<input type="hidden" 
-					name="bbd_search[widget_number]" 
-					value="<?php echo isset( $this->number ) ? 
-						$this->number : 
-						( isset( $_POST['bbd_search']['widget_number'] ) ? 
-							sanitize_text_field( $_POST['bbd_search']['widget_number'] ) :
-							''
-						); ?>" 
-				/>
-				<input class="bbd-search-submit" type="submit" value="<?php echo $submit_text; ?>" />
-			</form>
-			</div><!-- .bbd-search-widget-container -->
+				<div class='bbd-search-filter'>
+				<?php 
+					do_action( 'bbd_before_search_filter', $setting, $this );
+					$tax->get_form_element_html( $setting, 'bbd_search', $_POST ); 
+					do_action( 'bbd_after_search_filter', $setting, $this );
+
+				?>
+				</div>
+				<?php
+
+			} # end foreach: $taxonomies
+
+			# Loop through selected filters
+			if( ! empty( $meta_keys ) ) 
+			foreach( $meta_keys as $meta_key ) {
+
+				$field = new BBD_Field( $meta_key );
+
+				# get the field type, using text as default
+				$field_type = ! empty( $instance[ $meta_key . '_field_type' ] ) ?
+					$instance[ $meta_key . '_field_type' ] :
+					'text';
+
+				# display the form field element
+				$setting = array(
+					'id' => $meta_key,
+					'type' => $field_type,
+				);
+				?>
+				<div class='bbd-search-filter'>
+				<?php 
+					do_action( 'bbd_before_search_filter', $setting, $this );
+					$field->get_form_element_html( $setting ); 
+					do_action( 'bbd_after_search_filter', $setting, $this );
+				?>
+				</div>
+				<?php
+
+			} # end foreach: $this->fields
+
+			# Add hidden input to keep track of Widget ID
+			?>
+			<input type="hidden" 
+				name="bbd_search[widget_id]" 
+				value="<?php echo isset( $widget_id ) ? 
+					$widget_id : 
+					( isset( $_POST['bbd_search']['widget_id'] ) ? 
+						sanitize_text_field( $_POST['bbd_search']['widget_id'] ) :
+						''
+					); ?>" 
+			/>
+			<input type="hidden" 
+				name="bbd_search[widget_number]" 
+				value="<?php echo isset( $this->number ) ? 
+					$this->number : 
+					( isset( $_POST['bbd_search']['widget_number'] ) ? 
+						sanitize_text_field( $_POST['bbd_search']['widget_number'] ) :
+						''
+					); ?>" 
+			/>
+			<input class="bbd-search-submit" type="submit" value="<?php echo $submit_text; ?>" />
+		</form>
+		</div><!-- .bbd-search-widget-container -->
 		<?php
+		do_action( 'bbd_after_search_widget_container', $this );
+
 		echo $after_widget;
 		wp_enqueue_style( 'bbd', bbd_url('/css/bbd.css'), null, true );
 
@@ -579,14 +585,23 @@ class BBD_Search_Widget extends WP_Widget {
 		global $bbd_view;
 
 		# make sure we don't recurse when doing search results excerpts
-		if( $this->doing_search_results ) return $content;
+		if( $this->doing_search_results ) {
+			return $content;
+		}
+
+		# make sure that we are not hooking into the_content from outside the main loop
+		if( ! in_the_loop() || ! is_main_query() ) {
+			return $content;
+		}
 
 		# get the settings for this widget instance (or the posted instance if different)
-		$widget_number = isset( $_POST['bbd_search']['widget_number'] ) ?
-			$_POST['bbd_search']['widget_number'] : 
-			$this->number;
+		if( empty( $this->instance ) ) {
+			$widget_number = isset( $_POST['bbd_search']['widget_number'] ) ?
+				$_POST['bbd_search']['widget_number'] : 
+				$this->number;
 
-		$instance = $this->get_instance( $widget_number );
+			$instance = $this->get_instance( $widget_number );
+		}
 
 		if( ! $instance ) return $content;
 
@@ -595,6 +610,7 @@ class BBD_Search_Widget extends WP_Widget {
 
 			# set up the view for this set of search results
 			$bbd_view->field_keys = $instance['search_results_fields'];
+
 			foreach( $bbd_view->field_keys as $field_key ) {
 
 				$field = new BBD_Field( $field_key );

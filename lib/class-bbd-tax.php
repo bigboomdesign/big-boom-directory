@@ -241,13 +241,34 @@ class BBD_Tax extends BBD_Post{
 
 		if( empty( $this->terms ) ) return;
 
+		# sort by hierarchy if we have a heirarchical taxonomy
+		if( $this->hierarchical ) {
+			$this->terms = BBD_Helper::sort_terms_by_hierarchy( $this->terms );
+		}
+
 		$choices = array();
 		$choices[] = array( 'value' => '', 'label' => 'Select' );
 
 		# Loop through terms and load choices for dropdown
 		foreach( $this->terms as $term ) {
+
+			# add the term to the choices array
 			$choices[] = array( 'value' => $term->term_id, 'label' => $term->name );
+
+			# load any child terms
+			if( $this->hierarchical && ! empty( $term->children ) ) {
+				foreach( $term->children as $child ) {
+					$choices[] = array( 
+						'value' => $child->term_id, 
+
+						# note that Chrome does not support padding/margin for <option> elements
+						'label' => '&nbsp; &nbsp;' . $child->name, 
+						'class' => 'bbd-term-indent' 
+					);
+				}
+			}
 		}
+
 		$setting['choices'] = $choices;
 
 		$setting = BBD_Helper::get_field_array( $setting );

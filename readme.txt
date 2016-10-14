@@ -2,8 +2,8 @@
 Contributors: bigboomdesign, michaelhull, GregGay
 Tags: directory, custom-post-type, post-type, taxonomy, custom-fields
 Requires at least: 4.0
-Tested up to: 4.5
-Stable tag: 2.2.0
+Tested up to: 4.6
+Stable tag: 2.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,7 +24,7 @@ Big Boom Directory is a directory management plugin for WordPress that utilizes 
     * Basic settings like 'Public' and 'Has Archive', and 'Exclude From Search'
     * Use hooks to add your own post type settings
 
-* Add content using the WYSIWYG to act as the post type description for archive pages
+* Add content using the WYSIWYG to act as the post type description for archive pages, and provide an option to show taxonomy term descriptions on term archive pages (for themes that don't do this by default).
 
 * Pick and choose fields from Advanced Custom Fields groups to be displayed on single and archive views.  Compatible with both ACF and ACF Pro.
 
@@ -32,7 +32,7 @@ Big Boom Directory is a directory management plugin for WordPress that utilizes 
 
 * Automatically detect URL and social media fields, converting them into links
 
-* Support for ACF field types like checkboxes, image, date, gallery field (with integration using Lightbox), and Google Map 
+* Support for ACF and ACF Pro field types like checkboxes, image, date picker, gallery field (with integration using Lightbox), Google Map, oEmbed
 
 * Full-featured advanced search widget with customizable filters and field selection for the search results display
 
@@ -58,9 +58,22 @@ None yet.
 
 == Changelog ==
 
+= 2.2.2 =
+
+* Add option to insert term descriptions on term archive pages
+* Quick link to view post type archive from within WP Admin menu
+* Add actions to insert content before and after the search widget container
+* Add filter to modify the auto-generated post excerpt on non-core WP views (like search widget results)
+* Bug fix: supress the before/after description hooks for post types and terms with no description
+* Bug fix for settings page: hide custom field key when not applicable
+* Bug fix: custom images sizes now show up in plugin settings and post type settings
+* Bug fix: search widget results would previously display fields multiple times in certain cases
+
 = 2.2.1 =
 
-* Improved support for ACF Pro
+* Improve support for ACF Pro
+* Nest hierarchical terms in search widget
+* Bug fix for 404 on single view when missing `orderby` field value
 * Bug fix for TinyMCE shortcode builder
 
 = 2.2.0 =

@@ -21,7 +21,7 @@ Directory management plugin for WordPress, based on Custom Post Types, Taxonomie
 
 * Automatically detect URL and social media fields, converting them into links
 
-* Support for ACF field types like checkboxes, image, date, gallery field (with integration using Lightbox), and Google Map 
+* Support for ACF and ACF Pro field types like checkboxes, image, date picker, gallery field (with integration using Lightbox), Google Map, oEmbed
 
 * Full-featured advanced search widget with customizable filters and field selection for the search results display
 
@@ -167,6 +167,34 @@ Below, we're appending an additional field called `phone` below the default fiel
 
 Use this filter to modify the post content for BBD archive views.  Does not fire for non-BBD page views.  Similar to
 `bbd_the_content`, except it fires for archive views instead of single post views.
+
+---
+
+### ````bbd_make_excerpt````
+
+Unlike the `bbd_the_content` and `bbd_the_excerpt`, which are essentially wrappers for `the_content` and `the_excerpt` that fire only on the built-in WP single and archive views, the `bbd_make_excerpt` filter fires whenever the plugin is generating its own custom view (like search results from the search widget).  You can use this filter to alter the excerpts shown for the posts in these cases.
+
+#### Parameters
+
+    (string) $excerpt: The auto-generated excerpt 
+
+#### Return
+
+    (string) You must return the new excerpt that you wish to be displayed
+
+#### Examples
+
+    # This example strips all HTML tags from the excerpt
+    add_filter( 'bbd_make_excerpt', 'my_make_excerpt' );
+    function my_make_excerpt( $excerpt ) {
+        return strip_tags( $excerpt );
+    }
+
+    # This example gets rid of the excerpt altogether
+    add_filter( 'bbd_make_excerpt', 'my_make_excerpt' );
+    function my_make_excerpt( $excerpt ) {
+        return '';
+    }
 
 ---
 
@@ -393,6 +421,14 @@ We assume that the description should have the same HTML structure as a single l
 
 ---
 
+### ````bbd_term_description_wrap````
+
+This filter is similar to the `bbd_pt_description_wrap`, except it applies to term archive pages instead of post type archive pages.  See above for examples, as it works just the same if you substitute `term` for `pt`.
+
+Unlike the descriptions for post type archives, term archive descriptions are something that many themes already utilize.  For this reason, we do not place term descriptions on term archive pages by default.  You must check the `Show term descriptions on term archive pages` checkbox when creating or editing your taxonomy on the backend.
+
+---
+
 ### ````bbd_search_widget_query_args````
 
 Alters the arguments for the WP_Query instance used to get the search results when using the Search Widget
@@ -522,6 +558,8 @@ These actions are used to insert HTML (or perform other tasks) before and after 
 
 As mentioned above for the `bbd_pt_description_wrap` filter, these actions are mainly intended to let users match the post type description to their specific theme.
 
+These filters do not fire for post types whose description is empty.
+
 #### Example
 
 This example gives the post type description the same layout as a single loop item for the Twentyfifteen theme.
@@ -539,6 +577,26 @@ This example gives the post type description the same layout as a single loop it
         </div></article>
     <?php
     }
+
+---
+
+### ````bbd_before_term_description````
+### ````bbd_after_term_description````
+
+These action hooks are similar to `bbd_before_pt_description` and `bbd_after_pt_description`, in that they are intended to let users match the descriptions on term archive pages to their particular theme.  See above for examples, as they work just the same if you substitute `term` for `pt`.
+
+Unlike the descriptions for post type archives, term archive descriptions are something that many themes already utilize.  For this reason, we do not place term descriptions on term archive pages by default.  You must check the `Show term descriptions on term archive pages` checkbox when creating or editing your taxonomy on the backend.
+
+---
+
+### ````bbd_before_search_widget_container````
+### ````bbd_after_search_widget_container````
+
+Allow insertion of content before/after the main search widget container
+
+#### Parameters
+
+````$widget````     (BBD_Search_Widget)     The current widget being rendered (use $widget->instance to get the instance)
 
 ---
 

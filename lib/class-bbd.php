@@ -293,34 +293,42 @@ class BBD {
 			return;
 		}
 
-		# get the post orderby parameter
-		$orderby = $current_post_type->post_orderby;
-		if( ! $orderby ) $orderby = 'title';
+		/**
+		 * Ordering parameters
+		 *
+		 * Note that forcing an order in single views can result in 404's for single listings,
+		 * in the event that a post is missing a value for the orderby key
+		 */
+		if( ! is_singular() ) {
+			# get the post orderby parameter
+			$orderby = $current_post_type->post_orderby;
+			if( ! $orderby ) $orderby = 'title';
 
-		# the order parameter
-		$order = $current_post_type->post_order;
+			# the order parameter
+			$order = $current_post_type->post_order;
 
-		# the meta key for ordering
-		$meta_key = $current_post_type->meta_key_orderby;
+			# the meta key for ordering
+			$meta_key = $current_post_type->meta_key_orderby;
 
-		$query->query_vars['orderby'] = $orderby;
-		$query->query_vars['order'] = $order;
+			$query->query_vars['orderby'] = $orderby;
+			$query->query_vars['order'] = $order;
 
-		# when ordering by meta value
-		if( $meta_key && ( 'meta_value' == $orderby || 'meta_value_num' == $orderby ) ) {
+			# when ordering by meta value
+			if( $meta_key && ( 'meta_value' == $orderby || 'meta_value_num' == $orderby ) ) {
 
-			# set the meta key argument
-			$query->query_vars['meta_key'] = $meta_key;
+				# set the meta key argument
+				$query->query_vars['meta_key'] = $meta_key;
 
-			# make sure that we filter out posts with the meta value saved as an empty string
-			# these posts appear at the top otherwise
-			$query->query_vars['meta_query'][] = array(
-				'key' => $meta_key,
-				'value' => '',
-				'compare' => '!=',
-			);
+				# make sure that we filter out posts with the meta value saved as an empty string
+				# these posts appear at the top otherwise
+				$query->query_vars['meta_query'][] = array(
+					'key' => $meta_key,
+					'value' => '',
+					'compare' => '!=',
+				);
 
-		} # end if: ordering by custom field
+			} # end if: ordering by custom field
+		}
 
 		# action that users can hook into to edit the query further
 		do_action( 'bbd_pre_get_posts', $query );
@@ -427,50 +435,123 @@ class BBD {
 		# make sure we don't execute this callback twice for themes that use loop_start more than once (e.g. twentyten)
 		if( did_action( 'loop_start' ) > 1 ) return;
 
-		# we're only wanting to hook on post type archive pages
-		if( ! is_post_type_archive() || empty( BBD::$current_post_type ) ) return;
-
-		do_action( 'bbd_before_pt_description' );
-
-		# get the current post type object
-		$pt = new BBD_PT( BBD::$current_post_type );
-
-		# get the post content for the current post type
-		$post_type_description = get_post_field( 'post_content', $pt->ID );
-
-		# make sure we have content to display
-		if( empty( $post_type_description ) ) return;
-
-		# the wrapper for the post type description 
-		$wrap = array(
-			'before_tag' 	=> 'div',
-			'after_tag' 	=> 'div',
-			'classes'		=> array('bbd-post-type-description'),
-			'id'			=> '',
-		);
-		# apply a hookable filter for the wrapper
-		$wrap = apply_filters( 'bbd_pt_description_wrap', $wrap );
-
-		# show the post type description
-		if( ! empty( $wrap['before_tag'] ) ) {
-		?>
-			<<?php 
-				echo $wrap['before_tag'] . ' ';
-				if( ! empty( $wrap['classes'] ) ) echo 'class="' . implode( ' ', $wrap['classes'] ) . '" ';
-				if( ! empty( $wrap['id'] ) ) echo 'id="' . $wrap['id'] . '"';
-				
-			?>>
-		<?php
-		} # end if: wrap has an opening tag
-			echo apply_filters( 'the_content', $post_type_description );
-
-		if( ! empty( $wrap['after_tag'] ) ) {
-		?>
-			</<?php echo $wrap['after_tag']; ?>>
-		<?php
+		/**
+		 *  We're only wanting to hook on post type archive pages and term archive pages
+		 */
+		if( 
+			( ! is_post_type_archive() || empty( BBD::$current_post_type ) ) &&
+			( ! is_tax() || empty( BBD::$current_taxonomy ) )
+		) {
+			return;
 		}
 
-		do_action( 'bbd_after_pt_description' );
+		/**
+		 * For post type archive views
+		 */
+		if( is_post_type_archive() ) {
+
+			# get the current post type object (note this is known to be defined at this point)
+			$pt = new BBD_PT( BBD::$current_post_type );
+
+			# get the post content for the current post type
+			$post_type_description = get_post_field( 'post_content', $pt->ID );
+
+			# make sure we have content to display
+			if( empty( $post_type_description ) ) {
+				return;
+			}
+
+			do_action( 'bbd_before_pt_description' );
+
+			# the wrapper for the post type description 
+			$wrap = array(
+				'before_tag' 	=> 'div',
+				'after_tag' 	=> 'div',
+				'classes'		=> array('bbd-post-type-description'),
+				'id'			=> '',
+			);
+
+			# apply a hookable filter for the wrapper
+			$wrap = apply_filters( 'bbd_pt_description_wrap', $wrap );
+
+			# show the post type description
+			if( ! empty( $wrap['before_tag'] ) ) {
+			?>
+				<<?php 
+					echo $wrap['before_tag'] . ' ';
+					if( ! empty( $wrap['classes'] ) ) echo 'class="' . implode( ' ', $wrap['classes'] ) . '" ';
+					if( ! empty( $wrap['id'] ) ) echo 'id="' . $wrap['id'] . '"';
+
+				?>>
+			<?php
+			} # end if: wrap has an opening tag
+				echo apply_filters( 'the_content', $post_type_description );
+
+			if( ! empty( $wrap['after_tag'] ) ) {
+			?>
+				</<?php echo $wrap['after_tag']; ?>>
+			<?php
+			}
+
+			do_action( 'bbd_after_pt_description' );
+
+			return;
+
+		} # end if: is post type archive
+
+		/**
+		 * For term archive views
+		 */
+		if( is_tax() ) {
+
+			# get the current taxonomy object (note this is known to be defined at this point)
+			$tax = new BBD_Tax( BBD::$current_taxonomy );
+
+			# if the user has selected to show term descriptions for this taxonomy
+			if( isset( $tax->show_term_descriptions ) ) {
+
+				$term_description = category_description();
+				if( empty( $term_description ) ) {
+					return;
+				}
+
+				do_action( 'bbd_before_term_description' );
+
+				# the wrapper for the term description 
+				$wrap = array(
+					'before_tag' 	=> 'div',
+					'after_tag' 	=> 'div',
+					'classes'		=> array('bbd-term-description'),
+					'id'			=> '',
+				);
+
+				# apply a hookable filter for the wrapper
+				$wrap = apply_filters( 'bbd_term_description_wrap', $wrap );
+
+				# show the term description
+				if( ! empty( $wrap['before_tag'] ) ) {
+				?>
+					<<?php 
+						echo $wrap['before_tag'] . ' ';
+						if( ! empty( $wrap['classes'] ) ) echo 'class="' . implode( ' ', $wrap['classes'] ) . '" ';
+						if( ! empty( $wrap['id'] ) ) echo 'id="' . $wrap['id'] . '"';
+					?>>
+				<?php
+				} # end if: wrap has an opening tag
+
+				echo apply_filters( 'the_content', $term_description );
+
+				if( ! empty( $wrap['after_tag'] ) ) {
+				?>
+					</<?php echo $wrap['after_tag']; ?>>
+				<?php
+				}
+
+				do_action( 'bbd_after_term_description' );
+
+			} # end if: show term descriptions for this taxonomy
+
+		} # end if: is term archive
 
 	} # end: loop_start()
 
@@ -588,19 +669,30 @@ class BBD {
 	 */
 	public static function the_content( $content ) {
 
-		# make sure we haven't done fields for this post yet
+		/**
+		 * Make sure we haven't done fields for this post yet
+		 *
+		 * Note that we are performing an additional check to make sure that the theme has
+		 * not called `the_excerpt` and then discarded the result (*cough* Divi)
+		 */
 		global $bbd_view;
-		if( $bbd_view->did_post_fields ) return $content;
+		if( $bbd_view->did_post_fields && false !== strpos( $content, 'bbd-field' ) ) {
+			return $content;
+		}
 
 		# if we're doing the loop_start action, we don't want to append fields
-		if( doing_action('loop_start') ) return $content;
+		if( doing_action('loop_start') ) {
+			return $content;
+		}
 
 		/**
 		 * If we're doing the_excerpt on a single post, do nothing. Lots of themes (like 2016) are placing
 		 * the excerpt at the top of single posts as a preview/callout section
 		 */
-		if( doing_action( 'the_excerpt' ) && is_singular() ) return $content;
-		
+		if( doing_action( 'the_excerpt' ) && is_singular() ) {
+			return $content;
+		}
+
 		/**
 		 * If we're doing get_the_excerpt and the post has no excerpt, we shouldn't do anything, since WP will
 		 * strip out the tags and leave us with unformatted fields.
@@ -610,7 +702,9 @@ class BBD {
 		 * and stripped of HTML tags if no excerpt exists.
 		 */
 		global $post;
-		if( doing_action( 'get_the_excerpt' ) && empty( $post->post_excerpt ) ) return $content;
+		if( doing_action( 'get_the_excerpt' ) && empty( $post->post_excerpt ) ) {
+			return $content;
+		}
 
 		/**
 		 * If the content contains the string 'bbd-field', we'll treat this as a quasi-catch-all bail out,

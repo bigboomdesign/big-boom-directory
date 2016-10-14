@@ -52,6 +52,11 @@ class BBD_Helper{
 	/**
 	 * Create an excerpt of a given string with a given length and trailer
 	 *
+	 * We use this instead of `get_the_excerpt` because we want to allow HTML.  The hook `bbd_make_excerpt` can be used
+	 * to alter the behavior of this function
+	 *
+	 * @see 	https://codex.wordpress.org/Function_Reference/get_the_excerpt
+	 *
 	 * @param 	$content 	The string to truncate
 	 * @param 	$length		The number of characters (rounded down to account for full word)
 	 * @param 	$after 		The HTML to display after the excerpt
@@ -78,6 +83,8 @@ class BBD_Helper{
 
 		# make sure we return a string with balanced HTML tags
 		$excerpt = force_balance_tags( $excerpt );
+
+		$excerpt = apply_filters( 'bbd_make_excerpt', $excerpt );
 
 		return $excerpt;
 	
@@ -678,7 +685,7 @@ class BBD_Helper{
 
 		# get any custom images sizes that are registered
 		global $_wp_additional_image_sizes;
-		if( empty( $wp_additional_image_sizes ) ) return $image_sizes;
+		if( empty( $_wp_additional_image_sizes ) ) return $image_sizes;
 
 		foreach( $_wp_additional_image_sizes as $size => $info ) {
 			$image_sizes[] = $size;
@@ -689,7 +696,7 @@ class BBD_Helper{
 
 	/**
 	 * Sort an array of taxonomy terms hierarchically. Child categories will be
-	 * placed under a 'children' member of their parent term.
+	 * placed under a 'children' property of their parent term.
 	 *
 	 * @param array 	$terms     		List of WP_Term objects
 	 * @param int		$parent_id 		The parent ID for the terms
