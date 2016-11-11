@@ -190,7 +190,7 @@ class BBD_Helper{
 				!array_key_exists('label', $field) 
 				&& !array_key_exists('name', $field)
 				&& !array_key_exists('id', $field)
-			) return $field;
+			) return apply_filters( 'bbd_field_array', $field, '' );
 			
 			$id .= array_key_exists('name', $field) ? 
 				$field['name'] 
@@ -209,7 +209,7 @@ class BBD_Helper{
 				$out['choices'] = self::get_choice_array($out);
 			}
 		}
-		return $out;
+		return apply_filters( 'bbd_field_array', $out );
 	}
 
 	/**
@@ -224,7 +224,9 @@ class BBD_Helper{
 	 */
 	public static function get_choice_array( $setting ) {
 		extract( $setting );
-		if( ! isset( $choices ) ) return array();
+		if( ! isset( $choices ) ) {
+			return apply_filters( 'bbd_choice_array', array(), $setting );
+		}
 		$out = array();
 		if(!is_array($choices)){
 			$out[] = array(
@@ -260,7 +262,7 @@ class BBD_Helper{
 				}
 			}
 		}
-		return $out;
+		return apply_filters( 'bbd_choice_array', $out, $setting );
 	} # end: get_choice_array()
 
 

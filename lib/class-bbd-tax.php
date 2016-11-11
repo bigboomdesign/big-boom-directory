@@ -270,7 +270,6 @@ class BBD_Tax extends BBD_Post{
 		}
 
 		$setting['choices'] = $choices;
-
 		$setting = BBD_Helper::get_field_array( $setting );
 		?>
 		<label for='<?php echo $setting['id']; ?>' ><?php echo $this->plural; ?></label>

@@ -477,7 +477,7 @@ class BBD_Search_Widget extends WP_Widget {
 				);
 				?>
 				<div class='bbd-search-filter'>
-				<?php 
+				<?php
 					do_action( 'bbd_before_search_filter', $setting, $this );
 					$tax->get_form_element_html( $setting, 'bbd_search', $_POST ); 
 					do_action( 'bbd_after_search_filter', $setting, $this );

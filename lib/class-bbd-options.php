@@ -112,9 +112,9 @@ class BBD_Options{
 		$setting['option_name'] = (
 			$option ? $option.'['.$setting['name'].']' : $setting['name']
 		);
-				
+
 		# call one of several handler functions based on what type of field we have
-		
+
 		## see if a self method is defined having the same name as the setting type
 		if( isset( $setting['type'] ) && method_exists(get_class(), $setting['type'])) {
 			$function = $setting['type'];
