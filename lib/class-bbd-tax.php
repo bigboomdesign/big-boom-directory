@@ -272,9 +272,12 @@ class BBD_Tax extends BBD_Post{
 		$setting['choices'] = $choices;
 		?>
 		<label for='<?php echo $setting['id']; ?>' >
-			<?php echo esc_html( apply_filters( 'bbd_taxonomy_form_element_label', $this->plural ) ); ?>
-		</label>
 		<?php 
+				$label = apply_filters( 'bbd_taxonomy_form_element_label', $this );
+				echo esc_html( $label );
+		?>
+		</label>
+		<?php
 		BBD_Options::do_settings_field( $setting, $option, $_POST );
 		
 	} # end: get_form_element_html()
