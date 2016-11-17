@@ -273,7 +273,7 @@ class BBD_Tax extends BBD_Post{
 		?>
 		<label for='<?php echo $setting['id']; ?>' >
 		<?php 
-				$label = apply_filters( 'bbd_taxonomy_form_element_label', $this );
+				$label = apply_filters( 'bbd_taxonomy_form_element_label', $this->plural, $this );
 				echo esc_html( $label );
 		?>
 		</label>
