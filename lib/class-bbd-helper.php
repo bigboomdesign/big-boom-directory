@@ -314,12 +314,14 @@ class BBD_Helper{
 		);
 		
 		# User-defined post types
-		foreach( BBD::$post_type_ids as $pt_id){
+		foreach( BBD::$post_type_ids as $pt_id ) {
 
 			$pt = new BBD_PT( $pt_id );
 
 			# make sure that the post for this post type is published
-			if( empty( $pt->post_status ) || 'publish' != $pt->post_status ) continue;
+			if( empty( $pt->post_status ) || 'publish' != $pt->post_status ) {
+				continue;
+			}
 
 			# register the post type
 			$pt->register();
