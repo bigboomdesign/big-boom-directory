@@ -21,7 +21,7 @@ Big Boom Directory is a directory management plugin for WordPress that utilizes 
     * Post type labels
     * WP Admin menu icon and position
     * URL slug and post type name/handle
-    * Basic settings like 'Public' and 'Has Archive', and 'Exclude From Search'
+    * Basic settings like 'Public' and 'Has Archive', 'Supports', and 'Exclude From Search'
     * Use hooks to add your own post type settings
 
 * Add content using the WYSIWYG to act as the post type description for archive pages, and provide an option to show taxonomy term descriptions on term archive pages (for themes that don't do this by default).
@@ -60,6 +60,7 @@ None yet.
 
 = 2.2.2 =
 
+* Add ability to change post type supported features from within the UI
 * Add option to insert term descriptions on term archive pages
 * Quick link to view post type archive from within WP Admin menu
 * Add actions to insert content before and after the search widget container

@@ -10,7 +10,7 @@ Directory management plugin for WordPress, based on Custom Post Types, Taxonomie
     * Post type labels
     * WP Admin menu icon and position
     * URL slug and post type name/handle
-    * Basic settings like 'Public' and 'Has Archive', and 'Exclude From Search'
+    * Basic settings like 'Public' and 'Has Archive', 'Supports', and 'Exclude From Search'
     * Use hooks to add your own post type settings
 
 * Add content using the WYSIWYG to act as the post type description for archive pages
