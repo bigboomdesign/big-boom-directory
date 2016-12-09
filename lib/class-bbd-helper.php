@@ -52,6 +52,11 @@ class BBD_Helper{
 	/**
 	 * Create an excerpt of a given string with a given length and trailer
 	 *
+	 * We use this instead of `get_the_excerpt` because we want to allow HTML.  The hook `bbd_make_excerpt` can be used
+	 * to alter the behavior of this function
+	 *
+	 * @see 	https://codex.wordpress.org/Function_Reference/get_the_excerpt
+	 *
 	 * @param 	$content 	The string to truncate
 	 * @param 	$length		The number of characters (rounded down to account for full word)
 	 * @param 	$after 		The HTML to display after the excerpt
@@ -78,6 +83,8 @@ class BBD_Helper{
 
 		# make sure we return a string with balanced HTML tags
 		$excerpt = force_balance_tags( $excerpt );
+
+		$excerpt = apply_filters( 'bbd_make_excerpt', $excerpt );
 
 		return $excerpt;
 	
@@ -183,7 +190,7 @@ class BBD_Helper{
 				!array_key_exists('label', $field) 
 				&& !array_key_exists('name', $field)
 				&& !array_key_exists('id', $field)
-			) return $field;
+			) return apply_filters( 'bbd_field_array', $field, '' );
 			
 			$id .= array_key_exists('name', $field) ? 
 				$field['name'] 
@@ -202,7 +209,7 @@ class BBD_Helper{
 				$out['choices'] = self::get_choice_array($out);
 			}
 		}
-		return $out;
+		return apply_filters( 'bbd_field_array', $out );
 	}
 
 	/**
@@ -217,7 +224,9 @@ class BBD_Helper{
 	 */
 	public static function get_choice_array( $setting ) {
 		extract( $setting );
-		if( ! isset( $choices ) ) return array();
+		if( ! isset( $choices ) ) {
+			return apply_filters( 'bbd_choice_array', array(), $setting );
+		}
 		$out = array();
 		if(!is_array($choices)){
 			$out[] = array(
@@ -253,7 +262,7 @@ class BBD_Helper{
 				}
 			}
 		}
-		return $out;
+		return apply_filters( 'bbd_choice_array', $out, $setting );
 	} # end: get_choice_array()
 
 
@@ -678,7 +687,7 @@ class BBD_Helper{
 
 		# get any custom images sizes that are registered
 		global $_wp_additional_image_sizes;
-		if( empty( $wp_additional_image_sizes ) ) return $image_sizes;
+		if( empty( $_wp_additional_image_sizes ) ) return $image_sizes;
 
 		foreach( $_wp_additional_image_sizes as $size => $info ) {
 			$image_sizes[] = $size;

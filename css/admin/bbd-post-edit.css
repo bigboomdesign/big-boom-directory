@@ -1,7 +1,7 @@
 .required{
 	color: #D9534F;
 }
-h1 a.page-title-action{
+h1 + a.page-title-action{
 	display: none;
 }
 
