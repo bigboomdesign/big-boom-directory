@@ -485,7 +485,8 @@ class BBD {
 				?>>
 			<?php
 			} # end if: wrap has an opening tag
-				echo apply_filters( 'the_content', $post_type_description );
+
+			echo apply_filters( 'the_content', $post_type_description );
 
 			if( ! empty( $wrap['after_tag'] ) ) {
 			?>
@@ -676,7 +677,7 @@ class BBD {
 		 * not called `the_excerpt` and then discarded the result (*cough* Divi)
 		 */
 		global $bbd_view;
-		if( $bbd_view->did_post_fields && false !== strpos( $content, 'bbd-field' ) ) {
+		if( $bbd_view->did_post_fields || false !== strpos( $content, 'bbd-field' ) ) {
 			return $content;
 		}
 
