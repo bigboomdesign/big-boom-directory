@@ -9,7 +9,12 @@ h1 + a.page-title-action{
  * Post meta boxes 
  */
 
-/** post type settings meta boxes */
+/** post type settings meta box */
+#_bbd_meta_posts_per_page {
+	width: 80px;
+}
+
+/** advanced post type settings meta box */
 #handle-container.highlight,
 #slug-container.highlight{
 	padding: 1em;
