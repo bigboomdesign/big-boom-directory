@@ -404,7 +404,7 @@ class BBD_Options{
 	 *			@type string $var 	A value to be added for the HTML attribute `var`
 	 * 		}
 	 * @return 	string
-	 * @since 	2.2.2
+	 * @since 	2.3.0
 	 */
 	public static function attributes( $setting ) {
 		if(!array_key_exists('attributes', $setting)) return;

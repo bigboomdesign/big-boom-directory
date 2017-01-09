@@ -13,7 +13,7 @@
  * duplicated if there were a 'display' argument to pass in
  *
  * @see 	js/admin/bbd-post-edit.js
- * @since 	2.2.2
+ * @since 	2.3.0
  */
 
 // the select element for post orderby

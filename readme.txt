@@ -58,7 +58,7 @@ None yet.
 
 == Changelog ==
 
-= 2.2.2 =
+= 2.3.0 =
 
 * Add ability to change post type supported features from within the UI
 * Add option to insert term descriptions on term archive pages

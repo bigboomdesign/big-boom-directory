@@ -112,7 +112,7 @@ class BBD_PT extends BBD_Post{
 	 * Which post type features are supported
 	 *
 	 * @param   array
-	 * @since   2.2.2
+	 * @since   2.3.0
 	 */
 	var $post_type_supports = array();
 

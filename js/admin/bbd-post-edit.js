@@ -484,7 +484,7 @@ function hideSlugInfo( $ ) {
  * the master checkbox because we can't activate the feature on existing post type without
  * altering the existing supported features.
  *
- * @since 	2.2.2
+ * @since 	2.3.0
  */
 function togglePostTypeSupports( $ ) {
 	if( $enableSupportCheckbox.prop( 'checked' ) ) {
