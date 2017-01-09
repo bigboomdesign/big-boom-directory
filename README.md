@@ -6,11 +6,11 @@ Directory management plugin for WordPress, based on Custom Post Types, Taxonomie
 
 * Create and manage custom post types and taxonomies from WP Admin.  Post type settings include:
 
-    * Post ordering
     * Post type labels
     * WP Admin menu icon and position
     * URL slug and post type name/handle
-    * Basic settings like 'Public' and 'Has Archive', 'Supports', and 'Exclude From Search'
+    * Basic query arguments like 'Posts per page', 'Orderby', and 'Order'
+    * Basic post type settings like 'Public' and 'Has Archive', 'Supports', and 'Exclude From Search'
     * Use hooks to add your own post type settings
 
 * Add content using the WYSIWYG to act as the post type description for archive pages
