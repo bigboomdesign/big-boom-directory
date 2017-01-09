@@ -60,6 +60,7 @@ None yet.
 
 = 2.3.0 =
 
+* Add support for `posts_per_page` query argument
 * Add ability to change post type supported features from within the UI
 * Add option to insert term descriptions on term archive pages
 * Quick link to view post type archive from within WP Admin menu

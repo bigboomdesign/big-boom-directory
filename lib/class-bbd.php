@@ -328,7 +328,20 @@ class BBD {
 				);
 
 			} # end if: ordering by custom field
-		}
+
+			/**
+			 * Posts per page
+			 */
+			if( ! empty( $current_post_type->posts_per_page ) ) {
+				$posts_per_page = intval( $current_post_type->posts_per_page );
+				if( $posts_per_page ) {
+					if( $posts_per_page < -1 ) {
+						$posts_per_page = -1;
+					}
+					$query->query_vars['posts_per_page'] = $posts_per_page;
+				}
+			}
+		} # end if: not is_singular()
 
 		# action that users can hook into to edit the query further
 		do_action( 'bbd_pre_get_posts', $query );

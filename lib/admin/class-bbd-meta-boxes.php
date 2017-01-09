@@ -32,6 +32,7 @@ class BBD_Meta_Boxes {
 		 * 		- Order by
 		 *		- Meta key to order by
 		 * 		- Order
+		 * 		- Posts per page
 		 *
 		 * - Advanced post type settings
 		 * 		- Name/Handle
@@ -113,6 +114,15 @@ class BBD_Meta_Boxes {
 				'DESC'		=> 'Descending',
 			),
 			'default' 	=> BBD_Options::$options['post_order'],
+		));
+
+		## Posts per page
+		$pt_settings->add_field( array(
+			'name' => 'Posts per page',
+			'id' => $prefix.'posts_per_page',
+			'type' => 'text',
+			'description' => 'Use -1 to show all posts.  Leave blank or use 0 to inherit default.',
+			'sanitization_cb' => array( 'BBD_Meta_Boxes', 'sanitize_posts_per_page' ),
 		));
 
 		# Hook for further customization of the Post Type Settings meta box
@@ -307,18 +317,17 @@ class BBD_Meta_Boxes {
 		# Hook for further customization of the Fields Setup meta box
 		do_action( 'bbd_cmb2_post_type_fields_select' , $pt_fields_select, $prefix );
 
-		$advanced_fields_setup = new_cmb2_box( array(
-			'id' 			=> 'bbd_pt_advanced_fields_setup',
-			'title'			=> __( 'Advanced Fields Setup', 'cmb2' ),
-			'object_types' 	=> array( 'bbd_pt' ),
-			'context' 		=> 'normal',
-			'priority' 		=> 'high',
-		));
-
 		/**
 		 * Advanced fields setup
 		 * Settings from BBD core that can be overriden for this post type
-		 */
+		 */ 
+		$advanced_fields_setup = new_cmb2_box( array(
+ 			'id' 			=> 'bbd_pt_advanced_fields_setup',
+ 			'title'			=> __( 'Advanced Fields Setup', 'cmb2' ),
+ 			'object_types' 	=> array( 'bbd_pt' ),
+ 			'context' 		=> 'normal',
+ 			'priority' 		=> 'high',
+ 		));
 
 		# Auto detect website field
 		$website_field = array(
@@ -565,6 +574,7 @@ class BBD_Meta_Boxes {
 	 * Helper functions and hooks for CMB2 meta boxes
 	 * 
 	 * - default_for_checkbox()
+	 * - sanitize_posts_per_page
 	 * - sanitize_handle()
 	 * - before_handle()
 	 * - before_label()
@@ -608,6 +618,21 @@ class BBD_Meta_Boxes {
 
 			return $default;
 		}
+	}
+
+	public static function sanitize_posts_per_page( $value ) {
+
+		$value = intval( $value );
+
+		if( ! $value ) {
+			return 0;
+		}
+
+		if( $value < -1 ) {
+			return -1;
+		}
+
+		return $value;
 	}
 
 	/**
