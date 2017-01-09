@@ -64,9 +64,19 @@ class BBD_PT extends BBD_Post{
 	 * The default post order for this post type
 	 *
 	 * @param	string 	( ASC | DESC )
-	 * @param 	2.0.0
+	 * @since 	2.0.0
 	 */
 	var $post_order;
+
+	/**
+	 * The number of posts to show on archive pages for this post type
+	 *
+	 * This applies wherever the query arg `post_type` is set for this post type
+	 *
+	 * @param   string
+	 * @since    2.3.0
+	 */
+	var $posts_per_page;
 
 	/**
 	 * The ACF field keys chosen for this post type's views (eg: field_12345678)

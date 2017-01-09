@@ -300,6 +300,7 @@ class BBD {
 		 * in the event that a post is missing a value for the orderby key
 		 */
 		if( ! is_singular() ) {
+
 			# get the post orderby parameter
 			$orderby = $current_post_type->post_orderby;
 			if( ! $orderby ) $orderby = 'title';
