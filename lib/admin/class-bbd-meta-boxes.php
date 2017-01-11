@@ -39,6 +39,7 @@ class BBD_Meta_Boxes {
 		 *		- Slug
 		 * 		- Public
 		 * 		- Has Archive
+		 * 		- Show in REST
 		 * 		- Supports
 		 * 		- Show In Admin Menu
 		 * 		- Exclude from search
@@ -212,6 +213,13 @@ class BBD_Meta_Boxes {
 			'id'		=> $prefix.'has_archive',
 			'type' 		=> 'checkbox',
 			'default' 	=> self::default_for_checkbox( 'on' ),
+		));
+
+		## Show in REST
+		$advanced_pt_settings->add_field( array(
+			'name' => 'Show in REST',
+			'id' => $prefix.'show_in_rest',
+			'type' => 'checkbox',
 		));
 
 		## Supports
