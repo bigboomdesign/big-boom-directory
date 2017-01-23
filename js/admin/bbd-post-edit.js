@@ -179,6 +179,11 @@ jQuery( document ).ready( function( $ ) {
 	 */
 	$showInRestSupportCheckbox = $( 'input#_bbd_meta_show_in_rest' );
 	$restBaseSupportTextBox = $( 'div.cmb2-id--bbd-meta-rest-base' );
+
+	$showInRestSupportCheckbox.on( 'click', function() {
+		toggleShowInRestSupports( $ );
+	} );
+	toggleShowInRestSupports( $ );
 	
 	/**
 	 * 'Post type supports' interactions
@@ -485,6 +490,30 @@ function hideSlugInfo( $ ) {
 }
 
 /**
+ * REST API supports routines
+ *
+ *	- toggleShowInRestSupports()
+ */
+
+/**
+ * Toggle the Show in REST supported features checkbox
+ *
+ * Shows the potential supported features for the REST API if checked, or hides them if unchecked.
+ * We need the master checkbox becasue we can't activate the feature on existing post type without
+ * altering the existing supported features.
+ *
+ * @since 	2.4.0
+ */
+function toggleShowInRestSupports( $ ) {
+	if( $showInRestSupportCheckbox.prop( 'checked' ) ) {
+		$restBaseSupportTextBox.css( 'display', 'block' );
+	}
+	else {
+		$restBaseSupportTextBox.css( 'display', 'none' );
+	}
+}
+
+/**
  * Post type supports routines
  *
  * 	- togglePostTypeSupports()
@@ -502,12 +531,12 @@ function hideSlugInfo( $ ) {
 function togglePostTypeSupports( $ ) {
 	if( $enableSupportCheckbox.prop( 'checked' ) ) {
 		$postTypeSupportCheckboxes.each( function() {
-			$( this ).closest('li').css('display', 'block');
+			$( this ).closest('li').css( 'display', 'block' );
 		});
 	}
 	else {
 		$postTypeSupportCheckboxes.each( function() {
-			$( this ).closest('li').css('display', 'none');
+			$( this ).closest('li').css( 'display', 'none' );
 		});
 	}
 }
