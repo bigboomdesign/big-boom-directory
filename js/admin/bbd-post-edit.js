@@ -4,6 +4,7 @@
  * @see 	js/admin/bbd-settings.js
  * @since 	2.0.0
  */
+(function( $ ) {
 
 // localized variables
 var postId = bbdData.post_id;
@@ -513,14 +514,14 @@ function togglePostTypeSupports( $ ) {
  * @param	jQuery	$				The global jQuery object
  * @since 	2.0.0
  */
- function fieldGroupChange($checkbox, type, $) {
+function fieldGroupChange($checkbox, type, $) {
 
- 	// the target for where our output is going to go
+	// the target for where our output is going to go
 	var target = ( 'acf_archive' == type ) ? 
 		$('#_bbd_meta_pt_archive_fields-field-results') : 
 		( 'acf_single' == type ? $('#_bbd_meta_pt_single_fields-field-results') : '');
 
- 	// if we are turning the checkbox off
+	// if we are turning the checkbox off
  	if( false == $checkbox.prop('checked') ) {
  		target.html('');
  		return;
@@ -555,4 +556,6 @@ function togglePostTypeSupports( $ ) {
 			target.html(data);
 		}
 	}); // end: ajax()
- } // end: fieldGroupChange()
+} // end: fieldGroupChange()
+
+})(jQuery);
