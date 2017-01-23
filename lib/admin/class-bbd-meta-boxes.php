@@ -40,6 +40,7 @@ class BBD_Meta_Boxes {
 		 * 		- Public
 		 * 		- Has Archive
 		 * 		- Show in REST
+		 *		- REST Base
 		 * 		- Supports
 		 * 		- Show In Admin Menu
 		 * 		- Exclude from search
@@ -220,6 +221,13 @@ class BBD_Meta_Boxes {
 			'name' => 'Show in REST',
 			'id' => $prefix.'show_in_rest',
 			'type' => 'checkbox',
+		));
+
+		## REST Base
+		$advanced_pt_settings->add_field( array(
+			'name' 		=> 'REST Base',
+			'id' 		=> $prefix . 'rest_base',
+			'type' 		=> 'text',
 		));
 
 		## Supports
