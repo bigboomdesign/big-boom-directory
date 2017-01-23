@@ -39,6 +39,12 @@ var reserved_handles = bbdData.reserved_handles;
 // the original slug for this page load
 var slug = '';
 
+// the checkbox for showing REST API supported features
+var $showInRestSupportCheckbox;
+
+// the textbox for the REST Base argument
+var $restBaseSupportTextBox;
+
 // the checkbox for 'customize supported features'
 var $enableSupportCheckbox;
 
@@ -168,6 +174,12 @@ jQuery( document ).ready( function( $ ) {
 		hideSlugInfo( $ );
 	});
 
+	/**
+	 * REST API support interactions
+	 */
+	$showInRestSupportCheckbox = $( 'input#_bbd_meta_show_in_rest' );
+	$restBaseSupportTextBox = $( 'div.cmb2-id--bbd-meta-rest-base' );
+	
 	/**
 	 * 'Post type supports' interactions
 	 */
