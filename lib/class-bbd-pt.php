@@ -151,6 +151,22 @@ class BBD_PT extends BBD_Post{
 	var $has_archive;
 
 	/**
+	 * Show REST API supported features
+	 *
+	 * @param 	bool
+	 * @since 	2.4.0
+	 */
+	var $show_in_rest;
+
+	/**
+	 * Show REST base argument
+	 *
+	 * @param 	string
+	 * @since 	2.4.0
+	 */
+	var $rest_base;
+
+	/**
 	 * Whether to show the UI for post editing for this post type
 	 *
 	 * @param 	(bool)
@@ -317,6 +333,15 @@ class BBD_PT extends BBD_Post{
 			# set the object parameter and add the argument into the array to be registered
 			$this->$key = $value;
 			$args['args'][ $key ] = $value;
+		}
+		
+		/**
+		 * REST API parameters
+		 */
+		$this->show_in_rest = ( 'on' === $this->show_in_rest );
+		if( $this->show_in_rest && $this->rest_base ) {
+			$args['args']['show_in_rest'] = true;
+			$args['args']['rest_base'] = $this->rest_base;
 		}
 
 		/**
