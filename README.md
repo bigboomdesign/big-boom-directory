@@ -11,6 +11,7 @@ Directory management plugin for WordPress, based on Custom Post Types, Taxonomie
     * URL slug and post type name/handle
     * Basic query arguments like 'Posts per page', 'Orderby', and 'Order'
     * Basic post type settings like 'Public' and 'Has Archive', 'Supports', and 'Exclude From Search'
+    * Support for REST API using 'show\_in\_rest' and 'rest_base' arguments
     * Use hooks to add your own post type settings
 
 * Add content using the WYSIWYG to act as the post type description for archive pages
