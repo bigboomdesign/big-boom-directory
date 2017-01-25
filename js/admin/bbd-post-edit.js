@@ -43,7 +43,7 @@ var slug = '';
 var $showInRestSupportCheckbox;
 
 // the textbox for the REST Base argument
-var $restBaseSupportTextBox;
+var $restBaseSupportInput;
 
 // the checkbox for 'customize supported features'
 var $enableSupportCheckbox;
@@ -178,7 +178,7 @@ jQuery( document ).ready( function( $ ) {
 	 * REST API support interactions
 	 */
 	$showInRestSupportCheckbox = $( 'input#_bbd_meta_show_in_rest' );
-	$restBaseSupportTextBox = $( 'div.cmb2-id--bbd-meta-rest-base' );
+	$restBaseSupportInput = $( 'div.cmb2-id--bbd-meta-rest-base' );
 
 	$showInRestSupportCheckbox.on( 'click', function() {
 		toggleShowInRestSupports( $ );
@@ -261,6 +261,7 @@ jQuery( document ).ready( function( $ ) {
  * 		- Orderby change routines
  * 		- Name change routines
  * 		- Slug change routines
+ * 		- REST API supports routines
  * 		- Post type supports routines
  * 		- Field group change routines
  */
@@ -499,17 +500,15 @@ function hideSlugInfo( $ ) {
  * Toggle the Show in REST supported features checkbox
  *
  * Shows the potential supported features for the REST API if checked, or hides them if unchecked.
- * We need the master checkbox becasue we can't activate the feature on existing post type without
- * altering the existing supported features.
  *
  * @since 	2.4.0
  */
 function toggleShowInRestSupports( $ ) {
 	if( $showInRestSupportCheckbox.prop( 'checked' ) ) {
-		$restBaseSupportTextBox.css( 'display', 'block' );
+		$restBaseSupportInput.css( 'display', 'block' );
 	}
 	else {
-		$restBaseSupportTextBox.css( 'display', 'none' );
+		$restBaseSupportInput.css( 'display', 'none' );
 	}
 }
 
