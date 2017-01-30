@@ -32,13 +32,16 @@ class BBD_Meta_Boxes {
 		 * 		- Order by
 		 *		- Meta key to order by
 		 * 		- Order
+		 * 		- Posts per page
 		 *
 		 * - Advanced post type settings
 		 * 		- Name/Handle
 		 *		- Slug
 		 * 		- Public
 		 * 		- Has Archive
+		 * 		- Supports
 		 * 		- Show In Admin Menu
+		 * 		- Exclude from search
 		 * 		- Menu Position
 		 * 		- Menu Icon
 		 *
@@ -111,6 +114,15 @@ class BBD_Meta_Boxes {
 				'DESC'		=> 'Descending',
 			),
 			'default' 	=> BBD_Options::$options['post_order'],
+		));
+
+		## Posts per page
+		$pt_settings->add_field( array(
+			'name' => 'Posts per page',
+			'id' => $prefix.'posts_per_page',
+			'type' => 'text',
+			'description' => 'Use -1 to show all posts.  Leave blank or use 0 to inherit default.',
+			'sanitization_cb' => array( 'BBD_Meta_Boxes', 'sanitize_posts_per_page' ),
 		));
 
 		# Hook for further customization of the Post Type Settings meta box
@@ -202,6 +214,23 @@ class BBD_Meta_Boxes {
 			'default' 	=> self::default_for_checkbox( 'on' ),
 		));
 
+		## Supports
+		$advanced_pt_settings->add_field( array(
+			'name' 		=> 'Supports',
+			'id' 		=> $prefix.'post_type_supports',
+			'type' 		=> 'multicheck',
+			'before' 	=> array( 'BBD_Meta_Boxes', 'before_post_type_supports' ),
+			'select_all_button' => false,
+			'default'	=> self::default_for_checkbox( 
+				array( 'title', 'editor' ) 
+			),
+			'description' => '<p class="description">
+				<a href="https://codex.wordpress.org/Function_Reference/register_post_type#supports" 
+					target="_blank">Learn More
+				</a>
+			</p>',
+		));
+
 		## Show In Admin Menu
 		$advanced_pt_settings->add_field( array(
 			'name' 		=> 'Show In WP Admin Menu',
@@ -288,18 +317,17 @@ class BBD_Meta_Boxes {
 		# Hook for further customization of the Fields Setup meta box
 		do_action( 'bbd_cmb2_post_type_fields_select' , $pt_fields_select, $prefix );
 
-		$advanced_fields_setup = new_cmb2_box( array(
-			'id' 			=> 'bbd_pt_advanced_fields_setup',
-			'title'			=> __( 'Advanced Fields Setup', 'cmb2' ),
-			'object_types' 	=> array( 'bbd_pt' ),
-			'context' 		=> 'normal',
-			'priority' 		=> 'high',
-		));
-
 		/**
 		 * Advanced fields setup
 		 * Settings from BBD core that can be overriden for this post type
-		 */
+		 */ 
+		$advanced_fields_setup = new_cmb2_box( array(
+ 			'id' 			=> 'bbd_pt_advanced_fields_setup',
+ 			'title'			=> __( 'Advanced Fields Setup', 'cmb2' ),
+ 			'object_types' 	=> array( 'bbd_pt' ),
+ 			'context' 		=> 'normal',
+ 			'priority' 		=> 'high',
+ 		));
 
 		# Auto detect website field
 		$website_field = array(
@@ -546,6 +574,7 @@ class BBD_Meta_Boxes {
 	 * Helper functions and hooks for CMB2 meta boxes
 	 * 
 	 * - default_for_checkbox()
+	 * - sanitize_posts_per_page
 	 * - sanitize_handle()
 	 * - before_handle()
 	 * - before_label()
@@ -553,6 +582,7 @@ class BBD_Meta_Boxes {
 	 * - before_slug()
 	 * - sanitize_slug()
 	 * - before_tax_post_types()
+	 * - before_post_type_supports()
 	 * - before_fields_select()
 	 * - sanitize_archive_fields()
 	 */
@@ -565,7 +595,44 @@ class BBD_Meta_Boxes {
 	 * @since 	2.0.0
 	 */
 	public static function default_for_checkbox( $default ) {
-    	return isset( $_GET['post'] ) ? '' : ( $default ? (string) $default : '' );
+
+		# if we are editing an existing post type, do nothing
+		if( isset( $_GET['post'] ) ) {
+			return '';
+		}
+
+		# make sure we have a default value
+		if( ! $default ) {
+			return '';
+		}
+
+		# for strings/integers
+		if( is_string( $default ) || is_int( $default ) ) {
+			return (string) $default;
+		}
+
+		if( is_array( $default ) ) {
+			foreach( $default as &$value ) {
+				$value = (string) $value;
+			}
+
+			return $default;
+		}
+	}
+
+	public static function sanitize_posts_per_page( $value ) {
+
+		$value = intval( $value );
+
+		if( ! $value ) {
+			return 0;
+		}
+
+		if( $value < -1 ) {
+			return -1;
+		}
+
+		return $value;
 	}
 
 	/**
@@ -695,6 +762,24 @@ class BBD_Meta_Boxes {
 		} # end if: no post types
 	
 	} # end: before_tax_post_types()
+
+	public static function before_post_type_supports( $args, $field ) {
+
+		$field->args['options'] = array(
+			'enable_post_type_support' => 'Customize supported features',
+			'title' => 'Title',
+			'editor' => 'Editor',
+			'author' => 'Author',
+			'thumbnail' => 'Thumbnail',
+			'excerpt' => 'Excerpt',
+			'trackbacks' => 'Trackbacks',
+			'custom-fields' => 'Native WP custom fields metabox',
+			'comments' => 'Comments',
+			'revisions' => 'Revisions',
+			'page-attributes' => 'Page Attributes',
+			'post-formats' => 'Post Formats',
+		);
+	}
 
 	/**
 	 * Load post type ACF field group choices

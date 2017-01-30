@@ -300,6 +300,7 @@ class BBD {
 		 * in the event that a post is missing a value for the orderby key
 		 */
 		if( ! is_singular() ) {
+
 			# get the post orderby parameter
 			$orderby = $current_post_type->post_orderby;
 			if( ! $orderby ) $orderby = 'title';
@@ -328,7 +329,20 @@ class BBD {
 				);
 
 			} # end if: ordering by custom field
-		}
+
+			/**
+			 * Posts per page
+			 */
+			if( ! empty( $current_post_type->posts_per_page ) ) {
+				$posts_per_page = intval( $current_post_type->posts_per_page );
+				if( $posts_per_page ) {
+					if( $posts_per_page < -1 ) {
+						$posts_per_page = -1;
+					}
+					$query->query_vars['posts_per_page'] = $posts_per_page;
+				}
+			}
+		} # end if: not is_singular()
 
 		# action that users can hook into to edit the query further
 		do_action( 'bbd_pre_get_posts', $query );
@@ -485,7 +499,8 @@ class BBD {
 				?>>
 			<?php
 			} # end if: wrap has an opening tag
-				echo apply_filters( 'the_content', $post_type_description );
+
+			echo apply_filters( 'the_content', $post_type_description );
 
 			if( ! empty( $wrap['after_tag'] ) ) {
 			?>
@@ -676,7 +691,7 @@ class BBD {
 		 * not called `the_excerpt` and then discarded the result (*cough* Divi)
 		 */
 		global $bbd_view;
-		if( $bbd_view->did_post_fields && false !== strpos( $content, 'bbd-field' ) ) {
+		if( $bbd_view->did_post_fields || false !== strpos( $content, 'bbd-field' ) ) {
 			return $content;
 		}
 

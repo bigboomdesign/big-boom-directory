@@ -75,21 +75,22 @@ class BBD_Options{
 	 *		Use a string for simple fields. Use an array to pass detailed information about the
 	 *		setting.  Optional types will be auto-completed via `BBD::get_field_array()`
 	 *
-	 *		@type 	string 			$label 			Required. The label for the form element	 
-	 * 		@type 	string 			$name 			Optional. The HTML name attribute. Will be auto-generated from label if empty
-	 * 		@type 	string 			$id 			Optional. The HTML `id` attribute for the form element. Will be auto-generated from label if empty
-	 *		@type 	string 			$type 			Optional. The type of form element to display (text|textarea|checkbox|select|single-image|radio) (Default: 'text')
-	 *												Use a custom $type and define a method on `self` with the same name to automatically link the field display handler
-	 * 		@type 	string 			$value 			Optional. The value of the HTML `value` attribute
-	 * 		@type 	array|string 	$choices 		Optional. The choices for the form element (for select, radio, checkbox)
-	 * 		@type	string			$class 			Optional. The HTML `class` attribute for the form element
-	 * 		@type 	string			$label_class	Optional. For checkboxes and radio buttons, a class can be applied to each choice's label
-	 * 		@type 	array 			$data 			Optional. An array of data attributes to add to the form element (see `self::data_atts()`)
+	 *		@type string  $label  Required. The label for the form element	 
+	 * 		@type string  $name   Optional. The HTML name attribute. Will be auto-generated from label if empty
+	 * 		@type string  $id     Optional. The HTML `id` attribute for the form element. Will be auto-generated from label if empty
+	 *		@type string  $type   Optional. The type of form element to display (text|textarea|checkbox|select|single-image|radio) (Default: 'text')
+	 * 		                      Use a custom $type and define a method on `self` with the same name to automatically link the field display handler
+	 * 		@type string  $value 	Optional. The value of the HTML `value` attribute
+	 * 		@type array|string  $choices     Optional. The choices for the form element (for select, radio, checkbox)
+	 * 		@type	string  $class  Optional. The HTML `class` attribute for the form element
+	 * 		@type string  $label_class  Optional. For checkboxes and radio buttons, a class can be applied to each choice's label
+	 * 		@type array   $data   Optional. An array of data attributes to add to the form element (see `self::data_atts()`)
+	 * 		@type array   $attributes  Optional. An array of attributes to add to the form element (see `self::attributes()`)
 	 * }
 	 *
-	 * @param	string			$option 		Optional (Default: 'bbd_options'). By default, an HTML input element whose name is `form_field`
-	 *											will actually have a name attribute of `bbd_options[form_field]`. Pass in a string to 
-	 *											change the default parent field name, or pass an empty string to use a regular input name without a parent
+	 * @param	string  $option  Optional (Default: 'bbd_options'). By default, an HTML input element whose name is `form_field`
+	 *                         will actually have a name attribute of `bbd_options[form_field]`. Pass in a string to 
+	 *                         change the default parent field name, or pass an empty string to use a regular input name without a parent
 	 *
 	 * @param 	(null|array) 	$prepopulate 	Array to use for prepopulation (default: BBD_Options::$options)
 	 * @since 	2.0.0
@@ -112,9 +113,9 @@ class BBD_Options{
 		$setting['option_name'] = (
 			$option ? $option.'['.$setting['name'].']' : $setting['name']
 		);
-				
+
 		# call one of several handler functions based on what type of field we have
-		
+
 		## see if a self method is defined having the same name as the setting type
 		if( isset( $setting['type'] ) && method_exists(get_class(), $setting['type'])) {
 			$function = $setting['type'];
@@ -289,7 +290,8 @@ class BBD_Options{
 	?><select 
 		id="<?php echo $name; ?>"
 		name="<?php echo $setting['option_name']; ?>"
-		<?php echo self::data_atts($setting); ?>		
+		<?php echo self::data_atts($setting); ?>
+		<?php echo self::attributes( $setting ); ?>
 		<?php if(isset($class)) echo "class='".$class."'"; ?>
 	>
 		<?php 
@@ -388,7 +390,30 @@ class BBD_Options{
 		if( isset( $show_option_none ) ) $args['show_option_none'] = $show_option_none;
 		wp_dropdown_pages($args);
 	}
-	
+
+	/**
+	 * Return a string of HTML attributes for a field or choice input element
+	 *
+	 * @param	array 	$setting{
+	 *		A $setting array (see `do_settings_field()`) or a $choice array, which ostensibly
+	 * 		has an `attributes` key with corresponding hash of attributes
+	 *
+	 *		@type array  $attributes{
+	 *			Any key/value pair you like can be added to this array when defining settings
+	 *
+	 *			@type string $var 	A value to be added for the HTML attribute `var`
+	 * 		}
+	 * @return 	string
+	 * @since 	2.3.0
+	 */
+	public static function attributes( $setting ) {
+		if(!array_key_exists('attributes', $setting)) return;
+		$out = '';
+		foreach($setting['attributes'] as $k => $v){
+			$out .= "{$k}='{$v}' ";
+		}
+		return $out;
+	}
 	/**
 	 * Return a string of HTML data attributes for a field or choice input element
 	 *

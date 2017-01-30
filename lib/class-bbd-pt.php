@@ -64,9 +64,19 @@ class BBD_PT extends BBD_Post{
 	 * The default post order for this post type
 	 *
 	 * @param	string 	( ASC | DESC )
-	 * @param 	2.0.0
+	 * @since 	2.0.0
 	 */
 	var $post_order;
+
+	/**
+	 * The number of posts to show on archive pages for this post type
+	 *
+	 * This applies wherever the query arg `post_type` is set for this post type
+	 *
+	 * @param   string
+	 * @since    2.3.0
+	 */
+	var $posts_per_page;
 
 	/**
 	 * The ACF field keys chosen for this post type's views (eg: field_12345678)
@@ -107,6 +117,14 @@ class BBD_PT extends BBD_Post{
 	 * @since 	2.0.0
 	 */
 	var $image_alignment;
+
+	/**
+	 * Which post type features are supported
+	 *
+	 * @param   array
+	 * @since   2.3.0
+	 */
+	var $post_type_supports = array();
 
 	/**
 	 * List of object parameters used for post registration ($args for register_post_type)
@@ -241,8 +259,13 @@ class BBD_PT extends BBD_Post{
 	public function register(){
 
 		# make sure we have the handle set
-		if( empty( $this->handle ) && empty( $this->post_title ) ) return;
-		if( empty( $this->handle ) ) $this->handle = BBD_Helper::clean_str_for_field( $this->post_title );
+		if( empty( $this->handle ) && empty( $this->post_title ) ) {
+			return;
+		}
+
+		if( empty( $this->handle ) ) {
+			$this->handle = BBD_Helper::clean_str_for_field( $this->post_title );
+		}
 		
 		$args = array(
 			'post_type' => $this->handle,
@@ -255,13 +278,19 @@ class BBD_PT extends BBD_Post{
 			)
 		);
 
-		if( ! empty( $this->slug ) ) $args['names']['slug'] = $this->slug;
+		if( ! empty( $this->slug ) ) {
+			$args['names']['slug'] = $this->slug;
+		}
 
 		# show_ui
-		if( $this->show_ui ) $args['args']['show_ui'] = true;
+		if( $this->show_ui ) {
+			$args['args']['show_ui'] = true;
+		}
 
 		# show_in_menu
-		if( null !== $this->show_in_menu ) $args['args']['show_in_menu'] = $this->show_in_menu;
+		if( null !== $this->show_in_menu ) {
+			$args['args']['show_in_menu'] = $this->show_in_menu;
+		}
 
 		# load in any settings from the backend
 		foreach( $this->args_settings as $key ) {
@@ -275,7 +304,9 @@ class BBD_PT extends BBD_Post{
 				}
 
 				# for integers
-				if( 'menu_position' == $key ) $value = intval( $value );
+				if( 'menu_position' == $key ) {
+					$value = intval( $value );
+				}
 			}
 
 			# for empty values, we need to set the parameter to false
@@ -288,10 +319,33 @@ class BBD_PT extends BBD_Post{
 			$args['args'][ $key ] = $value;
 		}
 
-		$args['args']['supports'] = array('title', 'editor', 'excerpt');
+		/**
+		 * If the user has the `enable_post_type_support` option checked for this post type
+		 */
+		if( $this->post_type_supports ) {
 
-		# add featured image support for all post types if the theme does
-		if( current_theme_supports('post-thumbnails') ) $args['args']['supports'][] = 'thumbnail';
+			if( in_array( 'enable_post_type_support', $this->post_type_supports ) ) {
+
+				# form the array of supported features
+				$supports = array();
+				foreach( $this->post_type_supports as $support ) {
+					if( 'enable_post_type_support' !== $support ) {
+						$supports[] = $support;
+					}
+				}
+
+				# set the argument for supported features
+				$args['args']['supports'] = $supports;
+			}
+		} # end if: $this->post_type_supports
+
+		# If the user isn't customizing the supported features, then use the defaults
+		else {
+			$args['args']['supports'] = array('title', 'editor', 'excerpt');
+
+			# add featured image support for all post types if the theme does
+			if( current_theme_supports('post-thumbnails') ) $args['args']['supports'][] = 'thumbnail';
+		}
 
 		$args = apply_filters('bbd_register_pt', $args );
 		register_extended_post_type($args['post_type'], $args['args'], $args['names']);

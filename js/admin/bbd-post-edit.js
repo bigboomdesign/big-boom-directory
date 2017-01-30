@@ -4,6 +4,7 @@
  * @see 	js/admin/bbd-settings.js
  * @since 	2.0.0
  */
+(function( $ ) {
 
 // localized variables
 var postId = bbdData.post_id;
@@ -37,6 +38,12 @@ var reserved_handles = bbdData.reserved_handles;
 
 // the original slug for this page load
 var slug = '';
+
+// the checkbox for 'customize supported features'
+var $enableSupportCheckbox;
+
+// checkboxes for supported post type features
+var $postTypeSupportCheckboxes;
 
 // the meta box that holds the archive fields
 var $archiveFieldsContainer;
@@ -155,11 +162,23 @@ jQuery( document ).ready( function( $ ) {
 		}
 	});
 	
-	/* onclick for Cancel link for post type handle */
+	/* onclick for Cancel link for post type slug */
 	$( 'div#cancel-slug-change a' ).on( 'click', function() {
 		$slug.val( slug );
 		hideSlugInfo( $ );
 	});
+
+	/**
+	 * 'Post type supports' interactions
+	 */
+	$enableSupportCheckbox = $( 'input[value="enable_post_type_support"]' );
+	$postTypeSupportCheckboxes = $( 'div.cmb2-id--bbd-meta-post-type-supports' )
+		.find( 'input[value!="enable_post_type_support"]' );
+
+	$enableSupportCheckbox.on( 'click', function() {
+		togglePostTypeSupports( $ );
+	} );
+	togglePostTypeSupports( $ );
 
 	/**
 	 * Field group selection
@@ -225,6 +244,7 @@ jQuery( document ).ready( function( $ ) {
  * 		- Orderby change routines
  * 		- Name change routines
  * 		- Slug change routines
+ * 		- Post type supports routines
  * 		- Field group change routines
  */
 
@@ -234,6 +254,12 @@ jQuery( document ).ready( function( $ ) {
  * - orderbyChange()
  * - orderbyCustomField()
  * - orderbyOther()
+ */
+
+/**
+ * On change for the post type orderby parameter
+ *
+ * @since 	2.0.0
  */
 function orderbyChange() {
 
@@ -245,10 +271,21 @@ function orderbyChange() {
 		orderbyOther();
 	}
 }
+
+/**
+ * Show meta key input when ordering by custom field
+ *
+ * @since 	2.0.0
+ */
 function orderbyCustomField() {
 	$metaKeyOrderbyContainer.css( 'display', 'block' );
 } // end: orderbyCustomField()
 
+/**
+ * Hide meta key input when not ordering by custom field
+ *
+ * @since 	2.0.0
+ */
 function orderbyOther() {
 	$metaKeyOrderbyContainer.css( 'display', 'none' );
 } // end: orderbyOther()
@@ -260,9 +297,11 @@ function orderbyOther() {
   * - hideHandleInfo()
   */
 
- /**
-  *  Enables the post type name input to be changed and pre-populates using post title if necessary
-  */
+/**
+ * Enables the post type name input to be changed and pre-populates using post title if necessary
+ *
+ * @since 2.0.0
+ */
 function triggerHandleInfo( $ ){
 
 	// get the current value of the post title
@@ -302,6 +341,8 @@ function triggerHandleInfo( $ ){
  *
  * @param 	jQuery 	$		The main jQuery object
  * @param 	object	elem	The link being clicked
+ *
+ * @since 	2.0.0
  */
 function hideHandleInfo( $, elem ) {
 
@@ -341,6 +382,8 @@ function hideHandleInfo( $, elem ) {
 
 /**
  * Enables the slug input to be changed
+ *
+ * @since 	2.0.0
  */
 function triggerSlugInfo( $ ){
 
@@ -376,7 +419,9 @@ function triggerSlugInfo( $ ){
 } // end: triggerSlugInfo()
 
 /**
- * Save the slug (validating first), and close the dialog box 
+ * Save the slug (validating first), and close the dialog box
+ *
+ * @since 	2.0.0
  */
 function saveSlugInfo( $, elem ) {
 
@@ -411,6 +456,8 @@ function saveSlugInfo( $, elem ) {
 
 /**
  * Hide the slug information when saved or cancelled
+ *
+ * @since 	2.0.0
  */
 function hideSlugInfo( $ ) {
 	
@@ -425,10 +472,38 @@ function hideSlugInfo( $ ) {
 
 }
 
+/**
+ * Post type supports routines
+ *
+ * 	- togglePostTypeSupports()
+ */
+
+/**
+ * Toggle the 'Customize supported features' checkbox
+ *
+ * Shows the potential supported features if checked, or hides them if unchecked. We need
+ * the master checkbox because we can't activate the feature on existing post type without
+ * altering the existing supported features.
+ *
+ * @since 	2.3.0
+ */
+function togglePostTypeSupports( $ ) {
+	if( $enableSupportCheckbox.prop( 'checked' ) ) {
+		$postTypeSupportCheckboxes.each( function() {
+			$( this ).closest('li').css('display', 'block');
+		});
+	}
+	else {
+		$postTypeSupportCheckboxes.each( function() {
+			$( this ).closest('li').css('display', 'none');
+		});
+	}
+}
 
 /**
  * Field group change routines
  *
+ * 	- fieldGroupChange()
  */
 
 /**
@@ -439,14 +514,14 @@ function hideSlugInfo( $ ) {
  * @param	jQuery	$				The global jQuery object
  * @since 	2.0.0
  */
- function fieldGroupChange($checkbox, type, $) {
+function fieldGroupChange($checkbox, type, $) {
 
- 	// the target for where our output is going to go
+	// the target for where our output is going to go
 	var target = ( 'acf_archive' == type ) ? 
 		$('#_bbd_meta_pt_archive_fields-field-results') : 
 		( 'acf_single' == type ? $('#_bbd_meta_pt_single_fields-field-results') : '');
 
- 	// if we are turning the checkbox off
+	// if we are turning the checkbox off
  	if( false == $checkbox.prop('checked') ) {
  		target.html('');
  		return;
@@ -481,4 +556,6 @@ function hideSlugInfo( $ ) {
 			target.html(data);
 		}
 	}); // end: ajax()
- } // end: fieldGroupChange()
+} // end: fieldGroupChange()
+
+})(jQuery);
