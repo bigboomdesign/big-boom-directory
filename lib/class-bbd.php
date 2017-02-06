@@ -695,8 +695,11 @@ class BBD {
 			return $content;
 		}
 
-		# if we're doing the loop_start action, we don't want to append fields
-		if( doing_action('loop_start') ) {
+		/**
+		 * If we're doing the loop_start action, we don't want to append fields
+		 * Back compat: If we have WP < 3.9, then `doing_action()` does not exist
+		 */
+		if( function_exists('doing_action') && doing_action('loop_start') ) {
 			return $content;
 		}
 
@@ -704,7 +707,7 @@ class BBD {
 		 * If we're doing the_excerpt on a single post, do nothing. Lots of themes (like 2016) are placing
 		 * the excerpt at the top of single posts as a preview/callout section
 		 */
-		if( doing_action( 'the_excerpt' ) && is_singular() ) {
+		if( function_exists('doing_action') && doing_action( 'the_excerpt' ) && is_singular() ) {
 			return $content;
 		}
 
@@ -717,7 +720,7 @@ class BBD {
 		 * and stripped of HTML tags if no excerpt exists.
 		 */
 		global $post;
-		if( doing_action( 'get_the_excerpt' ) && empty( $post->post_excerpt ) ) {
+		if( function_exists('doing_action') && doing_action( 'get_the_excerpt' ) && empty( $post->post_excerpt ) ) {
 			return $content;
 		}
 
