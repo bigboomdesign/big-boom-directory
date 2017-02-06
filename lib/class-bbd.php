@@ -602,19 +602,26 @@ class BBD {
 	 * Flushing the rewrite rules is done here as well as on `updated_postmeta` because 
 	 * `updated_postmeta` doesn't fire when deleting or adding post meta
 	 *
+	 * Note that we have $update = true by default, because WP <= 3.5 does not 
+	 * pass the $update parameter
+	 *
 	 * @param 	int			$post_id	The post ID being saved
 	 * @param 	WP_Post		$post		The post being saved
 	 * @param 	bool		$update		Whether this is a post update (as opposed to a new post creation)
 	 *
 	 * @since 	2.1.0
 	 */
-	public static function save_post( $post_id, $post, $update ) {
+	public static function save_post( $post_id, $post, $update = true ) {
 
 		# make sure we're not doing an autosave or post revision
-		if( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) return;
+		if( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
+			return;
+		}
 
 		# do nothing if we're not saving a post type or taxonomy
-		if( 'bbd_pt' != $post->post_type && 'bbd_tax' != $post->post_type ) return;
+		if( 'bbd_pt' != $post->post_type && 'bbd_tax' != $post->post_type ) {
+			return;
+		}
 
 		# delete the post types/taxonomies and related post meta from the WP Object cache
 		wp_cache_delete( 'bbd_post_types' );
