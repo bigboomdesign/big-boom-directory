@@ -91,6 +91,7 @@ class BBD_Meta_Boxes {
 				'meta_value_num' 	=> 'Custom Field (Numerical)',
 				'date' 				=> 'Publish Date',
 				'rand' 				=> 'Random',
+				'modified' 			=> 'Last Modified',
 			),
 			'default' 	=> BBD_Options::$options['post_orderby'],
 		));
