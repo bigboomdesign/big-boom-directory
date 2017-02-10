@@ -82,16 +82,16 @@ class BBD_Meta_Boxes {
 
 		## Order posts by
 		$pt_settings->add_field( array(
-			'name' 	=> 'Order posts by',
-			'id' 	=> $prefix.'post_orderby',
-			'type' 	=> 'select',
-			'options' => array(
+				'name' 	=> 'Order posts by',
+				'id' 	=> $prefix.'post_orderby',
+				'type' 	=> 'select',
+				'options' => array(
 				'title' 			=> 'Post Title', 
 				'meta_value' 		=> 'Custom Field',
 				'meta_value_num' 	=> 'Custom Field (Numerical)',
 				'date' 				=> 'Publish Date',
+				'modified' 			=> 'Modified Date',
 				'rand' 				=> 'Random',
-				'modified' 			=> 'Last Modified',
 			),
 			'default' 	=> BBD_Options::$options['post_orderby'],
 		));
