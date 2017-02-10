@@ -58,6 +58,10 @@ None yet.
 
 == Changelog ==
 
+= 2.4.0 =
+
+* Add option to order a post type's posts by Modified Date
+
 = 2.3.0 =
 
 * Add support for `posts_per_page` query argument
