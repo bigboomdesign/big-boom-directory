@@ -3,7 +3,7 @@ Contributors: bigboomdesign, michaelhull, GregGay
 Tags: directory, custom-post-type, post-type, taxonomy, custom-fields
 Requires at least: 4.0
 Tested up to: 4.7
-Stable tag: 2.3.0
+Stable tag: 2.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -61,7 +61,10 @@ None yet.
 
 = 2.4.0 =
 
+* Add option for each post type to show in REST and adjust REST base
 * Add option to order a post type's posts by Modified Date
+* Improved backward compatibility down to WP 3.5
+* Changed the text domain to match plugin folder name
 
 = 2.3.0 =
 
