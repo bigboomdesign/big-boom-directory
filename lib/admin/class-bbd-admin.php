@@ -182,8 +182,11 @@ class BBD_Admin{
 			wp_enqueue_script( 'bbd-settings', bbd_url( '/js/admin/bbd-settings.js' ), array( 'jquery' ) );
 		}
 
-		# Widgets Screen / Theme Customizer
-		if( 'widgets' == $screen->base || is_customize_preview() ) {
+		/**
+		 * Widgets Screen / Theme Customizer
+		 * Back compat: Note that `is_customize_preview()` does not exist for WP < 4.0.0
+		 */
+		if( 'widgets' == $screen->base || ( function_exists('is_customize_preview') && is_customize_preview() ) ) {
 			
 			# css
 			wp_enqueue_style( 'bbd-admin' );

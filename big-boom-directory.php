@@ -319,8 +319,8 @@ function bbd_has_acf_pro() {
  * @param 	string 	$s 	Optional string to append to the path
  * @since 	2.0.0
  */
-function bbd_url( $s ){ return plugins_url( $s, __FILE__ ); }
-function bbd_dir( $s ){ return plugin_dir_path( __FILE__ ) . $s; }
+function bbd_url( $s = '' ) { return plugins_url( $s, __FILE__ ); }
+function bbd_dir( $s = '' ) { return plugin_dir_path( __FILE__ ) . $s; }
 
 /**
  * Display a success (bbd_success) or failure (bbd_fail) message with a given tag and CSS class

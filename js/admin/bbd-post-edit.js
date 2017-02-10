@@ -336,6 +336,7 @@ function triggerHandleInfo( $ ){
 		$.ajax({
 			url: ajaxurl,
 			method: 'POST',
+			type: 'POST',
 			data: {
 				action: 'bbd_handle_from_title',
 				title: title
@@ -415,10 +416,11 @@ function triggerSlugInfo( $ ){
 	$cancelSlugChange.css('display', 'inline-block');
 
 
-	// for the handle
+	// for the slug
 	$.ajax({
 		url: ajaxurl,
 		method: 'POST',
+		type: 'POST',
 		data: {
 			action: 'bbd_slug_from_title',
 			title: title,
@@ -447,6 +449,7 @@ function saveSlugInfo( $, elem ) {
 
 		url: ajaxurl,
 		method: 'POST',
+		type: 'POST',
 		data: {
 			action: 'bbd_save_slug',
 			'slug': $slug.val()
@@ -585,6 +588,7 @@ function fieldGroupChange($checkbox, type, $) {
 	$.ajax( {
 		url: ajaxurl,
 		method: 'POST',
+		type: 'POST',
 		data: {
 			action: 'bbd_select_field_group',
 			post_id: postId,
