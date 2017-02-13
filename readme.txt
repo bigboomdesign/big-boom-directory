@@ -1,7 +1,7 @@
 === Big Boom Directory ===
 Contributors: bigboomdesign, michaelhull, GregGay
 Tags: directory, custom-post-type, post-type, taxonomy, custom-fields
-Requires at least: 4.0
+Requires at least: 3.5
 Tested up to: 4.7
 Stable tag: 2.4.0
 License: GPLv2 or later
