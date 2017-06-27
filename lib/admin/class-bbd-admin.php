@@ -20,7 +20,7 @@ class BBD_Admin{
 		# Admin menu items
 		add_action('admin_menu', array( 'BBD_Admin', 'admin_menu' ), 10 );
 
-		# For add-ons, we want to allow them to go above the 'Cache' and 'Information' page
+		# For menu items provided by add-ons, we want to allow them to go above the 'Add-Ons', 'Cache', and 'Information' page
 		add_action('admin_menu', array( 'BBD_Admin', 'admin_menu_final_items' ), 101 );
 
 		# Admin bar items
@@ -161,6 +161,7 @@ class BBD_Admin{
 	} # end: add_view_post_type_to_admin_bar()
 
 	public static function admin_menu_final_items() {
+		add_submenu_page( 'edit.php?post_type=bbd_pt', 'Add-Ons | Big Boom Directory', 'Add-Ons', 'manage_options', 'bbd-add-ons', array('BBD_Admin', 'add_ons_page') );
 		add_submenu_page( 'edit.php?post_type=bbd_pt', 'Cache | Big Boom Directory', 'Cache', 'manage_options', 'bbd-cache', array('BBD_Admin', 'cache_page') );
 		add_submenu_page( 'edit.php?post_type=bbd_pt', 'Information | Big Boom Directory', 'Information', 'manage_options', 'bbd-information', array('BBD_Admin', 'information_page') );
 	} # end: admin_menu_final_items()
@@ -318,6 +319,12 @@ class BBD_Admin{
 			) );
 
 		} # end if: post type edit screen
+
+        # Add-Ons screen
+        if( 'bbd_pt_page_bbd-add-ons'  == $screen->base ) {
+		    wp_enqueue_style('bbd-admin' );
+		    wp_enqueue_style( 'bbd-add-ons', bbd_url( '/css/admin/bbd-add-ons.css' ) );
+        }
 
 		# Cache screen
 		if( 'bbd_pt_page_bbd-cache' == $screen->base ) {
@@ -538,6 +545,33 @@ class BBD_Admin{
 		ob_end_clean();
 		echo self::page_wrap($html);
 	} # end: information_page()
+
+	/**
+	 * Output HTML for the Add-Ons page
+	 */
+	public static function add_ons_page() {
+	    ob_start();
+        ?>
+        <h2>Big Boom Directory Add-Ons</h2>
+        <div id="bbd-add-ons-container">
+            <div class="bbd-add-ons-row">
+                <div class="bbd-add-ons-column first">
+                    <img src="<?php echo bbd_url('/assets/images/green-dots-background.jpg'); ?>">
+                    <h3>Map</h3>
+                </div>
+                <div class="bbd-add-ons-column">
+                    <img src="<?php echo bbd_url('/assets/images/green-dots-background.jpg'); ?>">
+                    <h3>Radius Search</h3>
+                </div>
+                <div class="bbd-add-ons-column last">
+                    <img src="<?php echo bbd_url('/assets/images/green-dots-background.jpg'); ?>">
+                    <h3>Favorite Listings</h3>
+                </div>
+            </div>
+        </div>
+        <?php
+	    echo self::page_wrap( ob_get_clean() );
+    }
 
 	/**
 	 * Output HTML for the Cache information page

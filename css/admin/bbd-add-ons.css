@@ -1,0 +1,23 @@
+.bbd-add-ons-column img {
+    max-width: 100%;
+}
+
+@media screen and ( min-width: 961px ) {
+
+    .bbd-add-ons-row::after {
+        display: block;
+        clear: both;
+    }
+
+    .bbd-add-ons-column {
+        width: 30%;
+        padding: 1em;
+        float: left;
+    }
+    .bbd-add-ons-column.first {
+        padding-left: 0;
+    }
+    .bbd-add-ons-column.last {
+        padding-right: 0;
+    }
+}
