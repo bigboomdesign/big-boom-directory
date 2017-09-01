@@ -2,7 +2,7 @@
 Contributors: bigboomdesign, michaelhull, GregGay
 Tags: directory, custom-post-type, post-type, taxonomy, custom-fields
 Requires at least: 3.5
-Tested up to: 4.7
+Tested up to: 4.8
 Stable tag: 2.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -12,6 +12,8 @@ Directory management system based on Custom Post Types, Taxonomies, and Fields
 == Description ==
 
 Big Boom Directory is a directory management plugin for WordPress that utilizes Custom Post Types, Taxonomies, and Fields.  The plugin allows you to create a powerful ecosystem within your WordPress site to showcase your listings and the data associated with them.
+
+https://www.youtube.com/watch?v=Qf2acZ5uFXs
 
 ## Features
 
