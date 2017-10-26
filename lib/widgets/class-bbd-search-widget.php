@@ -494,6 +494,8 @@ class BBD_Search_Widget extends WP_Widget {
 
 				$field = new BBD_Field( $meta_key );
 
+				$field->label = apply_filters( 'bbd_search_widget_field_label_' . $meta_key, $field->label, $field );
+
 				# get the field type, using text as default
 				$field_type = ! empty( $instance[ $meta_key . '_field_type' ] ) ?
 					$instance[ $meta_key . '_field_type' ] :
