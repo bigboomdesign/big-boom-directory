@@ -2,7 +2,7 @@
 Contributors: bigboomdesign, michaelhull, GregGay
 Tags: directory, custom-post-type, post-type, taxonomy, custom-fields
 Requires at least: 3.5
-Tested up to: 4.8
+Tested up to: 4.9
 Stable tag: 2.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -107,7 +107,7 @@ None yet.
     * CMB2 (2.2.1)
     * Extended CPT's (3.0.1)
 
-= 2.1.0 = 
+= 2.1.0 =
 
 * Flush rewrite rules whenever a slug is added/deleted/updated for a post type or taxonomy
 * Add support for ACF checkbox fields
@@ -124,4 +124,3 @@ None yet.
 = 2.0.0 =
 
 Initial release
-
