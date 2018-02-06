@@ -12,7 +12,7 @@
     .bbd-add-ons-column {
         width: 30%;
         padding: 1em;
-        float: left;
+        display: inline-block;
     }
     .bbd-add-ons-column.first {
         padding-left: 0;
