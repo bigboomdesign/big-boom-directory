@@ -349,11 +349,12 @@ class BBD_Helper{
 
 	/**
 	 * Return an array of post ID's belonging to all user-created custom post types
-	 * 
+	 *
+	 * @param   bool  $published  Whether to return only IDs for published posts
 	 * @return 	array
 	 * @since 	2.0.0
 	 */
-	public static function get_all_post_ids() {
+	public static function get_all_post_ids( $published = true ) {
 
 		if( is_array( BBD::$all_post_ids ) ) return BBD::$all_post_ids;
 
@@ -367,10 +368,15 @@ class BBD_Helper{
 		$post_ids = array();
 
 		global $wpdb;
-		$post_id_query = "SELECT DISTINCT ID FROM " . $wpdb->posts . 
-			" WHERE post_type IN ( '" . 
-				implode( "', '", $pt_names ) .
-			"' )";
+
+		$post_id_query = sprintf( "SELECT ID FROM %sposts 
+			WHERE post_type IN ( '%s' )
+			%s",
+			$wpdb->prefix,
+			implode( "', '", $pt_names ),
+			$published ? "AND post_status='publish'" : ''
+		);
+
 		$post_id_results = $wpdb->get_results( $post_id_query );
 
 		foreach( $post_id_results as $r ) {
