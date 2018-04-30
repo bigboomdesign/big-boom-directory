@@ -280,7 +280,7 @@ class BBD_Helper{
 	public static function register(){
 
 		# Main BBD post type
-		register_extended_post_type('bbd_pt', 
+		register_extended_post_type('bbd_pt',
 			array(
 				'public' => false,
 				'show_ui' => true,
@@ -290,7 +290,7 @@ class BBD_Helper{
 					'menu_name' => 'Directory',
 					'all_items' => 'Post Types',
 				),
-			), 
+			),
 			array(
 				'singular' => 'Post Type',
 				'plural' => 'Post Types',
