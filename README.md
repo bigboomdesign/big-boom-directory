@@ -283,6 +283,23 @@ Below, we are setting the `first_name` field's label text to "First" and the `la
 
 ---
 
+### ````bbd_search_widget_field_label_{$field_name}````
+
+Use this to filter the label text for fields selected as search filters within the search widget
+
+#### Parameters
+
+    (string) $label The label as it exists before filtering
+
+    (BBD_Field) $field: The field object whose label is being filtered
+
+
+#### Return
+
+    (string)  You must return the altered $label string
+
+---
+
 ### ````bbd_field_wrap_{$field_name}````
 
 Similar to `bbd_field_label_{$field_name}`, except we are altering the entire wrapping element for a field.  This can be particularly useful whenever two fields need to share the same parent wrapper, or when a particular class or id needs to be added to the HTML.
