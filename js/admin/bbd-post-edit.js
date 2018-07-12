@@ -4,6 +4,7 @@
  * @see 	js/admin/bbd-settings.js
  * @since 	2.0.0
  */
+
 (function( $ ) {
 
 // localized variables
@@ -35,6 +36,18 @@ var $handleContainer;
 
 // the reserved handle names that we won't allow
 var reserved_handles = bbdData.reserved_handles;
+
+// container div for slug change dialog
+var $slugContainer;
+
+// link to change slug
+var $changeSlug;
+
+// div with cancel/more info on slug change
+var $cancelSlugChange;
+
+// the slug input element
+var $slug;
 
 // the original slug for this page load
 var slug = '';
@@ -129,20 +142,16 @@ jQuery( document ).ready( function( $ ) {
 
 	/**
 	 * Slug-related elements
-	 */ 
+	 */
 
-	slug = $( '#_bbd_meta_slug' ).val();
-
-	// slug input
 	$slug = $('#_bbd_meta_slug');
 
-	// container div for slug change dialog
+	slug = $slug.val();
+
 	$slugContainer = $('#slug-container');
 
-	// link to change slug
 	$changeSlug = $('#change-slug');
 
-	// div with cancel/more info on slug change
 	$cancelSlugChange = $('div#cancel-slug-change');
 
 
@@ -445,6 +454,13 @@ function triggerSlugInfo( $ ){
  */
 function saveSlugInfo( $, elem ) {
 
+	var newSlug = $slug.val();
+
+	if( newSlug === slug ) {
+		hideSlugInfo( $ );
+		return;
+	}
+
 	$.ajax( {
 
 		url: ajaxurl,
@@ -452,7 +468,7 @@ function saveSlugInfo( $, elem ) {
 		type: 'POST',
 		data: {
 			action: 'bbd_save_slug',
-			'slug': $slug.val()
+			'slug': newSlug,
 		},
 
 		success: function( data ) {
