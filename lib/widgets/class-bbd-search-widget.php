@@ -607,6 +607,37 @@ class BBD_Search_Widget extends WP_Widget {
 
 		if( ! $instance ) return $content;
 
+		# get the post type names from the widget settings
+		if( empty( $instance['post_types'] ) ) $post_type_ids = BBD::$post_type_ids;
+		else $post_type_ids = $instance[ 'post_types' ];
+
+		$post_type_names = array();
+
+		$auto_detect_social = true;
+		$auto_detect_url = true;
+
+		foreach( $post_type_ids as $pt_id ) {
+
+			$pt = new BBD_PT( $pt_id );
+			$post_type_names[] = $pt->handle;
+
+			if( ! $pt->auto_detect_social ) {
+				$auto_detect_social = false;
+			}
+
+			if( ! $pt->auto_detect_url ) {
+				$auto_detect_url = false;
+			}
+		}
+
+		if( $auto_detect_social ) {
+			$bbd_view->auto_detect_social = true;
+		}
+
+		if( $auto_detect_url ) {
+			$bbd_view->auto_detect_url = true;
+		}
+
 		# get the meta keys to be displayed for each post
 		if( ! empty( $instance['search_results_fields'] ) ) {
 
@@ -636,18 +667,6 @@ class BBD_Search_Widget extends WP_Widget {
 
 		# excerpt length
 		$excerpt_length = ! empty( $instance['excerpt_length'] ) ? $instance['excerpt_length'] : 250;
-
-		# get the post type names from the widget settings
-		if( empty( $instance['post_types'] ) ) $post_type_ids = BBD::$post_type_ids;
-		else $post_type_ids = $instance[ 'post_types' ];
-
-		$post_type_names = array();
-
-		foreach( $post_type_ids as $pt_id ) {
-
-			$pt = new BBD_PT( $pt_id );
-			$post_type_names[] = $pt->handle;
-		}
 
 		# get the meta keys from the widget settings
 		if( ! empty( $instance['meta_keys'] ) ) $meta_keys = $instance['meta_keys'];
