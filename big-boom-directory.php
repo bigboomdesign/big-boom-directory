@@ -5,7 +5,7 @@
  * Version: 2.4.0
  * Author: Big Boom Design
  * Author URI: https://bigboomdesign.com
- * License:     GPLv2 or later
+ * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: big-boom-directory
  */

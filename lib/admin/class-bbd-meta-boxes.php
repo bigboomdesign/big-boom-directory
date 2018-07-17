@@ -902,7 +902,9 @@ class BBD_Meta_Boxes {
 
 		# make sure we have at least one field group
 		if( empty( $pt->acf_archive_fields ) && empty( $pt->acf_single_fields ) ) {
-			echo '<p>Before using this feature, you need to select at least one ACF field in the <code>Fields Setup</code> section above.</p>';
+		?>
+			<p class='link-text-notice'>Before using this feature, you need to select at least one ACF field in the <code>Fields Setup</code> section above and save the current post type.</p>
+		<?php
 			return;
 		}
 
@@ -929,6 +931,13 @@ class BBD_Meta_Boxes {
 			$url_field_keys[] = $field->key;
 		}
 
+		if( empty( $url_fields ) ) {
+		?>
+			<p class='link-text-notice'>In order to use this feature, you need to select at least one URL field in the <code>Fields Setup</code> above and then save the current post type.</p>
+		<?php
+			return;
+		}
+
 		# the default link text is 'View Website'
 	    $default_values = array();
 	    foreach( $url_field_keys as $key ) {
@@ -938,20 +947,19 @@ class BBD_Meta_Boxes {
 	    $value = wp_parse_args( $value, $default_values );
 	    ?>
 	    <div id='bbd-url-link-texts'>
-	    <?php 
-	   	foreach( $url_fields as $field ) {
-	   	?>
-		    <div class='link-text-field'><p><label for="<?php echo $field_type->_id( '_' . $field->key ); ?>"><code><?php echo $field->label; ?></code> Link Text</label></p>
-		        <?php echo $field_type->input( array(
-		            'name'  => $field_type->_name( '[' . $field->key . ']' ),
-		            'id'    => $field_type->_id( '_' . $field->key ),
-		            'value' => $value[ $field->key ],
-		            'desc'  => '',
-		        ) ); ?>
-		    </div>
-	    <?php
-		}
-	    ?>
+
+		    <p class='link-text-notice'>Please note: If you update the fields or field groups used for the single and archive views, you need to save the current post type in order to get an updated set of editable link texts.</p>
+
+		    <?php foreach( $url_fields as $field ) { ?>
+			    <div class='link-text-field'><p><label for="<?php echo $field_type->_id( '_' . $field->key ); ?>"><code><?php echo $field->label; ?></code> Link Text</label></p>
+			        <?php echo $field_type->input( array(
+			            'name'  => $field_type->_name( '[' . $field->key . ']' ),
+			            'id'    => $field_type->_id( '_' . $field->key ),
+			            'value' => $value[ $field->key ],
+			            'desc'  => '',
+			        ) ); ?>
+			    </div>
+		    <?php } # end foreach: $url_fields ?>
 		</div><!-- #bbd-url-link-texts -->
 	    <br class="clear">
 	    <?php
