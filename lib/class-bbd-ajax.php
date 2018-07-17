@@ -100,9 +100,11 @@ class BBD_Ajax{
 		$editing_post_id = absint( $_POST['id'] );
 
 		# check if a or post or a page already has this slug
-		if( $page = get_page_by_path( $slug, 'object', 'page' ) ) {
+		$post_type_names = get_post_types( [ 'public' => true ], 'names' );
+
+		if( $post = get_page_by_path( $slug, 'object', $post_type_names ) ) {
 			
-			echo '<p class="bbd-fail">There is already a page (' . $page->post_title . ') with this slug</p>';
+			echo '<p class="bbd-fail">There is already a ' . $post->post_type . ' (' . $post->post_title . ') with this slug</p>';
 			die();
 		}
 
