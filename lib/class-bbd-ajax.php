@@ -97,6 +97,8 @@ class BBD_Ajax{
 		# get/sanitize the slug
 		$slug = sanitize_text_field( $_POST['slug'] );
 
+		$editing_post_id = absint( $_POST['id'] );
+
 		# check if a or post or a page already has this slug
 		if( $page = get_page_by_path( $slug, 'object', 'page' ) ) {
 			
@@ -109,7 +111,7 @@ class BBD_Ajax{
 
 			$pt = new BBD_PT( $id );
 			if( empty( $pt->slug ) ) continue;
-			if( $slug == $pt->slug ) {
+			if( $slug == $pt->slug && $editing_post_id !== absint( $id ) ) {
 				echo '<p class="bbd-fail">There is another post type or taxonomy (' . $pt->plural . ') with this slug.</p>';
 				die();
 			}

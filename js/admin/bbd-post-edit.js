@@ -468,13 +468,15 @@ function saveSlugInfo( $, elem ) {
 		type: 'POST',
 		data: {
 			action: 'bbd_save_slug',
-			'slug': newSlug,
+			slug: newSlug,
+			id: postId,
 		},
 
 		success: function( data ) {
 
 			// if we got back a 1, hide the dialogue area
 			if( '1' == data ) {
+				slug = newSlug;
 				hideSlugInfo( $ );
 			}
 
