@@ -28,7 +28,7 @@ var $cancelNameChange;
 // post type name input
 var $handle;
 
-// original post type name for this page load
+// last successfully saved post type handle
 var ptName;
 
 // div that holds the input
@@ -49,7 +49,7 @@ var $cancelSlugChange;
 // the slug input element
 var $slug;
 
-// the original slug for this page load
+// the last successfully saved slug
 var slug = '';
 
 // the checkbox for showing REST API supported features
@@ -136,7 +136,6 @@ jQuery( document ).ready( function( $ ) {
 
 		$handle.val( ptName );
 		hideHandleInfo( $, this );
-
 	});
 
 
@@ -379,13 +378,20 @@ function hideHandleInfo( $, elem ) {
 		$handle.val( ptName );
 	}
 	
-	// don't allow predefined post type or taxonomy names
-	if( 'change-name' == $( elem ).attr('id') && reserved_handles.indexOf( $handle.val() ) >= 0 ) {
+	// If we clicked 'Save'
+	if( 'change-name' == $( elem ).attr('id') ) {
 
-		if( $( '#handle-info' ).find( '.bbd-fail' ).length == 0 ) {
-			$('#handle-info').prepend( '<p class="bbd-fail">Sorry, but that name already exists or is not allowed.</p>' );
+		// don't allow predefined post type or taxonomy names
+		if( reserved_handles.indexOf( $handle.val() ) >= 0 ) {
+
+			if( $( '#handle-info' ).find( '.bbd-fail' ).length == 0 ) {
+				$('#handle-info').prepend( '<p class="bbd-fail">Sorry, but that name already exists or is not allowed.</p>' );
+			}
+			return;
 		}
-		return;
+
+		// update the last successfully saved handle
+		ptName = $handle.val();
 	}
 
 	$handle.prop('readonly', true);
