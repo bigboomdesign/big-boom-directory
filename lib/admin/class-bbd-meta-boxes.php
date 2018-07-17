@@ -15,8 +15,10 @@ class BBD_Meta_Boxes {
 
 		# get the post ID currently being edited (we need to allow 0 as a value taken on while saving the post)
 		$post_id = 0;
-		if( ! empty( $_GET['post'] ) ) $post_id = intval( $_GET['post'] );
 
+		if( ! empty( $_GET['post'] ) ) {
+			$post_id = intval( $_GET['post'] );
+		}
 
 		# initialize the settings (they depend on WP data are are not loaded before cmb2_admin_init)
 		BBD_Options::initialize_settings();
@@ -158,21 +160,6 @@ class BBD_Meta_Boxes {
 			),
 			'before' => array( 'BBD_Meta_Boxes', 'before_handle' ),
 			'sanitization_cb' => array( 'BBD_Meta_Boxes', 'sanitize_handle' ),
-			'description' 	=>
-				"<div id='handle-container'>
-					<a id='change-name'>Change</a>
-					<div style='display: none;' id='cancel-name-change'>
-						 | <a>Cancel</a>
-						 | <a target='_blank' href='https://codex.wordpress.org/Post_Types#Naming_Best_Practices'>More Info</a>
-					</div>
-					<div id='handle-info' style='display: none;'>
-						<p class='description'>The Post Type Name is the most important part of your post type. This value should not be changed after you have created posts for this post type, unless you are prepared to update the posts in your database accordingly.</p>
-						<p class='description'>If you are not positive you want to make this change, please click the above 'Cancel' link now.</p>
-						<p class='description'>We guessed the ideal Post Type Name based on your title.  If you edit this field, please use only lowercase letters and underscores, and use a singular name like <code>book_review</code> instead of a plural name like <code>book_reviews</code>.</p>
-						<p class='description'>For your reference, we'll always display the original post type handle here: <code>bbd_pt_" . $post_id . "</code></p>
-
-					</div>
-				</div>"
 		));
 
 		## Slug
@@ -531,20 +518,6 @@ class BBD_Meta_Boxes {
 			),
 			'before' => array( 'BBD_Meta_Boxes', 'before_handle' ),
 			'sanitization_cb' => array( 'BBD_Meta_Boxes', 'sanitize_handle' ),
-			'description' 	=> 
-				"<div id='handle-container'>
-					<a id='change-name'>Change</a>
-					<div style='display: none;' id='cancel-name-change'>
-						 | <a>Cancel</a>
-						 | <a target='_blank' href='https://codex.wordpress.org/Taxonomies#Registering_a_taxonomy'>More Info</a>
-					</div>
-					<div id='handle-info' style='display: none;'>
-						<p class='description'>The Taxonomy Name is the most important part of your taxonomy. This value should not be changed after you have created terms and assigned posts for your taxonomy, unless you are prepared to update the corresponding rows in your database.</p>
-						<p class='description'>If you are not positive you want to make this change, please click the above 'Cancel' link now.</p>
-						<p class='description'>We guessed the ideal Taxonomy Name based on your title.  If you edit this field, please use only lowercase letters and underscores, and use a singular name like <code>genre</code> instead of a plural name like <code>genres</code>.</p>
-						<p class='description'>For your reference, we'll always display the original taxonomy handle here: <code>bbd_tax_" . $post_id . "</code></p>
-					</div>
-				</div>"
 		));
 
 		## Slug
@@ -557,7 +530,7 @@ class BBD_Meta_Boxes {
 			),
 			'before'		=> array( 'BBD_Meta_Boxes', 'before_slug' ),
 			'sanitize_cb' 	=> array( 'BBD_Meta_Boxes', 'sanitize_slug' ),
-			'description'	=> 
+			'description'	=>
 				"<p></p>
 				<div id='slug-container'>
 					<a id='change-slug'>Change</a>
@@ -675,17 +648,52 @@ class BBD_Meta_Boxes {
 
 		global $post;
 
-		# do nothing if value is saved
-		if( ! empty( $field->value ) ) return;
-
 		# whether this is a post type (true) or taxonomy (false)
 		$bPT = ( 'bbd_pt' == $post->post_type )  ? true : false;
+
+		if( $bPT ) {
+			$description = "<div id='handle-container'>
+				<a id='change-name'>Change</a>
+				<div style='display: none;' id='cancel-name-change'>
+					 | <a>Cancel</a>
+					 | <a target='_blank' href='https://codex.wordpress.org/Post_Types#Naming_Best_Practices'>More Info</a>
+				</div>
+				<div id='handle-info' style='display: none;'>
+					<p class='description'>The Post Type Name is the most important part of your post type. This value should not be changed after you have created posts for this post type, unless you are prepared to update the posts in your database accordingly.</p>
+					<p class='description'>If you are not positive you want to make this change, please click the above 'Cancel' link now.</p>
+					<p class='description'>We guessed the ideal Post Type Name based on your title.  If you edit this field, please use only lowercase letters and underscores, and use a singular name like <code>book_review</code> instead of a plural name like <code>book_reviews</code>.</p>
+					<p class='description'>For your reference, we'll always display the original post type handle here: <code>bbd_pt_" . $field->object_id . "</code></p>
+				</div>
+			</div>";
+		}
+		else {
+			$description = "<div id='handle-container'>
+				<a id='change-name'>Change</a>
+				<div style='display: none;' id='cancel-name-change'>
+					 | <a>Cancel</a>
+					 | <a target='_blank' href='https://codex.wordpress.org/Taxonomies#Registering_a_taxonomy'>More Info</a>
+				</div>
+				<div id='handle-info' style='display: none;'>
+					<p class='description'>The Taxonomy Name is the most important part of your taxonomy. This value should not be changed after you have created terms and assigned posts for your taxonomy, unless you are prepared to update the corresponding rows in your database.</p>
+					<p class='description'>If you are not positive you want to make this change, please click the above 'Cancel' link now.</p>
+					<p class='description'>We guessed the ideal Taxonomy Name based on your title.  If you edit this field, please use only lowercase letters and underscores, and use a singular name like <code>genre</code> instead of a plural name like <code>genres</code>.</p>
+					<p class='description'>For your reference, we'll always display the original taxonomy handle here: <code>bbd_tax_" . $field->object_id . "</code></p>
+				</div>
+			</div>";
+		}
+
+		$field->args['description'] = $description;
+
+		# do nothing if value is saved
+		if( ! empty( $field->value ) ) {
+			return;
+		}
 
 		# the extension for the handle (pt or tax)
 		$handle_extension = $bPT ? "pt" : "tax";
 
 		# add the default value
-		$field->args['default'] = 'bbd_'. $handle_extension . '_'.$field->object_id;
+		$field->args['default'] = 'bbd_' . $handle_extension . '_' . $field->object_id;
 	}
 
 	/**
@@ -898,7 +906,6 @@ class BBD_Meta_Boxes {
 		global $post;
 
 		$pt = new BBD_PT( $post->ID );
-		if( empty( $pt->handle ) ) return;
 
 		# make sure we have at least one field group
 		if( empty( $pt->acf_archive_fields ) && empty( $pt->acf_single_fields ) ) {
