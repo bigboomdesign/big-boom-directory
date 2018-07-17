@@ -938,20 +938,19 @@ class BBD_Meta_Boxes {
 	    $value = wp_parse_args( $value, $default_values );
 	    ?>
 	    <div id='bbd-url-link-texts'>
-	    <?php 
-	   	foreach( $url_fields as $field ) {
-	   	?>
-		    <div class='link-text-field'><p><label for="<?php echo $field_type->_id( '_' . $field->key ); ?>"><code><?php echo $field->label; ?></code> Link Text</label></p>
-		        <?php echo $field_type->input( array(
-		            'name'  => $field_type->_name( '[' . $field->key . ']' ),
-		            'id'    => $field_type->_id( '_' . $field->key ),
-		            'value' => $value[ $field->key ],
-		            'desc'  => '',
-		        ) ); ?>
-		    </div>
-	    <?php
-		}
-	    ?>
+
+		    <p class='link-text-notice'>Please note: If you update the fields or field groups used for the single and archive views, you need to refresh this page to get an updated set of editable link texts</p>
+
+		    <?php foreach( $url_fields as $field ) { ?>
+			    <div class='link-text-field'><p><label for="<?php echo $field_type->_id( '_' . $field->key ); ?>"><code><?php echo $field->label; ?></code> Link Text</label></p>
+			        <?php echo $field_type->input( array(
+			            'name'  => $field_type->_name( '[' . $field->key . ']' ),
+			            'id'    => $field_type->_id( '_' . $field->key ),
+			            'value' => $value[ $field->key ],
+			            'desc'  => '',
+			        ) ); ?>
+			    </div>
+		    <?php } # end foreach: $url_fields ?>
 		</div><!-- #bbd-url-link-texts -->
 	    <br class="clear">
 	    <?php

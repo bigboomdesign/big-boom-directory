@@ -245,12 +245,19 @@ jQuery( document ).ready( function( $ ) {
 	 */
 
 	// onclick for Edit Link Texts
-	$('#edit-link-texts a#init').on( 'click', function() {
+	var $editLinkTextsLink = $( '#edit-link-texts a#init' );
+	var $linkTextsRow = $('.cmb2-id--bbd-meta-url-link-texts');
+
+	$editLinkTextsLink.on( 'click', function() {
 
 		// toggle the link texts metabox area
-		var $linkTextsRow = $('.cmb2-id--bbd-meta-url-link-texts');
-		var display = ( $linkTextsRow.css('display') == 'none' ) ? 'block' : 'none';
-		$linkTextsRow.css( {'display': display } );
+		var isOpening = $linkTextsRow.css('display') === 'none';
+
+		var newDisplay = isOpening ? 'block' : 'none';
+		$linkTextsRow.css( { display: newDisplay } );
+
+		var linkHtml = isOpening ? 'Hide Link Texts' : 'Edit Link Texts';
+		$editLinkTextsLink.html( linkHtml );
 	});
 
 }); // end: on document ready
