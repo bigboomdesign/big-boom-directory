@@ -4,6 +4,7 @@
  * @see 	js/admin/bbd-settings.js
  * @since 	2.0.0
  */
+
 (function( $ ) {
 
 // localized variables
@@ -27,7 +28,7 @@ var $cancelNameChange;
 // post type name input
 var $handle;
 
-// original post type name for this page load
+// last successfully saved post type handle
 var ptName;
 
 // div that holds the input
@@ -36,7 +37,19 @@ var $handleContainer;
 // the reserved handle names that we won't allow
 var reserved_handles = bbdData.reserved_handles;
 
-// the original slug for this page load
+// container div for slug change dialog
+var $slugContainer;
+
+// link to change slug
+var $changeSlug;
+
+// div with cancel/more info on slug change
+var $cancelSlugChange;
+
+// the slug input element
+var $slug;
+
+// the last successfully saved slug
 var slug = '';
 
 // the checkbox for showing REST API supported features
@@ -123,26 +136,21 @@ jQuery( document ).ready( function( $ ) {
 
 		$handle.val( ptName );
 		hideHandleInfo( $, this );
-
 	});
 
 
 	/**
 	 * Slug-related elements
-	 */ 
+	 */
 
-	slug = $( '#_bbd_meta_slug' ).val();
-
-	// slug input
 	$slug = $('#_bbd_meta_slug');
 
-	// container div for slug change dialog
+	slug = $slug.val();
+
 	$slugContainer = $('#slug-container');
 
-	// link to change slug
 	$changeSlug = $('#change-slug');
 
-	// div with cancel/more info on slug change
 	$cancelSlugChange = $('div#cancel-slug-change');
 
 
@@ -377,13 +385,20 @@ function hideHandleInfo( $, elem ) {
 		$handle.val( ptName );
 	}
 	
-	// don't allow predefined post type or taxonomy names
-	if( 'change-name' == $( elem ).attr('id') && reserved_handles.indexOf( $handle.val() ) >= 0 ) {
+	// If we clicked 'Save'
+	if( 'change-name' == $( elem ).attr('id') ) {
 
-		if( $( '#handle-info' ).find( '.bbd-fail' ).length == 0 ) {
-			$('#handle-info').prepend( '<p class="bbd-fail">Sorry, but that name already exists or is not allowed.</p>' );
+		// don't allow predefined post type or taxonomy names
+		if( reserved_handles.indexOf( $handle.val() ) >= 0 ) {
+
+			if( $( '#handle-info' ).find( '.bbd-fail' ).length == 0 ) {
+				$('#handle-info').prepend( '<p class="bbd-fail">Sorry, but that name already exists or is not allowed.</p>' );
+			}
+			return;
 		}
-		return;
+
+		// update the last successfully saved handle
+		ptName = $handle.val();
 	}
 
 	$handle.prop('readonly', true);
@@ -452,6 +467,13 @@ function triggerSlugInfo( $ ){
  */
 function saveSlugInfo( $, elem ) {
 
+	var newSlug = $slug.val();
+
+	if( newSlug === slug ) {
+		hideSlugInfo( $ );
+		return;
+	}
+
 	$.ajax( {
 
 		url: ajaxurl,
@@ -459,13 +481,15 @@ function saveSlugInfo( $, elem ) {
 		type: 'POST',
 		data: {
 			action: 'bbd_save_slug',
-			'slug': $slug.val()
+			slug: newSlug,
+			id: postId,
 		},
 
 		success: function( data ) {
 
 			// if we got back a 1, hide the dialogue area
 			if( '1' == data ) {
+				slug = newSlug;
 				hideSlugInfo( $ );
 			}
 
