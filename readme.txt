@@ -3,7 +3,7 @@ Contributors: bigboomdesign, michaelhull, GregGay
 Tags: directory, custom-post-type, post-type, taxonomy, custom-fields
 Requires at least: 3.5
 Tested up to: 4.9
-Stable tag: 2.4.0
+Stable tag: 2.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -60,6 +60,12 @@ None yet.
 None yet.
 
 == Changelog ==
+
+= 2.4.1 =
+
+* Auto-detect URL fields and social fields (when applicable) within search widget results
+* Adding ability to filter labels for search widget fields
+* Bug fixes for post type edit screen and internal post query
 
 = 2.4.0 =
 
