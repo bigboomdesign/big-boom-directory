@@ -162,7 +162,7 @@ class BBD_Ajax{
 		$sorted_fields = array();
 
 		/**
-		 * For the non-pro version of ACF
+		 * For ACF 4.x
 		 *
 		 * Note we are trying the non-pro version even if Pro is activated,
 		 * because someone may have Pro but still have field groups that they
@@ -201,16 +201,16 @@ class BBD_Ajax{
 		} # end if: ACF is active but not Pro
 
 		/**
-		 * For ACF Pro
+		 * For ACF 5.x
 		 *
 		 * Note that we need to make sure $r is empty before trying the new way,
-		 * since there are a few cases where ACF Pro can be active and the old way
+		 * since there are a few cases where ACF 5+ can be active and the old way
 		 * still works
 		 *
-		 * Ex: Someone has an older version of ACF Pro, or has used non-pro to create
+		 * Ex: Someone has an older version of ACF, or has used an older version to create
 		 * the field group being activated
 		 */
-		if( ! $r && bbd_has_acf_pro() ) {
+		if( ! $r ) {
 
 			$fields_query = "SELECT post_content, post_title, post_name FROM " . $wpdb->posts .
 				" WHERE post_parent=" . $field_group_post_id .

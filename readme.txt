@@ -3,7 +3,7 @@ Contributors: bigboomdesign, michaelhull, GregGay
 Tags: directory, custom-post-type, post-type, taxonomy, custom-fields
 Requires at least: 3.5
 Tested up to: 4.9
-Stable tag: 2.4.1
+Stable tag: 2.4.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -60,6 +60,10 @@ None yet.
 None yet.
 
 == Changelog ==
+
+= 2.4.2 =
+
+* Fixed issue with ACF 5.x (non-pro version): Fields not not being found when selecting a field group from the Edit Post Type screen
 
 = 2.4.1 =
 
