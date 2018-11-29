@@ -77,6 +77,11 @@ div.bbd-field-select label{
 	margin-bottom: 2em;
 }
 
+p.link-text-notice {
+	margin-top: 0;
+	margin-bottom: 2em;
+}
+
 /**
  * CMB2 
  */

@@ -97,10 +97,14 @@ class BBD_Ajax{
 		# get/sanitize the slug
 		$slug = sanitize_text_field( $_POST['slug'] );
 
+		$editing_post_id = absint( $_POST['id'] );
+
 		# check if a or post or a page already has this slug
-		if( $page = get_page_by_path( $slug, 'object', 'page' ) ) {
+		$post_type_names = get_post_types( [ 'public' => true ], 'names' );
+
+		if( $post = get_page_by_path( $slug, 'object', $post_type_names ) ) {
 			
-			echo '<p class="bbd-fail">There is already a page (' . $page->post_title . ') with this slug</p>';
+			echo '<p class="bbd-fail">There is already a ' . $post->post_type . ' (' . $post->post_title . ') with this slug</p>';
 			die();
 		}
 
@@ -109,7 +113,7 @@ class BBD_Ajax{
 
 			$pt = new BBD_PT( $id );
 			if( empty( $pt->slug ) ) continue;
-			if( $slug == $pt->slug ) {
+			if( $slug == $pt->slug && $editing_post_id !== absint( $id ) ) {
 				echo '<p class="bbd-fail">There is another post type or taxonomy (' . $pt->plural . ') with this slug.</p>';
 				die();
 			}
@@ -158,7 +162,7 @@ class BBD_Ajax{
 		$sorted_fields = array();
 
 		/**
-		 * For the non-pro version of ACF
+		 * For ACF 4.x
 		 *
 		 * Note we are trying the non-pro version even if Pro is activated,
 		 * because someone may have Pro but still have field groups that they
@@ -197,16 +201,16 @@ class BBD_Ajax{
 		} # end if: ACF is active but not Pro
 
 		/**
-		 * For ACF Pro
+		 * For ACF 5.x
 		 *
 		 * Note that we need to make sure $r is empty before trying the new way,
-		 * since there are a few cases where ACF Pro can be active and the old way
+		 * since there are a few cases where ACF 5+ can be active and the old way
 		 * still works
 		 *
-		 * Ex: Someone has an older version of ACF Pro, or has used non-pro to create
+		 * Ex: Someone has an older version of ACF, or has used an older version to create
 		 * the field group being activated
 		 */
-		if( ! $r && bbd_has_acf_pro() ) {
+		if( ! $r ) {
 
 			$fields_query = "SELECT post_content, post_title, post_name FROM " . $wpdb->posts .
 				" WHERE post_parent=" . $field_group_post_id .
