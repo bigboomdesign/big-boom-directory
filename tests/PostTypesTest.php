@@ -8,7 +8,7 @@
 /**
  * Sample test case.
  */
-class CorePostTypesTest extends WP_UnitTestCase {
+class PostTypesTest extends WP_UnitTestCase {
 
 	/** @test */
 	public function it_creates_a_post_type_for_post_types() {
