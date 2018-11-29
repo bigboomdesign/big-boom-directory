@@ -2,7 +2,7 @@
 /**
  * PHPUnit bootstrap file
  *
- * @package BigBoomDirectory
+ * @package Big_Boom_Directory
  */
 
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
@@ -27,7 +27,5 @@ function _manually_load_plugin() {
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
-
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
-
