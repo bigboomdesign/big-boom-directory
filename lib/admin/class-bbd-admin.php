@@ -20,7 +20,7 @@ class BBD_Admin{
 		# Admin menu items
 		add_action('admin_menu', array( 'BBD_Admin', 'admin_menu' ), 10 );
 
-		# For add-ons, we want to allow them to go above the 'Cache' and 'Information' page
+		# For add-ons, we want to allow them to go above the 'Cache' page
 		add_action('admin_menu', array( 'BBD_Admin', 'admin_menu_final_items' ), 101 );
 
 		# Admin bar items
@@ -162,7 +162,6 @@ class BBD_Admin{
 
 	public static function admin_menu_final_items() {
 		add_submenu_page( 'edit.php?post_type=bbd_pt', 'Cache | Big Boom Directory', 'Cache', 'manage_options', 'bbd-cache', array('BBD_Admin', 'cache_page') );
-		add_submenu_page( 'edit.php?post_type=bbd_pt', 'Information | Big Boom Directory', 'Information', 'manage_options', 'bbd-information', array('BBD_Admin', 'information_page') );
 	} # end: admin_menu_final_items()
 	
 	/**
@@ -324,13 +323,6 @@ class BBD_Admin{
 			wp_enqueue_style( 'bbd-admin' );
 			wp_enqueue_script( 'bbd-cache-js', bbd_url( '/js/admin/bbd-cache.js' ), array( 'jquery' ) );
 		}
-			
-		# Information screen
-		if( 'bbd_pt_page_bbd-information' == $screen->base ) {
-			wp_enqueue_style('bbd-readme-css', bbd_url('/css/admin/bbd-readme.css'));
-			wp_enqueue_script('bbd-readme-js', bbd_url('/js/admin/bbd-readme.js'), array('jquery'));
-		}
-
 	} # end: admin_enqueue()
 
 	/**
@@ -376,10 +368,6 @@ class BBD_Admin{
 			# Add 'Settings' link to the front
 			$settings_link = '<a href="' . admin_url( '/edit.php?post_type=bbd_pt&page=bbd-settings' ) . '">Settings</a>';
 			array_unshift($links, $settings_link);
-
-			# Add 'Instructions' link to the front
-			$instructions_link = '<a href="' . admin_url( '/edit.php?post_type=bbd_pt&page=bbd-information' ) . '">Instructions</a>';
-			array_unshift($links, $instructions_link);
 		}
 
 		return $links;
@@ -496,7 +484,6 @@ class BBD_Admin{
 	 * HTML for admin screens produced by this plugin
 	 *
 	 * - settings_page()
-	 * - information_page()
 	 */
 	
 	/**
@@ -519,28 +506,9 @@ class BBD_Admin{
 
 		echo self::page_wrap($html);
 	} # end: settings_page()
-	
-	/**
-	 * Output HTML for the Information (README.html) page
-	 *
-	 * @since 	2.0.0
-	 */
-	public static function information_page(){
-		ob_start();
-		?>
-		<div class='markdown-body'>
-			<?php
-			require_once bbd_dir('/README.html');
-			?>
-		</div>
-		<?php
-		$html = ob_get_contents();
-		ob_end_clean();
-		echo self::page_wrap($html);
-	} # end: information_page()
 
 	/**
-	 * Output HTML for the Cache information page
+	 * Output HTML for the Cache page
 	 *
 	 * @since 	2.2.0
 	 */
