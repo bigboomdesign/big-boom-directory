@@ -290,6 +290,7 @@ class BBD_Helper{
 					'menu_name' => 'Directory',
 					'all_items' => 'Post Types',
 				),
+				'show_in_rest' => bbd_post_types_show_in_rest(),
 			), 
 			array(
 				'singular' => 'Post Type',
@@ -305,7 +306,8 @@ class BBD_Helper{
 				'show_in_menu' => 'edit.php?post_type=bbd_pt',
 				'labels' => array(
 					'all_items' => 'Taxonomies'
-				)
+				),
+				'show_in_rest' => bbd_taxonomies_show_in_rest(),
 			),
 			array(
 				'singular' => 'Taxonomy',

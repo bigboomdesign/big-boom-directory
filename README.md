@@ -135,6 +135,24 @@ Similar to `bbd_register_pt`, but for taxonomies.
 
 ---
 
+### ````bbd_post_types_show_in_rest````
+
+Whether to include the Post Types post type (`bbd_pt`) in the core REST API set of endpoints. 
+
+If false, then the Gutenberg editor will not be available for editing the post type descriptions for post types created by the plugin. If true, note that some data about your post types will be publicly available.
+
+The unfiltered value is set to be the result of the expression `current_user_can( 'edit_posts' )`, which allows for editing with Gutenberg in WP Admin for those allowed to do so but does not make post type data publicly available via the REST API.
+
+---
+
+### ````bbd_taxonomies_show_in_rest````
+
+Whether to include the Taxonomies post type (`bbd_tax`) in the core REST API set of endpoints. 
+
+The info above for the `bbd_post_types_show_in_rest` filter applies here as well.
+
+---
+
 ### ````bbd_the_content````
 
 Use this filter to modify the post content for BBD single post views.  Does not fire for non-BBD page views.

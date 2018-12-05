@@ -96,6 +96,9 @@ else{
  * - bbd_field()
  * - bbd_get_field_html()
  *
+ * - bbd_post_types_show_in_rest()
+ * - bbd_taxonomies_show_in_rest()
+ *
  * - bbd_has_acf()
  * - bbd_has_acf_pro()
  *
@@ -292,6 +295,16 @@ function bbd_get_field_html( $post_id, $field ) {
 
 	return $html;
 } # end: bbd_get_field_html()
+
+function bbd_post_types_show_in_rest() {
+	$show_in_rest = current_user_can('edit_posts');
+	return apply_filters( 'bbd_post_types_show_in_rest', $show_in_rest );
+}
+
+function bbd_taxonomies_show_in_rest() {
+	$show_in_rest = current_user_can( 'edit_posts' );
+	return apply_filters( 'bbd_taxonomies_show_in_rest', $show_in_rest );
+}
 
 /**
  * Whether the ACF plugin is active
