@@ -10,9 +10,6 @@
 // localized variables
 var postId = bbdData.post_id;
 
-// post title input
-var $title;
-
 // the select element for post orderby
 var $orderby;
 
@@ -71,9 +68,6 @@ var $archiveFieldsContainer;
 var $singleFieldsContainer;
 
 jQuery( document ).ready( function( $ ) {
-
-	// post title input
-	$title = $('#title');
 
 	/**
 	 * Post type name/handle-related elements
@@ -326,9 +320,26 @@ function orderbyOther() {
  /**
   * Name change subroutines
   *
+  * - getPostTitle()
   * - triggerHandleInfo()
   * - hideHandleInfo()
   */
+function getPostTitle() {
+
+	// classic editor
+	var $title = $('input#title');
+
+	// gutenberg
+	if ($title.length === 0) {
+		$title = $('.editor-post-title textarea');
+	}
+
+	if( $title.length === 0  ) {
+		return '';
+	}
+
+	return $title.val() || $title.html();
+}
 
 /**
  * Enables the post type name input to be changed and pre-populates using post title if necessary
@@ -338,7 +349,7 @@ function orderbyOther() {
 function triggerHandleInfo( $ ){
 
 	// get the current value of the post title
-	var title = $title.val();
+	var title = getPostTitle();
 
 	$handle.prop('readonly', false);
 	$changeName.html('Save');
@@ -429,7 +440,7 @@ function hideHandleInfo( $, elem ) {
 function triggerSlugInfo( $ ){
 
 	// get the title that was entered
-	var title = $title.val();
+	var title = getPostTitle();
 	if('' == title) return;
 
 	$slug.prop('readonly', false);
