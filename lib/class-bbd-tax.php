@@ -81,6 +81,21 @@ class BBD_Tax extends BBD_Post{
 	 */
 	var $hierarchical;
 
+	/**
+	 * Show this taxonomy in the WP REST API
+	 *
+	 * @param bool
+	 * @since 2.4.3
+	 */
+	var $show_in_rest;
+
+	/**
+	 * The REST base to use for this taxonomy
+	 *
+	 * @param 	string
+	 * @since 	2.4.3
+	 */
+	var $rest_base;
 
 	/**
 	 * Class methods
@@ -186,6 +201,19 @@ class BBD_Tax extends BBD_Post{
 				$args['args'][ $key ] = $value;
 
 				$this->$key = $value;
+			}
+		}
+
+		/**
+		 * REST API parameters
+		 */
+		$this->show_in_rest = ( 'on' === $this->show_in_rest );
+
+		if( $this->show_in_rest ) {
+			$args['args']['show_in_rest'] = true;
+
+			if( ! empty( $this->rest_base ) ) {
+				$args['args']['rest_base'] = $this->rest_base;
 			}
 		}
 

@@ -209,6 +209,8 @@ class BBD_Meta_Boxes {
 			'name' => 'Show in REST',
 			'id' => $prefix.'show_in_rest',
 			'type' => 'checkbox',
+			'description' => '<p>Check this if you wish to use the WordPress block editor (i.e. "Gutenberg") when editing posts within this post type.</p>' .
+				'<p><strong>Note: </strong>This will also make posts publicly available for this post type if they are not already.</p>',
 		));
 
 		## REST Base
@@ -416,6 +418,8 @@ class BBD_Meta_Boxes {
 		 * 		- Name/Handle
 		 *		- Slug
 		 * 		- Public
+		 *      - Show in REST
+		 *      - REST Base
 		 */
 
 		/**
@@ -478,7 +482,7 @@ class BBD_Meta_Boxes {
 			'id'	=> $prefix.'show_term_descriptions',
 			'type' 	=> 'checkbox',
 			'description' => '<p>Check this if you want the term descriptions to show on their respective archive pages ' .
-			'and your theme does not provide this functionality already.</p>',
+				'and your theme does not provide this functionality already.</p>',
 		);
 
 		# default value for `show term descriptions`
@@ -552,6 +556,22 @@ class BBD_Meta_Boxes {
 			'id'	=> $prefix.'public',
 			'type' 	=> 'checkbox',
 			'default' => self::default_for_checkbox( 'on' )
+		));
+
+		## Show in REST
+		$advanced_tax_settings->add_field( array(
+			'name' => 'Show in REST',
+			'id' => $prefix.'show_in_rest',
+			'type' => 'checkbox',
+			'description' => '<p>If the corresponding post type for this taxonomy uses the WordPress block editor, this must be checked in order for the taxonomy to appear in the sidebar when editing a post.</p>' .
+				'<p><strong>Note:</strong> This will also make your terms publicly available for this taxonomy if they are not already.</p>',
+		));
+
+		## REST Base
+		$advanced_tax_settings->add_field( array(
+			'name' 		=> 'REST Base',
+			'id' 		=> $prefix . 'rest_base',
+			'type' 		=> 'text',
 		));
 
 		# Hook for further customization of the Advanced Taxonomy Settings meta box

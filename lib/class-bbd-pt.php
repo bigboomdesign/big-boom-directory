@@ -339,6 +339,7 @@ class BBD_PT extends BBD_Post{
 		 * REST API parameters
 		 */
 		$this->show_in_rest = ( 'on' === $this->show_in_rest );
+
 		if( $this->show_in_rest ) {
 			$args['args']['show_in_rest'] = true;
 
