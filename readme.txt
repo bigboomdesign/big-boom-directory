@@ -61,6 +61,11 @@ None yet.
 
 == Changelog ==
 
+= 2.4.3 =
+
+* Add `show_in_rest` and `rest_base` settings for taxonomies to allow them to show in the block editor sidebar
+* Updated "Tested Up To" version 5.1
+
 = 2.4.2 =
 
 * Fixed issue with ACF 5.x (non-pro version): Fields not not being found when selecting a field group from the Edit Post Type screen
