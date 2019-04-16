@@ -201,7 +201,7 @@ class BBD_Admin{
 		if( 'post' == $screen->base ) {
 
 			wp_enqueue_style( 'bbd-tinymce', bbd_url( '/css/admin/bbd-tinymce.css' ) );
-			wp_enqueue_script( 'bbd-tinymce', bbd_url( '/js/admin/bbd-tinymce.js' ), array( 'jquery' ), time(), false );
+			wp_enqueue_script( 'bbd-tinymce', bbd_url( '/js/admin/bbd-tinymce.js' ), array( 'jquery' ), time(), true );
 
 			/**
 			 * Pass data to the TinyMCE modal for shortcodes
