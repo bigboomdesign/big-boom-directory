@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Big Boom Directory
  * Description: Directory management system based on Custom Post Types, Taxonomies, and Fields
- * Version: 2.4.3
+ * Version: 2.4.4
  * Author: Big Boom Design
  * Author URI: https://bigboomdesign.com
  * License: GPLv2 or later
