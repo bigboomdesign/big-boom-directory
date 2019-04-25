@@ -1,5 +1,5 @@
 /**
- * Inserts the Directory button and the modal HTML into the document
+ * Inserts the Directory shortcode modal HTML into the document
  * Handles the response when the "Directory" button above the TinyMCE is clicked
  * Handles interaction events for selecting shortcode parameters within the modal
  * Handles the response when shortcode parameters are submitted via the modal box
@@ -14,8 +14,7 @@ var bbdShortcodeBuilder = (function( $ ) {
     /**
      * Data passed via wp_localize_script
      */
-    var iconUrl = BBD_Shortcode_Data.icon_url,
-        postTypes = BBD_Shortcode_Data.post_types,
+     var postTypes = BBD_Shortcode_Data.post_types,
         taxonomies = BBD_Shortcode_Data.taxonomies,
         shortcodes = BBD_Shortcode_Data.shortcodes,
         widgetIds = BBD_Shortcode_Data.widget_ids;
@@ -24,12 +23,6 @@ var bbdShortcodeBuilder = (function( $ ) {
      * Main shortcode builder object
      */
     var shortcodeBuilder = {
-
-        // main 'Directory' shortcode button that triggers the modal
-        button: document.createElement( 'button' ),
-
-        // BBD icon for the main button
-        icon: document.createElement( 'span' ),
 
         // the modal element
         modal: document.createElement( 'div' ),
@@ -41,10 +34,7 @@ var bbdShortcodeBuilder = (function( $ ) {
          * Initialize the object
          */
         init: function() {
-
-            this.initButton();
             this.initModal();
-
         }, // end: init()
 
         /**
@@ -52,25 +42,11 @@ var bbdShortcodeBuilder = (function( $ ) {
          */
         ready: function() {
 
-            /**
-             * Append the button element to the proper div
-             *
-             * Note that if users can't `upload_files`, then the Media Buttons parent
-             * doesn't exists.  Currently we are bailing on the Directory button in 
-             * this case.
-             */
-            var buttonParent = document.getElementById('wp-content-media-buttons');
-            if( ! buttonParent ) {
-                return;
-            }
-
-            buttonParent.appendChild( this.button );
-
             // append the modal to the document body
             document.body.appendChild( this.modal );
 
             // initialize jQuery objects for key elements
-            this.$button = $( this.button );
+            this.$button = $( 'button#insert-bbd-shortcode' );
             this.$modal = $( this.modal );
             this.$form = $( this.form );
 
@@ -84,32 +60,6 @@ var bbdShortcodeBuilder = (function( $ ) {
             this.toggleShortcode();
 
         }, // end: ready()
-
-        /**
-         * Initialize the main 'Directory' button element
-         */
-        initButton: function() {
-
-            // set attributes
-            this.button.type = 'button';
-            this.button.id = "insert-bbd-shortcode";
-            this.button.className = 'button insert-bbd-shortcode';
-            this.button.setAttribute('data-editor', 'content');
-
-            // add styling to the BBD icon within the main 'Directory' button
-            $(this.icon).css( {
-                backgroundImage: 'url( ' + iconUrl + ' )',
-                backgroundSize: '100% 100%',
-                width: '18px',
-                height: '18px',
-                marginRight: '0.3rem',
-                display: 'inline-block',
-                verticalAlign: 'text-top'
-            });
-
-            // set the button inner HTML
-            this.button.innerHTML = this.icon.outerHTML + 'Directory';
-        },
 
         /**
          * Initialize the modal element
