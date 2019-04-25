@@ -201,30 +201,9 @@ class BBD_Admin{
 		if( 'post' == $screen->base ) {
 
 			wp_enqueue_style( 'bbd-tinymce', bbd_url( '/css/admin/bbd-tinymce.css' ) );
-			add_action( 'media_buttons', function() {
-			?>
-				<style>
-					button.insert-bbd-shortcode
-					span.insert-bbd-shortcode-icon {
-						background-image: url( <?= bbd_url( '/css/admin/big-boom-design-logo.png') ?> );
-						background-size: 100% 100%;
-						width: 18px;
-						height: 18px;
-						margin-right: 0.3rem;
-						display: inline-block;
-						vertical-align: text-top;
-					}
-				</style>
-				<button
-					type="button"
-					id="insert-bbd-shortcode"
-					class="button insert-bbd-shortcode"
-				>
-					<span class="insert-bbd-shortcode-icon"></span>
-					Directory
-				</button>
-			<?php
-			} );
+
+			add_action( 'media_buttons', [ static::class, 'print_directory_shortcode_button' ] );
+
 			wp_enqueue_script( 'bbd-tinymce', bbd_url( '/js/admin/bbd-tinymce.js' ), array( 'jquery' ), time(), true );
 
 			/**
@@ -356,6 +335,22 @@ class BBD_Admin{
 		}
 
 	} # end: admin_enqueue()
+
+	public static function print_directory_shortcode_button() {
+	?>
+		<button
+			type="button"
+			id="insert-bbd-shortcode"
+			class="button insert-bbd-shortcode"
+		>
+			<span
+				style="background-image: url( <?= bbd_url( '/css/admin/big-boom-design-logo.png' ) ?> );"
+				class="insert-bbd-shortcode-icon"
+			></span>
+			Directory
+		</button>
+	<?php
+	}
 
 	/**
 	 * Print inline CSS to each admin page
